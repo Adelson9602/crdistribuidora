@@ -38,13 +38,7 @@
       </template>
     </q-input>
     <div class="container-login100-form-btn">
-      <button
-        class="login100-form-btn"
-        :label="$t('button_login')"
-        type="submit"
-      >
-        INICIAR SESIÓN
-      </button>
+      <q-btn color="primary" label="inicar sesión" to="desktop" class="login100-form-btn"/>
     </div>
   </q-form>
 </template>
