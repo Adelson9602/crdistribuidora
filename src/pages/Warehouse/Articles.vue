@@ -23,8 +23,7 @@
           </q-tab-panel>
 
           <q-tab-panel name="create_article">
-            <div class="text-h6">Alarms</div>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            <component-add-article/>
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
@@ -32,8 +31,12 @@
 </template>
 
 <script>
+import ComponentAddArticle from 'components/Warehouse/ComponentAddArticle';
 export default {
   name: 'Articles',
+  components:{
+    ComponentAddArticle,
+  },
   data(){
     return {
       tab: 'articles'
