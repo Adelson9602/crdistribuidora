@@ -6,7 +6,7 @@
       class="q-gutter-md"
     >
       <div class="row">
-        <div class="col-xs-12 col-md-4">
+        <div class="col-xs-12 col-md-4 q-px-sm">
           <q-select
             v-model="model"
             :options="options"
@@ -14,7 +14,7 @@
             :rules="[validateSelect]"
           />
         </div>
-        <div class="col-xs-12 col-md-4">
+        <div class="col-xs-12 col-md-4 q-px-sm">
           <q-select
             v-model="model"
             :options="options"
@@ -22,7 +22,7 @@
             :rules="[validateSelect]"
           />
         </div>
-        <div class="col-xs-12 col-md-4">
+        <div class="col-xs-12 col-md-4 q-px-sm">
           <q-select
             v-model="model"
             :options="options"
