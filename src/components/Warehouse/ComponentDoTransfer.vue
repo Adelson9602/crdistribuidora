@@ -1,57 +1,76 @@
 <template>
-  <q-page padding>
-     <q-card class="height-card_page">
-        <q-tabs
-          v-model="tab"
-          dense
-          class="text-primary"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
+  <div>
+    <q-form
+      @submit="onSubmit"
+      @reset="onReset"
+      class="q-gutter-md"
+    >
+      <div class="row">
+        <div class="col-xs-12 col-md-4 q-px-sm">
+          <q-select
+            v-model="model"
+            :options="options"
+            hint="Tipo de traslado"
+            :rules="[validateSelect]"
+          />
+        </div>
+        <div class="col-xs-12 col-md-4 q-px-sm">
+          <q-select
+            v-model="model"
+            :options="options"
+            hint="Origen"
+            :rules="[validateSelect]"
+          />
+        </div>
+        <div class="col-xs-12 col-md-4 q-px-sm">
+          <q-select
+            v-model="model"
+            :options="options"
+            hint="Destino"
+            :rules="[validateSelect]"
+          />
+        </div>
+      </div>
+      <!-- btn subtmit para el formulario -->
+      <div>
+        <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
+      </div>
+    </q-form>
+    <div class="row">
+      <div class="col-xs-12">
+        <q-table
+          title="Productos a trasladar"
+          :data="data"
+          :columns="columns"
+          row-key="name"
+          flat
+          class="height-table"
         >
-          <q-tab name="transfer" label="Traslados" icon="sync_alt"/>
-          <q-tab name="transfer_cellar" label="Realizar Translados" icon="refresh"/>
-        </q-tabs>
-
-        <q-separator />
-
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="transfer">
-            <q-table
-              title="Traslados realizados"
-              :data="data"
-              :columns="columns"
-              row-key="name"
-              flat
-            >
-              <template v-slot:header-cell-calories="props">
-                <q-th :props="props">
-                  <q-icon name="thumb_up" size="1.5em" />
-                  {{ props.col.label }}
-                </q-th>
-              </template>
-            </q-table>
-          </q-tab-panel>
-
-          <q-tab-panel name="transfer_cellar">
-            <component-do-transfer/>
-          </q-tab-panel>
-        </q-tab-panels>
-      </q-card>
-  </q-page>
+          <template v-slot:header-cell-calories="props">
+            <q-th :props="props">
+              <q-icon name="thumb_up" size="1.5em" />
+              {{ props.col.label }}
+            </q-th>
+          </template>
+        </q-table>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import ComponentDoTransfer from 'components/Warehouse/ComponentDoTransfer';
 export default {
-  name: 'transfers',
-  components:{
-    ComponentDoTransfer
-  },
-  data(){
+  // name: 'ComponentName',
+  data () {
     return {
-      tab: 'transfer',
+      model: null,
+      options: [
+        'Option 1',
+        'Option 2',
+        'Option 3',
+        'Option 4',
+        'Option 5',
+      ],
       columns: [
         {
           name: 'name',
@@ -173,10 +192,20 @@ export default {
         }
       ]
     }
+  },
+  methods: {
+    onSubmit(){
+
+    },
+    onReset(){
+
+    },
+    // Valida si el select tiene alguna opción
+    validateSelect(val) {
+      if (val === null) {
+        return "Campo obligatorio, debe seleccionar una opción";
+      }
+    },
   }
 }
 </script>
-
-<style scoped>
-
-</style>
