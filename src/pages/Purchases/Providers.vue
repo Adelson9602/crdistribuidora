@@ -10,8 +10,8 @@
           align="justify"
           narrow-indicator
         >
-          <q-tab name="provider" label="proveedores" icon="paid"/>
-          <q-tab name="add_provider" label="Agregar proveedor" icon="account_balance_wallet"/>
+          <q-tab name="provider" label="proveedores" icon="person_add"/>
+          <q-tab name="add_provider" label="Agregar proveedor" icon="people"/>
         </q-tabs>
 
         <q-separator />
@@ -19,7 +19,7 @@
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="provider">
             <q-table
-              title="Inventario"
+              title="Proveedores"
               :data="data"
               :columns="columns"
               row-key="name"
@@ -35,7 +35,7 @@
           </q-tab-panel>
 
           <q-tab-panel name="add_provider">
-            <component-add-income/>
+            <component-add-provider/>
           </q-tab-panel>
         </q-tab-panels>
     </q-card>
@@ -43,11 +43,11 @@
 </template>
 
 <script>
-// import ComponentAddIncome from 'components/Purchase/ComponentAddIncome';
+import ComponentAddProvider from 'components/Purchase/ComponentAddProvider';
 export default {
   name: 'Categories',
   components: {
-    // ComponentAddIncome,
+    ComponentAddProvider,
   },
   data(){
     return {
