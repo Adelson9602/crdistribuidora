@@ -6,7 +6,7 @@
       class="q-gutter-md"
     >
       <div class="row">
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="text"
             type="text"
@@ -14,7 +14,7 @@
             :rules="[val => !!val || 'Razon social es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="text"
             type="text"
@@ -22,7 +22,7 @@
             :rules="[val => !!val || 'Nombre es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
             v-model="model"
             :options="options"
@@ -30,7 +30,7 @@
             :rules="[val => !!val || 'Tipo documento es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="text"
             type="text"
@@ -38,7 +38,7 @@
             :rules="[val => !!val || 'Número documento es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="text"
             type="text"
@@ -46,7 +46,7 @@
             :rules="[val => !!val || 'Dirección es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="text"
             type="text"
@@ -54,7 +54,7 @@
             :rules="[val => !!val || 'Teléfono es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="text"
             type="text"
@@ -62,7 +62,7 @@
             :rules="[val => !!val || 'Email es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3">
+        <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
             v-model="model"
             :options="options"
