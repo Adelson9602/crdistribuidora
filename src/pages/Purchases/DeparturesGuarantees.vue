@@ -10,14 +10,14 @@
           align="justify"
           narrow-indicator
         >
-          <q-tab name="provider" label="proveedores" icon="person_add"/>
-          <q-tab name="add_provider" label="Agregar proveedor" icon="people"/>
+          <q-tab name="warranties" label="Garantías" icon="task_alt"/>
+          <q-tab name="add_warranties" label="Agregar Garantía" icon="add_task"/>
         </q-tabs>
 
         <q-separator />
 
         <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="provider">
+          <q-tab-panel name="warranties">
             <q-table
               title="Proveedores"
               :data="data"
@@ -34,8 +34,8 @@
             </q-table>
           </q-tab-panel>
 
-          <q-tab-panel name="add_provider">
-            <component-add-provider/>
+          <q-tab-panel name="add_warranties">
+            <component-add-warranties/>
           </q-tab-panel>
         </q-tab-panels>
     </q-card>
