@@ -35,7 +35,7 @@
           </q-tab-panel>
 
           <q-tab-panel name="add_income">
-
+            <component-add-income/>
           </q-tab-panel>
         </q-tab-panels>
     </q-card>
@@ -43,11 +43,11 @@
 </template>
 
 <script>
-// import ComponentAddCategories from 'components/Warehouse/ComponentAddCategories';
+import ComponentAddIncome from 'components/Purchase/ComponentAddIncome';
 export default {
   name: 'Categories',
   components: {
-    // ComponentAddCategories,
+    ComponentAddIncome,
   },
   data(){
     return {
