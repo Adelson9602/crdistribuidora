@@ -2,42 +2,42 @@
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
       <q-tabs
-          v-model="tab"
-          dense
-          class="text-primary"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
-        >
-          <q-tab name="warranties" label="Garantías" icon="task_alt"/>
-          <q-tab name="add_warranties" label="Agregar Garantía" icon="add_task"/>
-        </q-tabs>
+        v-model="tab"
+        dense
+        class="text-primary"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="warranties" label="Garantías" icon="task_alt"/>
+        <q-tab name="add_warranties" label="Agregar Garantía" icon="add_task"/>
+      </q-tabs>
 
-        <q-separator />
+      <q-separator />
 
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="warranties">
-            <q-table
-              title="Proveedores"
-              :data="data"
-              :columns="columns"
-              row-key="name"
-              flat
-            >
-              <template v-slot:header-cell-calories="props">
-                <q-th :props="props">
-                  <q-icon name="thumb_up" size="1.5em" />
-                  {{ props.col.label }}
-                </q-th>
-              </template>
-            </q-table>
-          </q-tab-panel>
+      <q-tab-panels v-model="tab" animated>
+        <q-tab-panel name="warranties">
+          <q-table
+            title="Proveedores"
+            :data="data"
+            :columns="columns"
+            row-key="name"
+            flat
+          >
+            <template v-slot:header-cell-calories="props">
+              <q-th :props="props">
+                <q-icon name="thumb_up" size="1.5em" />
+                {{ props.col.label }}
+              </q-th>
+            </template>
+          </q-table>
+        </q-tab-panel>
 
-          <q-tab-panel name="add_warranties">
-            <component-add-warranties/>
-          </q-tab-panel>
-        </q-tab-panels>
+        <q-tab-panel name="add_warranties">
+          <component-add-warranties/>
+        </q-tab-panel>
+      </q-tab-panels>
     </q-card>
   </q-page>
 </template>
