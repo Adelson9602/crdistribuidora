@@ -50,23 +50,6 @@
           </template>
         </q-field>
       </div>
-      <div class="col-xs-12 col-md-2 col-lg-2" v-if="visible_input">
-        <q-input
-          bottom-slots
-          v-model="search_data"
-          :label="title_search"
-          class="col-xs-12 col-md-2"
-          @keyup.enter="search_dataSingle"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-
-          <template v-slot:hint>
-            {{ hint_search }}
-          </template>
-        </q-input>
-      </div>
       <div class="col-xs-12 col-md-4 col-lg-2 q-gutter-md">
         <q-btn
           @click="exportPDF"
@@ -289,7 +272,6 @@ export default {
       color_btn_details: "green",
       color_btn_edit: "green",
       rows_export: [],
-      visible_input: false,
       visible_filter_date: true,
       visible_btns: true, //muestra u oculta los btns de las cards
       toggle: true,
@@ -307,12 +289,11 @@ export default {
     "headers",
     "propdata",
     "position",
-    "documentName",
+    "document_name",
     "propgrid",
     "proptitle",
     "proptitle_search",
     "prophint_search",
-    "propinput",
     "prodbtn_export",
     "prop_color_btn_details",
     "prop_color_btn_pdf",
@@ -335,8 +316,7 @@ export default {
     ); //Valida los permisos para las acciones del usuario
     this.columns = this.propcolumns;
     this.data = this.propdata;
-    this.grid = this.propgrid; //Activa la visualización grid de la tabla
-    this.visible_input = this.propinput;
+    this.grid = this.propgrid; //Activa la visualización grid de la tabla    
     this.visible_btns = this.propbtns !== undefined ? this.propbtns : true;
     this.visible_filter_date = this.propfilterdate !== undefined ? this.propfilterdate : true; // Muestra el input para filtrar por rango de fecha
     this.toggle = this.proptoggle !== undefined ? this.proptoggle : true; //toggle de la tabla, para el modo de visualización
@@ -421,7 +401,7 @@ export default {
           overflowColumns: "linebreak",
         },
       });
-      doc.save(this.documentName);
+      doc.save(this.document_name);
     },
     // Emite la función para editar
     details(id) {
