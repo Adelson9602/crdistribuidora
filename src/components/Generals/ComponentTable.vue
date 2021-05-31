@@ -311,9 +311,7 @@ export default {
     // ...mapState("auth", ["user_permissions"]),
   },
   created() {
-    this.actions_user = this.user_permissions.find(
-      (e) => e.route === this.$route.path
-    ); //Valida los permisos para las acciones del usuario
+    // this.actions_user = this.user_permissions.find( (e) => e.route === this.$route.path ); //Valida los permisos para las acciones del usuario
     this.columns = this.propcolumns;
     this.data = this.propdata;
     this.grid = this.propgrid; //Activa la visualización grid de la tabla    
