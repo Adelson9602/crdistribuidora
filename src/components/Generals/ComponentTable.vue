@@ -308,7 +308,7 @@ export default {
     "prop_data_excel",
   ],
   computed: {
-    ...mapState("auth", ["user_permissions"]),
+    // ...mapState("auth", ["user_permissions"]),
   },
   created() {
     this.actions_user = this.user_permissions.find(
