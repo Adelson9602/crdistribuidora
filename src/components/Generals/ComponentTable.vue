@@ -1,669 +1,255 @@
 <template>
-  <div class="q-pt-md">
-    <div class="q-gutter-md q-pb-md">
-      <q-toggle v-model="mode" label="Visualización" />
-      <q-btn
-        @click="exportPDF"
-        push
-        color="white"
-        text-color="primary"
-        icon="picture_as_pdf"
-      />
-      <vue-excel-xlsx
-        :data="rowsExport.length == 0 ? rows : rowsExport"
-        :columns="columns"
-        :filename="title"
-        :sheetname="'Hoja 1'"
-        class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
-        tabindex="1"
-      >
+  <div>
+    <div class="q-gutter-md q-pb-md row">
+      <div class="col-xs-12 col-md-3 col-lg-3" v-if="visible_filter_date">
+        <q-field
+          stack-label
+          class="date_training"
+          hint="Seleccione un rango de fecha"
+        >
+          <template v-slot:control>
+            <div
+              class="self-center full-width no-outline row justify-between"
+              tabindex="0"
+            >
+              <label class="self-center">
+                Desde {{ date_range.from }} Hasta {{ date_range.to }}
+              </label>
+              <q-btn
+                icon="event"
+                round
+                color="primary"
+                class="self-end"
+                size="xs"
+              >
+                <q-popup-proxy
+                  ref="qDateProxy"
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="date_range" range mask="YYYY-MM-DD">
+                    <div class="row items-center justify-end">
+                      <q-btn
+                        label="Borrar"
+                        color="primary"
+                        flat
+                        @click="date_range = { to: '', from: '' }"
+                      />
+                      <q-btn
+                        v-close-popup
+                        label="Ok"
+                        color="primary"
+                        flat
+                        @click="range"
+                      />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-btn>
+            </div>
+          </template>
+        </q-field>
+      </div>
+      <div class="col-xs-12 col-md-2 col-lg-2" v-if="visible_input">
+        <q-input
+          bottom-slots
+          v-model="search_data"
+          :label="title_search"
+          class="col-xs-12 col-md-2"
+          @keyup.enter="search_dataSingle"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+
+          <template v-slot:hint>
+            {{ hint_search }}
+          </template>
+        </q-input>
+      </div>
+      <div class="col-xs-12 col-md-4 col-lg-2 q-gutter-md">
         <q-btn
+          @click="exportPDF"
           push
           color="white"
-          text-color="positive"
-          icon="mdi-microsoft-excel"
+          text-color="primary"
+          icon="picture_as_pdf"
         />
-      </vue-excel-xlsx>
-    </div>
-    <q-table
-      :grid="mode"
-      :title="title"
-      :data="rows"
-      :columns="columns"
-      row-key="names"
-      :filter="filter"
-      :hide-header="mode"
-      :sort-method="order"
-      binary-state-sort
-    >
-      <!---Inicia la imagen en modo normal-->
-      <template v-slot:body-cell-photo="props" v-if="img">
-        <q-td :props="props">
-          <q-avatar>
-            <img :src="props.row.Pers_Imagen" />
-          </q-avatar>
-        </q-td>
-      </template>
-      <!--Termina la imagen de la tabla-->
-      <!-- Contiene el btn para visualizar el resultado de la capacitación por usuario -->
-      <template v-slot:body-cell-view="props">
-        <q-td :props="props">
+        <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
+        <vue-excel-xlsx
+          :data="data_excel"
+          :columns="columns"
+          :filename="title"
+          :sheetname="'Hoja 1'"
+          class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
+          tabindex="0"
+        >
           <q-btn
-            round
-            size="xs"
             push
-            v-if="url === 'result'"
-            icon="visibility"
-            @click="view(props.row.id_Realiza, props.row.id_Capacitacion1)"
-            color="green"
+            color="white"
+            text-color="positive"
+            icon="mdi-microsoft-excel"
           />
-        </q-td>
-      </template>
-      <!-- Inicia el badge para el estado en modo normal -->
-      <template v-slot:body-cell-state="props">
-        <q-td :props="props">
-          <q-badge :color="props.row.State === 1 ? 'green' : 'red'">
-            {{ props.row.State === 1 ? "Activo" : "Inactivo" }}
-          </q-badge>
-        </q-td>
-      </template>
-      <!-- Finaliza el badge para el estado de los documentos del trailer y del vehículo-->
-      <template v-slot:body-cell-state_1="props">
-        <q-td :props="props">
-          <q-badge
-            :color="
-              props.row.notalineav === 'Mayor a 30' ||
-              props.row.notaLictran === 'Mayor a 30'
-                ? 'green'
-                : props.row.notalineav === 'A vencer' ||
-                  props.row.notaLictran === 'A vencer'
-                ? 'warning'
-                : 'red'
-            "
-          >
-            {{ props.row.notalineav }}
-            {{ props.row.notaLictran }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-state_2="props">
-        <q-td :props="props">
-          <q-badge
-            :color="
-              props.row.notatarpro === 'Mayor a 30' ||
-              props.row.notaSoat === 'Mayor a 30'
-                ? 'green'
-                : props.row.notatarpro === 'A vencer' ||
-                  props.row.notaSoat === 'A vencer'
-                ? 'warning'
-                : 'red'
-            "
-          >
-            {{ props.row.notatarpro }}
-            {{ props.row.notaSoat }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-state_3="props">
-        <q-td :props="props">
-          <q-badge
-            :color="
-              props.row.notataforo === 'Mayor a 30' ||
-              props.row.notaRetec === 'Mayor a 30'
-                ? 'green'
-                : props.row.notataforo === 'A vencer' ||
-                  props.row.notaRetec === 'A vencer'
-                ? 'warning'
-                : 'red'
-            "
-          >
-            {{ props.row.notataforo }}
-            {{ props.row.notaRetec }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-state_4="props">
-        <q-td :props="props">
-          <q-badge
-            :color="
-              props.row.notacerthidro === 'Mayor a 30' ||
-              props.row.notaPoextra === 'Mayor a 30'
-                ? 'green'
-                : props.row.notacerthidro === 'A vencer' ||
-                  props.row.notaPoextra === 'A vencer'
-                ? 'warning'
-                : 'red'
-            "
-          >
-            {{ props.row.notacerthidro }}
-            {{ props.row.notaPoextra }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-state_5="props">
-        <q-td :props="props">
-          <q-badge
-            :color="
-              props.row.notacertkingping === 'Mayor a 30' ||
-              props.row.notaRchidro === 'Mayor a 30'
-                ? 'green'
-                : props.row.notacertkingping === 'A vencer' ||
-                  props.row.notaRchidro === 'A vencer'
-                ? 'warning'
-                : 'red'
-            "
-          >
-            {{ props.row.notacertkingping }}
-            {{ props.row.notaRchidro }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-state_6="props">
-        <q-td :props="props">
-          <q-badge
-            :color="
-              props.row.notaclt === 'Mayor a 30' ||
-              props.row.notaCertqr === 'Mayor a 30'
-                ? 'green'
-                : props.row.notaclt === 'A vencer' ||
-                  props.row.notaCertqr === 'A vencer'
-                ? 'warning'
-                : 'red'
-            "
-          >
-            {{ props.row.notaclt }}
-            {{ props.row.notaCertqr }}
-          </q-badge>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-state_7="props">
-        <q-td :props="props">
-          <q-badge
-            :color="
-              props.row.notaClt === 'Mayor a 30'
-                ? 'green'
-                : props.row.notaClt === 'A vencer'
-                ? 'warning'
-                : 'red'
-            "
-          >
-            {{ props.row.notaClt }}
-          </q-badge>
-        </q-td>
-      </template>
-      <!-- Finaliza el badge para el estado de los documentos del trailer-->
-
+        </vue-excel-xlsx>
+      </div>
+    </div>
+    <q-toggle v-model="grid" label="Visualización" v-if="toggle" />
+    <q-table
+      :title="title"
+      :data="data"
+      :columns="columns"
+      row-key="name"
+      :filter="filter"
+      :grid="grid"
+      :pagination="initial_pagination"
+      :filter-method="customFilter"
+      :visible-columns="visible_columns"
+    >
       <template v-slot:top-right>
-        <!--Inicia el buscador-->
         <q-input
-          filled
           borderless
           dense
           debounce="300"
           v-model="filter"
-          placeholder="Buscar"
+          placeholder="buscar"
         >
           <template v-slot:append>
             <q-icon name="search" />
           </template>
         </q-input>
       </template>
-      <!--Termina el buscador-->
-
+      <!-- Renderiza la firma del usuario en la page firmas -->
+      <!-- APLICA PARA EL MODO VISTA NORMAL DE LA TABLA -->
+      <template v-slot:body-cell-img="props">
+        <q-td key="img" :props="props">
+          <q-img
+            :src="props.row.img"
+            spinner-color="white"
+            style="height: 40px; max-width: 40px"
+          />
+        </q-td>
+      </template>
+      <!-- Cards -->
       <template v-slot:item="props">
-        <div
-          class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-4 grid-style-transition"
-        >
-          <!--Template para cuando las tablas tienen imágenes-->
-          <q-card v-if="img && !documents">
-            <q-item>
-              <q-item-section avatar>
-                <q-avatar>
-                  <img :src="props.row.Pers_Imagen" />
-                </q-avatar>
-              </q-item-section>
-
-              <q-item-section>
-                <q-item-label>{{ props.row.Pers_Nombres }}</q-item-label>
-                <q-item-label caption>{{
-                  props.row.Pers_Apellidos
-                }}</q-item-label>
-              </q-item-section>
-              <q-item-section v-if="url !== 'digital_signature'">
-                <q-item-label class="row justify-end items-center q-gutter-xs">
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    icon="power_settings_new"
-                    :color="`${props.row.State ? 'green' : 'red'}`"
-                    @click="showDialogEnable(props.row.id, props.row.State)"
-                  />
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    icon="edit"
-                    @click="showDialog(props.row.id)"
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-separator />
-            <q-list
-              dense
-              v-for="col in props.cols.filter((col) => col.name !== 'desc')"
-              :key="col.name"
-            >
-              <q-item
-                v-if="
-                  col.label != 'Foto' &&
-                  col.label != 'Nombres' &&
-                  col.label != 'Apellidos' &&
-                  col.label != 'Firma'
-                "
-              >
-                <q-item-section>
-                  <!--Inicia el subtitulo-->
-                  <q-item-label>{{ col.label }}</q-item-label>
-                </q-item-section>
-                <!--Fin del subtitulo-->
-
-                <q-item-section side>
-                  <!--Inicia el contenido-->
-                  <q-item-label
-                    caption
-                    v-if="col.value !== 'Activo' && col.value !== 'Inactivo'"
-                    >{{ col.value }}</q-item-label
-                  >
-
-                  <q-item-label caption v-if="col.value === 'Activo'">
-                    <q-badge color="green">{{ col.value }}</q-badge>
-                  </q-item-label>
-
-                  <q-item-label caption v-if="col.value === 'Inactivo'">
-                    <q-badge color="red">{{ col.value }}</q-badge>
-                  </q-item-label>
-                </q-item-section>
-                <!--Fin el contenido-->
-              </q-item>
-            </q-list> </q-card
-          ><!--Finaliza el template de imágenes-->
-
-          <!-- Card para las categorías de licencia -->
-          <q-card v-if="url === 'document_license'">
-            <q-item>
-              <q-item-section>
-                <q-icon
-                  name="local_shipping"
-                  :class="`${props.row.State ? 'text-green' : 'text-red'}`"
-                  style="font-size: 2.1em"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="row justify-end items-center q-gutter-xs">
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    v-if="
-                      url !== 'desktop' &&
-                      url !== 'cities' &&
-                      url !== 'failures'
-                    "
-                    icon="power_settings_new"
-                    :color="`${props.row.State ? 'green' : 'red'}`"
-                    @click="showDialogEnable(props.row.id, props.row.State)"
-                  />
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    icon="edit"
-                    v-if="url !== 'failures' "
-                    @click="showDialog(props.row.id)"
-                    :color="
-                      props.row.nota === 'rojo'
-                        ? 'red'
-                        : props.row.nota === 'naranja'
-                        ? 'orange'
-                        : props.row.nota === 'verde'
-                        ? 'green'
-                        : 'white'
-                    "
-                    :text-color="
-                      !props.row.hasOwnProperty('nota')
-                        ? 'black'
-                        : props.row.nota === 'blanco'
-                        ? 'black'
-                        : 'white'
-                    "
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-separator />
-            <q-list
-              v-for="col in props.cols.filter((col) => col.name !== 'desc')"
-              :key="col.name"
-            >
-              <!-- Validamos que el label no sea id para renderizarlo en la tabla -->
-              <q-item>
-                <q-item-section>
-                  <q-item-label>{{
-                    col.label === "Id" ? "Categoría" : col.label
-                  }}</q-item-label>
-                  <q-item-label
-                    caption
-                    v-if="col.value !== 'Activo' && col.value !== 'Inactivo'"
-                  >
-                    {{ col.value }}
-                  </q-item-label>
-                  <q-item-label caption v-if="col.value === 'Activo'">
-                    <q-badge color="green">{{ col.value }}</q-badge>
-                  </q-item-label>
-                  <q-item-label caption v-if="col.value === 'Inactivo'">
-                    <q-badge color="red">{{ col.value }}</q-badge>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list> </q-card
-          ><!-- Finaliza Card para las categorías de licencia -->
-
-          <!-- Mostar color cuando esta activo e inactivo en cards sin imágenes -->
-          <q-card v-if="!img && !documents && url !== 'document_license'">
-            <q-item>
-              <q-item-section>
-                <q-icon
-                  name="local_shipping"
-                  :class="`${props.row.State ? 'text-green' : 'text-red'}`"
-                  style="font-size: 2.1em"
-                  v-if="
-                    url !== 'desktop' &&
-                    url !== 'integration' &&
-                    url !== 'cities' &&
-                    url !== 'contractors' &&
-                    url !== 'positions' &&
-                    url !== 'failures' &&
-                    url !== 'result' &&
-                    url !== 'trainers'
-                  "
-                />
-                <q-icon
-                  name="school"
-                  style="font-size: 2.1em"
-                  class="text-green"
-                  v-if="url === 'result'"
-                />
-                <q-icon
-                  name="engineering"
-                  :class="`${props.row.State ? 'text-green' : 'text-red'}`"
-                  style="font-size: 2.1em"
-                  v-if="url === 'contractors' || url === 'trainers'"
-                />
-                <q-icon
-                  name="reduce_capacity"
-                  :class="`${props.row.State ? 'text-green' : 'text-red'}`"
-                  style="font-size: 2.1em"
-                  v-if="url === 'positions'"
-                />
-                <q-icon
-                  name="fact_check"
-                  class="text-green"
-                  style="font-size: 2.1em"
-                  v-if="url === 'desktop'"
-                />
-                <q-icon
-                  name="apartment"
-                  class="text-green"
-                  style="font-size: 2.1em"
-                  v-if="url === 'cities'"
-                />
-                <q-icon
-                  name="construction"
-                  class="text-green"
-                  style="font-size: 2.1em"
-                  v-if="url === 'failures'"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="row justify-end items-center q-gutter-xs">
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    v-if="
-                    url !== 'desktop' &&
-                      url !== 'integration' &&
-                      url !== 'cities' &&
-                      url !== 'failures' &&
-                      url !== 'result' &&
-                      url !== 'trainers' &&
-                      url !== 'items_inspection'
-                    "
-                    icon="power_settings_new"
-                    :color="`${props.row.State ? 'green' : 'red'}`"
-                    @click="showDialogEnable(props.row.id, props.row.State)"
-                  />
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    v-if="url === 'desktop' || url === 'inspection_history' || url === 'integration'"
-                    icon="picture_as_pdf"
-                    color="primary"
-                    @click="showPdf(props.row.id,props.row.carpeta)"
-                  />
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    v-if="url === 'desktop' || url === 'inspection_history' || url === 'integration'"
-                    icon="qr_code_scanner"
-                    @click="showQr(props.row.id,props.row.carpeta)"
-                  />
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    v-if="url === 'result' || url === 'items_inspection'"
-                    icon="visibility"
-                    @click="
-                      view(
-                        props.row.id_Realiza,
-                        props.row.id_Capacitacion1,
-                        props.row.id
-                      )
-                    "
-                    color="green"
-                  />
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    icon="edit"
-                    v-if="
-                      url !== 'integration' &&
-                      url !== 'failures' &&
-                      url !== 'inspection_history' &&
-                      url !== 'result'
-                    "
-                    @click="showDialog(props.row.id)"
-                    :color="
-                      props.row.nota === 'rojo'
-                        ? 'red'
-                        : props.row.nota === 'naranja'
-                        ? 'orange'
-                        : props.row.nota === 'verde'
-                        ? 'green'
-                        : 'white'
-                    "
-                    :text-color="
-                      !props.row.hasOwnProperty('nota')
-                        ? 'black'
-                        : props.row.nota === 'blanco'
-                        ? 'black'
-                        : 'white'
-                    "
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-separator />
-            <q-list
-              v-for="col in props.cols.filter((col) => col.name !== 'desc')"
-              :key="col.name"
-            >
-              <!-- Validamos que el label no sea id para renderizarlo en la tabla -->
-              <q-item
-                v-if="col.label !== 'Id' && col.label !== 'Ver resultados'"
-              >
-                <q-item-section>
-                  <q-item-label>{{ col.label }}</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-item-label
-                    caption
-                    v-if="col.value !== 'Activo' && col.value !== 'Inactivo' && col.value !== 'APROBADO' && col.value !== 'NO APROBADO' "
-                  >
-                    {{ col.value }}
-                  </q-item-label>
-                  <q-item-label caption v-if="col.value === 'Activo' || col.value=='APROBADO'">
-                    <q-badge color="green">{{ col.value }}</q-badge>
-                  </q-item-label>
-                  <q-item-label caption v-if="col.value === 'Inactivo' || col.value=='NO APROBADO'">
-                    <q-badge color="red">{{ col.value }}</q-badge>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list> </q-card
-          ><!--Finaliza Mostar color cuando esta activo e inactivo en cards sin imágenes -->
-          <!-- Aplica para la documentación del conductor -->
-          <q-card v-if="!img && documents">
-            <q-item v-if="!imgDriver">
-              <q-item-section class="text-body1">
-                <q-item-label class="row justify-between">
-                  Placa. {{ props.row.Remol_Id }}
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    icon="edit"
-                    @click="showDialog(props.row.Remol_Id)"
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item v-if="imgDriver">
-              <q-item-section avatar>
-                <q-avatar>
-                  <img :src="props.row.Pers_Imagen" />
-                </q-avatar>
-              </q-item-section>
-
-              <q-item-section class="col-xs-10">
-                <q-item-label>
-                  {{ props.row.Pers_Nombres }} {{ props.row.Pers_Apellidos }}
-                </q-item-label>
-                <q-item-label caption>
-                  C.c. {{ props.row.UsuarioUser }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="row justify-end">
-                  <q-btn
-                    round
-                    size="xs"
-                    push
-                    icon="edit"
-                    @click="showDialog(props.row.UsuarioUser)"
-                  />
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-separator />
-            <div
-              v-for="(col, index) in props.cols.filter(
-                (col) => col.name !== 'desc'
-              )"
-              :key="col.name"
-            >
-              <q-expansion-item
-                expand-separator
-                v-if="
-                  col.label !== 'Estado' &&
-                  col.label !== 'Placa' &&
-                  col.label !== 'Nombres' &&
-                  col.label !== 'Cédula'
-                "
-              >
-                <template v-slot:header>
+        <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
+          <!-- Cards -->
+          <q-card>
+            <q-card-section class="q-py-none">
+              <q-list>
+                <q-item class="q-py-sm q-px-none">
+                  <q-item-section style="width:60px" avatar v-if="props.row.Foto">
+                    <q-avatar size="50px">
+                      <img :src="props.row.img" alt="Imagen de usuario">
+                    </q-avatar>
+                  </q-item-section>
                   <q-item-section>
-                    {{ col.label }}
+                    <strong> {{ props.row.title }} </strong
+                    ><!--Títulos para las cards de las tablas-->
                   </q-item-section>
-                  <q-item-section side>
-                    <div class="row items-center">
-                      <!-- Btn para descargar los certificados -->
-                      <!-- <q-btn>hola</q-btn> -->
-                      <q-badge
-                        :color="`${
-                          props.cols[index + 1].value === 'Mayor a 30'
-                            ? 'green'
-                            : props.cols[index + 1].value === 'A vencer'
-                            ? 'warning'
-                            : 'red'
-                        }`"
-                      >
-                        <q-icon
-                          :name="`${
-                            props.cols[index + 1].value === 'Mayor a 30'
-                              ? 'done'
-                              : 'warning'
-                          }`"
-                          color="white"
-                          class="q-ml-xs"
-                        />
-                      </q-badge>
-                    </div>
+                  <q-item-section avatar>
+                    <!-- Habilita o deshabilita los usuarios -->
+                    <q-fab
+                      color="primary"
+                      padding="xs"
+                      icon="keyboard_arrow_up"
+                      direction="up"
+                      v-if="visible_btns"
+                    >
+                      <q-fab-action
+                        :color="
+                          props.row.Estado === 'Inactivo' ? 'red' : 'green'
+                        "
+                        round
+                        push
+                        padding="5px"
+                        :icon="props.row.icon_btn_status"
+                        @click="status(props.row.Id, props.row)"
+                        :disable="!actions_user.Actualizar"
+                        v-if="props.row.btn_status"
+                      />
+
+                      <q-fab-action
+                        :color="color_btn_details"
+                        round
+                        push
+                        padding="5px"
+                        :icon="props.row.icon_btn_details"
+                        @click="details(props.row.Id)"
+                        v-if="props.row.btn_details"
+                      />
+
+                      <q-fab-action
+                        :color="color_btn_edit"
+                        round
+                        push
+                        padding="5px"
+                        :icon="props.row.icon_btn_edit"
+                        @click="edit(props.row.Id, props.row)"
+                        :disable="
+                          props.row.Estado === 'Candado' ||
+                          !actions_user.Actualizar
+                        "
+                        v-if="props.row.btn_edit"
+                      />
+
+                      <q-fab-action
+                        color="red"
+                        round
+                        push
+                        padding="5px"
+                        icon="picture_as_pdf"
+                        @click="generatePdf(props.row)"
+                        v-if="props.row.btn_pdf"
+                      />
+                    </q-fab>
                   </q-item-section>
-                </template>
-                <q-card>
-                  <q-card-section>
-                    <q-item-label>
+                </q-item>
+              </q-list>
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+              <q-list class="q-pa-none">
+                <q-item
+                  v-for="col in props.cols.filter((col) => col.name !== 'desc')"
+                  :key="col.name"
+                  class="q-pa-none height"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ col.label }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section
+                    class="text_personalized"
+                    side
+                    v-if="col.label !== 'Firma'"
+                  >
+                    <!-- Value del columna izquierda de las card -->
+                    <q-item-label caption>
+                      {{
+                        col.value === "Activo" || col.value === "Inactivo" || col.value === 'Conciliación'
+                          ? ""
+                          : col.value
+                      }}
                       <q-badge
-                        :color="`${
-                          props.cols[index + 1].value === 'Mayor a 30'
-                            ? 'green'
-                            : props.cols[index + 1].value === 'A vencer'
-                            ? 'warning'
-                            : 'red'
-                        }`"
-                      >
-                        {{
-                          col.value === null
-                            ? "No aplica"
-                            : props.cols[index + 1].value
-                        }}
-                      </q-badge>
+                        :color="
+                          col.value === 'Activo' ? 'positive' : col.value=='Conciliación' ? 'orange-10' : 'negative'
+                        "
+                        text-color="white"
+                        :label="col.value"
+                        v-if="
+                          col.value === 'Activo' || col.value === 'Inactivo' || col.value === 'Conciliación'
+                        "
+                      />
                     </q-item-label>
-                    <q-item-label>
-                      <q-badge
-                        :color="`${
-                          props.cols[index + 1].value === 'Mayor a 30'
-                            ? 'green'
-                            : props.cols[index + 1].value === 'A vencer'
-                            ? 'warning'
-                            : 'red'
-                        }`"
-                        mask="YYYY-MM-DD"
-                      >
-                        {{ col.value === null ? "No aplica" : col.value }}
-                      </q-badge>
-                    </q-item-label>
-                  </q-card-section>
-                </q-card>
-              </q-expansion-item>
-            </div>
+                  </q-item-section>
+                  <!-- Aplica cuanto tienen imagenes las tablas -->
+                  <q-item-section side v-if="col.label === 'Firma'">
+                    <q-avatar>
+                      <img :src="col.value" />
+                    </q-avatar>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
           </q-card>
         </div>
       </template>
@@ -676,101 +262,214 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import VueExcelXlsx from "vue-excel-xlsx";
 import Vue from "vue";
+import { mapState } from "vuex";
 Vue.use(VueExcelXlsx);
 
 export default {
+  // name: 'ComponentName',
   data() {
     return {
+      initial_pagination: {
+        page: 1,
+        rowsPerPage: 6,
+      },
+      columns: [],
+      data: [],
+      title: null,
       filter: "",
-      mode: true,
-      title: this.tableTitle,
-      rows: this.data,
-      columns: this.titles,
-      url: null,
-      rowsExport: [],
+      grid: true,
+      date_range: {
+        to: null,
+        from: null,
+      },
+      search_data: null,
+      title_search: null,
+      hint_search: null,
+      btn_export: true,
+      color_btn_details: "green",
+      color_btn_edit: "green",
+      rows_export: [],
+      visible_input: false,
+      visible_filter_date: true,
+      visible_btns: true, //muestra u oculta los btns de las cards
+      toggle: true,
+      actions_user: null,
+      visible_columns: [], //Permite mostrar u ocultar columnas
+      filter_cols: [], //Permite buscar en la tabla sin que se visualice una columna
+      stylecolumns: null,
+      titlex: null,
+      titley: null,
+      data_excel: [],
     };
   },
-  created() {
-    this.$emit("defaultValues");
+  props: [
+    "propcolumns",
+    "headers",
+    "propdata",
+    "position",
+    "documentName",
+    "propgrid",
+    "proptitle",
+    "proptitle_search",
+    "prophint_search",
+    "propinput",
+    "prodbtn_export",
+    "prop_color_btn_details",
+    "prop_color_btn_pdf",
+    "prop_color_btn_edit",
+    "propbtns",
+    "proptoggle",
+    "propstylecolumns",
+    "proptitlex",
+    "proptitley",
+    "propfilterdate",
+    "prop_visible_columns",
+    "prop_data_excel",
+  ],
+  computed: {
+    ...mapState("auth", ["user_permissions"]),
   },
-  mounted() {
-    var ulrActual = location.href.split("/");
-    if (ulrActual.length === 4) {
-      this.url = ulrActual[3];
-    } else if (ulrActual.length === 5) {
-      this.url = ulrActual[4];
+  created() {
+    this.actions_user = this.user_permissions.find(
+      (e) => e.route === this.$route.path
+    ); //Valida los permisos para las acciones del usuario
+    this.columns = this.propcolumns;
+    this.data = this.propdata;
+    this.grid = this.propgrid; //Activa la visualización grid de la tabla
+    this.visible_input = this.propinput;
+    this.visible_btns = this.propbtns !== undefined ? this.propbtns : true;
+    this.visible_filter_date = this.propfilterdate !== undefined ? this.propfilterdate : true; // Muestra el input para filtrar por rango de fecha
+    this.toggle = this.proptoggle !== undefined ? this.proptoggle : true; //toggle de la tabla, para el modo de visualización
+    this.title = this.proptitle; //Titulo para la tabla
+    this.title_search = this.proptitle_search; //titulo para el input que busca directamente en la base de datos, este esta encima de la tabla general
+    this.hint_search = this.prophint_search; //hint para el input filter de la tabla
+    this.btn_export = this.prodbtn_export;
+    this.stylecolumns = this.propstylecolumns ? this.propstylecolumns : null;
+    this.titlex = this.proptitlex ? this.proptitlex : 330; //Alinea el titulo del pdf en sentido x
+    this.titley = this.proptitley ? this.proptitley : 30; //Alinea el titulo del pdf en sentido y
+    if (this.prop_color_btn_details) {
+      this.color_btn_details = this.prop_color_btn_details;
     }
+    if (this.prop_color_btn_edit) {
+      this.color_btn_edit = this.prop_color_btn_edit;
+    }
+
     if (this.modeTable === false) {
       this.mode = this.modeTable;
     } else {
       this.mode = true;
     }
+    // Asignamos la columnas a mostrar, para ello la propiedad required en las columnas de la tabla debe ser false
+    if (this.prop_visible_columns) {
+      this.visible_columns = this.prop_visible_columns;
+    } else {
+      this.propcolumns.forEach((column) => {
+        this.visible_columns.push(column.name);
+      });
+    }
+    // Asinga el nombre de la tabla
+    this.propcolumns.forEach((column) => {
+      this.filter_cols.push(column.name);
+    });
+    if (this.prop_data_excel) {
+      this.data_excel = this.prop_data_excel;
+    } else {
+      this.data_excel = this.propdata;
+    }
   },
-  props: [
-    "data",
-    "titles",
-    "tableTitle",
-    "headers",
-    "documentName",
-    "position",
-    "img",
-    "documents",
-    "imgDriver",
-    "modeTable",
-  ],
   methods: {
+    // Función de filtrado personalizado, permite filtrar datos de la tabla aunque la columna no se muestre
+    customFilter(rows, terms) {
+      const lowerTerms = terms ? terms.toLowerCase() : "";
+      // const toFilter = this.byVisibility ? [...this.visibleColumns, ...this.reqs ] : this.filterCols //original del foro
+
+      const filteredRows = rows.filter((row) =>
+        this.filter_cols.some((col) =>
+          (row[col] + "").toLowerCase().includes(lowerTerms)
+        )
+      );
+      return filteredRows;
+    },
+    // Exporta el pdf de la tabla
     exportPDF() {
+      var columnstyle = this.stylecolumns;
+      var x = this.titlex;
+      var y = this.titley;
       var data = [];
-      if (this.rowsExport.length == 0) {
-        data = this.rows;
+      if (this.rows_export.length == 0) {
+        if (this.data_excel.length > 0) {
+          data = this.data_excel;
+        } else {
+          data = this.data;
+        }
       } else {
-        data = this.rowsExport;
+        data = this.rows_export;
       }
 
       var columns = this.headers;
       var doc = new jsPDF(this.position, "pt", "letter");
 
-      doc.text(this.title, 330, 30);
+      doc.text(this.title, x, y);
       doc.autoTable({
         body: data,
         columns,
         margin: { top: 40 },
-        styles: { overflow: "linebreak", fontSize: 7 },
+        styles: {
+          overflow: "linebreak",
+          fontSize: 7,
+          cellWidth: columnstyle,
+          overflowColumns: "linebreak",
+        },
       });
       doc.save(this.documentName);
     },
-    showDialog(Id) {
-      this.$emit("dialog", Id);
+    // Emite la función para editar
+    details(id) {
+      this.$emit("ondetails", id);
     },
-    showDialogEnable(Id, state) {
-      this.$emit("dialogEnable", Id, state);
+    // genera el pdf con petición al servidor, archivo pdf php
+    generatePdf(row) {
+      this.$emit("onpdf", row);
     },
-    showPdf(id,carpeta) {
-      
-      this.$emit("showPdf", id,carpeta);
+    // Emite función editar
+    edit(id, row) {
+      this.$emit("onedit", id, row);
     },
-    showQr(id,carpeta) {
-      this.$emit("showQr", id,carpeta);
+    // Emite la función para cambiar el estado de cualquien dato de la tabla
+    status(id, row) {
+      this.$emit("tostatus", id, row);
     },
-    view(idTraining, idPerson, id) {
-      this.$emit("view", idTraining, idPerson, id);
-    },
-    order(rows, sortBy, descending) {
-      this.rowsExport.length = 0;
-      const data = [...rows];
-
-      if (sortBy) {
-        data.sort((a, b) => {
-          const x = descending ? b : a;
-          const y = descending ? a : b;
-          return x[sortBy] > y[sortBy] ? 1 : x[sortBy] < y[sortBy] ? -1 : 0;
-        });
+    // Emite filtrar datos por rango de fecha
+    range() {
+      if ( typeof(this.date_range) === 'object' && !this.date_range.to && !this.date_range.from){
+        this.$q.notify({
+          message: 'Debe seleccionar una fecha',
+          type: 'negative'
+        })
+        return;
+      } else  if ( typeof(this.date_range) == 'string' ) {
+        this.date_range = {
+          to: this.date_range,
+          from: this.date_range
+        }
       }
-      data.forEach((element) => {
-        this.rowsExport.push(element);
-      });
-      return data;
+      this.$emit("getrangedata", this.date_range);
+    },
+    // Emite función para buscar un dato especifica en la bd y mostrar en la tabla
+    search_dataSingle() {
+      this.$emit(`search_datasingle`, this.search_data);
     },
   },
 };
 </script>
+<style scoped>
+.height {
+  min-height: 30px;
+}
+.text_personalized {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 60%;
+}
+</style>
