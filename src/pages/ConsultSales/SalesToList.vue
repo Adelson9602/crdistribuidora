@@ -1,83 +1,36 @@
 <template>
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
-      <div class="row">
-        <div class="col-xs-12 col-md-3 q-px-sm">
-          <q-field
-            stack-label
-            class="date_training"
-            hint="Seleccione un rango de fecha"
-          >
-            <template v-slot:control>
-              <div
-                class="self-center full-width no-outline row justify-between"
-                tabindex="0"
-              >
-                <label class="self-center">
-                  Desde {{ date_range.from }} Hasta {{ date_range.to }}
-                </label>
-                <q-btn
-                  icon="event"
-                  round
-                  color="primary"
-                  class="self-end"
-                  size="xs"
-                >
-                  <q-popup-proxy
-                    ref="qDateProxy"
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-date v-model="date_range" range mask="YYYY-MM-DD">
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          label="Borrar"
-                          color="primary"
-                          flat
-                          @click="date_range = { to: '', from: '' }"
-                        />
-                        <q-btn
-                          v-close-popup
-                          label="Ok"
-                          color="primary"
-                          flat
-                          @click="range"
-                        />
-                      </div>
-                    </q-date>
-                  </q-popup-proxy>
-                </q-btn>
-              </div>
-            </template>
-          </q-field>
-        </div>
-      </div>
       <!-- Tabla de las ventas realizadas -->
-      <q-table
+      <component-table
         class="q-mt-md height-table"
-        title="Productos agrupados"
-        :data="data"
-        :columns="columns"
-        row-key="name"
-        flat
+        proptitle="Productos agrupados"
+        :propdata="data"
+        :propcolumns="columns"
+        :propgrid="false"
+        :propflat="true"
       />
 
       <!-- Tabla de las ventas realizadas -->
-      <q-table
+      <component-table
         class="q-mt-md height-table"
-        title="Productos"
-        :data="data"
-        :columns="columns"
-        row-key="name"
-        flat
+        proptitle="Productos"
+        :propdata="data"
+        :propcolumns="columns"
+        :propgrid="false"
+        :propflat="true"
       />
     </q-card>
   </q-page>
 </template>
 
 <script>
+import componentTable from 'components/Generals/ComponentTable'
 export default {
   name: 'SalesToList',
+  components: {
+    componentTable
+  },
   data(){
     return {
       date_range: {
