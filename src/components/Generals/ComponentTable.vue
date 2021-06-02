@@ -87,6 +87,7 @@
       :pagination="initial_pagination"
       :filter-method="customFilter"
       :visible-columns="visible_columns"
+      :flat="flat"
     >
       <template v-slot:top-right>
         <q-input
@@ -282,6 +283,7 @@ export default {
       titlex: null,
       titley: null,
       data_excel: [],
+      flat: false,
     };
   },
   props: [
@@ -306,6 +308,7 @@ export default {
     "propfilterdate",
     "prop_visible_columns",
     "prop_data_excel",
+    "propflat"
   ],
   computed: {
     // ...mapState("auth", ["user_permissions"]),
@@ -325,6 +328,7 @@ export default {
     this.stylecolumns = this.propstylecolumns ? this.propstylecolumns : null;
     this.titlex = this.proptitlex ? this.proptitlex : 330; //Alinea el titulo del pdf en sentido x
     this.titley = this.proptitley ? this.proptitley : 30; //Alinea el titulo del pdf en sentido y
+    this.flat = this.propflat !== undefined ? this.propflat : false;
     if (this.prop_color_btn_details) {
       this.color_btn_details = this.prop_color_btn_details;
     }
