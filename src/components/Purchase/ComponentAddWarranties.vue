@@ -1,57 +1,51 @@
 <template>
-  <q-page padding>
-    <q-card class="height-card_page q-pa-md">
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-primary"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-      >
-        <q-tab name="warranties" label="Garantías" icon="task_alt"/>
-        <q-tab name="add_warranties" label="Agregar Garantía" icon="add_task"/>
-      </q-tabs>
-
-      <q-separator />
-
-      <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="warranties">
-          <q-table
-            title="Proveedores"
-            :data="data"
-            :columns="columns"
-            row-key="name"
-            flat
-          >
-            <template v-slot:header-cell-calories="props">
-              <q-th :props="props">
-                <q-icon name="thumb_up" size="1.5em" />
-                {{ props.col.label }}
-              </q-th>
-            </template>
-          </q-table>
-        </q-tab-panel>
-
-        <q-tab-panel name="add_warranties">
-          <component-add-warranties/>
-        </q-tab-panel>
-      </q-tab-panels>
-    </q-card>
-  </q-page>
+  <div>
+    <q-form
+      @submit="onSubmit"
+      @reset="onReset"
+      class="q-gutter-md"
+    >
+      <div class="row">
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-select v-model="model" :options="options" hint="Proveedor"/>
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-select v-model="model" :options="options" hint="Productos" />
+        </div>
+        <div class="col-xs-12 col-md-12 q-px-sm q-mt-md">
+          <q-input v-model="text" type="textarea" hint="Observaciones" filled/>
+        </div>
+      </div>
+      <div>
+        <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
+      </div>
+    </q-form>
+    <div class="row">
+      <div class="col-xs-12">
+        <q-table
+          title="Garantías a agregar"
+          :data="data"
+          :columns="columns"
+          row-key="name"
+          flat
+        >
+          <template v-slot:header-cell-calories="props">
+            <q-th :props="props">
+              <q-icon name="thumb_up" size="1.5em" />
+              {{ props.col.label }}
+            </q-th>
+          </template>
+        </q-table>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import ComponentAddWarranties from 'components/Purchase/ComponentAddWarranties';
 export default {
-  name: 'DeparturesGuarantees',
-  components: {
-    ComponentAddWarranties,
-  },
-  data(){
+  name: 'ComponentAddWarranties',
+  data () {
     return {
-      tab: 'provider',
       columns: [
         {
           name: 'name',
@@ -171,12 +165,23 @@ export default {
           calcium: '12%',
           iron: '6%'
         }
-      ]
+      ],
+      model: null,
+      options: [
+        'Option 1',
+        'Option 2',
+        'Option 3',
+      ],
+      text: '',
     }
+  },
+  methods: {
+    onSubmit(){
+
+    },
+    onReset(){
+
+    },
   }
 }
 </script>
-
-<style scoped>
-
-</style>

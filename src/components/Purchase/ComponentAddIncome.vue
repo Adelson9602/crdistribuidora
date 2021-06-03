@@ -1,57 +1,93 @@
 <template>
-  <q-page padding>
-    <q-card class="height-card_page q-pa-md">
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-primary"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-      >
-        <q-tab name="warranties" label="Garantías" icon="task_alt"/>
-        <q-tab name="add_warranties" label="Agregar Garantía" icon="add_task"/>
-      </q-tabs>
-
-      <q-separator />
-
-      <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="warranties">
-          <q-table
-            title="Proveedores"
-            :data="data"
-            :columns="columns"
-            row-key="name"
-            flat
-          >
-            <template v-slot:header-cell-calories="props">
-              <q-th :props="props">
-                <q-icon name="thumb_up" size="1.5em" />
-                {{ props.col.label }}
-              </q-th>
+  <div>
+    <q-form
+      @submit="onSubmit"
+      @reset="onReset"
+      class="q-gutter-md"
+    >
+      <div class="row">
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-select
+            v-model="model"
+            :options="options"
+            hint="Proveedor"
+            :rules="[validateSelect]"
+          />
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-select
+            v-model="model"
+            :options="options"
+            hint="Tipo comprobante"
+            :rules="[validateSelect]"
+          />
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-select
+            v-model="model"
+            :options="options"
+            hint="medio de pago"
+            :rules="[validateSelect]"
+          />
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-input
+            v-model="text"
+            type="text"
+            hint="Númerocompra"
+            :rules="[val => !!val || 'Númerocompra es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-input
+            v-model="text"
+            type="text"
+            hint="Impuesto"
+            :rules="[val => !!val || 'Impuesto es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-field hint="Fecha" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">28/05/2021</div>
             </template>
-          </q-table>
-        </q-tab-panel>
+          </q-field>
+        </div>
+      </div>
+      <div>
+        <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
+      </div>
+    </q-form>
+    <div class="row">
+      <div class="col-xs-12">
+        <q-table
+          title="Inventario"
+          :data="data"
+          :columns="columns"
+          row-key="name"
+          flat
+        >
+          <template v-slot:header-cell-calories="props">
+            <q-th :props="props">
+              <q-icon name="thumb_up" size="1.5em" />
+              {{ props.col.label }}
+            </q-th>
+          </template>
+        </q-table>
 
-        <q-tab-panel name="add_warranties">
-          <component-add-warranties/>
-        </q-tab-panel>
-      </q-tab-panels>
-    </q-card>
-  </q-page>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import ComponentAddWarranties from 'components/Purchase/ComponentAddWarranties';
 export default {
-  name: 'DeparturesGuarantees',
-  components: {
-    ComponentAddWarranties,
-  },
-  data(){
+  name: 'ComponentAddIncome',
+  data () {
     return {
-      tab: 'provider',
+      model: null,
+      options: [],
+      text: null,
       columns: [
         {
           name: 'name',
@@ -173,10 +209,20 @@ export default {
         }
       ]
     }
+  },
+  methods:{
+    onSubmit(){
+
+    },
+    onReset(){
+
+    },
+    // Valida los select
+    validateSelect(val){
+      if(!val){
+        return 'Por favor seleccione una opción'
+      }
+    }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

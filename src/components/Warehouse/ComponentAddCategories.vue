@@ -8,10 +8,16 @@
           @reset="onReset"
           class="q-gutter-md"
         >
-          <q-card-section class="row items-center">
-            <q-avatar icon="add" color="primary" text-color="white" />
-            <span class="q-ml-sm text-h6">Agregar categoría</span>
-          </q-card-section>
+           <q-bar class="bg-primary text-white">
+            <q-icon name="add" />
+            <div>Agregar categoría</div>
+
+            <q-space />
+
+            <q-btn dense flat icon="close" v-close-popup>
+              <q-tooltip>Close</q-tooltip>
+            </q-btn>
+          </q-bar>
           <q-card-section class="row">
             <div class="col-xs-12 col-md-6 q-px-sm">
               <q-input
