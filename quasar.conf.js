@@ -50,6 +50,7 @@ module.exports = function (/* ctx */) {
         __ENV__: 'dev',
         __VERSION__: '2.21.6.3',
         __URLAPI__: `http://apis.crdistribuidora.com/pcr/`,
+        __BASE__: 'crdistribuidora_newpruebas',
       },
       // transpile: false,
 
