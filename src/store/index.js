@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import sales from './Sales'
+import warehouse from './Warehouse'
 
 // import example from './module-example'
 
@@ -20,6 +21,7 @@ export default function (/* { ssrContext } */) {
     modules: {
       // example
       sales,
+      warehouse,
     },
 
     // enable strict mode (adds overhead!)
