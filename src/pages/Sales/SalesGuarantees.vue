@@ -28,7 +28,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="add_warranties">
-
+          <component-add-sales-warranties />
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -37,10 +37,12 @@
 
 <script>
 import ComponentTable from 'components/Generals/ComponentTable';
+import ComponentAddSalesWarranties from 'components/Sales/ComponentAddSalesWarranties';
 export default {
   name: 'SaleswithoutBalance',
   components: {
-    ComponentTable
+    ComponentTable,
+    ComponentAddSalesWarranties
   },
   data(){
     return {
