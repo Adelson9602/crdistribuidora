@@ -48,7 +48,6 @@ const routes = [
         component: () => import('layouts/LayoutApp'),
         children: [
           { path: 'sales', component: () => import('pages/Sales/Sales'), meta: {requiresAuth: true} },
-          { path: 'sales_without_balance', component: () => import('pages/Sales/SaleWithoutBalance'), meta: {requiresAuth: true} },
           { path: 'sales_guarantees', component: () => import('pages/Sales/SalesGuarantees'), meta: {requiresAuth: true} }, 
           { path: 'customers', component: () => import('pages/Sales/Customers'), meta: {requiresAuth: true} }, 
           { path: 'stock_inquiry', component: () => import('pages/Sales/StockInquiry'), meta: {requiresAuth: true} }, 
