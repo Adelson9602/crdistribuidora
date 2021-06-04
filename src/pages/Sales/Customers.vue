@@ -28,7 +28,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="add_clients">
-          <component-add-sales-warranties />
+          <component-add-client />
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -37,11 +37,12 @@
 
 <script>
 import ComponentTable from 'components/Generals/ComponentTable';
-// import ComponentAddSalesWarranties from 'components/Sales/ComponentAddSalesWarranties';
+import ComponentAddClient from 'components/Sales/ComponentAddClient';
 export default {
   name: 'SaleswithoutBalance',
   components: {
     ComponentTable,
+    ComponentAddClient
   },
   data(){
     return {
