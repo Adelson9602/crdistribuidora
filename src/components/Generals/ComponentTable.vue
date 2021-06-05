@@ -113,6 +113,38 @@
           />
         </q-td>
       </template>
+      <!-- Btns en modo normal -->
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th auto-width />
+
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td auto-width class="q-gutter-x-sm">
+            <q-btn color="red" icon="print" round size="sm"/>
+            <q-btn color="green" icon="paid" round size="sm"/>
+            <q-btn color="primary" icon="check" round size="sm"/>
+          </q-td>
+
+          <q-td
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.value }}
+          </q-td>
+        </q-tr>
+      </template>
       <!-- Cards -->
       <template v-slot:item="props">
         <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4">
