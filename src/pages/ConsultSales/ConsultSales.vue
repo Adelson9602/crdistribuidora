@@ -6,7 +6,8 @@
           proptitle='Ventas registradas'
           :propdata="data"
           :propcolumns="columns"
-          :propgrid="true"
+          :propgrid="false"
+          :propflat="true"
         />
       </q-card-section>
     </q-card>
