@@ -3,7 +3,7 @@
     <q-card class="height-card_page q-pa-md">
       <q-card-section>
         <component-table 
-          proptitle='Ventas registradas'
+          proptitle='Créditos'
           :propdata="data"
           :propcolumns="columns"
           :propgrid="false"
