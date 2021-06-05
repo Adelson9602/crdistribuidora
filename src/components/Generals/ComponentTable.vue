@@ -130,10 +130,8 @@
 
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td auto-width class="q-gutter-x-sm">
-            <q-btn color="red" icon="print" round size="sm"/>
-            <q-btn color="green" icon="paid" round size="sm"/>
-            <q-btn color="primary" icon="check" round size="sm"/>
+          <q-td auto-width>
+            <q-toggle v-model="props.expand" checked-icon="add" unchecked-icon="remove" />
           </q-td>
 
           <q-td
@@ -142,6 +140,25 @@
             :props="props"
           >
             {{ col.value }}
+          </q-td>
+        </q-tr>
+        <q-tr v-show="props.expand" :props="props">
+          <q-td colspan="100%" class="q-gutter-x-md">
+            <q-btn color="red" icon="print" round size="sm">
+              <q-tooltip>
+                Imprimir
+              </q-tooltip>
+            </q-btn>
+            <q-btn color="green" icon="paid" round size="sm">
+              <q-tooltip>
+                Recibir pago
+              </q-tooltip>
+            </q-btn>
+            <q-btn color="primary" icon="check" round size="sm">
+              <q-tooltip>
+                Confirmar pago
+              </q-tooltip>
+            </q-btn>
           </q-td>
         </q-tr>
       </template>
