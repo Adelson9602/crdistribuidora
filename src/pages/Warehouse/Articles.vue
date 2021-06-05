@@ -50,7 +50,8 @@ export default {
   data(){
     return {
       
-      tab: 'articles',      date_range: {
+      tab: 'articles',    
+      date_range: {
         to: null,
         from: null,
       },
@@ -62,8 +63,16 @@ export default {
           align: "center",
           field: "Id",
           sortable: true,
-        },
+        },       
         {
+          name: "Art_Codigo_inv",
+          required: true,
+          label: "Codigo",
+          align: "center",
+          field: "Art_Codigo_inv",
+          sortable: true,
+        },        
+         {
           name: "Art_Nombre",
           required: true,
           label: "Nombre articulo",
@@ -71,28 +80,52 @@ export default {
           field: "Art_Nombre",
           sortable: true,
         },
-        {
-          name: "Av_Precio_venta",
+         {
+          name: "Art_Descripcion",
           required: true,
-          label: "Precio Venta",
+          label: "Descripcion articulo",
           align: "center",
-          field: "Av_Precio_venta",
+          field: "Art_Descripcion",
+          sortable: true,
+        },
+         {
+          name: "Prefijo",
+          required: true,
+          label: "UNDM",
+          align: "center",
+          field: "Prefijo",
+          sortable: true,
+        },
+         {                  
+          name: "Art_Stockminimo",
+          required: true,
+          label: "Stock min articulo",
+          align: "center",
+          field: "Art_Stockminimo",
+          sortable: true,
+        },
+         {
+          name: "Cat_Nombre",
+          required: true,
+          label: "Categoria",
+          align: "center",
+          field: "Cat_Nombre",
           sortable: true,
         },
         {
-          name: "Av_Estado",
+          name: "Art_Estado",
           required: true,
           label: "Estado",
           align: "center",
-          field: "Av_Estado ",
+          field: "Art_Estado",
           sortable: true,
         },
         {
-          name: "Av_User_control",
+          name: "Art_User_control",
           required: true,
           label: "User Control",
           align: "center",
-          field: "Av_User_control",
+          field: "Art_User_control",
           sortable: true,
         },
          {
@@ -104,11 +137,11 @@ export default {
           sortable: true,
         },
          {
-          name: "Av_Fecha_control",
+          name: "Art_Fecha_control",
           required: true,
           label: "Fecha Control",
           align: "center",
-          field: "Av_Fecha_control",
+          field: "Art_Fecha_control",
           sortable: true,
         },
       ],
@@ -120,7 +153,7 @@ export default {
     this.getData();
   },
   methods: {
-    ...mapActions("warehouse", ["getDataArticles"]),
+    ...mapActions("warehouse", ["getDataArticles","requestgetDataArticlesRange"]),
 
     getData() {
       let data={
@@ -131,29 +164,36 @@ export default {
       });
       setTimeout(async () => {
         try {
-          this.data.length = 0;
+        
           const resgetDataArticles = await this.getDataArticles(data).then((res) => {
             return res.data;
           });
           console.log({
-            msg: "Respuesta get grupo picking por rango de fecha",
+            msg: resgetDataArticles.message,
             data: resgetDataArticles,
           });
           this.data.length = 0;
           if (resgetDataArticles.ok) {
             if (resgetDataArticles.result) {
-              resgetDataArticles.forEach((element) => {
+
+              resgetDataArticles.data.forEach(element=> {
+               
                 this.data.push({
+
                   Id: element.Id,
                   Art_Id: element.Art_Id,
+                  Art_Codigo_inv: element.Art_Codigo_inv,
                   Art_Nombre: element.Art_Nombre,
-                  cantidad: element.cantidad,
-                  cantG: element.cantG,
-                  Av_Precio_venta: element.Av_Precio_venta,
-                   Av_Estado: element.Av_Estado,
-                   Av_User_control: element.Av_User_control,
+                  Art_Descripcion: element.Art_Descripcion,
+                  Prefijo: element.Prefijo,
+                  Art_Stockminimo: element.Art_Stockminimo,
+                  Cat_Nombre: element.Cat_Nombre,
+                  Art_Estado: element.Art_Estado ==1 ? 'ACTIVO':'INHABILITADO',
+                  Art_User_control: element.Art_User_control,
                   Per_Nombre: element.Per_Nombre, 
-                  Av_Fecha_control: element.Av_Fecha_control,
+                  Art_Fecha_control: element.Art_Fecha_control,
+
+
                   // title: `Entrada No. ${element.Id}`,
                   // btn_edit: false,
                   // btn_status: false,
@@ -196,63 +236,66 @@ export default {
         }
       }, 2000);
     },
-    getArticleRang(data) {
-      //Formateamos las fechas para poder hacer el filter
-      // let formattedFrom = new Date(`${data.from}T00:00:000Z`);
-      // let formattedTo = new Date(`${data.to}T00:00:000Z`);
-      let formattedFrom = date.formatDate(new Date(`${data.from}T00:00`), 'DD/MM/YYYY');
-      let formattedTo = date.formatDate(new Date(`${data.to}T00:00`), 'DD/MM/YYYY');
-
+   getArticleRang(data) {
+      data.base = process.env.__BASE__;
       this.$q.loading.show({
-        message: "Buscando en el rango de fecha solicitado, por favor espere..."
+        message:
+          "Buscando Articulos en el rango de fecha solicitado, por favor espere...",
       });
       setTimeout(async () => {
         try {
-          let data_mayor = this.data.filter( user => user.fecha_control >= formattedFrom );
-          let data_final = data_mayor.filter( user => user.fecha_control <= formattedTo );
-          if (data_final.length > 0) {
-            this.rederComponent = false;
-            this.data.length = 0;
-            data_final.forEach(element => {
-              this.data.push({
-                Celular_Personal: element.Celular_Personal,
-                Foto: element.Foto,
-                Password: element.Password,
-                descripcionrol: element.descripcionrol,
-                Estado: element.Estado,
-                fechaprueba: element.fechaprueba,
-                Id: element.Id,
-                Id_Rol1: element.Id_Rol1,
-                cedula_control: element.cedula_control,
-                fecha_control: element.fecha_control,
-                id_campo: element.id_campo,
-                nombre_control: element.nombre_control,
-                nombre_usuario: element.nombre_usuario,
-                Estado_Actualizacion: element.Estado_Actualizacion,
-                Primer_Apellido: element.Primer_Apellido,
-                Primer_Nombre: element.Primer_Nombre,
-                Segundo_Apellido: element.Segundo_Apellido,
-                Segundo_Nombre: element.Segundo_Nombre,
-                nombre_control: element.nombre_control,
-                ucontrol_campo: element.ucontrol_campo,
-                fecha_campo: element.fecha_campo,
-                tabla: element.tabla,
-                usuario: element.usuario,
-                btn_edit: true,
-                btn_status: true,
-                btn_details: false,
-                icon_btn_edit: "mdi-pencil",
-                icon_btn_status: "power_settings_new",
-                icon_btn_details: "mdi-eye-settings",
-                title: `${element.Primer_Nombre} ${element.Segundo_Nombre ? element.Segundo_Nombre : '' } ${element.Primer_Apellido} ${element.Segundo_Apellido ? element.Segundo_Apellido : ''}`,
-              })
-            });
+          const resrequestgetDataArticlesRange = await this.requestgetDataArticlesRange(
+            data
+          ).then((res) => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta get articulo por rango de fecha",
+            data: resrequestgetDataArticlesRange,
+          });
+          this.data.length = 0;
+          if (resrequestgetDataArticlesRange.ok) {
+            if (resrequestgetDataArticlesRange.result) {
+              resrequestgetDataArticlesRange.data.forEach((element) => {
+c
+                // console.log(element);
+                this.data.push({
+                  Id: element.Id,
+                  Art_Id: element.Art_Id,
+                  Art_Codigo_inv: element.Art_Codigo_inv,
+                  Art_Nombre: element.Art_Nombre,
+                  Art_Descripcion: element.Art_Descripcion,
+                  Prefijo: element.Prefijo,
+                  Art_Stockminimo: element.Art_Stockminimo,
+                  Cat_Nombre: element.Cat_Nombre,
+                  Art_Estado: element.Art_Estado ==1 ? 'ACTIVO':'INHABILITADO',
+                  Art_User_control: element.Art_User_control,
+                  Per_Nombre: element.Per_Nombre, 
+                  Art_Fecha_control: element.Art_Fecha_control,
+
+                  // title: `Entrada No. ${element.Id}`,
+                  // btn_edit: false,
+                  // btn_status: false,
+                  // btn_details: true,
+                  // btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                  // icon_btn_details: "mdi-eye-settings",
+                });
+              });
+            } else {
+              this.$q.notify({
+                message: resrequestgetDataArticlesRange.message,
+                type: "warning",
+              });
+            }
           } else {
-            this.$q.notify({
-              message: 'No econtramos coincidencias',
-              type: 'warning'
-            })
+           
+            this.data.length = 0;
+            throw resrequestgetDataArticlesRange.message;
           }
+         
+        
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -260,24 +303,27 @@ export default {
           }
           if (e.message === "Request failed with status code 404") {
             e = "URL de solicitud no existe, err 404";
-          } else {
+          } else if (e.message) {
             e = e.message;
           }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
         } finally {
-          this.rederComponent = true;
           this.$q.loading.hide();
         }
       }, 2000);
     },
-    reload() {
+    // reload() {
       // this.tab = "users";
       // this.rederComponent = false;
       // this.edit_form = false;
       // Se hace el reload, para ello se debe eliminar el componente componenTable antes de hacer las peticiones y luego rendereizarlo de nuevo
-      setTimeout( ()=> {
-        this.getData();
-      }, 500)
-    },
+    //   setTimeout( ()=> {
+    //     this.getData();
+    //   }, 500)
+    // },
   }
 }
 </script>
