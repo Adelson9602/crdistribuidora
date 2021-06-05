@@ -317,7 +317,7 @@ export default {
     // this.actions_user = this.user_permissions.find( (e) => e.route === this.$route.path ); //Valida los permisos para las acciones del usuario
     this.columns = this.propcolumns;
     this.data = this.propdata;
-    this.grid = this.propgrid; //Activa la visualización grid de la tabla    
+    this.grid = this.propgrid != undefined ? this.propgrid : false; //Activa la visualización grid de la tabla    
     this.visible_btns = this.propbtns !== undefined ? this.propbtns : true;
     this.visible_filter_date = this.propfilterdate !== undefined ? this.propfilterdate : true; // Muestra el input para filtrar por rango de fecha
     this.toggle = this.proptoggle !== undefined ? this.proptoggle : true; //toggle de la tabla, para el modo de visualización
