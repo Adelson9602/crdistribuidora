@@ -1,1016 +1,916 @@
 <template>
-  <div class="q-pa-none">
-    <q-form @submit="onSubmit">
-      <q-stepper v-model="step" ref="stepper" color="primary" animated>
-        <q-step
-          :name="1"
-          title="Datos básicos del usuario"
-          icon="settings"
-          :done="step > 1"
-        >
-          <div class="row q-col-gutter-y-md">
-            <div class="col-xs-12 col-sm-6 col-md-3 q-pa-sm q-gutter-y-md">
-              <div class="text-h6">Datos Personales</div>
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Nombres"
-                filled
-                type="text"
-                hint="Nombres"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="50"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Apellidos"
-                filled
-                type="text"
-                hint="Apellidos"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="50"
-              />
-              <q-select
-                style="text-transform:uppercase;"
-                v-model="person.TipoDoc_Id"
-                filled
-                :options="options_type_documents"
-                hint="Tipo de documento"
-                :rules="[validateSelect]"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_NumeroDoc"
-                filled
-                type="number"
-                hint="Número de documento"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="20"
-              />
-              <q-select
-                style="text-transform:uppercase;"
-                filled
-                v-model="deparments"
-                :options="options_deparments"
-                hint="Departamento de Expedición"
-                :rules="[validateSelect]"
-              />
-              <q-select
-                style="text-transform:uppercase;"
-                filled
-                v-model="person.Pers_LugarExpDoc"
-                :options="options_city"
-                hint="Ciudad de Expedición"
-                :disable="!isDeparment"
-                :rules="[validateSelect]"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_FechaNaci"
-                filled
-                type="date"
-                hint="Fecha de Nacimiento"
-              />
-              <div class="q-gutter-sm">
-                <div class="row">
-                  <label for>Género</label>
-                </div>
-                <q-radio
-                  v-model="person.Pers_Genero"
-                  val="MASCULINO"
-                  label="Masculino"
-                />
-                <q-radio
-                  v-model="person.Pers_Genero"
-                  val="FEMENINO"
-                  label="Femenino"
-                />
-              </div>
-            </div>
-            <div class="col-xs-12 col-sm-6 col-md-3 q-pa-sm q-gutter-y-md">
-              <div class="text-h6">Datos de Laborales</div>
-              <q-select
-                style="text-transform:uppercase;"
-                v-model="person.Carg_id"
-                filled
-                :options="options_position"
-                hint="Cargo"
-                :rules="[validateSelect]"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Arl"
-                filled
-                type="text"
-                hint="ARL"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="50"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Eps"
-                filled
-                type="text"
-                hint="EPS"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="50"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Afp"
-                filled
-                type="text"
-                hint="AFP"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="50"
-              />
-              <q-select
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Rh"
-                filled
-                :options="options_rh"
-                hint="Seleccione RH"
-                :rules="[validateSelect]"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-6 col-md-3 q-pa-sm q-gutter-y-md">
-              <div class="text-h6">Datos de Contacto</div>
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Direccion"
-                filled
-                type="text"
-                hint="Dirección"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="50"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Celular"
-                filled
-                type="number"
-                hint="Teléfono"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="15"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-6 col-md-3 q-pa-sm q-gutter-y-md">
-              <div class="text-h6">Datos de la cuenta</div>
-              <div class="row col-xs-12 justify-center profile-img">
-                <q-avatar id="preview" size="200px" square class="q-mb-md">
-                  <img v-if="url" :src="url" />
+  <div>
+    <q-form @submit="createUser" class="q-gutter-md" id="form">
+      <div class="row">
+        <!-- Foto de perfil -->
+        <div class="col-xs-12 col-md-2 q-pa-sm q-gutter-y-md">
+          <div class="column justify-center items-center profile-img">
+            <q-avatar id="preview" square class="q-mb-md avatar_preview">
+              <img v-if="url" :src="url" />
+            </q-avatar>
+            <input type="file" @change="onFileChange" id="idImgUser" />
+            <q-btn
+              label="Seleccionar imágen"
+              flat
+              @click="dialog_avatar = true"
+            />
+          </div>
+          <q-dialog v-model="dialog_avatar"
+            ><!-- Empieza el dialog del avatar -->
+            <q-card>
+              <q-toolbar>
+                <q-avatar size="70px">
+                  <q-icon
+                    name="mdi-account-circle"
+                    size="70px"
+                    color="primary"
+                  />
                 </q-avatar>
-                <input type="file" @change="onFileChange" id="idImgUser" />
-                <q-btn label="Seleccionar imágen" flat @click="dialogAvatar = true"/>
+
+                <q-toolbar-title class="text-toolbar"
+                  ><span class="text-weight-bold">Sube</span> una foto o
+                  <span class="text-weight-bold">selecciona</span> un
+                  avatar</q-toolbar-title
+                >
+
+                <q-btn flat round dense icon="close" v-close-popup />
+              </q-toolbar>
+              <q-separator />
+              <q-card-section class="q-gutter-md row justify-center">
+                <q-avatar size="70px" class="text-center bg-grey">
+                  <label for="idImgUser">Subir foto</label>
+                </q-avatar>
+                <q-avatar
+                  size="70px"
+                  @click="
+                    selectedAvatar(`${urlApi}/adjuntos/men_avatar/m${item}.svg`)
+                  "
+                  v-for="item in 24"
+                  :key="`m${item}`"
+                  class="avatar"
+                >
+                  <img :src="`${urlApi}/adjuntos/men_avatar/m${item}.svg`" />
+                </q-avatar>
+                <q-avatar
+                  v-for="item in 24"
+                  :key="`f${item}`"
+                  size="70px"
+                  class="avatar"
+                  @click="
+                    selectedAvatar(
+                      `${urlApi}/adjuntos/male_avatar/f${item}.svg`
+                    )
+                  "
+                >
+                  <img :src="`${urlApi}/adjuntos/male_avatar/f${item}.svg`" />
+                </q-avatar>
+              </q-card-section>
+            </q-card> </q-dialog
+          ><!-- Finaliza el dialog del avatar -->
+          <!-- inputs -->
+          <q-input
+            filled
+            v-model="userNew.Primer_Nombre"
+            hint="Primer nombre"
+            :rules="[(val) => !!val || 'Primer es obligatorio']"
+            maxlength="36"
+            @input= "val => { userNew.Primer_Nombre = val.toUpperCase() }"
+            counter
+          />
+          <q-input
+            filled
+            v-model="userNew.Segundo_Nombre"
+            hint="Segundo nombre"
+            maxlength="36"
+            @input= "val => { userNew.Segundo_Nombre = val.toUpperCase() }"
+            counter
+          />
+          <q-input
+            filled
+            v-model="userNew.Primer_Apellido"
+            hint="Primer apellido"
+            :rules="[(val) => !!val || 'Primer es obligatorio']"
+            maxlength="36"
+            @input= "val => { userNew.Primer_Apellido = val.toUpperCase() }"
+            counter
+          />
+          <q-input
+            filled
+            v-model="userNew.Segundo_Apellido"
+            hint="Segundo apellido"
+            maxlength="36"
+            @input= "val => { userNew.Segundo_Apellido = val.toUpperCase() }"
+            counter
+          />
+          <q-input
+            filled
+            v-model="userNew.ID_Usuario"
+            hint="Usuario"
+            :rules="[(val) => !!val || 'Usuario es obligatorio']"
+            type="number"
+            maxlength="12"
+            @input= "val => { userNew.ID_Usuario = val.toUpperCase() }"
+            counter
+          />
+          <q-input
+            filled
+            v-model="Password"
+            :type="isPwd ? 'password' : 'text'"
+            hint="Contraseña"
+            :rules="[val => !!val || 'Contraseña es obligatorio']"
+            maxlength="12"
+            v-if="!editForm || user_edit.usuario == dataUser.ID_Usuario"
+            counter
+          >
+            <template v-slot:append>
+              <q-icon
+                :name="isPwd ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="isPwd = !isPwd"
+              />
+            </template>
+          </q-input>
+          <q-input
+            filled
+            v-model="confirmPassword"
+            type="password"
+            hint="Confirmar Contraseña"
+            :rules="[val => !!val || 'Contraseña es obligatorio']"
+            maxlength="12"
+            v-if="!editForm || user_edit.usuario == dataUser.ID_Usuario"
+          />
+          <!-- selects -->
+          <q-select
+            filled
+            v-model="estate_user"
+            :options="estadooptions"
+            hint="Estado"
+            :rules="[validateSelect]"
+          />
+          <!-- selects -->
+          <q-select
+            filled
+            v-model="estate_update_user"
+            :options="estado_update_options"
+            hint="Encuesta sociodemográfica"
+            :rules="[validateSelect]"
+          />
+          <q-select
+            filled
+            v-model="selectedRol"
+            :options="optionsRoles"
+            hint="Rol"
+            @filter="filterRoles"
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            :rules="[validateSelect]"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <!-- checkbox -->
+        <div class="col-xs-12 col-md-10">
+          <q-scroll-area style="height: 95vh">
+            <div class="row q-pt-md q-px-sm">
+              <!-- Bodegas -->
+              <div class="col-xs-12 col-sm-6 col-md-2">
+                <div class="text-body1 text-uppercase">Bodegas</div>
+                <div v-for="(bodega, index) in array_bodegas" :key="index">
+                  <q-checkbox
+                    v-model="bodega.selected"
+                    color="secondary"
+                    :label="bodega.Bodega"
+                  />
+                </div>
               </div>
-              <q-dialog v-model="dialogAvatar"><!-- Empieza el dialog del avatar -->
-                <q-card>
-                  <q-toolbar>
-                    <q-avatar size="70px">
-                      <q-icon name="mdi-account-circle" size="70px" color="primary"/>
-                    </q-avatar>
-
-                    <q-toolbar-title class="text-toolbar"><span class="text-weight-bold">Sube</span> una foto o <span class="text-weight-bold">selecciona</span> un avatar</q-toolbar-title>
-
-                    <q-btn flat round dense icon="close" v-close-popup />
-                  </q-toolbar>
-                  <q-separator />
-                  <q-card-section class="q-gutter-md row justify-center">
-                    <q-avatar size="70px" class="text-center bg-grey">
-                      <label for="idImgUser">Subir foto</label>
-                    </q-avatar>
-                    <q-avatar 
-                      size="70px" 
-                      @click="selectedAvatar(`${urlApi}/adjuntos/men_avatar/m${item}.svg`)"
-                      v-for="item in 24 " :key="`m${item}`"
-                      class="avatar"
+              <!--Modulos para permisos Básicos-->
+              <div class="col-xs-12 col-sm-6 col-md-5" v-if="selectedRol">
+                <div class="text-body1 text-uppercase">
+                  Modulos (Permisos básicos)
+                </div>
+                <div v-for="(modulo, index) in array_modules" :key="index">
+                  <b v-if="modulo.items.length > 0"><label>{{ modulo.label }}</label></b>
+                  <div v-if="modulo.items.length > 0" class="row">
+                    <q-list class="full-width" v-for="(items, sbindex) in modulo.items" :key="sbindex">
+                      <q-item
+                        v-if="items.selected"
+                        clickable
+                        v-ripple
+                      >
+                        <q-item-section>
+                          <q-item-label>
+                            <q-checkbox
+                              v-model="items.selected"
+                              color="secondary"
+                              :label="items.Descripcion"
+                              :val="items.IdItem"
+                              v-if="items.selected"
+                              @input="disableItem(index, sbindex)"
+                            />
+                          </q-item-label>
+                          <q-item-label caption class="q-px-xl">
+                            Acciones para el usuario
+                          </q-item-label>
+                          <q-item-label caption class="q-px-xl">
+                            <q-checkbox
+                              v-model="items.Actualizar"
+                              color="secondary"
+                              label="Actualizar"
+                              val="1"
+                              v-if="items.selected"
+                            />
+                            <q-checkbox
+                              v-model="items.Crear"
+                              color="secondary"
+                              label="Crear"
+                              val="1"
+                              v-if="items.selected"
+                            />
+                            <q-checkbox
+                              v-model="items.Leer"
+                              color="secondary"
+                              label="Leer"
+                              val="1"
+                              v-if="items.selected"
+                            />
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </div>
+                </div>
+              </div>
+              <!--Modulos para permisos adicionales-->
+              <div class="col-xs-12 col-sm-6 col-md-5" v-if="selectedRol">
+                <div class="text-body1 text-uppercase">
+                  Modulos (Permisos adicionales)
+                </div>
+                <div v-for="(modulo, index) in array_modules" :key="index">
+                  <b v-if="modulo.items.length > 0"
+                    ><label>{{ modulo.label }}</label></b
+                  >
+                  <div v-if="modulo.items.length > 0" class="row">
+                    <div
+                      class="col-xs-12"
+                      v-for="(items, index) in modulo.items"
+                      :key="index"
                     >
-                      <img :src="`${urlApi}/adjuntos/men_avatar/m${item}.svg`">
-                    </q-avatar>
-                    <q-avatar
-                      v-for="item in 24"
-                      :key="`f${item}`"
-                      size="70px"
-                      class="avatar"
-                      @click="selectedAvatar(`${urlApi}/adjuntos/male_avatar/f${item}.svg`)"
-                    >
-                      <img :src="`${urlApi}/adjuntos/male_avatar/f${item}.svg`">
-                    </q-avatar>
-                  </q-card-section>
-                </q-card>
-              </q-dialog><!-- Finaliza el dialog del avatar -->
-              <q-select
-                style="text-transform:uppercase;"
-                v-model="rol"
-                filled
-                :options="options_role"
-                hint="Seleccione un rol para este usuario"
-                :rules="[validateSelect]"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_NumeroDoc"
-                filled
-                hint="Este será su usuario"
-                disable
-                counter
-                maxlength="20"
-              />
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="password"
-                filled
-                :type="isPwd ? 'password' : 'text'"
-                hint="Ingrese la contraseña"
-                counter
-                maxlength="20"
-              >
-                <template v-slot:append>
-                  <q-icon
-                    :name="isPwd ? 'visibility_off' : 'visibility'"
-                    class="cursor-pointer"
-                    @click="isPwd = !isPwd"
-                  />
-                </template>
-              </q-input>
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="repeat_password"
-                filled
-                :type="isPwd ? 'password' : 'text'"
-                hint="Repita la Contraseña"
-                counter
-                maxlength="20"
-              >
-                <template v-slot:append>
-                  <q-icon
-                    :name="isPwd ? 'visibility_off' : 'visibility'"
-                    class="cursor-pointer"
-                    @click="isPwd = !isPwd"
-                  />
-                </template>
-              </q-input>
-              <q-input
-                style="text-transform:uppercase;"
-                v-model="person.Pers_Email"
-                filled
-                type="email"
-                hint="Ingrese el email"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-                counter
-                maxlength="50"
-              />
+                      <q-checkbox
+                        v-model="items.selected"
+                        color="secondary"
+                        :label="items.Descripcion"
+                        :val="items.IdItem"
+                        v-if="!items.selected"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <q-stepper-navigation class="col-xs-12 row justify-end q-gutter-md">
-            <q-btn
-              push
-              color="white"
-              text-color="primary"
-              @click="cancel"
-              label="Cancelar"
-              v-if="tabForm"
-            />
-            <q-btn
-              push
-              color="primary"
-              text-color="white"
-              @click="
-                () => {
-                  done1 = true;
-                  step = 2;
-                }
-              "
-              label="Continuar"
-              v-if="formUser"
-            />
-            <q-btn
-              push
-              :label="labelBtn"
-              type="submit"
-              color="primary"
-              v-if="!formUser"
-            />
-          </q-stepper-navigation>
-        </q-step>
-
-        <q-step
-          :name="2"
-          title="Documentos del conductor"
-          caption="Solo si el rol es USER"
-          icon="create_new_folder"
-        >
-          <div class="row q-col-gutter-y-md">
-            <div class="text-h6 col-xs-12">Documentos del conductor</div>
-            <div class="col-xs-12 col-sm-6 col-md-3 q-pa-sm q-gutter-y-md">
-              <q-select
-                v-model="documentsDriver.DocCond_CatLiceCond"
-                filled
-                :options="options_licenses"
-                hint="Seleccione una categoría de licencia"
-                :rules="[validateSelect]"
-              />
-              <q-input
-                type="date"
-                filled
-                v-model="documentsDriver.DocCond_LCFechaVenc"
-                hint="Seleccione la fecha de vencimiento de la licencia"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-              />
-            </div>
-            <div
-              class="col-xs-12 col-sm-6 col-md-3 q-pa-sm q-gutter-y-md"
-              v-for="(item, index) in courseDriver"
-              :key="index"
-            >
-              <q-select
-                v-model="item.certificado"
-                filled
-                :options="optionsCursosCertificados"
-                hint="Seleccione un curso"
-                :disable="item.inactive === 0"
-                :option-disable="
-                  opt =>
-                    item.inactive === 0 ? (opt.inactive = true) : opt.inactive
-                "
-                :rules="[validateSelect]"
-              />
-              <q-input
-                type="date"
-                filled
-                v-model="item.fecha_vencimiento"
-                hint="Seleccione la fecha de vencimiento del curso"
-                :rules="[ val => val && val.length > 0 || 'Campo obligatorio']"
-              />
-            </div>
-          </div>
-          <q-stepper-navigation class="col-xs-12 row justify-end q-gutter-md">
-            <q-btn
-              label="Agregar curso"
-              @click="addCourseDirver"
-              color="positive"
-              push
-              v-if="!disableBtn"
-            />
-            <q-btn
-              push
-              color="white"
-              text-color="primary"
-              @click="step = 1"
-              label="Regresar"
-            />
-            <q-btn
-              push
-              color="white"
-              text-color="primary"
-              @click="cancel"
-              label="Cancelar"
-              v-if="tabForm"
-            />
-            <q-btn
-              push
-              :label="labelBtn"
-              type="submit"
-              color="primary"
-              v-if="formUser"
-            />
-          </q-stepper-navigation>
-        </q-step>
-      </q-stepper>
+          </q-scroll-area>
+        </div>
+      </div>
+      <q-page-sticky position="bottom-right" :offset="[18, 18]">
+        <q-btn label="Guardar" type="submit" color="green" />
+      </q-page-sticky>
     </q-form>
   </div>
 </template>
-
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+const users = [];
+const roles = [];
+import { mapActions, mapState, mapMutations } from "vuex";
 var CryptoJS = require("cryp-to-js").default;
-const optionCities = [];
-const optionRoles = [];
-const optionDeparments = [];
-const optionPosition = [];
-const optionsTypeDocuments = [];
 export default {
-  name: "UserFormComponent",
-  props: [
-    "Roles",
-    "Deparments",
-    "Position",
-    "typeDocuments",
-    "Licenses",
-    "tabForm",
-    "dataUser",
-    "labelBtn"
-  ],
+  name: "ComponentuserForm",
   data() {
     return {
-      step: 1,
-      isDeparment: false,
-      isPwd: null,
-      options_city: optionCities,
-      options_position: optionPosition,
-      options_role: optionRoles,
-      options_deparments: optionDeparments,
-      options_type_documents: optionsTypeDocuments,
-      options_document_driver: ["CUMPLE", "NO CUMPLE", "N/A"],
-      options_licenses: this.Licenses,
-      repeat_password: null,
-      deparments: null,
-      rol: null,
-      formUser: false,
-      person: {
-        Pers_Nombres: null,
-        Pers_Apellidos: null,
-        TipoDoc_Id: null,
-        Pers_NumeroDoc: null,
-        Pers_FechaNaci: null,
-        Pers_LugarExpDoc: null,
-        Pers_Genero: null,
-        Carg_id: null,
-        Pers_Arl: null,
-        Pers_Eps: null,
-        Pers_Afp: null,
-        Pers_Rh: null,
-        Pers_Direccion: null,
-        Pers_Celular: null,
-        Pers_Email: null,
-        Pers_Imagen: '',
-        Emp_Id: 1
+      isPwd: false, //Cambia el tipo de input del password
+      regex : /^(?=(?=.*\d){2})(?=(?:.*[A-Z]){1})(?=(?=.*[a-z]){0})\S{6,}$/,
+      tab: "users",
+      respuesta: null,
+      countAditionalPermit: null,
+      url: null, //almacenamiento de imagen para muestreo
+      data: [],
+      Password: null,
+      confirmPassword: null, //Comparativo con Password
+      items: [],
+      array_modules: [],
+      optionsRoles: roles,
+      selectedRol: null,
+      roles: [],
+      file: null, //Almacenamiento de datos Array de imagen
+      array_bodegas: [],
+      estate_user: null,
+      userNew: {
+        ID_Usuario: null,
+        ID_Rol: null,
+        Estado: null,
+        Password: null,
+        Primer_Apellido: null,
+        Segundo_Apellido: '',
+        Primer_Nombre: null,
+        Segundo_Nombre: '',
+        Estado_Actualizacion: 0,
+        Foto: null,
+        Usuario_control: null,
+        Fecha_Hora: null,
       },
-      user: {
-        UsuarioUser: null,
-        Usuario_Contra: null,
-        Usuario_Estado: 1,
-        Rol_Id: null
-      },
-      password: null,
-      documentsDriver: {
-        DocCond_Lice_Cond: null, //Es la misma cédula
-        DocCond_CatLiceCond: null,
-        Pers_NumeroDoc: null,
-        DocCond_LCFechaVenc: null
-      },
-      allDataUser: this.dataUser,
-      files: null,
-      imgUser: null,
-      url: null,
-      courseDriver: [
+      estadooptions: [
         {
-          id_Usuario: null,
-          certificado: null,
-          id_Curso: null,
-          fecha_vencimiento: null
-        }
+          label: "Activo",
+          value: "1",
+        },
+        {
+          label: "Inactivo",
+          value: "0",
+        },
       ],
-      optionsCursosCertificados: [],
-      options_rh: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"],
-      disableBtn: false,
-      avatar: '',
-      dialogAvatar: false,
-      urlApi: null,
+      estate_update_user: null,
+      estado_update_options: ['SI', 'NO'],
+      dialog_avatar: false,
+      urlApi: "https://apis.qinspecting.com/newapp/", //Variable temporal
+      avatar: "",
+      user_edit: {
+        usuario: null
+      }, //Almacena los datos del usuario a editar
+      edit_form: false, //Permite validar que funciones ejecutar dependiendo si se va a crear o editar
     };
   },
+  props: ["editForm", "propDataUser"],
+  created() {
+    this.getData();
+  },
+  computed: {
+    ...mapState("auth", ["user"]),
+    dataUser() {
+      return this.user;
+    },
+  },
   watch: {
-    deparments(oldValue) {
-      optionCities.length = 0;
-      let idDeparment = oldValue.value;
-      this.setIdDeparment(idDeparment);
+    estate_user(newValue){
+      if(newValue){
+        this.userNew.Estado = newValue.value;
+      }
+    },
+    selectedRol(newValue) {
+      if (newValue) {
+        let result_rol = this.roles.find((rol) => rol.Rol === newValue);
+        if (result_rol) {
+          this.userNew.ID_Rol = result_rol.Id;
+          this.CheckPermissions(result_rol);
+        }
+      }
+    },
+    file(newValue){
+      if(newValue){
+        let extension_foto = newValue.type.split('/');
+        // Creamos un nombre con la fecha y hora del momento que se selecciona el archivo, a esa fecha le reemplazamos los . por ' ', los : y los - por _ y al resultado concatenamos un . y la extensión del archivo 
+        let name_file_foto= this.replaceAll(this.replaceAll(this.replaceAll(new Date().toISOString().toLowerCase(), ".", ""), ":", "_"), "-", "_")+"."+extension_foto[1];
+        newValue.newname = name_file_foto;
+      }
+    }
+  },
+  methods: {
+    // ...mapActions("access", [
+    //   "GetModules",
+    //   "GetItemsModules",
+    //   "getCheckPermissions",
+    //   "GetModulesHasItem",
+    //   "PostCreateUser",
+    //   "PostCreateUserBodega",
+    //   "saveFile",
+    //   "PostInsertUpdateAditionalPermits",
+    //   "getPermissionUser",
+    //   "getPermissionUserEdit"
+    // ]),
+    // ...mapActions("master", ["getRol", "getMovilUser", "getBodegas"]),
+    // ...mapMutations("auth", ["setUser", "setUserPermissions"]),
+    // ...mapActions("auth", ["PostLogin"]),
+    // ...mapActions("inventory", ["requestGetCellarUser"]),
+    // Obtiene datos del servidor, son los que se usan en el frontend, tanto para selects, inputs, cehckbox
+    getData() {
       this.$q.loading.show({
-        message: "Obteniendo ciudades, por favor espere..."
+        message: "Obteniendo usuarios existentes, por favor espere...",
       });
       setTimeout(async () => {
         try {
-          const ciudades = await this.getAllCities().then(res => {
-            if (res.status === 200) {
-              this.$q.notify({
-                type: "positive",
-                message: "Ciudades obtenidas",
-                position: "bottom"
-              });
-            }
-            return res.data;
-          }); // Get cities from api
-          // Este forEach establece las opciones del selecet ciudad
-          ciudades.forEach(element => {
-            if (idDeparment === element.Dpt_Id) {
-              optionCities.push({
-                label: element.Ciu_Nombre,
-                value: element.Ciu_Id
-              });
-            }
-          });
-          this.isDeparment = true; //habilita el selecte ciudad
+
+          // const resgetRol = await this.getRol().then((res) => {
+          //   return res.data;
+          // });
+          // console.log({
+          //   msg: "Respuesta get roles",
+          //   data: resgetRol,
+          // });
+
+          // roles.length = 0;
+          // this.roles.length = 0;
+          // resgetRol.forEach((rolbase) => {
+          //   roles.push(rolbase.Rol);
+          //   this.roles.push(rolbase);
+          // });
+
+          // const resgetBodegas = await this.getBodegas().then((res) => {
+          //   return res.data;
+          // });
+          // console.log({
+          //   msg: "Respuesta get bodegas",
+          //   data: resgetBodegas,
+          // });
+
+          // this.array_bodegas.length = 0;
+          // resgetBodegas.forEach((rolbase) => {
+          //   this.array_bodegas.push({
+          //     Bodega: rolbase.Bodega,
+          //     Estado: rolbase.Estado,
+          //     ID_Ciudad1: rolbase.ID_Ciudad1,
+          //     ID_Regional1: rolbase.ID_Regional1,
+          //     Id: rolbase.Id,
+          //     Regional: rolbase.Regional,
+          //     cedula_control: rolbase.cedula_control,
+          //     fecha_control: rolbase.fecha_control,
+          //     id_campo: rolbase.id_campo,
+          //     nombre_control: rolbase.nombre_control,
+          //     tabla: rolbase.tabla,
+          //     selected: false,
+          //   });
+          // });
+
+          // // Si estamos editando el usuario, entonces asignamos los datos del usuario a editar cada uno de los inputs y selects
+          // if(this.editForm){
+          //   this.isPwd = true;
+          //   this.assingEditData();
+          // }
         } catch (e) {
-          console.log(e)
-          if ( e.message === "Network Error" ) {
+          console.log(e);
+          if (e.message === "Network Error") {
             e = e.message;
-          } else if ( e.message === "Request failed with status code 404" ){
-            e = 'Error 404 al hacer la petición al servidor';
-          } else if(e.message){
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
             e = e.message;
           }
           this.$q.notify({
             message: e,
-            type: 'negative'
+            type: "negative",
           });
         } finally {
           this.$q.loading.hide();
         }
       }, 2000);
     },
-    rol(oldValue) {
-      if (oldValue.label === "Operador") {
-        this.formUser = true;
-      } else {
-        this.formUser = false;
-      }
-    }
-  },
-  created() {
-    if (this.tabForm) {
-      this.editUserData();
-    }
-    this.urlApi = process.env.__URLAPI__;
-    optionRoles.length = 0;
-    optionPosition.length = 0;
-    optionDeparments.length = 0;
-    optionsTypeDocuments.length = 0;
-    this.Roles.forEach(element => {
-      optionRoles.push(element);
-    });
-    this.Position.forEach(element => {
-      optionPosition.push(element);
-    });
-    this.Deparments.forEach(element => {
-      optionDeparments.push(element);
-    });
-    this.typeDocuments.forEach(element => {
-      optionsTypeDocuments.push(element);
-    });
-    setTimeout(async () => {
-      try {
-        const reslistCoursesCertified = await this.listCoursesCertified().then(
-          res => {
-            return res.data;
-          }
-        );
-        reslistCoursesCertified.forEach(element => {
-          if (element.id_Curso !== 5) {
-            this.optionsCursosCertificados.push({
-              value: element.id_Curso,
-              label: element.Curso,
-              inactive: false
-            });
-          }
-        });
-      } catch (e) {
-        console.log(e);
-        this.notify({
-          message: "Error ejecutando funciones del sistema",
-          type: "negative"
-        });
-      }
-    }, 2000);
-  },
-  methods: {
-    ...mapMutations("auth", ["sendDataUser"]),
-    ...mapActions("auth", ["register", "createUser"]),
-    ...mapActions("inspections", ["getAllCities"]),
-    ...mapMutations("inspections", ["setIdDeparment"]),
-    ...mapMutations("access", ["setIdPerson"]),
-    ...mapActions("access", [
-      "insertDocumentsDriver",
-      "editDataEmploye",
-      "editDataUser",
-      "insertRelationDocumentsDriver",
-      "listCoursesCertified",
-      "validateUser",
-    ]),
-    ...mapActions("documents", ["updateDocumentsDrivers"]),
-    ...mapMutations("documents", ["setIdDriver"]),
-    ...mapActions("inspections", ["saveFile"]),
-    async onSubmit() {
-      if (this.password !== this.repeat_password) {
+    // Valida el formulario antes de enviar a la BD
+    async createUser() {
+      var date = new Date();
+      var dateToDay = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+      var hourNow = date.toTimeString().split(":");
+      var seconds = hourNow[2].split(" ");
+      var hour = hourNow[0] + ":" + hourNow[1] + ":" + seconds[0];
+      var fullDate = dateToDay + " " + hour; //Concatenamos la hora y fecha, para luego asignarla a la variable que se enviara en el post
+      // Escripta contraseñas
+      // Validamos coincidencia de contraseñas
+      if(this.confirmPassword !== this.Password){
         this.$q.notify({
-          color: "negative",
-          icon: "warning",
-          message: "Las contraseñas no son iguales"
-        });
+          message: 'Las contraseñas no son iguales',
+          type: 'warning'
+        })
       } else {
-        if( this.person.Pers_Imagen !== ''){
-          this.user.UsuarioUser = this.person.Pers_NumeroDoc;
-          this.user.Rol_Id = this.rol.value;
-          // Extramos el id de los objetos
-          this.person.Pers_LugarExpDoc = this.person.Pers_LugarExpDoc.value;
-          this.person.TipoDoc_Id = this.person.TipoDoc_Id.value;
-          this.person.Carg_id = this.person.Carg_id.value;
-          var msgLoading; //Variable que contendra el mensaje a mostrar en el loading, dependiendo de si es update o register;
-          if (!this.tabForm) {
-            msgLoading = "Registrando usuario, por favor espere...";
-          } else {
-            msgLoading = "Actualizando datos del usuario, por favor espere...";
-          }
-          this.$q.loading.show({
-            message: msgLoading
+        // Validamos si hay bodega seleccioanda
+        let resul_bodega = this.array_bodegas.find(e => e.selected === true);
+        if(!resul_bodega){
+          this.$q.notify({
+            message: 'Debe seleccionar una bodega',
+            type: 'warning'
           });
-          setTimeout(async () => {
-            try {
-              await this.apiRegister();
-            } catch (e) {
-              console.log(e);
-              console.log(e)
-              if ( e.message === "Network Error" ) {
-                e = e.message;
-              } else if ( e.message === "Request failed with status code 404" ){
-                e = 'Error 404 al hacer la petición al servidor';
-              } else if(e.message){
-                e = e.message;
-              }
-              this.$q.notify({
-                message: e,
-                type: 'negative'
-              });
-            } finally {
-              this.$q.loading.hide();
-            }
-          }, 2000);
+        } else if(this.userNew.Foto) {
+          if(this.file){
+            // Se sube la foto al servidor
+            const formData = new FormData();
+            formData.append( "files", this.file, this.file.newname );
+            const ressaveFile = await this.saveFile(formData).then(async res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta subida foto de perfil',
+              data: ressaveFile
+            })
+
+            this.userNew.Foto = `${process.env.__URLAPI__}/adjuntos/${this.file.newname}`;
+            /*Se inicia guardado de datos en tabla usuario*/
+            this.sendDataUser(fullDate);
+            return;
+          } else {
+            this.sendDataUser(fullDate);
+            return;
+          }
         } else {
           this.$q.notify({
-            message: 'Debe subir una foto o seleccionar un avatar',
-            type: 'negative'
+            message: 'Debe seleccionar un avatar o una foto de perfil',
+            type: 'warning'
           })
         }
       }
     },
-    async apiRegister() {
-      if (
-        this.courseDriver.id_Curso === undefined &&
-        this.user.Rol_Id === 2 &&
-        this.documentsDriver.DocCond_CatLiceCond === null
-      ) {
-        this.$q.notify({
-          message: "No puedes registrar un conductor sin documentos",
-          type: "warning"
-        });
-      } else {
-        this.user.Usuario_Contra = this.encryptedAES(this.password); // Encripta la contraseña
-        //Si no es true el tabForm entonces esta creando el usuario
-        if (!this.tabForm) {
-          try {
-            const resvalidateUser = await this.validateUser(this.person).then(
-              res => {
-                return res.data;
-              }
-            );
-            if (resvalidateUser.cant > 0) {
-              this.$q.notify({
-                message: "Esta persona ya esta registrada",
-                type: "warning"
-              });
-            } else {
-              if (this.files) {
-                const formData = new FormData();
-                formData.append( "files", this.files, this.files.name.toLowerCase().replace(/ /gi, "_"));
-                const ressaveFile = await this.saveFile(formData).then(async res => {
-                    return res.data;
-                }).catch(e => console.log(e));
-                // console.log({
-                //   msg: 'Respuesta subida de foto de perfil',
-                //   data: ressaveFile
-                // });
-                if(!ressaveFile.saved){
-                  throw 'Error al guardar foto de perfil';
-                }
-                this.person.Pers_Imagen = `${process.env.__URLAPI__}/adjuntos/` + this.files.name.toLowerCase().replace(/ /gi, "_");
-              }
-              const resregister = await this.register(this.person).then(res => {
-                return res.data;
-              });
-              // console.log({
-              //   msg: 'Respuesta insert persona',
-              //   data: resregister
-              // });
-              if(!resregister.affectedRows){
-                throw 'Error al registrar datos personales';
-              }
-
-              const rescreateUser = await this.createUser(this.user).then(res => {
-                return res.data;
-              });
-              // console.log({
-              //   msg: 'Respuesta insert usuario',
-              //   data: rescreateUser
-              // })
-              if(!rescreateUser.affectedRows){
-                throw 'Error al crear el usuario de la persona';
-              }
-
-              // Registramos los documentos del conductos solo si el rol es User
-              if (this.formUser) {
-                this.documentsDriver.DocCond_Lice_Cond = this.person.Pers_NumeroDoc;
-                this.documentsDriver.Pers_NumeroDoc = this.person.Pers_NumeroDoc;
-                const resinsertDocumentsDriver = await this.insertDocumentsDriver(this.documentsDriver).then(res => {
-                  return res.data;
-                });
-                // console.log({
-                //   msg: 'Respuesta insert documentos conductor',
-                //   data: resinsertDocumentsDriver
-                // });
-                if(!resinsertDocumentsDriver.affectedRows){
-                  throw 'Error al guardar la documentación del conductor';
-                }
-
-                this.courseDriver.push({
-                  id_Curso: 5,
-                  fecha_vencimiento: this.documentsDriver.DocCond_LCFechaVenc,
-                  id_Usuario: null
-                });
-
-                if (this.courseDriver.length > 0) {
-                  this.courseDriver.forEach(async element => {
-                    try {
-                      element.id_Usuario = this.person.Pers_NumeroDoc;
-                      if (element.certificado !== null) {
-                        if (element.id_Curso !== 5) {
-                          element.id_Curso = element.certificado.value;
-                        }
-                        const resinsertRelationDocumentsDriver = await this.insertRelationDocumentsDriver( element ).then(res => {
-                          return res.data;
-                        });
-                        // console.log({
-                        //   msg: 'Respuesta insert relación documentos del conductor',
-                        //   data: resinsertRelationDocumentsDriver
-                        // });
-                        if(!resinsertRelationDocumentsDriver.affectedRows){
-                          throw 'Error al relacionar la documentación con el conductor';
-                        }
-                      }
-                    } catch (e) {
-                      console.log(e)
-                      if ( e.message === "Network Error" ) {
-                        e = e.message;
-                      } else if ( e.message === "Request failed with status code 404" ){
-                        e = 'Error 404 al hacer la petición al servidor';
-                      } else if(e.message){
-                        e = e.message;
-                      }
-                      this.$q.notify({
-                        message: e,
-                        type: 'negative'
-                      });
-                    }
-                  });
-                }
-                // Aplica cuando es conductor
-                this.courseDriver.length = 0;
-                this.person.length = 0;
-                this.person.length = 0;
-                this.$emit("reload");
-              }
-              // Aplica cuando no es conductor
-              this.courseDriver.length = 0;
-              this.person.length = 0;
-              this.person.length = 0;
-              this.$emit("defaultValues");
-              this.$q.notify({
-                type: "positive",
-                message: "Usuario registrado con éxito",
-              });
-              this.$emit("reload");
+    // Asigna los datos a editar a cada input y select
+    assingEditData(){
+      this.user_edit = this.propDataUser;
+      this.edit_form = this.editForm;
+      this.estate_user = {
+        label: this.user_edit.Estado === 'Activo' ? 'Activo' : 'Inactivo',
+        value: this.user_edit.Estado === 'Activo' ? 1 : 0,
+      }
+      let result_rol = this.roles.find((rol) => rol.Id === this.user_edit.Id_Rol1);
+      this.selectedRol = result_rol.Rol;
+      this.url = this.user_edit.Foto;
+      this.Password = this.decryptedAES(this.user_edit.Password);
+      this.userNew = {
+        ID_Usuario: this.user_edit.usuario,
+        ID_Rol1: this.user_edit.Id_Rol1,
+        Estado: this.user_edit.Estado === 'Activo' ? 1 : 0,
+        Password: this.decryptedAES(this.user_edit.Password),
+        Foto: this.user_edit.Foto,
+        ID_Usuario14: this.user_edit.nombre_control,
+        Fecha_Hora: this.user_edit.fechaprueba,
+        Primer_Apellido: this.user_edit.Primer_Apellido,
+        Segundo_Apellido: this.user_edit.Segundo_Apellido,
+        Primer_Nombre: this.user_edit.Primer_Nombre,
+        Segundo_Nombre: this.user_edit.Segundo_Nombre,
+        Estado_Actualizacion: this.user_edit.Estado_Actualizacion,
+      }
+      this.estate_update_user = this.user_edit.Estado_Actualizacion === 1 ? 'SI' : 'NO';
+    },
+    // Deselecciona todos los permisos
+    disableItem(mindex, sbindex){
+      this.array_modules.forEach( (modulo, index) => {
+        if(mindex === index){
+          modulo.items.forEach( (item, iindex) => {
+            if(sbindex === iindex){
+              item.Actualizar = false;
+              item.Crear = false;
             }
-          } catch (e) {
-            console.log(e)
-            if ( e.message === "Network Error" ) {
-              e = e.message;
-            } else if ( e.message === "Request failed with status code 404" ){
-              e = 'Error 404 al hacer la petición al servidor';
-            } else if(e.message){
-              e = e.message;
-            }
-            this.$q.notify({
-              message: e,
-              type: 'negative'
-            });
+          })
+        }
+      })
+    },
+    // Envia los datosd el usuario al servidor BD
+    sendDataUser(fullDate){
+      // Empezamos a registrar el usuario
+      this.confirmPassword = this.encryptedAES(this.confirmPassword);
+      this.userNew.Password = this.encryptedAES(this.Password);
+      this.userNew.Fecha_Hora = fullDate;
+      if(this.edit_form){
+        this.userNew.Estado_Actualizacion = this.estate_update_user === 'SI' ? 1 : 0;
+      }
+      this.$q.loading.show({
+        message: "Guardando usuario, por favor espere...",
+      });
+      setTimeout(async () => {
+        try {
+          this.userNew.Usuario_control = this.dataUser.ID_Usuario; //Usuario que esta creando el usuario
+          const resPostCreateUser = await this.PostCreateUser(this.userNew).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert user',
+            data: resPostCreateUser
+          })
+          if(!resPostCreateUser.affectedRows){
+            throw 'Error al crear el usuario';
           }
+          // Inserta las bodegas del usuario,
+          let promesa_insert_bodega = []; //Almacena todas la promesas de los insert permisos
+          let promesas_insert = []; //Almacena todas la promesas de los insert permisos
+          this.array_bodegas.forEach(async bodega => {
+            if (bodega.selected) {
+              let bodega_user = {
+                ID_Usuario19: this.userNew.ID_Usuario,
+                ID_Bodega1: bodega.Id,
+                Estado: 1,
+                ID_Usuario20: this.dataUser.ID_Usuario,
+              };
+              promesa_insert_bodega.push(this.PostCreateUserBodega(bodega_user));
+            } 
+            else if (this.edit_form && !bodega.selected){ //Estamos desasociando la bodega
+              let bodega_user = {
+                ID_Usuario19: this.userNew.ID_Usuario,
+                ID_Bodega1: bodega.Id,
+                Estado: 0,
+                ID_Usuario20: this.dataUser.ID_Usuario,
+              };
+              promesa_insert_bodega.push(this.PostCreateUserBodega(bodega_user));
+            }
+          });
           
-        } else {
-          try {
-            this.setIdPerson(this.person.Pers_NumeroDoc);
-            this.setIdDriver(this.dataUser.DocCond_Id);
-            if (this.files) {
-              const formData = new FormData();
-              formData.append(
-                "files",
-                this.files,
-                this.files.name.toLowerCase().replace(/ /gi, "_")
-              );
-              await this.saveFile(formData).catch(e => console.log(e));
-              this.person.Pers_Imagen =
-                `${process.env.__URLAPI__}/adjuntos/` +
-                this.files.name.toLowerCase().replace(/ /gi, "_");
+          // Inserta los permisos
+          this.array_modules.forEach( modulo => {
+            modulo.items.forEach( item => {
+              if(item.selected){
+                let PermitAditional = {
+                  Id_usuario: this.userNew.ID_Usuario,
+                  Id_has_frontend2: item.Id_has_frontend,
+                  Estado: 1,
+                  Usuario_control: this.dataUser.ID_Usuario,
+                  Fecha_control: fullDate,
+                  Crear: item.Crear ? 1 : 0,
+                  Leer: item.Leer ? 1 : 0,
+                  Actualizar: item.Actualizar ? 1 : 0,
+                  Borrar: item.Borrar ? 1 : 0,
+                };
+                promesas_insert.push(this.PostInsertUpdateAditionalPermits(PermitAditional));
+              } else if (this.edit_form && !item.selected && item.Id_has_frontend){ //Estamos desasociando el permiso
+                let PermitAditional = {
+                  Id_usuario: this.userNew.ID_Usuario,
+                  Id_has_frontend2: item.Id_has_frontend,
+                  Estado: 0,
+                  Usuario_control: this.dataUser.ID_Usuario,
+                  Fecha_control: fullDate,
+                  Crear: 0,
+                  Leer: 1,
+                  Actualizar: 0,
+                  Borrar: 0,
+                };
+                promesas_insert.push(this.PostInsertUpdateAditionalPermits(PermitAditional));
+              }
+            })
+          });
+          // Ejecuta las peticiones insert de las bodegas
+          Promise.all(promesa_insert_bodega).then( res => {
+            res.forEach( data => {
+              console.log({
+                msg: 'Respuesta insert bodegas',
+                data: data.data
+              });
+            })
+          })
+          // Ejecuta las peticiones insert de los permisos
+          Promise.all(promesas_insert).then( res => {
+            res.forEach( data => {
+              console.log({
+                msg: 'Respuesta insert permisos',
+                data: data.data
+              });
+            })
+          });
+          if(this.edit_form && this.dataUser.ID_Usuario === this.userNew.ID_Usuario){
+            let user_logged = {
+              user: this.dataUser.ID_Usuario,
+              password: this.userNew.Password
             }
-            const reseditDataEmploye = await this.editDataEmploye(this.person).then(res => {
+            const resPostLogin = await this.PostLogin(user_logged).then( res => {
+              return res.data;
+            })
+            this.setUser({}); //Vaciamos el estado antes de asginar los nuevos valores
+            this.setUser(resPostLogin.user);
+
+            const resgetPermissionUser = await this.getPermissionUser(this.userNew.ID_Usuario).then( res => {
               return res.data;
             });
-            if(!reseditDataEmploye.affectedRows){
-              throw 'Error actualizando datos';
-            }
-            // console.log({
-            //   msg: 'Respuesta edit datos',
-            //   data: reseditDataEmploye
-            // });
-            const reseditDataUser = await this.editDataUser(this.user).then(res => {
-              return res.data;
-            }); //Actualiza los datos del usuario
-            if(!reseditDataUser.affectedRows){
-              throw 'Error actualizando datos de usuario';
-            }
-            // console.log({
-            //   msg: 'Respuesta edit datos usuario conductor',
-            //   data: reseditDataUser
-            // });
-
-            if (this.dataUser.Rol_Nombre === "Operador") {
-              let license = {
-                DocCond_Id: this.dataUser.DocCond_Id === 'N/A' ? null : this.dataUser.DocCond_Id,
-                DocCond_Lice_Cond: this.person.Pers_NumeroDoc,
-                DocCond_CatLiceCond: this.documentsDriver.DocCond_CatLiceCond,
-                Pers_NumeroDoc: this.person.Pers_NumeroDoc,
-                fecha_vencimiento: this.documentsDriver.DocCond_LCFechaVenc,
-                id_Usuario: this.person.Pers_NumeroDoc,
-                id_Curso: 5,
-              }
-              // Actuliza la categoria de la licencia de conducir
-              const resinsertDocumentsDriver = await this.insertDocumentsDriver(license).then( res => {
-                return res.data;
-              });
-              // console.log({
-              //   msg: 'Respuesta edit licencia del conductor',
-              //   data: resinsertDocumentsDriver
-              // })
-              if(!resinsertDocumentsDriver.affectedRows){
-                throw 'Error al actualizar la categoría de licencia del conductor';
-              }
-              
-              // Actuliza la fecha de vencimiento de la licencia
-              const resupdateDocumentsDrivers = await this.updateDocumentsDrivers(license).then(res => {
-                return res.data
-              });
-              // console.log({
-              //   msg: 'Repuesta edit documentos',
-              //   data: resupdateDocumentsDrivers
-              // });
-              if(!resupdateDocumentsDrivers.affectedRows){
-                throw 'Error al actualizar la fecha vencimiento de la licencia';
-              }
-              
-              // Reemplazamos las fechas 1000-01-01 por null, para que no se tome como falsificación de datos
-              this.courseDriver.forEach(async element => {
-                try {
-                  if(element.certificado && element.certificado.value !== 5){
-                    let curso = {
-                      id_Usuario: element.id_Usuario,
-                      id_Curso: element.certificado.value,
-                      fecha_vencimiento: element.fecha_vencimiento,
-                      certificado: element.certificado.label
-                    }
-                    // Actuliza la fecha de los cursos y cursos
-                    const resupdateDocumentsDrivers = await this.updateDocumentsDrivers(curso).then(res => {
-                      return res.data
-                    });
-                    // console.log({
-                    //   msg: 'Repuesta edit documentos',
-                    //   data: resupdateDocumentsDrivers
-                    // });
-                    if(!resupdateDocumentsDrivers.affectedRows){
-                      throw 'Error al actulizar documentación';
-                    }
-                  }
-                } catch (e) {
-                  console.log(e)
-                  if ( e.message === "Network Error" ) {
-                    e = e.message;
-                  } else if ( e.message === "Request failed with status code 404" ){
-                    e = 'Error 404 al hacer la petición al servidor';
-                  } else if(e.message){
-                    e = e.message;
-                  }
-                  this.$q.notify({
-                    message: e,
-                    type: 'negative'
-                  });
+            console.log({
+              msg: 'Respuesta get permisos asignados del usuario a editar',
+              data: resgetPermissionUser
+            });
+            let state_permissions = [];
+            this.setUserPermissions([]);
+            // Permisos para el estado
+            this.array_modules.forEach( modulo => {
+              resgetPermissionUser.forEach( permiso_basico => {
+                if (modulo.Id_modulo === permiso_basico.Id_modulo) {
+                  state_permissions.push({
+                    modulo: modulo.label.replace(/\b\w/g, (l) => l.toUpperCase()),
+                    Id_modulo: permiso_basico.Id_modulo,
+                    Actualizar: permiso_basico.Actualizar === 1 ? true : false,
+                    Borrar: permiso_basico.Borrar === 1 ? true : false,
+                    Crear: permiso_basico.Crear === 1 ? true : false,
+                    Leer: permiso_basico.Leer === 1 ? true : false,
+                    route: `/${permiso_basico.route}`,
+                  })
                 }
               });
-            }
-            this.$q.notify({
-              type: "positive",
-              message: "Datos actualizados"
-            });
-            this.$emit("reload");
-          } catch (e) {
-            console.log(e)
-            if ( e.message === "Network Error" ) {
-              e = e.message;
-            } else if ( e.message === "Request failed with status code 404" ){
-              e = 'Error 404 al hacer la petición al servidor';
-            } else if(e.message){
-              e = e.message;
-            }
-            this.$q.notify({
-              message: e,
-              type: 'negative'
-            });
-          }
-        }
-      }
-    },
-    async editUserData() {
-      this.deparments = {
-        label: this.dataUser.Departamento,
-        value: this.dataUser.Dpt_Id
-      };
-      this.person.Pers_Nombres = this.dataUser.Pers_Nombres;
-      this.person.Pers_Apellidos = this.dataUser.Pers_Apellidos;
-      this.person.TipoDoc_Id = {
-        label: this.dataUser.TipoDoc_Descrip,
-        value: this.dataUser.TipoDoc_Id
-      };
-      this.person.Pers_NumeroDoc = this.dataUser.UsuarioUser;
-      this.person.Pers_FechaNaci = this.dataUser.Pers_FechaNaci;
-      this.person.Pers_LugarExpDoc = {
-        label: this.dataUser.Ciu_Nombre,
-        value: this.dataUser.Pers_LugarExpDoc
-      };
-      this.person.Pers_Genero = this.dataUser.Pers_Genero;
-      this.person.Carg_id = {
-        label: this.dataUser.Carg_Descripcion,
-        value: this.dataUser.Carg_id
-      };
-      this.person.Pers_Arl = this.dataUser.Pers_Arl;
-      this.person.Pers_Eps = this.dataUser.Pers_Eps;
-      this.person.Pers_Afp = this.dataUser.Pers_Afp;
-      this.person.Pers_Rh = this.dataUser.Pers_Rh;
-      this.person.Pers_Direccion = this.dataUser.Pers_Direccion;
-      this.person.Pers_Celular = this.dataUser.Pers_Celular;
-      this.person.Pers_Email = this.dataUser.Pers_Email;
-      this.person.Pers_Imagen = this.dataUser.Pers_Imagen;
-
-      this.user.UsuarioUser = this.dataUser.UsuarioUser;
-      this.user.Usuario_Estado = this.dataUser.Usuario_Estado;
-      this.user.Rol_Id = this.dataUser.Rol_Id;
-      this.user.Usuario_Contra = this.decryptedAES(
-        this.dataUser.Usuario_Contra
-      );
-      this.rol = {
-        label: this.dataUser.Rol_Nombre,
-        value: this.dataUser.Rol_Id
-      };
-      this.imgUser = this.person.Pers_Imagen;
-      this.url = this.person.Pers_Imagen;
-      // Validamos si el rol es operador, esto permite que los datos de los cursos y documentos del conductor se muestren en el fronent
-      if (this.dataUser.Rol_Nombre === "Operador") {
-        this.courseDriver.length = 0;
-        var documents = JSON.parse(this.dataUser.courseDriver);
-        documents.forEach ( element => {
-          if(element.certificado !== 'NULL' && element.id_Curso !== 5){
-            this.courseDriver.push({
-              certificado: element.certificado === "NULL" ? null : {
-                inactive: true,
-                label: element.certificado,
-                value: element.id_Curso
-              },
-              fecha_vencimiento: element.fecha_vencimiento === "1000-01-01" ? null : element.fecha_vencimiento,
-              id_Curso: element.id_Curso === "NULL" ? null : element.id_Curso,
-              id_Usuario: element.id_Usuario,
-              inactive: element.inactive
             })
+            this.setUserPermissions(state_permissions);
+            location.reload();
           }
-        })
-        this.optionsCursosCertificados.forEach(element => {
-          this.courseDriver.forEach( cursoConductor => {
-            if(element.value === cursoConductor.id_Curso){
-              if(cursoConductor.inactive === 0){
-                element.inactive = true
-              }
-            }
+
+          this.$q.notify({
+            message: `${this.edit_form ? 'Cambios guardados' : 'Usuario guardado'}`,
+            type: 'positive'
           })
-        })
-        this.documentsDriver.DocCond_CatLiceCond = this.dataUser.DocCond_CatLiceCond;
-        this.documentsDriver.DocCond_LCFechaVenc = this.dataUser.DocCond_LCFechaVenc === '1000-01-01' ? null : this.dataUser.DocCond_LCFechaVenc;
+          // Limpiamos el formulario
+          this.$emit('reload')
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000);
+    },
+    cleanForm(){
+      this.dialog = false;
+      this.userNew = {
+        ID_Usuario: null,
+        ID_Rol1: null,
+        Estado: null,
+        Password: null,
+        Foto: null,
+        ID_Usuario14: null,
+        Fecha_Hora: null,
+      };
+      this.cellar_bodega = {
+        ID_Usuario19: null,
+        ID_Bodega1: null,
+        Estado: null,
+        ID_Usuario20: null,
+        Fecha_Hora: null,
+      };
+      this.cellar_adicionales = {
+        Id_usuario: null,
+        Id_has_frontend2: null,
+        Estado: null,
+        Usuario_control: null,
+        Fecha_control: null,
+      };
+      this.selectedCity = null;
+      this.selectedProduct = null;
+      this.selectedworkgroup = null;
+      this.confirmPassword = null;
+    },
+    // Obtiene los permisos del rol seleccionado
+    CheckPermissions(rol_selected) {
+      this.$q.loading.show({
+        message: "Obteniendo permisos básicos, por favor espere...",
+      });
+      setTimeout(async () => {
+        try {
+          const resGetModules = await this.GetModules().then((res) => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta get modulos",
+            data: resGetModules,
+          });
+          this.array_modules.length = 0;
+          resGetModules.forEach((modulebase) => {
+            this.array_modules.push({
+              Descripcion: modulebase.Descripcion,
+              Id_modulo: modulebase.Id_modulo,
+              label: modulebase.label.replace(/\b\w/g, (l) => l.toUpperCase()),
+              items: [],
+            });
+          });
+          
+          const resgetCheckPermissions = await this.getCheckPermissions(
+            rol_selected
+          ).then((res) => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta permisos, basicos y adicionales",
+            data: resgetCheckPermissions,
+          });
+          this.array_modules.forEach((modulo) => {
+            resgetCheckPermissions.forEach((permiso) => {
+              if (modulo.Id_modulo === permiso.Id_modulo) {
+                modulo.items.push({
+                  Estado: permiso.Estado,
+                  Id_has_frontend: permiso.Id_has_frontend,
+                  Id_has_frontend1: permiso.Id_has_frontend1,
+                  Id_modulo: permiso.Id_modulo,
+                  Id_rol1: permiso.Id_rol1,
+                  label: permiso.label,
+                  Descripcion: permiso.Descripcion,
+                  modulo: permiso.modulo,
+                  validator: permiso.validator,
+                  selected: permiso.Id_rol1 ? true : false,
+                  basico: permiso.Id_rol1 ? true : false,
+                  Actualizar: permiso.Actualizar === 1 ? true : false,
+                  Borrar: permiso.Borrar === 1 ? true : false,
+                  Crear: permiso.Crear === 1 ? true : false,
+                  Leer: permiso.Leer === 1 ? true : false,
+                });
+              }
+            });
+          });
+          // Si se esta editando, se busca cuales permisos tiene el usuario y se selecciona
+          if(this.edit_form){
+            
+            const resrequestGetCellarUser = await this.requestGetCellarUser(this.userNew).then(res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta get bodegas usuario',
+              data: resrequestGetCellarUser
+            });
+            this.array_bodegas.forEach( bodega => {
+              let bodega_user = resrequestGetCellarUser.find( b => b.id === bodega.Id);
+              if(bodega_user){
+                bodega.selected = true;
+              }
+            });
+
+            const resgetPermissionUserEdit = await this.getPermissionUserEdit(this.userNew.ID_Usuario).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta get permisos asignados del usuario a editar',
+              data: resgetPermissionUserEdit
+            });
+            this.array_modules.forEach((modulo) => {
+              modulo.items.forEach( permiso_basico => {
+                let permiso_selecte = resgetPermissionUserEdit.find( permiso_user => permiso_basico.Id_has_frontend === permiso_user.Id_has_frontend );
+                if(permiso_selecte){
+                  permiso_basico.Estado = permiso_selecte.Estado;
+                  permiso_basico.Id_has_frontend = permiso_selecte.Id_has_frontend;
+                  permiso_basico.Id_has_frontend1 = permiso_selecte.Id_has_frontend1;
+                  permiso_basico.Id_modulo = permiso_selecte.Id_modulo;
+                  permiso_basico.Id_rol1 = permiso_selecte.Id_rol1;
+                  permiso_basico.label = permiso_selecte.label;
+                  permiso_basico.Descripcion = permiso_selecte.Descripcion;
+                  permiso_basico.modulo = permiso_selecte.modulo;
+                  permiso_basico.validator = permiso_selecte.validator;
+                  permiso_basico.selected = true;
+                  permiso_basico.basico = true;
+                  permiso_basico.Actualizar = permiso_selecte.Actualizar === 1 ? true : false;
+                  permiso_basico.Borrar = permiso_selecte.Borrar === 1 ? true : false;
+                  permiso_basico.Crear = permiso_selecte.Crear === 1 ? true : false;
+                  permiso_basico.Leer = permiso_selecte.Leer === 1 ? true : false;
+                }
+              })
+            });
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000);
+      /*Fin funcion api roles*/
+    },
+    // Buscadores de los selects
+    searchUser(val, update) {
+      update(() => {
+        const needle = val.toLowerCase();
+        this.optionsUsers = users.filter((v) => v > -1);
+      });
+    },
+    filterRoles(val, update) {
+      update(() => {
+        const needle = val.toLowerCase();
+        this.optionsRoles = roles.filter(
+          (v) => v.toLowerCase().indexOf(needle) > -1
+        );
+      });
+    },
+    // Valida los selects
+    validateSelect(val) {
+      if (!val) {
+        return "Campo es obligatorio, seleccione una opción";
       }
     },
-    cancel() {
-      this.allDataUser = {};
-      optionRoles.length = 0;
-      this.$emit("cancel", this.allDataUser);
+    // Asigna una url para mostrar la imagen de perfil
+    onFileChange(e) {
+      const file = e.target.files[0];
+      this.file = file;
+      this.url = URL.createObjectURL(file);
+      this.dialog_avatar = false;
+      this.userNew.Foto = this.url;
     },
+    // Asigna la imgen cargada y deshabilita el dialogo de avatars
+    selectedAvatar(img) {
+      this.avatar = img;
+      this.url = img;
+      this.dialog_avatar = false;
+      this.userNew.Foto = this.url;
+    },
+    // Encripta contraseñas o strings
     encryptedAES(data) {
       var key = CryptoJS.HmacSHA1("sha256", "oW%c76+jb2");
       // var key = CryptoJS.enc.Utf8.parse(key);
@@ -1020,10 +920,11 @@ export default {
       var encrypted = CryptoJS.AES.encrypt(data, key, {
         iv: iv,
         mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.Pkcs7,
       });
       return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
     },
+    // Desencripta las contraseñas o strings
     decryptedAES(encrypted) {
       var key = CryptoJS.HmacSHA1("sha256", "oW%c76+jb2");
       // var key = CryptoJS.enc.Utf8.parse(key);
@@ -1037,77 +938,56 @@ export default {
       });
       return decrypted.toString(CryptoJS.enc.Utf8);
     },
-    onFileChange(e) {
-      const file = e.target.files[0];
-      this.files = file;
-      this.url = URL.createObjectURL(file);
-      this.dialogAvatar = false;
-    },
-    addCourseDirver() {
-      if(this.courseDriver.length <= this.optionsCursosCertificados.length){
-        this.courseDriver.push({
-          id_Curso: null,
-          fecha_vencimiento: null,
-          id_Usuario: null,
-          certificado: null
-        });
-      } else {
-        this.$q.notify({
-          message: 'No puede agregar más cursos',
-          type: 'warning'
-        })
-      }
-    },
-    selectedAvatar(img){
-      this.avatar = img;
-      this.url = img;
-      this.dialogAvatar = false;
-      this.person.Pers_Imagen = this.url;
-    },
-    // Valida si los selects tienen alguna opción seleccionada
-    validateSelect (val) {
-      if (val === null) {
-        return 'Este campo es obligatorio, debe seleccionar una opción'
-      }
-    },
-  }
+    // Reemplaza elementos de un string
+    replaceAll( text, busca, reemplaza ){
+      while (text.toString().indexOf(busca) != -1)
+          text = text.toString().replace(busca,reemplaza);
+      return text;
+    }
+  },
 };
 </script>
 <style scoped>
-  .avatar{
-    cursor: pointer;
-  }
-  .profile-img {
-    border: 1px solid rgb(202, 202, 202);
-    border-radius: 10px;
-  }
-  input[type="file"]#idImgUser {
-    width: 0.1px;
-    height: 0.1px;
-    opacity: 0;
-    overflow: hidden;
-    position: absolute;
-    z-index: -1;
-  }
-  label[for="idImgUser"] {
-    font-size: 14px;
-    color: #ffffff;
-    display: inline-block;
-    transition: all 0.5s;
-    cursor: pointer;
-    /* padding: 15px 26px !important; */
-    width: -webkit-fit-content;
-    width: -moz-fit-content;
-    width: 100%;
-    text-align: center;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-  }
-  .text-toolbar{
-    white-space: normal;
-  }
-  /* Estilos para los avatars */
-  .avatar:hover{
-    transform: scale(.9);
-  }
+.avatar_preview {
+  width: 100%;
+  height: 190px;
+  padding: 5px;
+  border-radius: 5px;
+}
+.avatar {
+  cursor: pointer;
+}
+.profile-img {
+  border: 1px solid rgb(202, 202, 202);
+  border-radius: 10px;
+}
+input[type="file"]#idImgUser {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+label[for="idImgUser"] {
+  font-size: 14px;
+  color: #ffffff;
+  display: inline-block;
+  transition: all 0.5s;
+  cursor: pointer;
+  /* padding: 15px 26px !important; */
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: 100%;
+  text-align: center;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.text-toolbar {
+  white-space: normal;
+}
+/* Estilos para los avatars */
+.avatar:hover {
+  transform: scale(0.9);
+}
 </style>
