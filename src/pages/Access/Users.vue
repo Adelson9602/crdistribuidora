@@ -20,42 +20,18 @@
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="users" class="q-gutter-sm">
           <list-user
-            :data="arrayUsers"
-            :titles="arrayTitles"
-            tableTitle="Lista de usuarios"
-            :headers="headerJspdf"
-            documentName="lista_usuarios.pdf"
-            position="l"
+            :propdata="data_users"
+            :propcolumns="columns"
+            proptitle="Lista de usuarios"
+            :proppdf="optionpdf"
             :propflat="true"
-            @dialog="openTab"
-            @dialogEnable="openDialogEnable"
-            @defaultValues="cancelEdit"
-            v-if="renderComponent"
-          />
-          <component-skeleton-table v-if="!renderComponent" />
-          <dialog-enable
-            :dialog="dialogEnable"
-            :state="enableEstate"
-            :msg="msgEnable"
-            @enable="enable"
-            @cancel="cancelEnable"
-            :title="titleDialog"
+            :propgrid="true"
           />
         </q-tab-panel>
 
         <q-tab-panel name="formUser">
           <user-form
-            :Roles="arrayRoles"
-            :Deparments="arrayDeparments"
-            :Position="arrayPosition"
-            :typeDocuments="arrayTypeDocuments"
-            :Licenses="arrayLicenses"
-            :tabForm="tabForm"
             @reload="reload"
-            @cancel="cancelEdit"
-            :dataUser="dataUser"
-            :labelBtn="label"
-            @defaultValues="cancelEdit"
           />
         </q-tab-panel>
       </q-tab-panels>
@@ -66,8 +42,6 @@
 <script>
 import UserForm from "components/Access/ComponentUserForm";
 import ListUser from "components/Generals/ComponentTable";
-import componentSkeletonTable from "components/Generals/componentSkeletonTable";
-import DialogEnable from "components/Generals/ComponentDialogEnable";
 import { mapActions, mapState } from "vuex";
 var CryptoJS = require("cryp-to-js").default;
 
@@ -75,15 +49,9 @@ export default {
   name: "PageUser",
   data() {
     return {
-      renderComponent: true,
-      arrayRoles: [],
-      arrayDeparments: [],
-      arrayPosition: [],
-      arrayTypeDocuments: [],
-      arrayLicenses: [],
       tab: "users",
-      users: [],
-      arrayTitles: [
+      data_users: [],
+      columns: [
         {
           name: "Pers_Nombres",
           required: true,
@@ -156,32 +124,41 @@ export default {
           sortable: true
         }
       ],
-      headerJspdf: [
-        { header: "Nombre", dataKey: "Pers_Nombres" },
-        { header: "Apellido", dataKey: "Pers_Apellidos" },
-        { header: "Cedula", dataKey: "UsuarioUser" },
-        { header: "Celular", dataKey: "Pers_Celular" },
-        { header: "Email", dataKey: "Pers_Email" },
-        { header: "Rol", dataKey: "Rol_Nombre" },
-        { header: "Descripción del rol", dataKey: "Rol_Descripcion" },
-        { header: "Estado", dataKey: "Usuario_Estado" }
-      ],
       label: "Crear Usuario",
       tabForm: false,
       dataUser: {},
-      dialogEnable: false,
       icon: false,
       enableEstate: false,
       msgEnable: null,
       titleDialog: "",
-      idPerson: null
+      idPerson: null,
+      optionpdf: {
+        columns: [
+          { header: "Nombre", dataKey: "Pers_Nombres" },
+          { header: "Apellido", dataKey: "Pers_Apellidos" },
+          { header: "Cedula", dataKey: "UsuarioUser" },
+          { header: "Celular", dataKey: "Pers_Celular" },
+          { header: "Email", dataKey: "Pers_Email" },
+          { header: "Rol", dataKey: "Rol_Nombre" },
+          { header: "Descripción del rol", dataKey: "Rol_Descripcion" },
+          { header: "Estado", dataKey: "Usuario_Estado" }
+        ],
+        data: [],
+        orientation: 'l', // l => landscape, p => portrait
+        title: {
+          title: 'Usuarios registrados',
+          potitionx: 300,
+          potitiony: 30,
+        },
+        styles: {
+          font_size: 7,
+        }
+      }
     };
   },
   components: {
     UserForm,
     ListUser,
-    componentSkeletonTable,
-    DialogEnable
   },
   created() {
     this.getData();
@@ -214,6 +191,9 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000);
+    },
+    reload(){
+
     },
     encryptedAES(data) {
       var key = CryptoJS.HmacSHA1("sha256", "oW%c76+jb2");
