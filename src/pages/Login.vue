@@ -26,7 +26,7 @@
 <script>
 import loginForm from "components/out/LoginForm";
 import forgotPassword from "components/out/forgotPassword";
-// import { mapActions, mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 export default {
   data(){
     return {
@@ -38,77 +38,32 @@ export default {
     loginForm,
     forgotPassword
   },
-  // computed: {
-  //   ...mapState("auth", ["user"]),
-  //   ...mapState("app", ["isOnline"]),
-  //   dataUser() {
-  //     return this.user;
-  //   }
-  // },
-  // mounted() {
-  //   window.addEventListener("online", () => {
-  //     this.setIsOnline(true);
-  //   }),
-  //     window.addEventListener("offline", () => {
-  //       this.setIsOnline(false);
-  //     });
-  // },
+  computed: {
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
+  },
   methods: {
-    // ...mapActions("auth", ["login"]),
-    // ...mapActions("auth", ["getTips"]),
-    // ...mapMutations("auth", ["setUser", "setIsLogged"]),
-    // ...mapMutations("app", ["setIsOnline"]),
+    ...mapActions("auth", ["login"]),
+    ...mapMutations("auth", ["setUser", "setIsLogged"]),
     async apiLogin(user) {
       this.$q.loading.show({
         message: 'Iniciando sesión, por favor espere...' 
       });
       setTimeout(async () => {
         try {
-          if (this.isOnline) {
-            const { data } = await this.login(user); //login es la acción, está definida en mapActions de la tienda de datos de vuex
-            this.setUser(data.user);
-            this.setIsLogged(true);
-            this.$q.notify({
-              type: "positive",
-              message: "Bienvenido",
-              position: "top"
-            });
-            this.$router.push("desktop");
-          } else {
-            if (this.dataUser) {
-              if (
-                parseInt(user.user) === this.dataUser.UsuarioUser &&
-                user.password === this.dataUser.Usuario_Contra
-              ) {
-                this.setIsLogged(true);
-                this.$q.notify({
-                  type: "positive",
-                  message: "Bienvenido",
-                  position: "top"
-                });
-                this.$router.push("desktop");
-              } else {
-                this.$q.notify({
-                  type: "negative",
-                  message: "El usuario o la contraseña no coinciden",
-                  position: "top"
-                });
-              }
-            } else {
-              this.$q.notify({
-                type: "warning",
-                message:
-                  "Debes haber iniciado sesión la primera vez para poder acceder offline",
-                position: "top"
-              });
-            }
-          }
+          const { data } = await this.login(user); //login es la acción, está definida en mapActions de la tienda de datos de vuex
+          this.setUser(data.user);
+          this.setIsLogged(true);
+          this.$q.notify({
+            type: "positive",
+            message: "Bienvenido",
+          });
         } catch (e) {
-          // console.log(e.response)
           this.$q.notify({
             type: "negative",
-            message: "Usuario no econtrado",
-            position: "top"
+            message: e.message,
           });
         } finally {
           this.$q.loading.hide();
