@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="q-gutter-md q-pb-md row">
-      <div class="col-xs-12 col-md-3 col-lg-3" v-if="visible_filter_date">
+      <div class="col-xs-12 col-md-3 col-lg-3" v-if="btns.range_date">
         <q-field
           stack-label
           class="date_training"
@@ -57,6 +57,7 @@
           color="white"
           text-color="primary"
           icon="picture_as_pdf"
+          v-if="btns.btn_export_pdf"
         />
         <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
         <vue-excel-xlsx
@@ -66,6 +67,7 @@
           :sheetname="'Hoja 1'"
           class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
           tabindex="0"
+          v-if="btns.export_excel"
         >
           <q-btn
             push
@@ -170,23 +172,22 @@
             <q-card-section class="q-py-none">
               <q-list>
                 <q-item class="q-py-sm q-px-none">
-                  <q-item-section style="width:60px" avatar v-if="props.row.Foto">
+                  <q-item-section style="width:60px" avatar v-if="props.row.img">
                     <q-avatar size="50px">
-                      <img :src="props.row.img" alt="Imagen de usuario">
+                      <img :src="props.row.img" alt="Imágen">
                     </q-avatar>
                   </q-item-section>
                   <q-item-section>
-                    <strong> {{ props.row.title }} </strong
-                    ><!--Títulos para las cards de las tablas-->
+                    <strong> {{ props.row.title }} </strong><!--Títulos para las cards de las tablas-->
                   </q-item-section>
                   <q-item-section avatar>
-                    <!-- Habilita o deshabilita los usuarios -->
+                    <!-- Actions for cards  -->
                     <q-fab
                       color="primary"
                       padding="xs"
                       icon="keyboard_arrow_up"
                       direction="up"
-                      v-if="visible_btns"
+                      v-if="actions_card"
                     >
                       <q-fab-action
                         :color="
@@ -196,13 +197,13 @@
                         push
                         padding="5px"
                         :icon="props.row.icon_btn_status"
-                        @click="status(props.row.Id, props.row)"
+                        @click="status(props.row)"
                         :disable="!actions_user.Actualizar"
                         v-if="props.row.btn_status"
                       />
 
                       <q-fab-action
-                        :color="color_btn_details"
+                        color="gren"
                         round
                         push
                         padding="5px"
@@ -212,16 +213,12 @@
                       />
 
                       <q-fab-action
-                        :color="color_btn_edit"
+                        color="info"
                         round
                         push
                         padding="5px"
                         :icon="props.row.icon_btn_edit"
-                        @click="edit(props.row.Id, props.row)"
-                        :disable="
-                          props.row.Estado === 'Candado' ||
-                          !actions_user.Actualizar
-                        "
+                        @click="edit(props.row)"
                         v-if="props.row.btn_edit"
                       />
 
@@ -257,20 +254,11 @@
                   >
                     <!-- Value del columna izquierda de las card -->
                     <q-item-label caption>
-                      {{
-                        col.value === "Activo" || col.value === "Inactivo" || col.value === 'Conciliación'
-                          ? ""
-                          : col.value
-                      }}
+                      {{col.value}}
                       <q-badge
-                        :color="
-                          col.value === 'Activo' ? 'positive' : col.value=='Conciliación' ? 'orange-10' : 'negative'
-                        "
+                        color="positive"
                         text-color="white"
                         :label="col.value"
-                        v-if="
-                          col.value === 'Activo' || col.value === 'Inactivo' || col.value === 'Conciliación'
-                        "
                       />
                     </q-item-label>
                   </q-item-section>
@@ -315,48 +303,42 @@ export default {
         to: null,
         from: null,
       },
-      search_data: null,
-      title_search: null,
-      hint_search: null,
-      btn_export: true,
-      color_btn_details: "green",
-      color_btn_edit: "green",
-      rows_export: [],
-      visible_filter_date: true,
-      visible_btns: true, //muestra u oculta los btns de las cards
+      btns: {
+        range_date: false,
+        btn_export_pdf: false,
+        export_excel: false
+      },
+      actions_card: true, //muestra u oculta los btns de las cards
       toggle: true,
       actions_user: null,
       visible_columns: [], //Permite mostrar u ocultar columnas
       filter_cols: [], //Permite buscar en la tabla sin que se visualice una columna
-      stylecolumns: null,
-      titlex: null,
-      titley: null,
-      data_excel: [],
       flat: false,
+      pdf: {
+        columns: [],
+        data: [],
+        orientation: 'l', // l => landscape, p => portrait
+        title: {
+          title: 'Sin título',
+          potitionx: 300,
+          potitiony: 30,
+        },
+        styles: {
+          font_size: 7,
+        }
+      },
     };
   },
   props: [
     "propcolumns",
-    "headers",
+    "proppdf",
     "propdata",
-    "position",
-    "document_name",
     "propgrid",
     "proptitle",
-    "proptitle_search",
-    "prophint_search",
     "prodbtn_export",
-    "prop_color_btn_details",
-    "prop_color_btn_pdf",
-    "prop_color_btn_edit",
-    "propbtns",
+    "propactions",
     "proptoggle",
-    "propstylecolumns",
-    "proptitlex",
-    "proptitley",
-    "propfilterdate",
     "prop_visible_columns",
-    "prop_data_excel",
     "propflat"
   ],
   computed: {
@@ -367,23 +349,11 @@ export default {
     this.columns = this.propcolumns;
     this.data = this.propdata;
     this.grid = this.propgrid != undefined ? this.propgrid : false; //Activa la visualización grid de la tabla    
-    this.visible_btns = this.propbtns !== undefined ? this.propbtns : true;
-    this.visible_filter_date = this.propfilterdate !== undefined ? this.propfilterdate : true; // Muestra el input para filtrar por rango de fecha
+    this.actions_card = this.propactions !== undefined ? this.propactions : true; //Muestra u oculta los botenes de las cards
     this.toggle = this.proptoggle !== undefined ? this.proptoggle : true; //toggle de la tabla, para el modo de visualización
     this.title = this.proptitle; //Titulo para la tabla
-    this.title_search = this.proptitle_search; //titulo para el input que busca directamente en la base de datos, este esta encima de la tabla general
-    this.hint_search = this.prophint_search; //hint para el input filter de la tabla
     this.btn_export = this.prodbtn_export;
-    this.stylecolumns = this.propstylecolumns ? this.propstylecolumns : null;
-    this.titlex = this.proptitlex ? this.proptitlex : 330; //Alinea el titulo del pdf en sentido x
-    this.titley = this.proptitley ? this.proptitley : 30; //Alinea el titulo del pdf en sentido y
     this.flat = this.propflat !== undefined ? this.propflat : false;
-    if (this.prop_color_btn_details) {
-      this.color_btn_details = this.prop_color_btn_details;
-    }
-    if (this.prop_color_btn_edit) {
-      this.color_btn_edit = this.prop_color_btn_edit;
-    }
 
     if (this.modeTable === false) {
       this.mode = this.modeTable;
@@ -402,11 +372,9 @@ export default {
     this.propcolumns.forEach((column) => {
       this.filter_cols.push(column.name);
     });
-    if (this.prop_data_excel) {
-      this.data_excel = this.prop_data_excel;
-    } else {
-      this.data_excel = this.propdata;
-    }
+
+    // Asigna las configuraciones del pdf
+    this.pdf = this.proppdf ? this.proppdf : this.pdf;
   },
   methods: {
     // Función de filtrado personalizado, permite filtrar datos de la tabla aunque la columna no se muestre
@@ -423,36 +391,21 @@ export default {
     },
     // Exporta el pdf de la tabla
     exportPDF() {
-      var columnstyle = this.stylecolumns;
-      var x = this.titlex;
-      var y = this.titley;
-      var data = [];
-      if (this.rows_export.length == 0) {
-        if (this.data_excel.length > 0) {
-          data = this.data_excel;
-        } else {
-          data = this.data;
-        }
-      } else {
-        data = this.rows_export;
-      }
 
-      var columns = this.headers;
-      var doc = new jsPDF(this.position, "pt", "letter");
+      var doc = new jsPDF('l', "pt", "letter");
 
-      doc.text(this.title, x, y);
+      doc.text(this.pdf.title.title, this.pdf.title.potitionx, this.pdf.title.potitiony);
       doc.autoTable({
-        body: data,
-        columns,
+        body: this.pdf.data,
+        columns: this.pdf.columns,
         margin: { top: 40 },
         styles: {
           overflow: "linebreak",
-          fontSize: 7,
-          cellWidth: columnstyle,
+          fontSize: this.pdf.styles.font_size,
           overflowColumns: "linebreak",
         },
       });
-      doc.save(this.document_name);
+      doc.save(this.pdf.title.title);
     },
     // Emite la función para editar
     details(id) {
@@ -485,10 +438,6 @@ export default {
         }
       }
       this.$emit("getrangedata", this.date_range);
-    },
-    // Emite función para buscar un dato especifica en la bd y mostrar en la tabla
-    search_dataSingle() {
-      this.$emit(`search_datasingle`, this.search_data);
     },
   },
 };
