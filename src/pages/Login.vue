@@ -5,7 +5,7 @@
           <div class="wrap-login100">
             <div class="login">
               <div class="content-login">
-                <img class="logo" src="../statics/logo_cr.png" alt="Logo de Qinspecting">
+                <img class="logo" src="../statics/logo_cr.png" alt="Logo de empresa">
 
                 <login-form  class="col-xs-12" v-if="!isForgot"/>
                 <div class="forgot-pass text-center p-t-12" v-if="!isForgot">
