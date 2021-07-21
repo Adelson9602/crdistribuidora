@@ -10,4 +10,8 @@ export function requestgetDataArticlesRange(contex, data) {
   return Vue.prototype.$axios.get(`select_articulo_range/${process.env.__BASE__}/${data.from}/${data.to}`)
 }
 
+// Lista las categorias
+export function getCategoriasAlmacen(){
+  return Vue.prototype.$axios.get(`select_categoria_general/${process.env.__BASE__}`);
+}
 

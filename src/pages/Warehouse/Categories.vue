@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import ComponentAddCategories from 'components/Warehouse/ComponentAddCategories';
 export default {
   name: 'Categories',
@@ -30,124 +31,116 @@ export default {
     return {
       columns: [
         {
-          name: 'name',
-          required: true,
-          label: 'Dessert (100g serving)',
-          align: 'left',
-          field: row => row.name,
-          format: val => `${val}`,
-          sortable: true
+          name: 'Cat_Nombre',
+          align: 'center',
+          label: 'Nombre',
+          sortable: true,
+          field: 'Cat_Nombre'
         },
-        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
-        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-        { name: 'protein', label: 'Protein (g)', field: 'protein' },
-        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-        { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
-        { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+        {
+          name: 'Cat_Descripcion',
+          align: 'center',
+          label: 'Descripción',
+          sortable: true,
+          field: 'Cat_Descripcion'
+        },
+        {
+          name: 'Cat_Estado',
+          align: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'Cat_Estado'
+        },
+        {
+          name: 'Cat_Fecha_control',
+          align: 'center',
+          label: 'Fecha creación',
+          sortable: true,
+          field: 'Cat_Fecha_control'
+        },
+        {
+          name: 'Cat_User_control',
+          align: 'center',
+          label: 'Documento creador',
+          sortable: true,
+          field: 'Cat_User_control'
+        },
+        {
+          name: 'Per_Nombre',
+          align: 'center',
+          label: 'Creado por',
+          sortable: true,
+          field: 'Per_Nombre'
+        },
       ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
+      data: []
+    }
+  },
+  created(){
+    this.getData();
+  },
+  methods: {
+    ...mapActions('warehouse', [
+      'getCategoriasAlmacen'
+    ]),
+    getData(){
+      this.$q.loading.show({
+        message: 'Obteniendo metas, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_categoria = await this.getCategoriasAlmacen().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get categorias',
+            data: res_categoria
+          });
+          if(res_categoria.ok){
+            if(res_categoria.result){
+              this.data.length = 0 ;
+              res_categoria.data.forEach( cat => {
+                this.data.push({
+                  Cat_Descripcion: cat.Cat_Descripcion,
+                  Cat_Estado: cat.Cat_Estado,
+                  Cat_Fecha_control: cat.Cat_Fecha_control,
+                  Cat_Id: cat.Cat_Id,
+                  Cat_Nombre: cat.Cat_Nombre,
+                  Cat_User_control: cat.Cat_User_control,
+                  Per_Nombre: cat.Per_Nombre,
+                  btn_edit: true,
+                  icon_btn_edit: 'edit',
+                  btn_status: true,
+                  icon_btn_status: 'power_settings_new'
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_categoria.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_categoria.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
         }
-      ]
+      }, 2000)
     }
   }
 }
