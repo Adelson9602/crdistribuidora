@@ -53,76 +53,68 @@ export default {
       data_users: [],
       columns: [
         {
-          name: "Pers_Nombres",
-          required: true,
-          label: "Nombres",
-          align: "center",
-          field: "Pers_Nombres",
-          sortable: true
+          name: 'Car_Descripcion',
+          aling: 'center',
+          label: 'Cargo',
+          sortable: true,
+          field: 'Car_Descripcion'
         },
         {
-          name: "Pers_Apellidos",
-          align: "center",
-          label: "Apellidos",
-          field: "Pers_Apellidos",
-          sortable: true
+          name: 'Per_Direccion',
+          aling: 'center',
+          label: 'Dirección',
+          sortable: true,
+          field: 'Per_Direccion'
         },
         {
-          name: "UsuarioUser",
-          align: "center",
-          label: "Documento",
-          field: "UsuarioUser",
-          sortable: true
+          name: 'Per_Email',
+          aling: 'center',
+          label: 'Email',
+          sortable: true,
+          field: 'Per_Email'
         },
         {
-          name: "Pers_Celular",
-          align: "center",
-          label: "Teléfono",
-          field: "Pers_Celular",
-          sortable: true
+          name: 'Per_Num_documento',
+          aling: 'center',
+          label: 'Documento',
+          sortable: true,
+          field: 'Per_Num_documento'
         },
         {
-          name: "Pers_Email",
-          align: "center",
-          label: "Email",
-          field: "Pers_Email",
-          sortable: true
+          name: 'Per_Telefono',
+          aling: 'center',
+          label: 'Telefono',
+          sortable: true,
+          field: 'Per_Telefono'
         },
         {
-          name: "Rol_Nombre",
-          align: "center",
-          label: "Rol",
-          field: "Rol_Nombre",
-          sortable: true
+          name: 'Rol_Descripcion',
+          aling: 'center',
+          label: 'Rol',
+          sortable: true,
+          field: 'Rol_Descripcion'
         },
         {
-          name: "Carg_Descripcion",
-          align: "center",
-          label: "Cargo",
-          field: "Carg_Descripcion",
-          sortable: true
+          name: 'Tp_Desc_corta',
+          aling: 'center',
+          label: 'Tipo documento',
+          sortable: true,
+          field: 'Tp_Desc_corta'
         },
         {
-          name: "Rol_Descripcion",
-          align: "center",
-          label: "Descripción del rol",
-          field: "Rol_Descripcion",
-          sortable: true
+          name: 'Usu_Login',
+          aling: 'center',
+          label: 'Usuario',
+          sortable: true,
+          field: 'Usu_Login'
         },
         {
-          name: "Pers_Imagen",
-          align: "center",
-          label: "Foto",
-          field: "Pers_Imagen",
-          sortable: true
+          name: 'name_estado_usuario',
+          aling: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'name_estado_usuario'
         },
-        {
-          name: "Usuario_Estado",
-          align: "center",
-          label: "Estado",
-          field: "Usuario_Estado",
-          sortable: true
-        }
       ],
       label: "Crear Usuario",
       tabForm: false,
@@ -166,13 +158,60 @@ export default {
   computed: {
   },
   methods: {
+    ...mapActions('access', [
+      'getPersons',
+    ]),
     getData() {
       this.$q.loading.show({
         message: "Obteniendo lista de usuarios, por favor espere..."
       });
       setTimeout(async () => {
         try {
-          
+          const res_persons = await this.getPersons().then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get personal',
+            data: res_persons
+          });
+          if(res_persons.ok){
+            if(res_persons.result){
+              this.data_users.length = 0;
+              res_persons.data.forEach( persona => {
+                this.data_users.push({
+                  Car_Descripcion: persona.Car_Descripcion,
+                  Car_Id: persona.Car_Id,
+                  Per_Direccion: persona.Per_Direccion,
+                  Per_Email: persona.Per_Email,
+                  Per_Estado: persona.Per_Estado,
+                  Per_Imagen: persona.Per_Imagen,
+                  Per_Nombre: persona.Per_Nombre,
+                  Per_Num_documento: persona.Per_Num_documento,
+                  Per_Telefono: persona.Per_Telefono,
+                  Per_tipo_stock: persona.Per_tipo_stock,
+                  Rol_Descripcion: persona.Rol_Descripcion,
+                  Rol_Id: persona.Rol_Id,
+                  Td_Id: persona.Td_Id,
+                  Tp_Desc_corta: persona.Tp_Desc_corta,
+                  Usu_Clave_ppl: persona.Usu_Clave_ppl,
+                  Usu_Clave_verificacion: persona.Usu_Clave_verificacion,
+                  Usu_Estado: persona.Usu_Estado,
+                  Usu_Login: persona.Usu_Login,
+                  name_estado: persona.name_estado,
+                  name_estado_usuario: persona.name_estado_usuario,
+                  img: persona.Per_Imagen ? persona.Per_Imagen : 'https://cdn.quasar.dev/img/boy-avatar.png',
+                  title: persona.Per_Nombre
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_persons.message,
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_persons.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
