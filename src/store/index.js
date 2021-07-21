@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import sales from './Sales';
 import warehouse from './Warehouse';
 import auth from './Auth';
+import access from './Access';
 
 // import example from './module-example'
 
@@ -22,7 +23,8 @@ export default function (/* { ssrContext } */) {
     modules: {
       sales,
       warehouse,
-      auth
+      auth,
+      access
     },
 
     // enable strict mode (adds overhead!)
