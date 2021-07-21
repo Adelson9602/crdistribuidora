@@ -10,6 +10,7 @@
         :propgrid="false"
         :propflat="true"
         @getrangedata="getSalesRang"
+        :propbtns="btns"
       />
 
       <!-- Tabla de las ventas realizadas -->
@@ -74,7 +75,6 @@ export default {
           sortable: true,
         },
       ],
-
       columnsdetail: [
         {
           name: "Ev_Id",
@@ -141,9 +141,13 @@ export default {
           sortable: true,
         },
       ],
-
       data: [],
       datadetail: [],
+      btns: {
+        range_date: true,
+        btn_export_pdf: true,
+        export_excel: true
+      }
     };
   },
   methods: {
