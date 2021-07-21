@@ -449,7 +449,7 @@ export default {
   min-height: 30px;
 }
 .height_table {
-  height: 450px;
+  height: 60%;
 }
 thead tr th{
   position: sticky;
