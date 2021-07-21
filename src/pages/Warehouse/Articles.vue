@@ -1,56 +1,59 @@
 <template>
   <q-page padding>
-     <q-card class="height-card_page">
-        <q-tabs
-          v-model="tab"
-          dense
-          class="text-primary"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
-        >
-          <q-tab name="articles" label="Articulos" icon="inventory_2"/>
-          <q-tab name="create_article" label="Agregar articulo" icon="add_business"/>
-        </q-tabs>
+    <q-card class="height-card_page">
+      <q-tabs
+        v-model="tab"
+        dense
+        class="text-primary"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="articles" label="Articulos" icon="inventory_2" />
+        <q-tab
+          name="create_article"
+          label="Agregar articulo"
+          icon="add_business"
+        />
+      </q-tabs>
 
-        <q-separator />
+      <q-separator />
 
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="articles">
-             <component-table
-        class="q-mt-md height-table"
-        proptitle="Articulos"
-        :propdata="data"
-        :propcolumns="columns"
-        :propgrid="false"
-        :propflat="true"
-        @getrangedata="getArticleRang"
-      />
-          </q-tab-panel>
+      <q-tab-panels v-model="tab" animated>
+        <q-tab-panel name="articles">
+          <component-table
+            class="q-mt-md height-table"
+            proptitle="Articulos"
+            :propdata="data"
+            :propcolumns="columns"
+            :propgrid="true"
+            :propflat="true"
+            @getrangedata="getArticleRang"
+          />
+        </q-tab-panel>
 
-          <q-tab-panel name="create_article">
-            <component-add-article/>
-          </q-tab-panel>
-        </q-tab-panels>
-      </q-card>
+        <q-tab-panel name="create_article">
+          <component-add-article />
+        </q-tab-panel>
+      </q-tab-panels>
+    </q-card>
   </q-page>
 </template>
 
 <script>
-import ComponentAddArticle from 'components/Warehouse/ComponentAddArticle';
+import ComponentAddArticle from "components/Warehouse/ComponentAddArticle";
 import componentTable from "components/Generals/ComponentTable";
 import { mapActions } from "vuex";
 export default {
-  name: 'Articles',
-  components:{
+  name: "Articles",
+  components: {
     ComponentAddArticle,
     componentTable,
   },
-  data(){
+  data() {
     return {
-      
-      tab: 'articles',    
+      tab: "articles",
       date_range: {
         to: null,
         from: null,
@@ -63,7 +66,7 @@ export default {
           align: "center",
           field: "Id",
           sortable: true,
-        },       
+        },
         {
           name: "Art_Codigo_inv",
           required: true,
@@ -71,8 +74,8 @@ export default {
           align: "center",
           field: "Art_Codigo_inv",
           sortable: true,
-        },        
-         {
+        },
+        {
           name: "Art_Nombre",
           required: true,
           label: "Nombre articulo",
@@ -80,7 +83,7 @@ export default {
           field: "Art_Nombre",
           sortable: true,
         },
-         {
+        {
           name: "Art_Descripcion",
           required: true,
           label: "Descripcion articulo",
@@ -88,7 +91,7 @@ export default {
           field: "Art_Descripcion",
           sortable: true,
         },
-         {
+        {
           name: "Prefijo",
           required: true,
           label: "UNDM",
@@ -96,7 +99,7 @@ export default {
           field: "Prefijo",
           sortable: true,
         },
-         {                  
+        {
           name: "Art_Stockminimo",
           required: true,
           label: "Stock min articulo",
@@ -104,7 +107,7 @@ export default {
           field: "Art_Stockminimo",
           sortable: true,
         },
-         {
+        {
           name: "Cat_Nombre",
           required: true,
           label: "Categoria",
@@ -128,7 +131,7 @@ export default {
           field: "Art_User_control",
           sortable: true,
         },
-         {
+        {
           name: "Per_Nombre",
           required: true,
           label: "Nombre Control",
@@ -136,7 +139,7 @@ export default {
           field: "Per_Nombre",
           sortable: true,
         },
-         {
+        {
           name: "Art_Fecha_control",
           required: true,
           label: "Fecha Control",
@@ -147,39 +150,38 @@ export default {
       ],
 
       data: [],
-    }
+    };
   },
-    created() {
+  created() {
     this.getData();
   },
   methods: {
-    ...mapActions("warehouse", ["getDataArticles","requestgetDataArticlesRange"]),
+    ...mapActions("warehouse", [
+      "getAllArticles",
+      "requestgetDataArticlesRange",
+    ]),
 
     getData() {
-      let data={
-        base : process.env.__BASE__
-      }
       this.$q.loading.show({
-        message: "Obteniendo los ultimos 10 articulos existentes, por favor espere..."
+        message:
+          "Obteniendo los ultimos 10 articulos existentes, por favor espere...",
       });
       setTimeout(async () => {
         try {
-        
-          const resgetDataArticles = await this.getDataArticles(data).then((res) => {
-            return res.data;
-          });
+          const resgetDataArticles = await this.getAllArticles().then(
+            (res) => {
+              return res.data;
+            }
+          );
           console.log({
             msg: resgetDataArticles.message,
             data: resgetDataArticles,
           });
-          this.data.length = 0;
           if (resgetDataArticles.ok) {
             if (resgetDataArticles.result) {
-
-              resgetDataArticles.data.forEach(element=> {
-               
+              this.data.length = 0;
+              resgetDataArticles.data.forEach((element) => {
                 this.data.push({
-
                   Id: element.Id,
                   Art_Id: element.Art_Id,
                   Art_Codigo_inv: element.Art_Codigo_inv,
@@ -188,13 +190,12 @@ export default {
                   Prefijo: element.Prefijo,
                   Art_Stockminimo: element.Art_Stockminimo,
                   Cat_Nombre: element.Cat_Nombre,
-                  Art_Estado: element.Art_Estado ==1 ? 'ACTIVO':'INHABILITADO',
+                  Art_Estado:
+                  element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
                   Art_User_control: element.Art_User_control,
-                  Per_Nombre: element.Per_Nombre, 
+                  Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
-
-
-                  // title: `Entrada No. ${element.Id}`,
+                  title: element.Art_Nombre,
                   // btn_edit: false,
                   // btn_status: false,
                   // btn_details: true,
@@ -211,7 +212,6 @@ export default {
               });
             }
           } else {
-           
             this.data.length = 0;
             throw resgetDataArticles.message;
           }
@@ -236,7 +236,7 @@ export default {
         }
       }, 2000);
     },
-   getArticleRang(data) {
+    getArticleRang(data) {
       data.base = process.env.__BASE__;
       this.$q.loading.show({
         message:
@@ -244,11 +244,10 @@ export default {
       });
       setTimeout(async () => {
         try {
-          const resrequestgetDataArticlesRange = await this.requestgetDataArticlesRange(
-            data
-          ).then((res) => {
-            return res.data;
-          });
+          const resrequestgetDataArticlesRange =
+            await this.requestgetDataArticlesRange(data).then((res) => {
+              return res.data;
+            });
           console.log({
             msg: "Respuesta get articulo por rango de fecha",
             data: resrequestgetDataArticlesRange,
@@ -257,7 +256,7 @@ export default {
           if (resrequestgetDataArticlesRange.ok) {
             if (resrequestgetDataArticlesRange.result) {
               resrequestgetDataArticlesRange.data.forEach((element) => {
-c
+                c;
                 // console.log(element);
                 this.data.push({
                   Id: element.Id,
@@ -268,9 +267,10 @@ c
                   Prefijo: element.Prefijo,
                   Art_Stockminimo: element.Art_Stockminimo,
                   Cat_Nombre: element.Cat_Nombre,
-                  Art_Estado: element.Art_Estado ==1 ? 'ACTIVO':'INHABILITADO',
+                  Art_Estado:
+                    element.Art_Estado == 1 ? "ACTIVO" : "INHABILITADO",
                   Art_User_control: element.Art_User_control,
-                  Per_Nombre: element.Per_Nombre, 
+                  Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
 
                   // title: `Entrada No. ${element.Id}`,
@@ -290,12 +290,9 @@ c
               });
             }
           } else {
-           
             this.data.length = 0;
             throw resrequestgetDataArticlesRange.message;
           }
-         
-        
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -316,20 +313,20 @@ c
       }, 2000);
     },
     // reload() {
-      // this.tab = "users";
-      // this.rederComponent = false;
-      // this.edit_form = false;
-      // Se hace el reload, para ello se debe eliminar el componente componenTable antes de hacer las peticiones y luego rendereizarlo de nuevo
+    // this.tab = "users";
+    // this.rederComponent = false;
+    // this.edit_form = false;
+    // Se hace el reload, para ello se debe eliminar el componente componenTable antes de hacer las peticiones y luego rendereizarlo de nuevo
     //   setTimeout( ()=> {
     //     this.getData();
     //   }, 500)
     // },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-p{
+p {
   font-size: 55px;
 }
 </style>
