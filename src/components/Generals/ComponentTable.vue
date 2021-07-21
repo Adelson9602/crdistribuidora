@@ -254,11 +254,12 @@
                   >
                     <!-- Value del columna izquierda de las card -->
                     <q-item-label caption>
-                      {{col.value}}
+                      {{col.label != 'Estado' ? col.value : ''}}
                       <q-badge
-                        color="positive"
+                        :color="col.value == 'ACTIVO' ? 'positive' : 'negative'"
                         text-color="white"
                         :label="col.value"
+                        v-if="col.label == 'Estado'"
                       />
                     </q-item-label>
                   </q-item-section>
