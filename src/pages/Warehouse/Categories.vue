@@ -7,12 +7,37 @@
           :data="data"
           :columns="columns"
           row-key="name"
+          class="height-table"
         >
-          <template v-slot:header-cell-calories="props">
-            <q-th :props="props">
-              <q-icon name="thumb_up" size="1.5em" />
-              {{ props.col.label }}
-            </q-th>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td auto-width class="q-gutter-x-sm">
+                <q-btn :color="props.row.name_estado == 'ACTIVADO' ? 'positive' : 'negative'" dense size="sm" icon="power_settings_new" round/>
+                <q-btn color="warning" dense size="sm" icon="edit" round/>
+              </q-td>
+
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label != 'Estado' ? col.value : ''}}
+                <q-badge :color="col.value == 'ACTIVADO' ? 'positive' : 'negative'"  :label="col.value" v-if="col.label == 'Estado'" />
+              </q-td>
+            </q-tr>
           </template>
         </q-table>
       </q-card>
@@ -45,13 +70,6 @@ export default {
           field: 'Cat_Descripcion'
         },
         {
-          name: 'Cat_Estado',
-          align: 'center',
-          label: 'Estado',
-          sortable: true,
-          field: 'Cat_Estado'
-        },
-        {
           name: 'Cat_Fecha_control',
           align: 'center',
           label: 'Fecha creación',
@@ -71,6 +89,13 @@ export default {
           label: 'Creado por',
           sortable: true,
           field: 'Per_Nombre'
+        },
+        {
+          name: 'name_estado',
+          align: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'name_estado'
         },
       ],
       data: []
@@ -102,16 +127,12 @@ export default {
               res_categoria.data.forEach( cat => {
                 this.data.push({
                   Cat_Descripcion: cat.Cat_Descripcion,
-                  Cat_Estado: cat.Cat_Estado,
+                  name_estado: cat.name_estado,
                   Cat_Fecha_control: cat.Cat_Fecha_control,
                   Cat_Id: cat.Cat_Id,
                   Cat_Nombre: cat.Cat_Nombre,
                   Cat_User_control: cat.Cat_User_control,
                   Per_Nombre: cat.Per_Nombre,
-                  btn_edit: true,
-                  icon_btn_edit: 'edit',
-                  btn_status: true,
-                  icon_btn_status: 'power_settings_new'
                 })
               });
             } else {
