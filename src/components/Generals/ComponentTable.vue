@@ -199,9 +199,9 @@
                         padding="5px"
                         :icon="props.row.icon_btn_status"
                         @click="status(props.row)"
-                        :disable="!actions_user.Actualizar"
                         v-if="props.row.btn_status"
                       />
+                        <!-- :disable="!actions_user.Actualizar" -->
 
                       <q-fab-action
                         color="gren"
