@@ -61,10 +61,10 @@
         />
         <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
         <vue-excel-xlsx
-          :data="data_excel"
-          :columns="columns"
-          :filename="title"
-          :sheetname="'Hoja 1'"
+          :data="excel.data"
+          :columns="excel.columns"
+          :filename="excel.title"
+          sheetname="Hoja 1"
           class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
           tabindex="0"
           v-if="btns.export_excel"
@@ -316,6 +316,11 @@ export default {
       visible_columns: [], //Permite mostrar u ocultar columnas
       filter_cols: [], //Permite buscar en la tabla sin que se visualice una columna
       flat: false,
+      excel: {
+        columns: [],
+        data: [],
+        title: 'Sin título',
+      },
       pdf: {
         columns: [],
         data: [],
@@ -341,7 +346,8 @@ export default {
     "propactions",
     "proptoggle",
     "prop_visible_columns",
-    "propflat"
+    "propflat",
+    "propbtns"
   ],
   computed: {
     // ...mapState("auth", ["user_permissions"]),
@@ -356,6 +362,8 @@ export default {
     this.title = this.proptitle; //Titulo para la tabla
     this.btn_export = this.prodbtn_export;
     this.flat = this.propflat !== undefined ? this.propflat : false;
+    this.btns = this.propbtns != undefined ? this.propbtns : this.btns;
+    this.excel = this.propexcel != undefined ? this.propexcel : this.excel;
 
     if (this.modeTable === false) {
       this.mode = this.modeTable;
