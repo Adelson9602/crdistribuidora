@@ -90,6 +90,7 @@
       :filter-method="customFilter"
       :visible-columns="visible_columns"
       :flat="flat"
+      class="height_table"
     >
       <template v-slot:top-right>
         <q-input
@@ -177,7 +178,7 @@
                       <img :src="props.row.img" alt="Imágen">
                     </q-avatar>
                   </q-item-section>
-                  <q-item-section>
+                  <q-item-section class="text_personalized">
                     <strong> {{ props.row.title }} </strong><!--Títulos para las cards de las tablas-->
                   </q-item-section>
                   <q-item-section avatar>
@@ -446,6 +447,22 @@ export default {
 <style scoped>
 .height {
   min-height: 30px;
+}
+.height_table {
+  height: 450px;
+}
+thead tr th{
+  position: sticky;
+  z-index: 1;
+}
+thead tr:first-child th{
+  top: 0
+}
+.q-table__top,
+.q-table__bottom,
+thead tr:first-child th {
+  /* bg color is important for th; just specify one */
+  background-color: #fff
 }
 .text_personalized {
   text-overflow: ellipsis;
