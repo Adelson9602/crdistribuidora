@@ -25,7 +25,8 @@ export default function (/* { ssrContext } */) {
       sales,
       warehouse,
       auth,
-      access
+      access,
+      master
     },
 
     // enable strict mode (adds overhead!)
