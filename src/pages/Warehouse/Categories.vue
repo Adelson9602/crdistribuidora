@@ -3,11 +3,11 @@
      <q-card class="height-card_page q-pa-md">
         <component-add-categories @reload="reload"/>
          <q-table
-          title="Categorías"
+          title="Categoría productos"
           :data="data"
           :columns="columns"
           row-key="name"
-          class="height-table"
+          class="height-table q-mt-md"
           :pagination="initial_pagination"
         >
           <template v-slot:header="props">
