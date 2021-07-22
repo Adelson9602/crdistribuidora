@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
      <q-card class="height-card_page q-pa-md">
-        <component-add-categories/>
+        <component-add-categories @reload="reload"/>
          <q-table
           title="Categorías"
           :data="data"
@@ -162,6 +162,11 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000)
+    },
+    reload(){
+      setTimeout(()=> {
+        this.getData()
+      }, 200)
     }
   }
 }
