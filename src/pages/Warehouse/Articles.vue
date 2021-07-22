@@ -34,7 +34,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="create_article">
-          <component-add-article />
+          <component-add-article @reload="reload"/>
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -312,15 +312,13 @@ export default {
         }
       }, 2000);
     },
-    // reload() {
-    // this.tab = "users";
-    // this.rederComponent = false;
-    // this.edit_form = false;
-    // Se hace el reload, para ello se debe eliminar el componente componenTable antes de hacer las peticiones y luego rendereizarlo de nuevo
-    //   setTimeout( ()=> {
-    //     this.getData();
-    //   }, 500)
-    // },
+    reload() {
+      this.tab = "articles";
+      this.edit_form = false;
+      setTimeout( ()=> {
+        this.getData();
+      }, 500)
+    },
   },
 };
 </script>

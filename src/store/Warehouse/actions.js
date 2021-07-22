@@ -15,3 +15,7 @@ export function getCategoriasAlmacen(){
   return Vue.prototype.$axios.get(`select_categoria_general/${process.env.__BASE__}`);
 }
 
+// Agrega o edita los articulos
+export function addArticle(contex, data){
+  return Vue.prototype.$axios.post(`insert_update_articulo`, data);
+}
