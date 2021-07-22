@@ -8,6 +8,7 @@
           :columns="columns"
           row-key="name"
           class="height-table"
+          :pagination="initial_pagination"
         >
           <template v-slot:header="props">
             <q-tr :props="props">
@@ -98,7 +99,13 @@ export default {
           field: 'name_estado'
         },
       ],
-      data: []
+      data: [],
+      initial_pagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 15
+      }
     }
   },
   created(){
