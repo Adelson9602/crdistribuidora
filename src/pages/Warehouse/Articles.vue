@@ -30,11 +30,12 @@
             :propgrid="true"
             :propflat="true"
             @getrangedata="getArticleRang"
+            @onedit="editArticle"
           />
         </q-tab-panel>
 
         <q-tab-panel name="create_article">
-          <component-add-article @reload="reload"/>
+          <component-add-article @reload="reload" :edit_data="article_edit"/>
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -116,11 +117,11 @@ export default {
           sortable: true,
         },
         {
-          name: "Art_Estado",
+          name: "name_estado",
           required: true,
           label: "Estado",
           align: "center",
-          field: "Art_Estado",
+          field: "name_estado",
           sortable: true,
         },
         {
@@ -148,8 +149,8 @@ export default {
           sortable: true,
         },
       ],
-
       data: [],
+      article_edit: null,
     };
   },
   created() {
@@ -160,7 +161,6 @@ export default {
       "getAllArticles",
       "requestgetDataArticlesRange",
     ]),
-
     getData() {
       this.$q.loading.show({
         message:
@@ -190,18 +190,18 @@ export default {
                   Prefijo: element.Prefijo,
                   Art_Stockminimo: element.Art_Stockminimo,
                   Cat_Nombre: element.Cat_Nombre,
-                  Art_Estado:
-                  element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
+                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",  
+                  Art_Estado: element.Art_Estado,
                   Art_User_control: element.Art_User_control,
                   Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
                   title: element.Art_Nombre,
-                  // btn_edit: false,
-                  // btn_status: false,
+                  btn_edit: true,
+                  btn_status: true,
                   // btn_details: true,
                   // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
+                  icon_btn_edit: "mdi-pencil",
+                  icon_btn_status: "power_settings_new",
                   // icon_btn_details: "mdi-eye-settings",
                 });
               });
@@ -256,8 +256,6 @@ export default {
           if (resrequestgetDataArticlesRange.ok) {
             if (resrequestgetDataArticlesRange.result) {
               resrequestgetDataArticlesRange.data.forEach((element) => {
-                c;
-                // console.log(element);
                 this.data.push({
                   Id: element.Id,
                   Art_Id: element.Art_Id,
@@ -272,14 +270,12 @@ export default {
                   Art_User_control: element.Art_User_control,
                   Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
-
-                  // title: `Entrada No. ${element.Id}`,
-                  // btn_edit: false,
-                  // btn_status: false,
+                  btn_edit: true,
+                  btn_status: true,
                   // btn_details: true,
                   // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
+                  icon_btn_edit: "mdi-pencil",
+                  icon_btn_status: "power_settings_new",
                   // icon_btn_details: "mdi-eye-settings",
                 });
               });
@@ -311,6 +307,10 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000);
+    },
+    editArticle(row){
+      this.article_edit = row;
+      this.tab = "create_article";
     },
     reload() {
       this.tab = "articles";

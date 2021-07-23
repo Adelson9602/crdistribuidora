@@ -88,94 +88,6 @@
             counter
           />
         </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="% Cliente AAA Tienda"
-            :rules="[val => !!val || '% Cliente AAA Tienda es requerido']"
-            maxlength="100"
-            counter
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="% Cliente AAA Ferreteria"
-            :rules="[val => !!val || '% Cliente AAA Ferreteria es requerido']"
-            maxlength="100"
-            counter
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="% Cliente F Mostrador"
-            :rules="[val => !!val || '% Cliente F Mostrador es requerido']"
-            maxlength="100"
-            counter
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="% Cliente A Vecinos Por Mayor"
-            :rules="[val => !!val || '% Cliente A Vecinos Por Mayor es requerido']"
-            maxlength="100"
-            counter
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="% Cliente AA Ferreteria Poblaciones"
-            :rules="[val => !!val || '% Cliente AA Ferreteria Poblaciones es requerido']"
-            maxlength="100"
-            counter
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="% Cliente F Vecinos Detal"
-            :rules="[val => !!val || '% Cliente F Vecinos Detal es requerido']"
-            maxlength="100"
-            counter
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-file
-            v-model="new_article.Art_Imagen"
-            hint="Imagen articulo"
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="Codigo de barras"
-            maxlength="100"
-            counter
-          >
-            <template v-slot:append>
-              <q-btn round dense flat icon="qr_code_scanner">
-                <q-tooltip>
-                  Generar código de barras
-                </q-tooltip>
-              </q-btn>
-              <q-btn round dense flat icon="print">
-                <q-tooltip>
-                  Imprimir código de barras
-                </q-tooltip>
-              </q-btn>
-            </template>
-          </q-input>
-        </div>
       </div>
       <div class="row justify-end q-mt-0">
         <div class="q-gutter-x-md">
@@ -213,6 +125,9 @@ export default {
       }
     }
   },
+  props: [
+    "edit_data"
+  ],
   created(){
     this.getData();
   },
@@ -275,6 +190,7 @@ export default {
                   options_um.push({
                     value: element.Um_Id,
                     label: element.Um_Unidad,
+                    prefijo: element.Prefijo
                   })
                 }
               });
@@ -286,6 +202,28 @@ export default {
             }
           } else {
             throw new Error(res_um.message);
+          }
+
+          // Es una propiedad que se envia desde el page, si viene definido significado que estamos editando
+          if(this.edit_data){
+            console.log(this.edit_data)
+            // Buscamos la categoria del producto asignada
+            let categoria = options_categorias.find( categoria => categoria.label.toLowerCase() == this.edit_data.Cat_Nombre.toLowerCase());
+            // Buscamos la unidad de medida asiganada
+            let um = options_um.find( um => um.prefijo.toLowerCase() == this.edit_data.Prefijo.toLowerCase())
+            this.new_article = {
+              base: null,
+              Art_Id: this.edit_data.Art_Id,
+              Cat_Id: categoria.value,
+              Art_Codigo_inv: this.edit_data.Art_Codigo_inv,
+              Art_Nombre: this.edit_data.Art_Nombre,
+              Art_Descripcion: this.edit_data.Art_Descripcion,
+              Art_Stockminimo: this.edit_data.Art_Stockminimo,
+              Um_Id: um.value,
+              Art_Imagen: this.edit_data.Art_Imagen,
+              Art_Estado: this.edit_data.Art_Estado,
+              Art_User_control: 123456789
+            }
           }
         } catch (e) {
           console.log(e);
@@ -322,7 +260,7 @@ export default {
           });
           if(res_add.ok){
             this.$q.notify({
-              message: 'Articulo agregado',
+              message: 'Guardado',
               type: 'positive'
             });
             this.$emit('reload');
