@@ -30,7 +30,7 @@
             </q-select>
           </div>
           <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
-            <q-btn color="primary" icon="check" label="Buscar" type="submit" class="self-center"/>
+            <q-btn color="primary" icon="search" label="Buscar" type="submit" class="self-center"/>
           </div>
         </div>
       </q-form>
