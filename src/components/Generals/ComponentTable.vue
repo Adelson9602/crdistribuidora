@@ -90,7 +90,7 @@
       :filter-method="customFilter"
       :visible-columns="visible_columns"
       :flat="flat"
-      class="height_table"
+      :class="grid ? '' :'height_table'"
     >
       <template v-slot:top-right>
         <q-input
@@ -457,7 +457,7 @@ export default {
   min-height: 30px;
 }
 .height_table {
-  height: 60%;
+  height: 70vh;
 }
 thead tr th{
   position: sticky;
