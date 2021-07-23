@@ -18,20 +18,19 @@
 
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="incomies">
-            <q-table
-              title="Inventario"
-              :data="data"
-              :columns="columns"
-              row-key="name"
-              flat
-            >
-              <template v-slot:header-cell-calories="props">
-                <q-th :props="props">
-                  <q-icon name="thumb_up" size="1.5em" />
-                  {{ props.col.label }}
-                </q-th>
-              </template>
-            </q-table>
+            <component-table
+              class="q-mt-md"
+              proptitle="Inventario actual"
+              :propdata="data"
+              :propcolumns="columns"
+              :propgrid="true"
+              :propflat="true"
+              :proppdf="optionpdf"
+              :propbtns="btns"
+              :proppagination="initial_pagination"
+              @onedit="editEntry"
+              @ondetails="detailsEntry"
+            />
           </q-tab-panel>
 
           <q-tab-panel name="add_income">
@@ -44,134 +43,265 @@
 
 <script>
 import ComponentAddIncome from 'components/Purchase/ComponentAddIncome';
+import componentTable from "components/Generals/ComponentTable";
+import { mapActions } from 'vuex';
 export default {
   name: 'Categories',
   components: {
     ComponentAddIncome,
+    componentTable
   },
   data(){
     return {
       tab: 'incomies',
       columns: [
         {
-          name: 'name',
-          required: true,
-          label: 'Dessert (100g serving)',
-          align: 'left',
-          field: row => row.name,
-          format: val => `${val}`,
-          sortable: true
+          name: 'CP_Nit',
+          align: 'center',
+          label: 'NIT',
+          sortable: true,
+          field: 'CP_Nit'
         },
-        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
-        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-        { name: 'protein', label: 'Protein (g)', field: 'protein' },
-        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-        { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
-        { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+        {
+          name: 'CP_Razon_social',
+          align: 'center',
+          label: 'RAZON SOCIAL',
+          sortable: true,
+          field: 'CP_Razon_social'
+        },
+        {
+          name: 'Enc_Fecha_hora',
+          align: 'center',
+          label: 'Fecha ingreso',
+          sortable: true,
+          field: 'Enc_Fecha_hora'
+        },
+        {
+          name: 'Enc_dias_credito',
+          align: 'center',
+          label: 'Días de credito',
+          sortable: true,
+          field: 'Enc_dias_credito'
+        },
+        {
+          name: 'Enc_num_comprobante',
+          align: 'center',
+          label: 'Número comprobante',
+          sortable: true,
+          field: 'Enc_num_comprobante'
+        },
+        {
+          name: 'Enc_subtotal_compra',
+          align: 'center',
+          label: 'Subtotal compra',
+          sortable: true,
+          field: 'Enc_subtotal_compra'
+        },
+        {
+          name: 'Enc_total_compra',
+          align: 'center',
+          label: 'Total compra',
+          sortable: true,
+          field: 'Enc_total_compra'
+        },
+        {
+          name: 'Enc_User_control',
+          align: 'center',
+          label: 'Documento',
+          sortable: true,
+          field: 'Enc_User_control'
+        },
+        {
+          name: 'Per_Nombre',
+          align: 'center',
+          label: 'Nombre',
+          sortable: true,
+          field: 'Per_Nombre'
+        },
+        {
+          name: 'Tc_Descripcion',
+          align: 'center',
+          label: 'Tipo comprobante',
+          sortable: true,
+          field: 'Tc_Descripcion'
+        },
+        {
+          name: 'name_estado',
+          align: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'name_estado'
+        },
+        {
+          name: 'name_mp',
+          align: 'center',
+          label: 'Medio pago',
+          sortable: true,
+          field: 'name_mp'
+        },
       ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
+      data: [],
+      optionpdf: {
+        columns: [
+          { header: "Art_Codigo_inv", datakey: "Art_Codigo_inv"},
+          { header: "Art_Id", datakey: "Art_Id"},
+          { header: "Art_Nombre", datakey: "Art_Nombre"},
+          { header: "Mov_Descripcion", datakey: "Mov_Descripcion"},
+          { header: "Mov_Id", datakey: "Mov_Id"},
+          { header: "Si_Cant", datakey: "Si_Cant"},
+          { header: "id", datakey: "id"},
+        ],
+        data: [],
+        orientation: 'l', // l => landscape, p => portrait
+        title: {
+          title: 'Inventario actual',
+          potitionx: 300,
+          potitiony: 30,
         },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
+        styles: {
+          font_size: 7,
         }
-      ]
+      },
+      btns: {
+        range_date: false,
+        btn_export_pdf: true,
+        export_excel: true
+      },
+      initial_pagination: {
+        page: 1,
+        rowsPerPage: 9,
+      }
+    }
+  },
+  created(){
+    this.getData();
+  },
+  methods: {
+    ...mapActions('shopping', [
+      'getEntries',
+      'getDetailsEntry'
+    ]),
+    getData(){
+      this.$q.loading.show({
+        message: 'Obteniendo ingresos, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_ingresos = await this.getEntries().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get ingresos',
+            data: res_ingresos
+          });
+          if(res_ingresos.ok){
+            if(res_ingresos.result){
+              this.data.length = 0 ;
+              res_ingresos.data.forEach( ingreso => {
+                this.data.push({
+                  CP_Nit: ingreso.CP_Nit,
+                  CP_Razon_social: ingreso.CP_Razon_social,
+                  Ecb_Id: ingreso.Ecb_Id,
+                  Enc_Estado: ingreso.Enc_Estado,
+                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                  Enc_User_control: ingreso.Enc_User_control,
+                  Enc_dias_credito: ingreso.Enc_dias_credito,
+                  Enc_impuesto: ingreso.Enc_impuesto,
+                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                  Enc_total_compra: ingreso.Enc_total_compra,
+                  Mp_Id: ingreso.Mp_Id,
+                  Per_Nombre: ingreso.Per_Nombre,
+                  Tc_Descripcion: ingreso.Tc_Descripcion,
+                  Tc_Id: ingreso.Tc_Id,
+                  Id: ingreso.id,
+                  title: ingreso.CP_Razon_social,
+                  name_estado: ingreso.name_estado,
+                  name_mp: ingreso.name_mp,
+                  btn_edit: true,
+                  icon_btn_details: 'visibility',
+                  btn_details: true,
+                  icon_btn_edit: 'edit',
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_ingresos.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_ingresos.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    detailsEntry(id){
+      this.$q.loading.show({
+        message: 'Obteniendo detalle del ingreso, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_detail = await this.getDetailsEntry(id).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get detalle ingreso',
+            data: res_detail
+          });
+          if(res_detail.ok){
+            if(res_detail.result){
+              this.data.length = 0 ;
+              res_detail.data.forEach( ingreso => {
+                this.data.push({
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_detail.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_detail.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    editEntry(){
+
     }
   }
 }
