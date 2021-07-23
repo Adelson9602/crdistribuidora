@@ -170,8 +170,7 @@ export default {
     ]),
     getData() {
       this.$q.loading.show({
-        message:
-          "Obteniendo los ultimos 10 articulos existentes, por favor espere...",
+        message: "Obteniendo articulos existentes, por favor espere...",
       });
       setTimeout(async () => {
         try {
@@ -204,11 +203,11 @@ export default {
                   Art_Fecha_control: element.Art_Fecha_control,
                   title: element.Art_Nombre,
                   btn_edit: true,
-                  btn_status: true,
+                  // btn_status: true,
                   // btn_details: true,
                   // btn_pdf: true,
                   icon_btn_edit: "mdi-pencil",
-                  icon_btn_status: "power_settings_new",
+                  // icon_btn_status: "power_settings_new",
                   // icon_btn_details: "mdi-eye-settings",
                 });
               });
