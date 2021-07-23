@@ -333,6 +333,29 @@ export default {
               this.data.length = 0 ;
               res_ingreso.data.forEach( ingreso => {
                 this.data.push({
+                  CP_Nit: ingreso.CP_Nit,
+                  CP_Razon_social: ingreso.CP_Razon_social,
+                  Ecb_Id: ingreso.Ecb_Id,
+                  Enc_Estado: ingreso.Enc_Estado,
+                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                  Enc_User_control: ingreso.Enc_User_control,
+                  Enc_dias_credito: ingreso.Enc_dias_credito,
+                  Enc_impuesto: ingreso.Enc_impuesto,
+                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                  Enc_total_compra: ingreso.Enc_total_compra,
+                  Mp_Id: ingreso.Mp_Id,
+                  Per_Nombre: ingreso.Per_Nombre,
+                  Tc_Descripcion: ingreso.Tc_Descripcion,
+                  Tc_Id: ingreso.Tc_Id,
+                  Id: ingreso.id,
+                  title: ingreso.CP_Razon_social,
+                  name_estado: ingreso.name_estado,
+                  name_mp: ingreso.name_mp,
+                  btn_edit: true,
+                  icon_btn_details: 'visibility',
+                  btn_details: true,
+                  icon_btn_edit: 'edit',
                 })
               });
             } else {
