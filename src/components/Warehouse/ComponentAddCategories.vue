@@ -43,7 +43,6 @@
                 v-model="category.Cat_Estado"
                 :options="options_status"
                 hint="Estado"
-                :disable="!edit"
                 map-options
                 emit-value
               />
@@ -85,7 +84,40 @@ export default {
           value: 0
         },
       ],
-      edit: false,
+      edit_category: null,
+    }
+  },
+  props: [
+    'edit_data'
+  ],
+  watch: {
+    edit_data(value){
+      // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
+      if(value){
+        this.edit_category = value;
+        this.category = {
+          base: null,
+          Cat_Id: this.edit_category.Cat_Id,
+          Cat_Nombre: this.edit_category.Cat_Nombre,
+          Cat_Descripcion: this.edit_category.Cat_Descripcion,
+          Cat_Estado: this.edit_category.name_estado == 'ACTIVADO' ? 1 : 0,
+          Cat_User_control: 123456789
+        }
+        this.dialog_create_categories = true;
+      }
+    },
+    dialog_create_categories(value){
+      if(!value){
+        this.edit_category = null;
+        this.category = {
+          base: null,
+          Cat_Id: null,
+          Cat_Nombre: null,
+          Cat_Descripcion: null,
+          Cat_Estado: 1,
+          Cat_User_control: 123456789
+        };
+      }
     }
   },
   methods: {

@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
      <q-card class="height-card_page q-pa-md">
-        <component-add-categories @reload="reload"/>
+        <component-add-categories @reload="reload" :edit_data="category_edit"/>
          <q-table
           title="Categoría productos"
           :data="data"
@@ -26,8 +26,7 @@
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td auto-width class="q-gutter-x-sm">
-                <q-btn :color="props.row.name_estado == 'ACTIVADO' ? 'positive' : 'negative'" dense size="sm" icon="power_settings_new" round/>
-                <q-btn color="warning" dense size="sm" icon="edit" round/>
+                <q-btn color="info" dense size="sm" icon="edit" round @click="editCategory(props.row)"/>
               </q-td>
 
               <q-td
@@ -105,7 +104,8 @@ export default {
         descending: false,
         page: 1,
         rowsPerPage: 15
-      }
+      },
+      category_edit: null, //Almacena los datos de la categoria a editar
     }
   },
   created(){
@@ -169,6 +169,9 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000)
+    },
+    editCategory(row){
+      this.category_edit = row;
     },
     reload(){
       setTimeout(()=> {
