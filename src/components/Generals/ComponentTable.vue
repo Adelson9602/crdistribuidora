@@ -204,7 +204,7 @@
                         <!-- :disable="!actions_user.Actualizar" -->
 
                       <q-fab-action
-                        color="gren"
+                        color="green"
                         round
                         push
                         padding="5px"
