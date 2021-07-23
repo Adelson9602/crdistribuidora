@@ -156,6 +156,13 @@ export default {
   created() {
     this.getData();
   },
+  watch: {
+    tab(value){
+      if(value == "articles"){
+        this.article_edit = null;
+      }
+    }
+  },
   methods: {
     ...mapActions("warehouse", [
       "getAllArticles",
@@ -215,8 +222,6 @@ export default {
             this.data.length = 0;
             throw resgetDataArticles.message;
           }
-
-          // this.rederComponent = true;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

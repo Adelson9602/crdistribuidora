@@ -206,7 +206,6 @@ export default {
 
           // Es una propiedad que se envia desde el page, si viene definido significado que estamos editando
           if(this.edit_data){
-            console.log(this.edit_data)
             // Buscamos la categoria del producto asignada
             let categoria = options_categorias.find( categoria => categoria.label.toLowerCase() == this.edit_data.Cat_Nombre.toLowerCase());
             // Buscamos la unidad de medida asiganada
