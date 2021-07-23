@@ -88,6 +88,15 @@
             counter
           />
         </div>
+        <div class="col-xs-12 col-md-6 q-px-sm">
+          <q-select
+            v-model="new_article.Art_Estado"
+            :options="options_state"
+            hint="Estado"
+            emit-value
+            map-options
+          />
+        </div>
       </div>
       <div class="row justify-end q-mt-0">
         <div class="q-gutter-x-md">
@@ -120,9 +129,19 @@ export default {
         Art_Stockminimo: null,
         Um_Id: null,
         Art_Imagen: null,
-        Art_Estado: 1,
+        Art_Estado: null,
         Art_User_control: 123456789
-      }
+      },
+      options_state: [
+        {
+          label: 'ACTIVO',
+          value: 1,
+        },
+        {
+          label: 'INACTIVO',
+          value: 0,
+        },
+      ]
     }
   },
   props: [
