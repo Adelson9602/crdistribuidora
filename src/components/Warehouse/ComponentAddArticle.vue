@@ -223,7 +223,7 @@ export default {
             throw new Error(res_um.message);
           }
 
-          // Es una propiedad que se envia desde el page, si viene definido significado que estamos editando
+          // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
           if(this.edit_data){
             // Buscamos la categoria del producto asignada
             let categoria = options_categorias.find( categoria => categoria.label.toLowerCase() == this.edit_data.Cat_Nombre.toLowerCase());
