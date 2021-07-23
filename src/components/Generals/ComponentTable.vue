@@ -347,7 +347,8 @@ export default {
     "proptoggle",
     "prop_visible_columns",
     "propflat",
-    "propbtns"
+    "propbtns",
+    "proppagination"
   ],
   computed: {
     // ...mapState("auth", ["user_permissions"]),
@@ -364,8 +365,9 @@ export default {
     this.flat = this.propflat !== undefined ? this.propflat : false;
     this.btns = this.propbtns != undefined ? this.propbtns : this.btns;
     this.excel = this.propexcel != undefined ? this.propexcel : this.excel;
+    this.initial_pagination = this.proppagination =! undefined ? this.proppagination : this.initial_pagination;
 
-    if (this.modeTable === false) {
+    if (this.modeTable == false) {
       this.mode = this.modeTable;
     } else {
       this.mode = true;
