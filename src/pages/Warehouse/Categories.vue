@@ -1,13 +1,14 @@
 <template>
   <q-page padding>
      <q-card class="height-card_page q-pa-md">
-        <component-add-categories/>
+        <component-add-categories @reload="reload"/>
          <q-table
-          title="Categorías"
+          title="Categoría productos"
           :data="data"
           :columns="columns"
           row-key="name"
-          class="height-table"
+          class="height-table q-mt-md"
+          :pagination="initial_pagination"
         >
           <template v-slot:header="props">
             <q-tr :props="props">
@@ -98,7 +99,13 @@ export default {
           field: 'name_estado'
         },
       ],
-      data: []
+      data: [],
+      initial_pagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 15
+      }
     }
   },
   created(){
@@ -162,6 +169,11 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000)
+    },
+    reload(){
+      setTimeout(()=> {
+        this.getData()
+      }, 200)
     }
   }
 }

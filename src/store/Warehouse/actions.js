@@ -19,3 +19,8 @@ export function getCategoriasAlmacen(){
 export function addArticle(contex, data){
   return Vue.prototype.$axios.post(`insert_update_articulo`, data);
 }
+
+// Agrega o edita las categorías de producto
+export function addCategory(contex, data){
+  return Vue.prototype.$axios.post(`insert_update_categoria`, data);
+}
