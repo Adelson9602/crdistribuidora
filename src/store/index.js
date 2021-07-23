@@ -5,6 +5,7 @@ import warehouse from './Warehouse';
 import auth from './Auth';
 import access from './Access';
 import master from './Master';
+import shopping from './Shopping';
 
 // import example from './module-example'
 
@@ -26,7 +27,8 @@ export default function (/* { ssrContext } */) {
       warehouse,
       auth,
       access,
-      master
+      master,
+      shopping
     },
 
     // enable strict mode (adds overhead!)
