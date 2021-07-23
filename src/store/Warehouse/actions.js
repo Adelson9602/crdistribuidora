@@ -24,3 +24,20 @@ export function addArticle(contex, data){
 export function addCategory(contex, data){
   return Vue.prototype.$axios.post(`insert_update_categoria`, data);
 }
+
+// Traslados
+
+// Obtiene los 50 ultimos traslados realizados
+export function getTransfer(){
+  return Vue.prototype.$axios.get(`select_enc_traslado_moviles_limit/${process.env.__BASE__}`);
+}
+
+// Obtiene los traslados realizados filtrados por rango de fecha
+export function getTransferRange(contex, data){
+  return Vue.prototype.$axios.get(`select_enc_traslado_moviles_range/${process.env.__BASE__}/${data.Fecha_inicial}/${data.Fecha_final}`);
+}
+
+// Inserta o actualiza el encabezado del traslado entre bodegas
+export function insertEncTransfer(contex, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_traslado_moviles`, data);
+}
