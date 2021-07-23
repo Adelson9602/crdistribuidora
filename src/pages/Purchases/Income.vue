@@ -18,6 +18,19 @@
 
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="incomies">
+            <q-form
+              @submit="searchEntry"
+              class="q-gutter-md"
+            >
+              <div class="row q-gutter-y-md">
+                <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
+                  <q-input v-model="id_entry" type="text" hint="Número ingreso" />
+                </div>
+                <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
+                  <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
+                </div>
+              </div>
+            </q-form>
             <component-table
               class="q-mt-md"
               proptitle="Inventario actual"
@@ -170,7 +183,8 @@ export default {
       initial_pagination: {
         page: 1,
         rowsPerPage: 9,
-      }
+      },
+      id_entry: null,
     }
   },
   created(){
@@ -179,7 +193,8 @@ export default {
   methods: {
     ...mapActions('shopping', [
       'getEntries',
-      'getDetailsEntry'
+      'getDetailsEntry',
+      'getSingleEntry'
     ]),
     getData(){
       this.$q.loading.show({
@@ -280,6 +295,54 @@ export default {
             }
           } else {
             throw new Error(res_detail.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    searchEntry(){
+      this.$q.loading.show({
+        message: 'Buscando ingreso, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_ingreso = await this.getSingleEntry(this.id_entry).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get ingreso',
+            data: res_ingreso
+          });
+          if(res_ingreso.ok){
+            if(res_ingreso.result){
+              this.data.length = 0 ;
+              res_ingreso.data.forEach( ingreso => {
+                this.data.push({
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_ingreso.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_ingreso.message);
           }
         } catch (e) {
           console.log(e);
