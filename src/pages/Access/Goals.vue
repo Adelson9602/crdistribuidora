@@ -22,7 +22,7 @@
           <list-metas
             :propdata="data"
             :propcolumns="columns"
-            proptitle="MEtas"
+            proptitle="Metas"
             :proppdf="optionpdf"
             :propflat="true"
             :propgrid="true"
