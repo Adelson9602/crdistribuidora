@@ -20,7 +20,7 @@
         <q-tab-panel name="warranties">
           <component-table
             proptitle="Garantías"
-            :propgrid="false"
+            :propgrid="true"
             :propflat="true"
             :propdata="data"
             :propcolumns="columns"
@@ -48,8 +48,83 @@ export default {
   data(){
     return {
       tab: 'warranties',
-      columns: [],
-      data: []
+      columns: [
+        {
+          name: 'Art_Id',
+          align: 'center',
+          label: 'ID articulo',
+          sortable: true,
+          field: 'Art_Id'
+        },
+        {
+          name: 'Art_Nombre',
+          align: 'center',
+          label: 'Nombre articulo',
+          sortable: true,
+          field: 'Art_Nombre'
+        },
+        {
+          name: 'Dg_Cant',
+          align: 'center',
+          label: 'Dg_Cant',
+          sortable: true,
+          field: 'Dg_Cant'
+        },
+        {
+          name: 'Eg_Fecha_control',
+          align: 'center',
+          label: 'Fecha',
+          sortable: true,
+          field: 'Eg_Fecha_control'
+        },
+        {
+          name: 'Eg_Id',
+          align: 'center',
+          label: 'Eg_Id',
+          sortable: true,
+          field: 'Eg_Id'
+        },
+        {
+          name: 'Eg_Observacion',
+          align: 'center',
+          label: 'Observación',
+          sortable: true,
+          field: 'Eg_Observacion'
+        },
+        {
+          name: 'Eg_Quien_autoriza',
+          align: 'center',
+          label: 'Autorizado',
+          sortable: true,
+          field: 'Eg_Quien_autoriza'
+        },
+        {
+          name: 'Eg_User_control',
+          align: 'center',
+          label: 'Documento autoriza',
+          sortable: true,
+          field: 'Eg_User_control'
+        },
+        {
+          name: 'estado',
+          align: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'estado'
+        },
+        {
+          name: 'Ev_Id',
+          align: 'center',
+          label: 'ID venta',
+          sortable: true,
+          field: 'Ev_Id'
+        },
+      ],
+      data: [],
+      buscador: {
+        input: false,
+        label: ''
+      }
     }
   },
   created(){
@@ -75,8 +150,21 @@ export default {
           if(res_warranties.ok){
             if(res_warranties.result){
               this.data.length = 0 ;
-              res_warranties.data.forEach( metas => {
-                this.data.push()
+              res_warranties.data.forEach( garantia => {
+                this.data.push({
+                  Art_Id: garantia.Art_Id,
+                  Art_Nombre: garantia.Art_Nombre,
+                  Dg_Cant: garantia.Dg_Cant,
+                  Eg_Fecha_control: garantia.Eg_Fecha_control,
+                  Eg_Id: garantia.Eg_Id,
+                  Eg_Observacion: garantia.Eg_Observacion,
+                  Eg_Quien_autoriza: garantia.Eg_Quien_autoriza,
+                  Eg_User_control: garantia.Eg_User_control,
+                  Eg_estado: garantia.Eg_estado,
+                  estado: garantia.Eg_estado == 1 ? 'APROVADO' : 'NO APROVADO',
+                  Ev_Id: garantia.Ev_Id,
+                  Per_Nombre: garantia.Per_Nombre,
+                })
               });
             } else {
               this.$q.notify({
