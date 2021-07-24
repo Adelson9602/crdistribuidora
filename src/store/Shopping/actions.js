@@ -2,6 +2,7 @@ import Vue from "vue";
 
 let base = process.env.__BASE__;
 
+// Entradas o ingresos
 // Obtiene las ultimas 50 entradas 
 export function getEntries(){
   return Vue.prototype.$axios.get(`select_enc_entrada_bodega_limit/${base}`);
@@ -20,4 +21,15 @@ export function getSingleEntry(context, id){
 // Obtiene el detalle de la entrada
 export function getDetailsEntry(context, id){
   return Vue.prototype.$axios.get(`select_det_entrada_inventario_single/${base}/${id}`)
+}
+
+// Proveedores
+// Obtiene todos los proveedores o clientes
+export function getProviders(){
+  return Vue.prototype.$axios.get(`select_cliente_proveepor_general/${base}`)
+}
+
+// Busca un proveedor o cliente por su nit
+export function searchProviders(context, nit){
+  return Vue.prototype.$axios.get(`select_cliente_proveepor_single/${base}/${nit}`)
 }
