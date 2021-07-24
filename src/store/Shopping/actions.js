@@ -33,3 +33,9 @@ export function getProviders(){
 export function searchProviders(context, nit){
   return Vue.prototype.$axios.get(`select_cliente_proveepor_single/${base}/${nit}`)
 }
+
+// Garantias
+// Obtiene las salidas a garantias
+export function getWaraniesOutput(){
+  return Vue.prototype.$axios.get(`select_stock_garantias_general/${base}`)
+}
