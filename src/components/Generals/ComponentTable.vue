@@ -1,83 +1,95 @@
 <template>
   <div>
-    <div class="q-gutter-md q-pb-md row">
-      <div class="col-xs-12 col-md-3 col-lg-3" v-if="btns.range_date">
-        <q-field
-          stack-label
-          class="date_training"
-          hint="Seleccione un rango de fecha"
-        >
-          <template v-slot:control>
-            <div
-              class="self-center full-width no-outline row justify-between"
-              tabindex="0"
-            >
-              <label class="self-center">
-                Desde {{ date_range.from }} Hasta {{ date_range.to }}
-              </label>
-              <q-btn
-                icon="event"
-                round
-                color="primary"
-                class="self-end"
-                size="xs"
+    <q-form @submit="search">
+      <div class="q-gutter-y-md q-pb-md row">
+        <div class="col-xs-12 col-md-3 col-lg-3 q-px-sm" v-if="btns.range_date">
+          <q-field
+            stack-label
+            class="date_training"
+            hint="Seleccione un rango de fecha"
+          >
+            <template v-slot:control>
+              <div
+                class="self-center full-width no-outline row justify-between"
+                tabindex="0"
               >
-                <q-popup-proxy
-                  ref="qDateProxy"
-                  transition-show="scale"
-                  transition-hide="scale"
+                <label class="self-center">
+                  Desde {{ date_range.from }} Hasta {{ date_range.to }}
+                </label>
+                <q-btn
+                  icon="event"
+                  round
+                  color="primary"
+                  class="self-end"
+                  size="xs"
                 >
-                  <q-date v-model="date_range" range mask="YYYY-MM-DD">
-                    <div class="row items-center justify-end">
-                      <q-btn
-                        label="Borrar"
-                        color="primary"
-                        flat
-                        @click="date_range = { to: '', from: '' }"
-                      />
-                      <q-btn
-                        v-close-popup
-                        label="Ok"
-                        color="primary"
-                        flat
-                        @click="range"
-                      />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-btn>
-            </div>
-          </template>
-        </q-field>
+                  <q-popup-proxy
+                    ref="qDateProxy"
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date v-model="date_range" range mask="YYYY-MM-DD">
+                      <div class="row items-center justify-end">
+                        <q-btn
+                          label="Borrar"
+                          color="primary"
+                          flat
+                          @click="date_range = { to: '', from: '' }"
+                        />
+                        <q-btn
+                          v-close-popup
+                          label="Ok"
+                          color="primary"
+                          flat
+                          @click="range"
+                        />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-btn>
+              </div>
+            </template>
+          </q-field>
+        </div>
+        <div class="col-xs-12 col-md-4 col-lg-2 q-gutter-md q-px-sm row justify-center">
+          <div>
+            <q-btn
+              @click="exportPDF"
+              push
+              color="white"
+              text-color="primary"
+              icon="picture_as_pdf"
+              v-if="btns.btn_export_pdf"
+            />
+          </div>
+          <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
+          <vue-excel-xlsx
+            :data="excel.data"
+            :columns="excel.columns"
+            :filename="excel.title"
+            sheetname="Hoja 1"
+            class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
+            tabindex="0"
+            v-if="btns.export_excel"
+          >
+            <q-btn
+              push
+              color="white"
+              text-color="positive"
+              icon="mdi-microsoft-excel"
+            />
+          </vue-excel-xlsx>
+        </div>
+        <div class="col-xs-12 col-md-4 col-lg-4 row" v-if="buscador.input">
+          <div class="col-xs-12 col-md-8">
+            <q-input v-model="id_search" type="text" :hint="buscador.label" />
+          </div>
+          <div class="col-xs-12 col-md-4 row q-px-sm">
+            <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
+          </div>
+        </div>
       </div>
-      <div class="col-xs-12 col-md-4 col-lg-2 q-gutter-md">
-        <q-btn
-          @click="exportPDF"
-          push
-          color="white"
-          text-color="primary"
-          icon="picture_as_pdf"
-          v-if="btns.btn_export_pdf"
-        />
-        <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
-        <vue-excel-xlsx
-          :data="excel.data"
-          :columns="excel.columns"
-          :filename="excel.title"
-          sheetname="Hoja 1"
-          class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
-          tabindex="0"
-          v-if="btns.export_excel"
-        >
-          <q-btn
-            push
-            color="white"
-            text-color="positive"
-            icon="mdi-microsoft-excel"
-          />
-        </vue-excel-xlsx>
-      </div>
-    </div>
+    </q-form>
     <q-toggle v-model="grid" label="Visualización" v-if="toggle" />
     <q-table
       :title="title"
@@ -257,7 +269,7 @@
                     <q-item-label caption>
                       {{col.label != 'Estado' ? col.value : ''}}
                       <q-badge
-                        :color="col.value == 'ACTIVO' || col.value == 'ACEPTADO' || col.value == 'ACTIVADO' ? 'positive' : 'negative'"
+                        :color="col.value == 'ACTIVO' || col.value == 'ACEPTADO' || col.value == 'ACTIVADO' || col.value == 'ACEPTADO' ? 'positive' : 'negative'"
                         text-color="white"
                         :label="col.value"
                         v-if="col.label == 'Estado'"
@@ -292,6 +304,7 @@ export default {
   // name: 'ComponentName',
   data() {
     return {
+      id_search: null,
       initial_pagination: {
         page: 1,
         rowsPerPage: 6,
@@ -334,6 +347,10 @@ export default {
           font_size: 7,
         }
       },
+      buscador: {
+        input: false,
+        label: ''
+      }
     };
   },
   props: [
@@ -348,7 +365,8 @@ export default {
     "prop_visible_columns",
     "propflat",
     "propbtns",
-    "proppagination"
+    "proppagination",
+    "propbuscador"
   ],
   computed: {
     // ...mapState("auth", ["user_permissions"]),
@@ -366,6 +384,7 @@ export default {
     this.btns = this.propbtns != undefined ? this.propbtns : this.btns;
     this.excel = this.propexcel != undefined ? this.propexcel : this.excel;
     this.initial_pagination = this.proppagination =! undefined ? this.proppagination : this.initial_pagination;
+    this.buscador = this.propbuscador ? this.propbuscador : this.buscador;
 
     if (this.modeTable == false) {
       this.mode = this.modeTable;
@@ -451,6 +470,10 @@ export default {
       }
       this.$emit("getrangedata", this.date_range);
     },
+    // Busca en especifico
+    search(){
+
+    }
   },
 };
 </script>
