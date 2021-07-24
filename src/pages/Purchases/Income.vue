@@ -43,6 +43,7 @@
               :proppagination="initial_pagination"
               @onedit="editEntry"
               @ondetails="detailsEntry"
+              :propbuscador="buscador"
             />
           </q-tab-panel>
 
@@ -185,6 +186,10 @@ export default {
         rowsPerPage: 9,
       },
       id_entry: null,
+      buscador: {
+        input: false,
+        label: ''
+      }
     }
   },
   created(){

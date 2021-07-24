@@ -17,21 +17,20 @@
       <q-separator />
 
       <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="sales">
-          <q-table
-            title="Ventas"
-            :data="data"
-            :columns="columns"
-            row-key="name"
-            flat
-          >
-            <template v-slot:header-cell-calories="props">
-              <q-th :props="props">
-                <q-icon name="thumb_up" size="1.5em" />
-                {{ props.col.label }}
-              </q-th>
-            </template>
-          </q-table>
+        <q-tab-panel name="sales">          
+          <component-table
+            class="q-mt-md"
+            proptitle="Ventas"
+            :propdata="data"
+            :propcolumns="columns"
+            :propgrid="true"
+            :propflat="true"
+            :proppdf="optionpdf"
+            :propbtns="btns"
+            :proppagination="initial_pagination"
+            @range="getSalesByRange"
+            @onedit="editSale"
+          />
         </q-tab-panel>
 
         <q-tab-panel name="add_sales">
@@ -44,134 +43,424 @@
 
 <script>
 import ComponentAddSales from 'components/Sales/ComponentAddSales';
+import componentTable from "components/Generals/ComponentTable";
+import { mapActions } from 'vuex';
 export default {
   name: 'DeparturesGuarantees',
   components: {
     ComponentAddSales,
+    componentTable
   },
   data(){
     return {
       tab: 'sales',
       columns: [
         {
-          name: 'name',
-          required: true,
-          label: 'Dessert (100g serving)',
-          align: 'left',
-          field: row => row.name,
-          format: val => `${val}`,
-          sortable: true
+          name: 'CP_Nit',
+          align: 'center',
+          label: 'NIT',
+          sortable: true,
+          field: 'CP_Nit'
         },
-        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
-        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-        { name: 'protein', label: 'Protein (g)', field: 'protein' },
-        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-        { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
-        { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+        {
+          name: 'Ev_Des_gen_venta',
+          align: 'center',
+          label: 'Descuento general venta',
+          sortable: true,
+          field: 'Ev_Des_gen_venta'
+        },
+        {
+          name: 'Ev_Des_total_art',
+          align: 'center',
+          label: 'Descuento total artículo',
+          sortable: true,
+          field: 'Ev_Des_total_art'
+        },
+        {
+          name: 'Ev_Impuesto',
+          align: 'center',
+          label: 'Impuesto',
+          sortable: true,
+          field: 'Ev_Impuesto'
+        },
+        {
+          name: 'Ev_Subtotal',
+          align: 'center',
+          label: 'Subtotal',
+          sortable: true,
+          field: 'Ev_Subtotal'
+        },
+        {
+          name: 'Ev_Total_venta',
+          align: 'center',
+          label: 'Venta total',
+          sortable: true,
+          field: 'Ev_Total_venta'
+        },
+        {
+          name: 'Ev_dias_credito',
+          align: 'center',
+          label: 'Días crédito',
+          sortable: true,
+          field: 'Ev_dias_credito'
+        },
+        {
+          name: 'Mov_Descripcion',
+          align: 'center',
+          label: 'Nombre movil',
+          sortable: true,
+          field: 'Mov_Descripcion'
+        },
+        {
+          name: 'Per_Nombre',
+          align: 'center',
+          label: 'Nombre vendedor',
+          sortable: true,
+          field: 'Per_Nombre'
+        },
+        {
+          name: 'Per_Num_documento',
+          align: 'center',
+          label: 'Documento vendedor',
+          sortable: true,
+          field: 'Per_Num_documento'
+        },
+        {
+          name: 'name_qautorizqa',
+          align: 'center',
+          label: 'Autoriza garantía',
+          sortable: true,
+          field: 'name_qautorizqa'
+        },
+        {
+          name: 'Eg_Quien_autoriza',
+          align: 'center',
+          label: 'Documento autoriza garantía',
+          sortable: true,
+          field: 'Eg_Quien_autoriza'
+        },
+        {
+          name: 'Eg_Observacion',
+          align: 'center',
+          label: 'Observación',
+          sortable: true,
+          field: 'Eg_Observacion'
+        },
+        {
+          name: 'Eg_Fecha_control',
+          align: 'center',
+          label: 'Fecha garantía',
+          sortable: true,
+          field: 'Eg_Fecha_control'
+        },
+        {
+          name: 'Ev_Fecha_venta',
+          align: 'center',
+          label: 'Fecha venta',
+          sortable: true,
+          field: 'Ev_Fecha_venta'
+        },
+        {
+          name: 'name_estado',
+          align: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'name_estado'
+        },
       ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
+      data: [],
+      optionpdf: {
+        columns: [
+          { header: "Art_Codigo_inv", datakey: "Art_Codigo_inv"},
+          { header: "Art_Id", datakey: "Art_Id"},
+          { header: "Art_Nombre", datakey: "Art_Nombre"},
+          { header: "Mov_Descripcion", datakey: "Mov_Descripcion"},
+          { header: "Mov_Id", datakey: "Mov_Id"},
+          { header: "Si_Cant", datakey: "Si_Cant"},
+          { header: "id", datakey: "id"},
+        ],
+        data: [],
+        orientation: 'l', // l => landscape, p => portrait
+        title: {
+          title: 'Inventario actual',
+          potitionx: 300,
+          potitiony: 30,
         },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
+        styles: {
+          font_size: 7,
         }
-      ]
+      },
+      btns: {
+        range_date: true,
+        btn_export_pdf: true,
+        export_excel: true
+      },
+      initial_pagination: {
+        page: 1,
+        rowsPerPage: 9,
+      },
+      id_sale: null,
+    }
+  },
+  created(){
+    this.getData();
+  },
+  methods: {
+    ...mapActions('sales', [
+      'getSearchSales',
+      'getSalesRange',
+      'getSales'
+    ]),
+    getData(){
+      this.$q.loading.show({
+        message: 'Obteniendo ventas, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_sales = await this.getSales().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get ventas',
+            data: res_sales
+          });
+          if(res_sales.ok){
+            if(res_sales.result){
+              this.data.length = 0 ;
+              res_sales.data.forEach( sale => {
+                this.data.push({
+                  CP_Nit: sale.CP_Nit,
+                  CP_Razon_social: sale.CP_Razon_social,
+                  Eg_Fecha_control: sale.Eg_Fecha_control,
+                  Eg_Id: sale.Eg_Id,
+                  Eg_Observacion: sale.Eg_Observacion,
+                  Eg_Quien_autoriza: sale.Eg_Quien_autoriza,
+                  Eg_estado: sale.Eg_estado,
+                  Ev_Des_gen_venta: sale.Ev_Des_gen_venta,
+                  Ev_Des_total_art: sale.Ev_Des_total_art,
+                  Ev_Descuentog: sale.Ev_Descuentog,
+                  Ev_Entregado: sale.Ev_Entregado,
+                  Ev_Estado: sale.Ev_Estado,
+                  Ev_Fecha_control: sale.Ev_Fecha_control,
+                  Ev_Fecha_venta: sale.Ev_Fecha_venta,
+                  Ev_Id: sale.Ev_Id,
+                  Ev_Impuesto: sale.Ev_Impuesto,
+                  Ev_Subtotal: sale.Ev_Subtotal,
+                  Ev_Total_venta: sale.Ev_Total_venta,
+                  Ev_Usuario_control: sale.Ev_Usuario_control,
+                  Ev_conf_pago: sale.Ev_conf_pago,
+                  Ev_dias_credito: sale.Ev_dias_credito,
+                  Mov_Descripcion: sale.Mov_Descripcion,
+                  Mov_Id: sale.Mov_Id,
+                  Mp_Id: sale.Mp_Id,
+                  Per_Nombre: sale.Per_Nombre,
+                  Per_Num_documento: sale.Per_Num_documento,
+                  name_estado: sale.name_estado.toUpperCase(),
+                  name_mp: sale.name_mp,
+                  name_qautorizqa: sale.name_qautorizqa,
+                  btn_edit: true,
+                  icon_btn_details: 'visibility',
+                  btn_details: true,
+                  icon_btn_edit: 'edit',
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_sales.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_sales.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    getSalesByRange(date){
+      this.$q.loading.show({
+        message: 'Obteniendo ventas, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_sales = await this.getSalesRange(date).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get ventas por rango',
+            data: res_sales
+          });
+          if(res_sales.ok){
+            if(res_sales.result){
+              this.data.length = 0 ;
+              res_sales.data.forEach( cat => {
+                this.data.push({
+                  CP_Nit: sale.CP_Nit,
+                  CP_Razon_social: sale.CP_Razon_social,
+                  Eg_Fecha_control: sale.Eg_Fecha_control,
+                  Eg_Id: sale.Eg_Id,
+                  Eg_Observacion: sale.Eg_Observacion,
+                  Eg_Quien_autoriza: sale.Eg_Quien_autoriza,
+                  Eg_estado: sale.Eg_estado,
+                  Ev_Des_gen_venta: sale.Ev_Des_gen_venta,
+                  Ev_Des_total_art: sale.Ev_Des_total_art,
+                  Ev_Descuentog: sale.Ev_Descuentog,
+                  Ev_Entregado: sale.Ev_Entregado,
+                  Ev_Estado: sale.Ev_Estado,
+                  Ev_Fecha_control: sale.Ev_Fecha_control,
+                  Ev_Fecha_venta: sale.Ev_Fecha_venta,
+                  Ev_Id: sale.Ev_Id,
+                  Ev_Impuesto: sale.Ev_Impuesto,
+                  Ev_Subtotal: sale.Ev_Subtotal,
+                  Ev_Total_venta: sale.Ev_Total_venta,
+                  Ev_Usuario_control: sale.Ev_Usuario_control,
+                  Ev_conf_pago: sale.Ev_conf_pago,
+                  Ev_dias_credito: sale.Ev_dias_credito,
+                  Mov_Descripcion: sale.Mov_Descripcion,
+                  Mov_Id: sale.Mov_Id,
+                  Mp_Id: sale.Mp_Id,
+                  Per_Nombre: sale.Per_Nombre,
+                  Per_Num_documento: sale.Per_Num_documento,
+                  name_estado: sale.name_estado.toUpperCase(),
+                  name_mp: sale.name_mp,
+                  name_qautorizqa: sale.name_qautorizqa,
+                  btn_edit: true,
+                  icon_btn_details: 'visibility',
+                  btn_details: true,
+                  icon_btn_edit: 'edit',
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_sales.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_sales.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    searchSale(){
+      this.$q.loading.show({
+        message: 'Buscando venta, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_sales = await this.getSearchSales(this.id_sale).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get venta',
+            data: res_sales
+          });
+          if(res_sales.ok){
+            if(res_sales.result){
+              this.data.length = 0 ;
+              res_sales.data.forEach( cat => {
+                this.data.push({
+                  CP_Nit: sale.CP_Nit,
+                  CP_Razon_social: sale.CP_Razon_social,
+                  Eg_Fecha_control: sale.Eg_Fecha_control,
+                  Eg_Id: sale.Eg_Id,
+                  Eg_Observacion: sale.Eg_Observacion,
+                  Eg_Quien_autoriza: sale.Eg_Quien_autoriza,
+                  Eg_estado: sale.Eg_estado,
+                  Ev_Des_gen_venta: sale.Ev_Des_gen_venta,
+                  Ev_Des_total_art: sale.Ev_Des_total_art,
+                  Ev_Descuentog: sale.Ev_Descuentog,
+                  Ev_Entregado: sale.Ev_Entregado,
+                  Ev_Estado: sale.Ev_Estado,
+                  Ev_Fecha_control: sale.Ev_Fecha_control,
+                  Ev_Fecha_venta: sale.Ev_Fecha_venta,
+                  Ev_Id: sale.Ev_Id,
+                  Ev_Impuesto: sale.Ev_Impuesto,
+                  Ev_Subtotal: sale.Ev_Subtotal,
+                  Ev_Total_venta: sale.Ev_Total_venta,
+                  Ev_Usuario_control: sale.Ev_Usuario_control,
+                  Ev_conf_pago: sale.Ev_conf_pago,
+                  Ev_dias_credito: sale.Ev_dias_credito,
+                  Mov_Descripcion: sale.Mov_Descripcion,
+                  Mov_Id: sale.Mov_Id,
+                  Mp_Id: sale.Mp_Id,
+                  Per_Nombre: sale.Per_Nombre,
+                  Per_Num_documento: sale.Per_Num_documento,
+                  name_estado: sale.name_estado.toUpperCase(),
+                  name_mp: sale.name_mp,
+                  name_qautorizqa: sale.name_qautorizqa,
+                  btn_edit: true,
+                  icon_btn_details: 'visibility',
+                  btn_details: true,
+                  icon_btn_edit: 'edit',
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_sales.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_sales.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    editSale(row){
+      this.category_edit = row;
+    },
+    reload(){
+      setTimeout(()=> {
+        this.getData()
+      }, 200)
     }
   }
 }
