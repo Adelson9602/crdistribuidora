@@ -30,7 +30,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="formGoals">
-          
+          <component-form-goals @reload="reload"/>
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -40,10 +40,12 @@
 <script>
 import { mapActions, } from 'vuex';
 import ListMetas from "components/Generals/ComponentTable";
+import ComponentFormGoals from "components/Access/ComponentFormGoals";
 export default {
   name: 'PageIndex',
   components: {
     ListMetas,
+    ComponentFormGoals
   },
   data(){
     return {
@@ -192,6 +194,12 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000)
+    },
+    reload(){
+      this.tab = "goals";
+      setTimeout( () => {
+        this.getData();
+      }, 300)
     }
   }
 }
