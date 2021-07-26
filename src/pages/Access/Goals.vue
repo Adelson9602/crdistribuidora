@@ -26,6 +26,14 @@
             :proppdf="optionpdf"
             :propflat="true"
             :propgrid="true"
+            @tostatus="openDialogStatus"
+          />
+          <!-- Dialogo para activar o inactivar una meta -->
+          <component-dialog-enable
+            :dialog="enable_diable"
+            :options_dialog="options_status"
+            @cancel="enable_diable = false"
+            @changeStatus="changeStatus"
           />
         </q-tab-panel>
 
@@ -38,13 +46,15 @@
 </template>
 
 <script>
-import { mapActions, } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import ListMetas from "components/Generals/ComponentTable";
+import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
 import ComponentFormGoals from "components/Access/ComponentFormGoals";
 export default {
   name: 'PageIndex',
   components: {
     ListMetas,
+    ComponentDialogEnable,
     ComponentFormGoals
   },
   data(){
@@ -125,6 +135,23 @@ export default {
       },
       label: 'Agregar metas',
       tab: "goals",
+      enable_diable: false,
+      options_status: {
+        title: null,
+        msg: null
+      },
+      goal_edit: {
+        base: null,
+        Met_Estado: null,
+        Met_Fecha_control: null,
+        Met_Id: null,
+        Met_User_control: null,
+        Met_porcentaje: null,
+        Met_vdesde: null,
+        Met_vhasta: null,
+        Per_Nombre: null,
+        name_estado: null,
+      }
     }
   },
   created(){
@@ -132,7 +159,8 @@ export default {
   },
   methods: {
     ...mapActions('access', [
-      'getGoals'
+      'getGoals',
+      'insertUpdateGoals'
     ]),
     getData(){
       this.$q.loading.show({
@@ -200,6 +228,74 @@ export default {
       setTimeout( () => {
         this.getData();
       }, 300)
+    },
+    openDialogStatus(row){
+      this.goal_edit = {
+        base: process.env.__BASE__,
+        Met_Estado: row.Met_Estado == 1 ? 0 : 1,
+        Met_Fecha_control: row.Met_Fecha_control,
+        Met_Id: row.Met_Id,
+        Met_User_control: row.Met_User_control,
+        Met_porcentaje: row.Met_porcentaje,
+        Met_vdesde: row.Met_vdesde,
+        Met_vhasta: row.Met_vhasta,
+        Per_Nombre: row.Per_Nombre,
+        name_estado: row.name_estado,
+      };
+      this.options_status.title = row.Met_Estado == 1 ? 'Desactivar meta' : 'Activar meta';
+      this.options_status.msg = row.Met_Estado == 1 ? 'Está desactivando esta meta, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivar?' : 'Está activando esta meta, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarla?';
+      this.enable_diable = true;
+    },
+    changeStatus(){
+      this.$q.loading.show({
+        message: 'Estamos cambiando el estado de la meta, por favor espere...'
+      });
+      setTimeout(async()=> {
+        try {
+          const res_update = await this.insertUpdateGoals(this.goal_edit).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta update state meta',
+            data: res_update
+          });
+          if(res_update.ok){
+            if(res_update.data.affectedRows){
+              this.$q.notify({
+                message: 'Estado actualizado',
+                type: 'positive'
+              });
+              setTimeout(() => {
+                this.enable_diable = false;
+                this.getData();
+              }, 500)
+            } else {
+              this.$q.notify({
+                message: 'No se actualizó el estado',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_update.message)
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      })
     }
   }
 }
