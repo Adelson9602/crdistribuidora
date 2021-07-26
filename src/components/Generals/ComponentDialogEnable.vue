@@ -1,21 +1,21 @@
 <template>
   <div>
-    <q-dialog v-model="dialogEnable" persistent>
-      <q-card v-model="icon">
-        <q-card-section class="row items-center q-pb-none">
+    <q-dialog v-model="dialog_enable" persistent>
+      <q-card v-model="icon" class="q-pa-md">
+        <q-card-section class="row items-center q-pa-none">
           <div class="text-h6">
-            <q-icon name="warning" class="text-orange" style="font-size: 4rem;" />
-            {{ enableEstate ? title : title }}
+            <q-icon name="warning" class="text-orange" style="font-size: 3rem;" />
+            {{title}}
           </div>
           <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn icon="close" flat round dense @click="cancelEdit" />
         </q-card-section>
         <q-card-section>
-          {{msgEnable}}
+          {{msg}}
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn push @click="cancelEdit" color="white" text-color="primary" label="Cancelar" v-close-popup />
-          <q-btn push @click="enableItem" color="primary" text-color="white" :label="`${ enableEstate ? 'Habilitar' : 'Inhabilitar' }`" v-close-popup />
+          <q-btn flat @click="cancelEdit" color="white" text-color="primary" label="Cancelar" v-close-popup />
+          <q-btn @click="enableItem" color="primary" text-color="white" :label="title" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -27,30 +27,27 @@ export default {
   name: 'ComponentDialogEnable',
   data () {
     return {
-      dialogEnable: false,
+      dialog_enable: false,
       enableEstate: false,
-      msgEnable: null,
+      msg: null,
       icon: false,
+      title: null,
     }
   },
-  props: ['dialog', 'state', 'msg', 'title'],
+  props: ['dialog', 'options_dialog'],
   watch: {
     dialog(){
-      this.dialogEnable = this.dialog;
-    },
-    state(){
-      this.enableEstate = this.state;
-    },
-    msg(){
-      this.msgEnable = this.msg;
-    },
+      this.dialog_enable = this.dialog;
+      this.title = this.options_dialog.title;
+      this.msg = this.options_dialog.msg;
+    }
   },
   methods: {
     enableItem() {
-      this.$emit('enable');
+      this.$emit('changeStatus');
     },
     cancelEdit(){
-      this.$emit('cancel', this.dialogEnable)
+      this.$emit('cancel', this.dialog_enable)
     }
   },
 }
