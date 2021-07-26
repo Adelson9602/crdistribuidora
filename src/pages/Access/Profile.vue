@@ -9,7 +9,6 @@
       @reload="reload"
       v-if="renderComponent"
     />
-    <skeletonForm v-if="!renderComponent"/>
     <template>
 
   </q-page> -->
@@ -20,7 +19,7 @@
 
 <script>
 import userDetail from 'components/Access/ComponentUserDetail';
-import skeletonForm from 'components/Generals/ComponentSkeletonForm'
+
 import { mapActions, mapMutations, mapState } from "vuex";
 
 export default {
