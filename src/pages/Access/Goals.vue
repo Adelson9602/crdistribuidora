@@ -27,6 +27,7 @@
             :propflat="true"
             :propgrid="true"
             @tostatus="openDialogStatus"
+            :proppagination="initial_pagination"
           />
           <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable
@@ -111,6 +112,12 @@ export default {
         },
       ],
       data: [],
+      initial_pagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 6
+      },
       optionpdf: {
         columns: [
           { header: "Nombre", dataKey: "Pers_Nombres" },
