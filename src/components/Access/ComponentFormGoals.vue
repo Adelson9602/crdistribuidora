@@ -7,34 +7,22 @@
     >
       <div class="row">
         <div class="col-xs-12 col-md-4 q-px-sm">
-          <q-input v-model="goal.Met_vdesde" mask="date" :rules="['date']">
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date v-model="goal.Met_vdesde">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
+          <q-input
+            v-model="goal.Met_vdesde"
+            :rules="[val => !!val || 'Valor inicial es requerido']"
+            mask="##########"
+            hint="Valor inicial"
+            counter
+          />
         </div>
         <div class="col-xs-12 col-md-4 q-px-sm">
-          <q-input v-model="goal.Met_vhasta" mask="date" :rules="['date']">
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date v-model="goal.Met_vhasta">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
+          <q-input
+            v-model="goal.Met_vhasta"
+            :rules="[validateTope]"
+            mask="##########"
+            hint="Valor tope"
+            counter
+          />
         </div>
         <div class="col-xs-12 col-md-4 q-px-sm">
           <q-input
@@ -139,7 +127,7 @@ export default {
       initial_pagination: { //Paginación inicial para la tabla
         page: 1,
         rowsPerPage: 15,
-      }
+      },
     }
   },
   created(){
@@ -160,23 +148,25 @@ export default {
           this.data.forEach( goal => {
             promises.push(this.insertUpdateGoals(goal))
           })
-          Promise.all(promises).then( res => {
-            console.log({
-              msg: 'Respuesta insert update metas',
-              data: res
-            });
-            if(res.ok){
-              this.$q.notify({
-                message: res.message,
-                type: 'positive'
-              })
-            } else {
-              this.$q.notify({
-                message: res.message,
-                type: 'negative'
-              })
-              throw new Error(res.message)
-            }
+          Promise.all(promises).then( data => {
+            data.forEach( res => {
+              console.log({
+                msg: 'Respuesta insert update metas',
+                data: res.data
+              });
+              if(res.data.ok && res.data.data.affectedRows){
+                this.$q.notify({
+                  message: res.data.message,
+                  type: 'positive'
+                })
+              } else {
+                this.$q.notify({
+                  message: res.data.message,
+                  type: 'negative'
+                })
+                throw new Error(res.data.message)
+              }
+            })
           });
           this.$emit('reload');
         } catch (e) {
@@ -224,6 +214,19 @@ export default {
       setTimeout(()=> {
         this.$refs.form_goals.resetValidation();
       }, 300)
+    },
+    validateTope(value){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(value <= this.goal.Met_vdesde){
+            resolve(false || 'Valor tope debe ser mayor a la inicial')
+          } else if(!value){
+            resolve(false || 'Valor tope es requerido')
+          } else {
+            resolve(true)
+          }
+        }, 1000)
+      })
     }
   }
 }
