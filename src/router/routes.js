@@ -17,6 +17,7 @@ const routes = [
       {
         path: 'access',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'goals', component: () => import('pages/Access/Goals'), meta: {requiresAuth: true} },
           { path: 'permissions', component: () => import('pages/Access/Permissions'), meta: {requiresAuth: true} },
@@ -27,6 +28,7 @@ const routes = [
       {
         path: 'warehouse',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'articles', component: () => import('pages/Warehouse/Articles'), meta: {requiresAuth: true} },
           { path: 'categories', component: () => import('pages/Warehouse/Categories'), meta: {requiresAuth: true} },
@@ -37,6 +39,7 @@ const routes = [
       {
         path: 'purchases',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'income', component: () => import('pages/Purchases/Income'), meta: {requiresAuth: true} },
           { path: 'providers', component: () => import('pages/Purchases/Providers'), meta: {requiresAuth: true} },
@@ -46,6 +49,7 @@ const routes = [
       {
         path: 'sales',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'sales', component: () => import('pages/Sales/Sales'), meta: {requiresAuth: true} },
           { path: 'sales_guarantees', component: () => import('pages/Sales/SalesGuarantees'), meta: {requiresAuth: true} }, 
@@ -56,6 +60,7 @@ const routes = [
       {
         path: 'check_purchases',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'check_purchases', component: () => import('pages/CheckPurchases/CheckPurchases'), meta: {requiresAuth: true} },
         ],
@@ -63,6 +68,7 @@ const routes = [
       {
         path: 'consult_sales',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'consult_sales', component: () => import('pages/ConsultSales/ConsultSales'), meta: {requiresAuth: true} },
           { path: 'consult_seller', component: () => import('pages/ConsultSales/ConsultSeller'), meta: {requiresAuth: true} },
@@ -73,6 +79,7 @@ const routes = [
       {
         path: 'check_credits',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'customer_credits', component: () => import('pages/CheckCredits/CustomerCredits'), meta: {requiresAuth: true} },
           { path: 'provider_credits', component: () => import('pages/CheckCredits/ProviderCredits'), meta: {requiresAuth: true} },
@@ -81,6 +88,7 @@ const routes = [
       {
         path: 'payment_confirmation',
         component: () => import('layouts/LayoutApp'),
+        meta: {requiresAuth: true} ,
         children: [
           { path: 'credits_confirmation', component: () => import('pages/PaymentConfirmation/CreditsConfirmation'), meta: {requiresAuth: true} },
           { path: 'sales_confirmation', component: () => import('pages/PaymentConfirmation/SalesConfirmation'), meta: {requiresAuth: true} },

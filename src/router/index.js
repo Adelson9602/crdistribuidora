@@ -14,7 +14,7 @@ Vue.use(VueRouter)
  * with the Router instance.
  */
 
-export default function (/* { store, ssrContext } */) {
+export default function ({ store, ssrContext }) {
   const Router = new VueRouter({
     scrollBehavior: () => ({ x: 0, y: 0 }),
     routes,
@@ -24,6 +24,23 @@ export default function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
+  })
+
+  // Hacemos beforeach del router para saber que páginas requiren autenticación
+  Router.beforeEach((to, from, next) => {
+    const requiresAuth = to.matched.some( record => record.meta.requiresAuth ) //Con esto sabemos si la ruta visitada requiere autenticación
+    const isLogged = store.state.auth.is_logged //Con esto sabemos si el usuario esta logueado
+    if( !requiresAuth && isLogged && to.path === '/'){
+      return next('/desktop')
+    } 
+
+    setTimeout( () => {
+      if (requiresAuth && !isLogged ){
+        next('/')
+      } else {
+        next();
+      }
+    }, 200 )
   })
 
   return Router
