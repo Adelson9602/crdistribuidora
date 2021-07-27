@@ -424,7 +424,7 @@ import {
   between,
 } from "vuelidate/lib/validators";
 import { mapActions, mapMutations, mapState } from "vuex";
-var CryptoJS = require("cryp-to-js").default;
+import CryptoJS from 'crypto-js'
 const optionCities = [];
 const optionCitiesExp = [];
 const optionRoles = [];
