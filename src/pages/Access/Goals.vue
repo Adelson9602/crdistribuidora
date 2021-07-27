@@ -28,6 +28,7 @@
             :propgrid="true"
             @tostatus="openDialogStatus"
             :proppagination="initial_pagination"
+            @onedit="editGoal"
           />
           <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable
@@ -39,7 +40,10 @@
         </q-tab-panel>
 
         <q-tab-panel name="formGoals">
-          <component-form-goals @reload="reload"/>
+          <component-form-goals
+            @reload="reload"
+            :data_edit="goal_edit"
+          />
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -147,17 +151,13 @@ export default {
         title: null,
         msg: null
       },
-      goal_edit: {
-        base: null,
-        Met_Estado: null,
-        Met_Fecha_control: null,
-        Met_Id: null,
-        Met_User_control: null,
-        Met_porcentaje: null,
-        Met_vdesde: null,
-        Met_vhasta: null,
-        Per_Nombre: null,
-        name_estado: null,
+      goal_edit: null
+    }
+  },
+  watch: {
+    tab(value){
+      if(value == 'goals'){
+        this.goal_edit = null
       }
     }
   },
@@ -303,6 +303,21 @@ export default {
           this.$q.loading.hide();
         }
       })
+    },
+    editGoal(row){
+      this.goal_edit = {
+        base: process.env.__BASE__,
+        Met_Estado: row.Met_Estado,
+        Met_Fecha_control: row.Met_Fecha_control,
+        Met_Id: row.Met_Id,
+        Met_User_control: row.Met_User_control,
+        Met_porcentaje: row.Met_porcentaje,
+        Met_vdesde: row.Met_vdesde,
+        Met_vhasta: row.Met_vhasta,
+        Per_Nombre: row.Per_Nombre,
+        name_estado: row.name_estado,
+      };
+      this.tab = "formGoals"
     }
   }
 }

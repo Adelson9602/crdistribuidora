@@ -130,8 +130,21 @@ export default {
       },
     }
   },
+  props: [
+    'data_edit'
+  ],
   created(){
-    // this.getData();
+    if(this.data_edit){
+      this.goal = {
+        base: this.data_edit.base,
+        Met_Id: this.data_edit.Met_Id,
+        Met_vdesde: this.data_edit.Met_vdesde,
+        Met_vhasta: this.data_edit.Met_vhasta,
+        Met_porcentaje: this.data_edit.Met_porcentaje,
+        Met_Estado: this.data_edit.Met_Estado,
+        Met_User_control: this.data_edit.Met_User_control
+      }
+    }
   },
   methods: {
     ...mapActions('access', [
