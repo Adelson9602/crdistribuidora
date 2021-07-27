@@ -18,7 +18,7 @@
     <div class="col-xs-12">
       <q-input
         filled
-        v-model="login.password"
+        v-model="password"
         label="Contraseña"
         :type="isPwd ? 'password' : 'text'"
         :rules="[val => !!val || 'Ingrese la contraseña']"
@@ -41,10 +41,12 @@
   </q-form>
 </template>
 <script>
+import CryptoJS from 'crypto-js';
 export default {
   name: "ComponentLoginForm",
   data() {
     return {
+      password: null,
       login: {
         user: "",
         password: ""
@@ -54,7 +56,7 @@ export default {
   },
   methods: {
     onSubmit() {
-      let password = this.aesEncrypt(this.login.password);
+      let password = this.aesEncrypt(this.password);
       this.login.password = password;
       this.$emit("onLogin", this.login);
     },
