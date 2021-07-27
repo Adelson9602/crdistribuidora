@@ -5,7 +5,8 @@
 </template>
 <script>
 import Vue from 'vue';
-import CryptoJS from 'crypto-js'
+import CryptoJS from 'vue-cryptojs'
+ 
 Vue.use(CryptoJS)
 
 export default {
