@@ -46,11 +46,12 @@ module.exports = function (/* ctx */) {
     build: {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       env:{
-
         __ENV__: 'dev',
         __VERSION__: '2.21.6.3',
         __URLAPI__: `http://apis.crdistribuidora.com/pcr/`,
         __BASE__: 'crdistribuidora_newpruebas',
+        __KEY__: '82f2ceed4c503896c8a291e560bd4325',
+        __IV__: 'AES256',
       },
       // transpile: false,
 
