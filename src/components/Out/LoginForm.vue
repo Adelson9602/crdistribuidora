@@ -36,12 +36,11 @@
       </q-input>
     </div>
     <div class="container-login100-form-btn">
-      <q-btn color="primary" label="inicar sesión" to="desktop" class="login100-form-btn"/>
+      <q-btn color="primary" label="inicar sesión" type="submit" class="login100-form-btn"/>
     </div>
   </q-form>
 </template>
 <script>
-
 export default {
   name: "ComponentLoginForm",
   data() {
@@ -55,32 +54,24 @@ export default {
   },
   methods: {
     onSubmit() {
-      let password = this.encryptedAES(this.login.password);
+      let password = this.aesEncrypt(this.login.password);
       this.login.password = password;
       this.$emit("onLogin", this.login);
     },
-    encryptedAES(data) {
-      var key = CryptoJS.HmacSHA1("sha256", "oW%c76+jb2");
-      var iv = CryptoJS.HmacSHA1("sha256", "A)2!u467a^");
-
-      var encrypted = CryptoJS.AES.encrypt(data, key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      });
-      return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+    aesEncrypt(txt) {
+      const cipher = this.CryptoJS.AES.encrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
+        iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+        mode: CryptoJS.mode.CBC
+      }).toString()
+      return cipher.toString()
     },
-    decryptedAES(encrypted) {
-      var key = CryptoJS.HmacSHA1("sha256", "oW%c76+jb2");
-      var iv = CryptoJS.HmacSHA1("sha256", "A)2!u467a^");
-
-      var decrypted = CryptoJS.AES.decrypt(encrypted, key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      }); 
-      return decrypted.toString(CryptoJS.enc.Utf8);
-    }
+    aesDencrypt(txt) {
+      const cipher = CryptoJS.AES.decrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
+        iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+        mode: CryptoJS.mode.CBC
+      })
+      return CryptoJS.enc.Utf8.stringify(cipher).toString()
+    },
   }
 };
 </script>
