@@ -66,7 +66,7 @@ export default {
       return cipher.toString()
     },
     aesDencrypt(txt) {
-      const cipher = CryptoJS.AES.decrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
+      const cipher = this.CryptoJS.AES.decrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
         iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
         mode: CryptoJS.mode.CBC
       })
