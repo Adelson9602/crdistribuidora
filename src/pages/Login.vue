@@ -53,6 +53,7 @@ export default {
       });
       setTimeout(async () => {
         try {
+          user.base = process.env.__BASE__;
           const { data } = await this.login(user); //login es la acción, está definida en mapActions de la tienda de datos de vuex
           this.setUser(data.user);
           this.setIsLogged(true);
