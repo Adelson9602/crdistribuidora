@@ -28,7 +28,7 @@
 
 <script>
 // import { mapActions, mapMutations, mapState } from "vuex";
-var CryptoJS = require("cryp-to-js").default;
+import CryptoJS from 'crypto-js'
 
 export default {
   // name: 'ComponentName',

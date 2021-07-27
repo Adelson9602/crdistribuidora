@@ -43,7 +43,7 @@
 import UserForm from "components/Access/ComponentUserForm";
 import ListUser from "components/Generals/ComponentTable";
 import { mapActions, mapState } from "vuex";
-var CryptoJS = require("cryp-to-js").default;
+import CryptoJS from 'crypto-js'
 
 export default {
   name: "PageUser",

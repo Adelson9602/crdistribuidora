@@ -286,7 +286,7 @@
 const users = [];
 const roles = [];
 import { mapActions, mapState, mapMutations } from "vuex";
-var CryptoJS = require("cryp-to-js").default;
+import CryptoJS from 'crypto-js';
 export default {
   name: "ComponentuserForm",
   data() {
