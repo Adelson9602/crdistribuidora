@@ -230,6 +230,7 @@ export default {
                   Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
                   title: element.Art_Nombre,
+                  Estado: element.Art_Estado,
                   btn_edit: true,
                   btn_status: true,
                   // btn_details: true,
