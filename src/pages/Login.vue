@@ -7,7 +7,7 @@
               <div class="content-login">
                 <img class="logo" src="../statics/logo_cr.png" alt="Logo de empresa">
 
-                <login-form  class="col-xs-12" v-if="!isForgot"/>
+                <login-form  class="col-xs-12" v-if="!isForgot" @onLogin="onLogin"/>
                 <div class="forgot-pass text-center p-t-12" v-if="!isForgot">
                   <a class="txt2" href="#" @click="isForgot = true">
                     ¿Olvidaste tu contraseña?
@@ -47,7 +47,7 @@ export default {
   methods: {
     ...mapActions("auth", ["login"]),
     ...mapMutations("auth", ["setUser", "setIsLogged"]),
-    async apiLogin(user) {
+    async onLogin(user) {
       this.$q.loading.show({
         message: 'Iniciando sesión, por favor espere...' 
       });
@@ -57,6 +57,7 @@ export default {
           const { data } = await this.login(user); //login es la acción, está definida en mapActions de la tienda de datos de vuex
           this.setUser(data.user);
           this.setIsLogged(true);
+          this.$router.push('desktop')
           this.$q.notify({
             type: "positive",
             message: "Bienvenido",
