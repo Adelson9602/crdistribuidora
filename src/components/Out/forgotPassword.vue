@@ -1,5 +1,5 @@
 <template>
-  <form class="login100-form validate-form" @submit.prevent="onSubmit">
+  <form class="login100-form validate-form" @submit="onSubmit">
     <span class="login100-form-title">
       Recuperar contraseña
     </span>
@@ -27,11 +27,10 @@
 </template>
 
 <script>
-// import { mapActions, mapMutations, mapState } from "vuex";
-import CryptoJS from 'crypto-js'
+import { mapActions, mapState } from "vuex";
 
 export default {
-  // name: 'ComponentName',
+  name: 'ForgotPassword',
   data() {
     return {
       datauser: {
@@ -41,43 +40,13 @@ export default {
   },
 
   methods: {
-    // ...mapActions("auth", ["recuperar"]),
-    // ...mapMutations("auth", ["setRecuperar"]),
     onSubmit() {
       this.$q.loading.show({
         message: "Recuperando contraseña"
       });
       setTimeout(async () => {
         try {
-          const datosUsuario = await this.recuperar(this.datauser).then(res => {
-            return res.data.user;
-          });
-          const password = this.decryptedAES(datosUsuario.Usuario_Contra);
-          var senddata = {
-            usuario: datosUsuario.UsuarioUser,
-            password: password,
-            email: datosUsuario.Pers_Email,
-            nombre: datosUsuario.Complete_Name
-          };
-
-          var url = `${process.env.__URLAPP}recuperar_mail.php`;
-          var formData = new FormData();
-          formData.append("usuario", datosUsuario.UsuarioUser);
-          formData.append("password", password);
-          formData.append("email", datosUsuario.Pers_Email);
-          formData.append("nombre", datosUsuario.Complete_Name);
-
-          fetch(url, {
-            method: "POST",
-            body: formData,
-            mode: "no-cors"
-          }).then(res => {
-            this.$q.notify({
-              message: `Hemos enviado tu datos al correo ${datosUsuario.Pers_Email}`,
-              type: "positive"
-            });
-            this.login();
-          });
+          
         } catch (e) {
           console.log(e);
         } finally {
@@ -88,19 +57,20 @@ export default {
     login() {
       this.$emit("login");
     },
-    decryptedAES(encrypted) {
-      var key = CryptoJS.HmacSHA1("sha256", "oW%c76+jb2");
-      // var key = CryptoJS.enc.Utf8.parse(key);
-      // var iv = CryptoJS.enc.Utf8.parse(iv);
-      var iv = CryptoJS.HmacSHA1("sha256", "A)2!u467a^");
-
-      var decrypted = CryptoJS.AES.decrypt(encrypted, key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      });
-      return decrypted.toString(CryptoJS.enc.Utf8);
-    }
+    aesEncrypt(txt) {
+      const cipher = this.CryptoJS.AES.encrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
+        iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+        mode: CryptoJS.mode.CBC
+      }).toString()
+      return cipher.toString()
+    },
+    aesDencrypt(txt) {
+      const cipher = CryptoJS.AES.decrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
+        iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+        mode: CryptoJS.mode.CBC
+      })
+      return CryptoJS.enc.Utf8.stringify(cipher).toString()
+    },
   }
 };
 </script>
