@@ -31,6 +31,14 @@
             :propflat="true"
             @getrangedata="getArticleRang"
             @onedit="editArticle"
+            @tostatus="openDialogStatus"
+          />
+          <!-- Dialogo para activar o inactivar una meta -->
+          <component-dialog-enable
+            :dialog="enable_diable"
+            :options_dialog="options_status"
+            @cancel="enable_diable = false"
+            @changeStatus="changeStatus"
           />
         </q-tab-panel>
 
@@ -45,12 +53,16 @@
 <script>
 import ComponentAddArticle from "components/Warehouse/ComponentAddArticle";
 import componentTable from "components/Generals/ComponentTable";
-import { mapActions } from "vuex";
+import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
+import { mapActions, mapState } from "vuex";
+let categorias = [];
+let ums = [];
 export default {
   name: "Articles",
   components: {
     ComponentAddArticle,
     componentTable,
+    ComponentDialogEnable,
   },
   data() {
     return {
@@ -151,7 +163,18 @@ export default {
       ],
       data: [],
       article_edit: null,
+      enable_diable: false,
+      options_status: {
+        title: null,
+        msg: null
+      },
     };
+  },
+  computed: {
+    ...mapState('auth', ['user_logged']),
+    data_user(){
+      return this.user_logged;
+    }
   },
   created() {
     this.getData();
@@ -167,6 +190,11 @@ export default {
     ...mapActions("warehouse", [
       "getAllArticles",
       "requestgetDataArticlesRange",
+      "addArticle",
+      "getCategoriasAlmacen",
+    ]),
+    ...mapActions('master', [
+      'getAllUm'
     ]),
     getData() {
       this.$q.loading.show({
@@ -180,7 +208,7 @@ export default {
             }
           );
           console.log({
-            msg: resgetDataArticles.message,
+            msg: 'Repeusta get artículos',
             data: resgetDataArticles,
           });
           if (resgetDataArticles.ok) {
@@ -203,11 +231,11 @@ export default {
                   Art_Fecha_control: element.Art_Fecha_control,
                   title: element.Art_Nombre,
                   btn_edit: true,
-                  // btn_status: true,
+                  btn_status: true,
                   // btn_details: true,
                   // btn_pdf: true,
                   icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
+                  icon_btn_status: "power_settings_new",
                   // icon_btn_details: "mdi-eye-settings",
                 });
               });
@@ -220,6 +248,65 @@ export default {
           } else {
             this.data.length = 0;
             throw resgetDataArticles.message;
+          }
+
+          // Obtenemos las categorías de los productos
+          const res_categorias = await this.getCategoriasAlmacen().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get categorias articulos',
+            data: res_categorias
+          });
+          if(res_categorias.ok){
+            if(res_categorias.result){
+              categorias.length = 0;
+              res_categorias.data.forEach(element => {
+                if(element.Cat_Estado == 1){
+                  categorias.push({
+                    value: element.Cat_Id,
+                    label: element.Cat_Nombre,
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_categorias.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_categorias.message);
+          }
+
+          // Obtenemos las unidades de medidadas
+          const res_um = await this.getAllUm().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get unidades de medida',
+            data: res_um
+          });
+          if(res_um.ok){
+            if(res_um.result){
+              ums.length = 0;
+              res_um.data.forEach(element => {
+                if(element.Um_Estado == 1){
+                  ums.push({
+                    value: element.Um_Id,
+                    label: element.Um_Unidad,
+                    prefijo: element.Prefijo
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_um.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_um.message);
           }
         } catch (e) {
           console.log(e);
@@ -322,6 +409,78 @@ export default {
       setTimeout( ()=> {
         this.getData();
       }, 500)
+    },
+    openDialogStatus(row){
+      // Buscamos la categoria del producto asignada
+      let categoria = categorias.find( categoria => categoria.label.toLowerCase() == row.Cat_Nombre.toLowerCase());
+      // Buscamos la unidad de medida asiganada
+      let um = ums.find( um => um.prefijo.toLowerCase() == row.Prefijo.toLowerCase())
+      this.article_edit = {
+        base: null,
+        Art_Id: row.Art_Id,
+        Cat_Id: categoria.value,
+        Art_Codigo_inv: row.Art_Codigo_inv,
+        Art_Nombre: row.Art_Nombre,
+        Art_Descripcion: row.Art_Descripcion,
+        Art_Stockminimo: row.Art_Stockminimo,
+        Um_Id: um.value,
+        Art_Imagen: row.Art_Imagen,
+        Art_Estado: row.Art_Estado == 1 ? 0 : 1,
+        Art_User_control: this.data_user.Per_Num_documento
+      }
+      this.options_status.title = row.Art_Estado == 1 ? 'Desactivar artículo' : 'Activar artículo';
+      this.options_status.msg = row.Art_Estado == 1 ? 'Está desactivando este artículo, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivar?' : 'Está activando este artículo, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?';
+      this.enable_diable = true;
+    },
+    changeStatus(){
+      this.$q.loading.show({
+        message: 'Estamos cambiando el estado del artículo, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          this.article_edit.base = process.env.__BASE__;
+          const res_update = await this.addArticle(this.article_edit).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert update articulo',
+            data: res_update
+          });
+          if(res_update.ok){
+            if(res_update.data.affectedRows){
+              this.$q.notify({
+                message: 'Estado actualizado',
+                type: 'positive'
+              });
+              setTimeout(() => {
+                this.enable_diable = false;
+                this.getData();
+              }, 500)
+            } else {
+              this.$q.notify({
+                message: 'No se actualizó el estado',
+                type: 'warning'
+              })
+            }
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
     },
   },
 };
