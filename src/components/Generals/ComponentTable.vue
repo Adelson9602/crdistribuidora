@@ -204,7 +204,7 @@
                     >
                       <q-fab-action
                         :color="
-                          props.row.Estado == 0 ? 'red' : 'green'
+                          props.row.Estado == 1 ? 'red' : 'green'
                         "
                         round
                         push
