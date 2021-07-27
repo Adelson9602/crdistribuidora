@@ -7,7 +7,7 @@ import access from './Access';
 import master from './Master';
 import shopping from './Shopping';
 
-// import example from './module-example'
+import createPersistedState from 'vuex-persistedstate';
 
 Vue.use(Vuex)
 
@@ -30,7 +30,7 @@ export default function (/* { ssrContext } */) {
       master,
       shopping
     },
-
+    plugins: [createPersistedState()],
     // enable strict mode (adds overhead!)
     // for dev mode only
     strict: process.env.DEBUGGING
