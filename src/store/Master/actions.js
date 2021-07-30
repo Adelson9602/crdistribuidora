@@ -11,3 +11,8 @@ export function getAllUm(){
 export function getMovil(){
     return Vue.prototype.$axios.get(`select_movil_general/${base}`)
 }
+
+// Obtiene los integrantes de una movil
+export function getMembersMovil(conetext, id_movil){
+    return Vue.prototype.$axios.get(`select_movil_integrante_single/${base}/${id_movil}`);
+}
