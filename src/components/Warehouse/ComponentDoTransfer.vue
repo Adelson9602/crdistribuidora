@@ -3,6 +3,9 @@
     <q-form
       @submit="addProduct"
       class="q-gutter-md"
+      ref="form_add_product"
+      autocapitalize="off"
+      autocomplete="off"
     >
       <div class="row">
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -95,6 +98,20 @@
           />
         </div>
       </div>
+      <!-- Dialogo para advertir de un cambio en el encabezado del traslado, esto aplica cuando ya hay un valor agregado para trasladar -->
+      <q-dialog v-model="dialog_warning" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="signal_wifi_off" color="primary" text-color="white" />
+          <span class="q-ml-sm">You are currently not connected to any network.</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="primary" v-close-popup />
+          <q-btn flat label="Turn on Wifi" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
       <!-- btn subtmit para el formulario -->
       <div>
         <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
@@ -109,6 +126,7 @@
           row-key="name"
           flat
           class="height-table"
+          :loading="loading_data"
         >
           <template v-slot:header-cell-calories="props">
             <q-th :props="props">
@@ -124,6 +142,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+import dialog from 'components/Generals/ComponentDialogWarning';
 let moviles_origen = []; // Contiene las opciones para los selects de moviles
 let moviles_destino = []; // Contiene las opciones para los selects de moviles
 let integrantes_movil = []; //Contiene las opciones para el select integrantes moviles
@@ -230,153 +249,48 @@ export default {
       opt_inte_destino: integ_movil_destino,
       product_transfer: null, //producto seleccionado para trasladar
       opt_products: opt_products_transfer,
+      dialog_warning: false, //Controla el dialogo de advertensia de reseteo de datos
+      loading_data: false,
     }
   },
   watch: {
-    movil_origen(value){
+    movil_origen(value, old_value){
+      // Comparamos si el nuevo el valor del select es distinto al antiguo
+      if(old_value && value && value.value != old_value.value){
+        this.$q.dialog({
+          component: dialog,
+          parent: this,
+          title: 'Reseteo de datos',
+          msg: 'Atención! Estas cambiando los valores de los selects, por lo que resetearemos todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
+        }).onOk(() => {
+          this.loading_data = true;
+          this.onReset();
+          this.getDataMovilOrigen(value);
+        })
+        return;
+      }
+      // Cuando selecciona una opción por primera vez
       if(value){
-        this.enc_traslado.Etm_Mov_ID_entrega = value.value; //Asignamos el id de la movil que entrega
-        moviles_destino.forEach( opt => {
-          if(opt.value == value.value){
-            opt.inactive = true;
-          } else {
-            opt.inactive = false;
-          }
-        });
-        this.$q.loading.show({
-          message: 'Obteniendo integrantes de la movil, por favor espere...'
-        });
-        setTimeout( async () => {
-          try {
-            const member_movil = await this.getMembersMovil(value.value).then( res => {
-              return res.data;
-            });
-            console.log({
-              message: 'Repuesta get integrantes movile',
-              data: member_movil
-            });
-            if(member_movil.ok){
-              if(member_movil.result){
-                integrantes_movil.length = 0;
-                member_movil.data.forEach( member => {
-                  if(member.Estado == 1){
-                    integrantes_movil.push({
-                      label: member.Per_Nombre.toUpperCase(),
-                      value: member.Per_Num_documento,
-                    });
-                  }
-                });
-              } else {
-                this.$q.notify({
-                  message: 'Sin resultados',
-                  type: 'warning'
-                })
-              }
-            } else {
-              throw new Error(member_movil.message)
-            }
-            
-            // Obtiene el stock de la movil
-            const res_stock = await this.getStockMovil(value.value).then( res => {
-              return res.data;
-            });
-            console.log({
-              message: 'Repuesta get stock',
-              data: res_stock
-            });
-            if(res_stock.ok){
-              if(res_stock.result){
-                opt_products_transfer.length = 0;
-                res_stock.data.forEach( product => {
-                  opt_products_transfer.push({
-                    label: product.Art_Nombre,
-                    value: product.Art_Codigo_inv,
-                    Art_Id: product.Art_Id,
-                    cantidad: product.Si_Cant
-                  });
-                });
-              } else {
-                this.$q.notify({
-                  message: 'Sin resultados',
-                  type: 'warning'
-                })
-              }
-            } else {
-              throw new Error(res_stock.message)
-            }
-          } catch (e) {
-            console.log(e);
-            if (e.message === "Network Error") {
-              e = e.message;
-            }
-            if (e.message === "Request failed with status code 404") {
-              e = "URL de solicitud no existe, err 404";
-            } else if (e.message) {
-              e = e.message;
-            }
-            this.$q.notify({
-              message: e,
-              type: "negative",
-            });
-          } finally {
-            this.$q.loading.hide();
-          }
-        }, 2000)
+        this.getDataMovilOrigen(value);
       }
     },
-    movil_destino(value){
+    movil_destino(value, old_value){
+      if(old_value && value && value.value != old_value.value){
+        this.$q.dialog({
+          component: dialog,
+          parent: this,
+          title: 'Reseteo de datos',
+          msg: 'Atención! Estas cambiando el valor seleccionado, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
+        }).onOk(() => {
+          this.loading_data = true;
+          this.onReset();
+          this.getDataMovilDestino(value);
+        })
+        return;
+      }
+      // Cuando selecciona una opción por primera vez
       if(value){
-        this.enc_traslado.Etm_Mov_Id_recibe = value.value; //Asignamos el id de la movil que recibe
-        this.$q.loading.show({
-          message: 'Obteniendo integrantes de la movil, por favor espere...'
-        });
-        setTimeout( async () => {
-          try {
-            const member_movil = await this.getMembersMovil(value.value).then( res => {
-              return res.data;
-            });
-            console.log({
-              message: 'Repuesta get integrantes movile',
-              data: member_movil
-            });
-            if(member_movil.ok){
-              if(member_movil.result){
-                integ_movil_destino.length = 0;
-                member_movil.data.forEach( member => {
-                  if(member.Estado == 1){
-                    integ_movil_destino.push({
-                      label: member.Per_Nombre.toUpperCase(),
-                      value: member.Per_Num_documento,
-                    });
-                  }
-                });
-              } else {
-                this.$q.notify({
-                  message: 'Sin resultados',
-                  type: 'warning'
-                })
-              }
-            } else {
-              throw new Error(member_movil.message)
-            }
-          } catch (e) {
-            console.log(e);
-            if (e.message === "Network Error") {
-              e = e.message;
-            }
-            if (e.message === "Request failed with status code 404") {
-              e = "URL de solicitud no existe, err 404";
-            } else if (e.message) {
-              e = e.message;
-            }
-            this.$q.notify({
-              message: e,
-              type: "negative",
-            });
-          } finally {
-            this.$q.loading.hide();
-          }
-        }, 2000)
+        this.getDataMovilDestino(value);
       }
     },
     product_transfer(value){
@@ -473,6 +387,182 @@ export default {
         cantidad_trasladar: this.cantidad_trasladar
       }
       this.data_transfer.push(product_add)
+    },
+    getDataMovilOrigen(value){
+      this.enc_traslado.Etm_Mov_ID_entrega = value.value; //Asignamos el id de la movil que entrega
+      moviles_destino.forEach( opt => {
+        if(opt.value == value.value){
+          opt.inactive = true;
+        } else {
+          opt.inactive = false;
+        }
+      });
+      this.$q.loading.show({
+        message: 'Obteniendo integrantes de la movil, por favor espere...'
+      });
+      setTimeout( async () => {
+        try {
+          const member_movil = await this.getMembersMovil(value.value).then( res => {
+            return res.data;
+          });
+          console.log({
+            message: 'Repuesta get integrantes movile',
+            data: member_movil
+          });
+          if(member_movil.ok){
+            if(member_movil.result){
+              integrantes_movil.length = 0;
+              member_movil.data.forEach( member => {
+                if(member.Estado == 1){
+                  integrantes_movil.push({
+                    label: member.Per_Nombre.toUpperCase(),
+                    value: member.Per_Num_documento,
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(member_movil.message)
+          }
+          
+          // Obtiene el stock de la movil
+          const res_stock = await this.getStockMovil(value.value).then( res => {
+            return res.data;
+          });
+          console.log({
+            message: 'Repuesta get stock',
+            data: res_stock
+          });
+          if(res_stock.ok){
+            if(res_stock.result){
+              opt_products_transfer.length = 0;
+              res_stock.data.forEach( product => {
+                opt_products_transfer.push({
+                  label: product.Art_Nombre,
+                  value: product.Art_Codigo_inv,
+                  Art_Id: product.Art_Id,
+                  cantidad: product.Si_Cant
+                });
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_stock.message)
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    getDataMovilDestino(value){
+      this.enc_traslado.Etm_Mov_Id_recibe = value.value; //Asignamos el id de la movil que recibe
+      this.$q.loading.show({
+        message: 'Obteniendo integrantes de la movil, por favor espere...'
+      });
+      setTimeout( async () => {
+        try {
+          const member_movil = await this.getMembersMovil(value.value).then( res => {
+            return res.data;
+          });
+          console.log({
+            message: 'Repuesta get integrantes movile',
+            data: member_movil
+          });
+          if(member_movil.ok){
+            if(member_movil.result){
+              integ_movil_destino.length = 0;
+              member_movil.data.forEach( member => {
+                if(member.Estado == 1){
+                  integ_movil_destino.push({
+                    label: member.Per_Nombre.toUpperCase(),
+                    value: member.Per_Num_documento,
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(member_movil.message)
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    onReset(){
+      this.movil_origen = null;
+      this.integrante_movil = null;
+      this.movil_destino = null;
+      this.integ_movil_destino = null;
+      this.product_transfer = null;
+      this.enc_traslado = {
+        base: null,
+        Etm_Id: null,
+        Etm_Mov_ID_entrega: null,
+        Etm_Usuario_entrega: null,
+        Etm_Fecha_entrega: null,
+        Etm_Mov_Id_recibe: null,
+        Etm_Usuario_recibe: null,
+        Etm_Fecha_recibe: null,
+        Etm_Observaciones: null,
+        Etm_Estado: null
+      },
+      this.det_traslado = {
+        base: null,
+        Etm_Id: null,
+        Art_Id: null,
+        Dtm_Cant: null,
+        Dtm_Observacion: null
+      }
+      this.cantidad_disponible = null;
+      this.cantidad_trasladar = null;
+      this.data_transfer.splice(0)
+      setTimeout(()=> {
+        this.$refs.form_add_product.resetValidation();
+        // Loading para la tabla cuando se esta reseteando datos
+        this.loading_data = false;
+      }, 300)
     },
     // validador del input cantidad a trasladar
     validateCantidad(val){
