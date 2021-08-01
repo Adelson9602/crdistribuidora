@@ -54,6 +54,7 @@
       elevated
       bordered
       content-class="bg-grey-1"
+      :breakpoint="1024"
     >
         <div class="header-sidebar shadow-4 row justify-between" elevated>
           <img src="../statics/logo_menu.png" alt="logo de CR Distribuidora" class="img-logo">
@@ -114,7 +115,7 @@ name: 'MainLayout',
       dialog_delete_cache: false,
       accept: false,
       drawer: false,
-      userData: Object,
+      userData: null,
       version: null,
       menu: [],
       baseurl: process.env.__URLBASE__,
