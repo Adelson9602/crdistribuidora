@@ -22,6 +22,8 @@
             :options="opt_inte_origen"
             hint="Integrante origen"
             :rules="[val => !!val || 'Integrante es requerido']"
+            map-options
+            emit-value
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -39,6 +41,8 @@
             :options="opt_inte_destino"
             hint="Integrante destino"
             :rules="[val => !!val || 'Integrante es requerido']"
+            map-options
+            emit-value
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -172,11 +176,15 @@
         </q-table>
       </div>
     </div>
+    <q-page-sticky position="bottom-right" :offset="[18,18]" expand>
+      <q-btn color="positive" icon="save" label="Guardar" @click="onSubmit" v-if="data_transfer.length > 0"/>
+    </q-page-sticky>
   </div>
 </template>
 
 <script>
 import { mapActions } from 'vuex';
+import { date } from 'quasar'
 import dialog from 'components/Generals/ComponentDialogWarning';
 let moviles_origen = []; // Contiene las opciones para los selects de moviles
 let moviles_destino = []; // Contiene las opciones para los selects de moviles
@@ -332,6 +340,7 @@ export default {
       }
     },
     integrante_movil(value, old_value){
+      this.enc_traslado.Etm_Usuario_entrega = value;
       // Comparamos si el nuevo el valor del select es distinto al antiguo
       if(old_value && value && value.value != old_value.value && this.data_transfer.length > 0){
         this.$q.dialog({
@@ -348,6 +357,7 @@ export default {
     },
     integ_movil_destino(value, old_value){
       // Comparamos si el nuevo el valor del select es distinto al antiguo
+      this.enc_traslado.Etm_Usuario_recibe = value;
       if(old_value && value && value.value != old_value.value && this.data_transfer.length > 0){
         this.$q.dialog({
           component: dialog,
@@ -381,7 +391,9 @@ export default {
   },
   methods: {
     ...mapActions('warehouse', [
-      'getStockMovil'
+      'getStockMovil',
+      'insertEncTransfer',
+      'insertDetTraslado'
     ]),
     ...mapActions('master', [
       'getMovil',
@@ -396,10 +408,10 @@ export default {
           const res_moviles = await this.getMovil().then( res => {
             return res.data;
           });
-          console.log({
-            message: 'Repuesta get moviles',
-            data: res_moviles
-          });
+          // console.log({
+          //   message: 'Repuesta get moviles',
+          //   data: res_moviles
+          // });
           if(res_moviles.ok){
             if(res_moviles.result){
               moviles_origen.length = 0;
@@ -448,7 +460,43 @@ export default {
       }, 2000)
     },
     onSubmit(){
+      this.$q.loading.show({
+        message: 'Guardando traslado, por favor espere...',
+      });
+      setTimeout( async() => {
+        try {
+          let timeStamp = Date.now()
+          let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DDTHH:mm:ss');
+          this.enc_traslado.Etm_Fecha_entrega = formattedString;
+          this.enc_traslado.Etm_Fecha_recibe = formattedString;
+          const res_enc = await this.insertEncTransfer(this.enc_traslado).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert update encabezado traslado',
+            data: res_enc
+          });
 
+          let det_traslado = []; //Arrary de promesas del detalle del traslado
+          this.data_transfer.forEach( producto => {
+            let peticion = this.insertDetTraslado(producto).then( res => {
+              return res.data;
+            })
+            det_traslado.push(peticion);
+          })
+
+          Promise.all(det_traslado).then( res => {
+            console.log({
+              msg: 'Respuesta insert update detalle traslado',
+              data: res
+            })
+          })
+        } catch (e) {
+          
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
     },
     // Agrega los productos a trasladar a la tabla
     addProduct(){
@@ -501,10 +549,10 @@ export default {
           const member_movil = await this.getMembersMovil(value.value).then( res => {
             return res.data;
           });
-          console.log({
-            message: 'Repuesta get integrantes movile',
-            data: member_movil
-          });
+          // console.log({
+          //   message: 'Repuesta get integrantes movile',
+          //   data: member_movil
+          // });
           if(member_movil.ok){
             if(member_movil.result){
               integrantes_movil.length = 0;
@@ -530,10 +578,10 @@ export default {
           const res_stock = await this.getStockMovil(value.value).then( res => {
             return res.data;
           });
-          console.log({
-            message: 'Repuesta get stock',
-            data: res_stock
-          });
+          // console.log({
+          //   message: 'Repuesta get stock',
+          //   data: res_stock
+          // });
           if(res_stock.ok){
             if(res_stock.result){
               opt_products_transfer.length = 0;
@@ -583,10 +631,10 @@ export default {
           const member_movil = await this.getMembersMovil(value.value).then( res => {
             return res.data;
           });
-          console.log({
-            message: 'Repuesta get integrantes movile',
-            data: member_movil
-          });
+          // console.log({
+          //   message: 'Repuesta get integrantes movile',
+          //   data: member_movil
+          // });
           if(member_movil.ok){
             if(member_movil.result){
               integ_movil_destino.length = 0;

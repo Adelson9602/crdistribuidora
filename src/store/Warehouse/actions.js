@@ -39,9 +39,14 @@ export function getTransferRange(contex, data){
   return Vue.prototype.$axios.get(`select_enc_traslado_moviles_range/${base}/${data.Fecha_inicial}/${data.Fecha_final}`);
 }
 
-// Inserta o actualiza el encabezado del traslado entre bodegas
+// Inserta o actualiza el encabezado del traslado entre moviles
 export function insertEncTransfer(contex, data){
   return Vue.prototype.$axios.post(`insert_update_enc_traslado_moviles`, data);
+}
+
+// Inserta el detalle del traslado entre moviles
+export function insertDetTraslado(contex, data){
+  return Vue.prototype.$axios.post(`insert_update_det_traslado_moviles`, data);
 }
 
 // Inventario
