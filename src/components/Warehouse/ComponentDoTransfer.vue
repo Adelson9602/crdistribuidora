@@ -139,7 +139,7 @@
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td auto-width>
-                <q-btn size="sm" color="accent" round dense @click="deleteItem" icon="delete"/>
+                <q-btn size="sm" color="accent" round dense @click="deleteItem(props.row)" icon="delete"/>
               </q-td>
               <q-td
                 v-for="col in props.cols"
@@ -450,6 +450,7 @@ export default {
     onSubmit(){
 
     },
+    // Agrega los productos a trasladar a la tabla
     addProduct(){
       let product_add = {
         movil_origen: this.movil_origen.label,
@@ -626,8 +627,15 @@ export default {
       }, 2000)
     },
     // Borra productos de la tabla productos a trasladar
-    deleteItem(){
-      
+    deleteItem(row){
+      this.$q.dialog({
+          component: dialog,
+          parent: this,
+          title: 'Eliminar producto agregado',
+          msg: `Atención! Estas a un paso de eliminar un producto agregado para trasladar (${row.prod_codigo} - ${row.prod_descripcion}) ¿Está seguro que desea continuar?`,
+        }).onOk(() => {
+          this.data_transfer.splice(this.data_transfer.indexOf(row), 1)
+        })
     },
     onReset(){
       this.movil_origen = null;
