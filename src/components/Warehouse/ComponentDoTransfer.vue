@@ -8,7 +8,7 @@
       autocomplete="off"
     >
       <div class="row">
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="movil_origen"
             :options="options_movil_origen"
@@ -16,7 +16,7 @@
             :rules="[val => !!val || 'Origen es requerido']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="integrante_movil"
             :options="opt_inte_origen"
@@ -24,7 +24,7 @@
             :rules="[val => !!val || 'Integrante es requerido']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="movil_destino"
             :options="options_movil_destino"
@@ -33,12 +33,22 @@
             :option-disable="opt => Object(opt) === opt ? opt.inactive === true : true"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="integ_movil_destino"
             :options="opt_inte_destino"
             hint="Integrante destino"
             :rules="[val => !!val || 'Integrante es requerido']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-select
+            v-model="enc_traslado.Etm_Estado"
+            :options="options_state"
+            hint="Entregado"
+            :rules="[val => !!val || 'Entregado es requerido']"
+            map-options
+            emit-value
           />
         </div>
       </div>
@@ -53,7 +63,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-12 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-select
             v-model="product_transfer"
             clearable
@@ -75,14 +85,14 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-2 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-field hint="Cantidad disponible" stack-label>
             <template v-slot:control>
               <div class="self-center full-width no-outline" tabindex="0">{{cantidad_disponible}}</div>
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-md-2 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-input
             v-model="cantidad_trasladar"
             mask="##########"
@@ -92,26 +102,12 @@
         </div>
         <div class="col-xs-12 col-md-4 q-px-sm">
           <q-input
-            v-model="det_traslado.Dtm_Observacion"
+            v-model="dtm_Observacion"
             type="text"
             label="Observaciones"
           />
         </div>
       </div>
-      <!-- Dialogo para advertir de un cambio en el encabezado del traslado, esto aplica cuando ya hay un valor agregado para trasladar -->
-      <q-dialog v-model="dialog_warning" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="signal_wifi_off" color="primary" text-color="white" />
-          <span class="q-ml-sm">You are currently not connected to any network.</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="Turn on Wifi" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
       <!-- btn subtmit para el formulario -->
       <div>
         <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
@@ -123,16 +119,55 @@
           title="Productos a trasladar"
           :data="data_transfer"
           :columns="columns"
-          row-key="name"
+          row-key="prod_codigo"
           flat
           class="height-table"
-          :loading="loading_data"
+          :grid="$q.screen.xs"
         >
-          <template v-slot:header-cell-calories="props">
-            <q-th :props="props">
-              <q-icon name="thumb_up" size="1.5em" />
-              {{ props.col.label }}
-            </q-th>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td auto-width>
+                <q-btn size="sm" color="accent" round dense @click="deleteItem" icon="delete"/>
+              </q-td>
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.value }}
+              </q-td>
+            </q-tr>
+          </template>
+          <template v-slot:item="props">
+            <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3">
+              <q-card>
+                <q-card-actions align="right">
+                  <!-- Btns -->
+                  <q-btn color="negative" icon="delete" round size="sm"/>
+                </q-card-actions>
+                <q-separator />
+                <q-list dense>
+                  <q-item v-for="col in props.cols" :key="col.name">
+                    <q-item-section>
+                      <q-item-label>{{ col.label }}</q-item-label>
+                      <q-item-label caption>{{ col.value }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-card>
+            </div>
           </template>
         </q-table>
       </div>
@@ -170,18 +205,18 @@ export default {
           field: 'prod_descripcion'
         },
         {
-          name: 'cantidad_trasladar',
+          name: 'Dtm_Cant',
           align: 'center',
           label: 'CANTIDAD TRASLADAR',
           sortable: true,
-          field: 'cantidad_trasladar'
+          field: 'Dtm_Cant'
         },
         {
-          name: 'obs_detalle',
+          name: 'Dtm_Observacion',
           align: 'center',
           label: 'OBSERVACIÓN PRODUCTO',
           sortable: true,
-          field: 'obs_detalle'
+          field: 'Dtm_Observacion'
         },
         {
           name: 'movil_origen',
@@ -234,13 +269,7 @@ export default {
         Etm_Observaciones: null,
         Etm_Estado: null
       },
-      det_traslado: {
-        base: null,
-        Etm_Id: null,
-        Art_Id: null,
-        Dtm_Cant: null,
-        Dtm_Observacion: null
-      },
+      dtm_Observacion: null,
       cantidad_trasladar: null,
       cantidad_disponible: null,
       integrante_movil: null, //Integrante movil origen seleccionado
@@ -250,20 +279,28 @@ export default {
       product_transfer: null, //producto seleccionado para trasladar
       opt_products: opt_products_transfer,
       dialog_warning: false, //Controla el dialogo de advertensia de reseteo de datos
-      loading_data: false,
+      options_state: [
+        {
+          label: 'ENTREGADO',
+          value: 1
+        },
+        {
+          label: 'PENDIENTE',
+          value: 2
+        },
+      ],
     }
   },
   watch: {
     movil_origen(value, old_value){
       // Comparamos si el nuevo el valor del select es distinto al antiguo
-      if(old_value && value && value.value != old_value.value){
+      if(old_value && value && value.value != old_value.value && this.data_transfer.length > 0){
         this.$q.dialog({
           component: dialog,
           parent: this,
           title: 'Reseteo de datos',
-          msg: 'Atención! Estas cambiando los valores de los selects, por lo que resetearemos todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
+          msg: 'Atención! Estas cambiando el valor del select, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
         }).onOk(() => {
-          this.loading_data = true;
           this.onReset();
           this.getDataMovilOrigen(value);
         })
@@ -271,18 +308,18 @@ export default {
       }
       // Cuando selecciona una opción por primera vez
       if(value){
+        this.integrante_movil = null;
         this.getDataMovilOrigen(value);
       }
     },
     movil_destino(value, old_value){
-      if(old_value && value && value.value != old_value.value){
+      if(old_value && value && value.value != old_value.value && this.data_transfer.length > 0 ){
         this.$q.dialog({
           component: dialog,
           parent: this,
           title: 'Reseteo de datos',
-          msg: 'Atención! Estas cambiando el valor seleccionado, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
+          msg: 'Atención! Estas cambiando el valor del select, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
         }).onOk(() => {
-          this.loading_data = true;
           this.onReset();
           this.getDataMovilDestino(value);
         })
@@ -290,16 +327,56 @@ export default {
       }
       // Cuando selecciona una opción por primera vez
       if(value){
+        this.integ_movil_destino = null;
         this.getDataMovilDestino(value);
+      }
+    },
+    integrante_movil(value, old_value){
+      // Comparamos si el nuevo el valor del select es distinto al antiguo
+      if(old_value && value && value.value != old_value.value && this.data_transfer.length > 0){
+        this.$q.dialog({
+          component: dialog,
+          parent: this,
+          title: 'Reseteo de datos',
+          msg: 'Atención! Estas cambiando el valor del select, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
+        }).onOk(() => {
+          this.onReset();
+          this.getDataMovilOrigen(value);
+        })
+        return;
+      }
+    },
+    integ_movil_destino(value, old_value){
+      // Comparamos si el nuevo el valor del select es distinto al antiguo
+      if(old_value && value && value.value != old_value.value && this.data_transfer.length > 0){
+        this.$q.dialog({
+          component: dialog,
+          parent: this,
+          title: 'Reseteo de datos',
+          msg: 'Atención! Estas cambiando el valor del select, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
+        }).onOk(() => {
+          this.onReset();
+          this.getDataMovilOrigen(value);
+        })
+        return;
       }
     },
     product_transfer(value){
       if(value){
         this.cantidad_disponible = value.cantidad
       }
-    }
+    },
   },
   created(){
+    this.mode_grid = this.device_mobile;
+    if(!this.mode_grid){
+      this.visible_columns = [
+        'prod_codigo',
+        'prod_descripcion',
+        'Dtm_Cant',
+        'Dtm_Observacion',
+      ]
+    }
     this.getData();
   },
   methods: {
@@ -380,13 +457,31 @@ export default {
         movil_destino: this.movil_destino.label,
         integ_movil_destino: this.integ_movil_destino.label,
         Etm_Observaciones: this.enc_traslado.Etm_Observaciones,
+        // Detalle
+        base: process.env.__BASE__,
+        Etm_Id: null,
         Art_Id: this.product_transfer.Art_Id,
         prod_descripcion: this.product_transfer.label,
         prod_codigo: this.product_transfer.value,
-        obs_detalle: this.det_traslado.Dtm_Observacion,
-        cantidad_trasladar: this.cantidad_trasladar
+        Dtm_Cant: this.cantidad_trasladar,
+        Dtm_Observacion: this.dtm_Observacion,
       }
-      this.data_transfer.push(product_add)
+      let exist_product = this.data_transfer.find( product => product.prod_codigo == product_add.prod_codigo );
+      if(exist_product){
+        this.$q.notify({
+          message: 'Este producto ya esta agregado',
+          type: 'warning'
+        });
+      } else {
+        this.data_transfer.push(product_add);
+        this.product_transfer = null;
+        this.cantidad_disponible = null;
+        this.cantidad_trasladar = null;
+        this.dtm_Observacion = null;
+        setTimeout(()=> {
+          this.$refs.form_add_product.resetValidation();
+        }, 300)
+      }
     },
     getDataMovilOrigen(value){
       this.enc_traslado.Etm_Mov_ID_entrega = value.value; //Asignamos el id de la movil que entrega
@@ -530,6 +625,10 @@ export default {
         }
       }, 2000)
     },
+    // Borra productos de la tabla productos a trasladar
+    deleteItem(){
+      
+    },
     onReset(){
       this.movil_origen = null;
       this.integrante_movil = null;
@@ -560,8 +659,6 @@ export default {
       this.data_transfer.splice(0)
       setTimeout(()=> {
         this.$refs.form_add_product.resetValidation();
-        // Loading para la tabla cuando se esta reseteando datos
-        this.loading_data = false;
       }, 300)
     },
     // validador del input cantidad a trasladar
