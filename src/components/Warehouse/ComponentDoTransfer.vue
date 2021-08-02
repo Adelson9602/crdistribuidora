@@ -469,7 +469,7 @@ export default {
           this.enc_traslado.Etm_Fecha_entrega = formattedString;
           if(this.enc_traslado.Etm_Estado == 1){
             this.enc_traslado.Etm_Fecha_recibe = formattedString;
-            this.enc_traslado.Etm_Usuario_recibe = this.integ_movil_destino.value;
+            this.enc_traslado.Etm_Usuario_recibe = this.integ_movil_destino;
           }
           this.enc_traslado.base = process.env.__BASE__;
           const res_enc = await this.insertEncTransfer(this.enc_traslado).then( res => {
