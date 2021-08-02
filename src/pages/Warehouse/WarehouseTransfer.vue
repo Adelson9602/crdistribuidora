@@ -37,58 +37,87 @@
             <!-- Dialogo del detalle del traslado -->
             <q-dialog v-model="dailog_details" persistent transition-show="flip-down" transition-hide="flip-up" full-width>
               <q-card>
-                <q-bar>
-                  <div class="text-center">
-                    <q-icon name="description" size="sm" color="primary" />
-                    Detalle del traslado
-                  </div>
-                  <q-space />
-                  <q-btn dense flat icon="close" v-close-popup />
-                </q-bar>
-                <q-card-section class="row">
-                  <div
-                    class="col-xs-12 col-md-3 col-lg-2 q-px-sm"
-                    v-for="(value, index) in encabezado_traslado"
-                    :key="index"
-                  >
-                    <q-field :hint="index" stack-label dense>
-                      <template v-slot:control>
-                        <div class="self-center full-width no-outline" tabindex="0">{{value}}</div>
+                <q-form
+                  @submit="updateTraslado"
+                >
+                  <q-bar>
+                    <div class="text-center">
+                      <q-icon name="description" size="sm" color="primary" />
+                      Detalle del traslado
+                    </div>
+                    <q-space />
+                    <q-btn dense flat icon="close" v-close-popup />
+                  </q-bar>
+                  <q-card-section class="row">
+                    <div
+                      class="col-xs-12 col-md-3 col-lg-2 q-px-sm"
+                      v-for="(value, index) in encabezado_traslado"
+                      :key="index"
+                    >
+                      <q-field
+                        :hint="index"
+                        stack-label
+                        dense
+                        v-if="(encabezado_selecte.Etm_Estado == 1 && index != 'Estado') || (encabezado_selecte.Etm_Estado == 1 && index != 'Nombre quien recibe')"
+                      >
+                        <template v-slot:control>
+                          <div class="self-center full-width no-outline" tabindex="0">{{value}}</div>
+                        </template>
+                      </q-field>
+                      <q-select
+                        dense
+                        v-model="encabezado_selecte.Etm_Estado"
+                        :options="options_state"
+                        hint="Estado"
+                        :rules="[validateState]"
+                        map-options
+                        emit-value
+                        v-if="index == 'Estado' && encabezado_selecte.Etm_Estado == 0"
+                      />
+                      <q-select
+                        dense
+                        v-model="integ_movil_destino"
+                        :options="opt_inte_destino"
+                        hint="Integrante destino"
+                        :rules="[val => !!val || 'Integrante es requerido']"
+                        map-options
+                        emit-value
+                        v-if="index == 'Nombre quien recibe' && encabezado_selecte.Etm_Estado == 0"
+                      />
+                    </div>
+                  </q-card-section>
+                  <q-card-section>
+                    <q-table
+                      title="Productos trasladados"
+                      :data="data_details"
+                      row-key="name"
+                      flat
+                      :pagination="initial_pagination"
+                      style="height: 50vh"
+                    >
+                      <template v-slot:header="props">
+                        <q-tr :props="props">
+                          <q-th
+                            v-for="col in props.cols"
+                            :key="col.name"
+                            :props="props"
+                            style="text-align: center !important"
+                          >
+                            {{ col.label }}
+                          </q-th>
+                        </q-tr>
                       </template>
-                    </q-field>
-                  </div>
-                </q-card-section>
-                <q-card-section>
-                  <q-table
-                    title="Productos trasladados"
-                    :data="data_details"
-                    row-key="name"
-                    flat
-                    :pagination="initial_pagination"
-                    style="height: 50vh"
-                  >
-                    <template v-slot:header="props">
-                      <q-tr :props="props">
-                        <q-th
-                          v-for="col in props.cols"
-                          :key="col.name"
-                          :props="props"
-                          style="text-align: center !important"
-                        >
-                          {{ col.label }}
-                        </q-th>
-                      </q-tr>
-                    </template>
-                    <template v-slot:body-cell="props">
-                      <q-td :props="props" style="text-align: center !important">
-                        {{ props.value }}
-                      </q-td>
-                    </template>
-                  </q-table>
-                </q-card-section>
-                <q-card-actions align="right">
-                  <q-btn label="guardar" color="green" />
-                </q-card-actions>
+                      <template v-slot:body-cell="props">
+                        <q-td :props="props" style="text-align: center !important">
+                          {{ props.value }}
+                        </q-td>
+                      </template>
+                    </q-table>
+                  </q-card-section>
+                  <q-card-actions align="right">
+                    <q-btn label="guardar" type="submit" color="green" v-if="encabezado_selecte.Etm_Estado == 1"/>
+                  </q-card-actions>
+                </q-form>
               </q-card>
             </q-dialog>
           </q-tab-panel>
@@ -105,6 +134,7 @@
 import ComponentDoTransfer from 'components/Warehouse/ComponentDoTransfer';
 import componentTable from "components/Generals/ComponentTable";
 import { mapActions } from 'vuex';
+let integ_movil_destino = [];
 export default {
   name: 'transfers',
   components:{
@@ -201,7 +231,19 @@ export default {
       initial_pagination: {
         page: 1,
         rowsPerPage: 10
-      }
+      },
+      options_state: [
+        {
+          label: 'ENTREGADO',
+          value: 1
+        },
+        {
+          label: 'PENDIENTE',
+          value: 0
+        },
+      ],
+      opt_inte_destino: integ_movil_destino,
+      integ_movil_destino: null,
     }
   },
   created(){
@@ -209,9 +251,12 @@ export default {
   },
   methods: {
     ...mapActions('warehouse', [
-      "getTransfer",
-      "getTransferRange",
-      'getDetailsTransfer'
+      'getTransfer',
+      'getTransferRange',
+      'getDetailsTransfer',
+    ]),
+    ...mapActions('master', [
+      'getMembersMovil'
     ]),
     getData(){
       this.$q.loading.show({
@@ -286,6 +331,7 @@ export default {
       setTimeout(async() => {
         try {
           this.encabezado_selecte = row;
+          this.encabezado_selecte.Etm_Estado = Number(row.Etm_Estado)
           // Modificamos las propiedades de la devolución seleccionada para luego recorrerlo con un for y mostrar los datos en el fronent
           this.encabezado_traslado = {
             'Traslado No.': row.id,
@@ -296,6 +342,8 @@ export default {
             'Documento quien recibe': row.Etm_Usuario_recibe,
             'Nombre quien recibe': row.name_p_recibe,
             'Observaciones': row.Etm_Observaciones,
+            'Fecha entregado': row.Etm_Fecha_entrega,
+            'Fecha recibido': row.Etm_Fecha_recibe,
             'Estado': row.Estado,
           }
           const res_det = await this.getDetailsTransfer(row.id).then( res => {
@@ -327,6 +375,12 @@ export default {
           } else {
             throw new Error(res_det.message);
           }
+
+          if(this.encabezado_selecte.Etm_Estado == 0){
+            setTimeout(() => {
+              this.getDataMovilDestino(this.encabezado_selecte.id);
+            }, 300)
+          }
           this.dailog_details = true;
         } catch (e) {
           console.log(e)
@@ -334,7 +388,173 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000)
-    }
+    },
+    // Actualizamos el estado del traslado
+    updateTraslado(){
+      this.$q.loading.show({
+        message: 'Realizando entrega, por favor espere...'
+      });
+      setTimeout( async ()=> {
+        try {
+          let timeStamp = Date.now()
+          let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DD');
+          this.encabezado_selecte.base = process.env.__BASE__;
+          if(this.enc_traslado.Etm_Estado == 1){
+            this.enc_traslado.Etm_Fecha_recibe = formattedString;
+            this.enc_traslado.Etm_Usuario_recibe = this.integ_movil_destino;
+          }
+          const res_enc = await this.insertEncTransfer(this.encabezado_selecte).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert update encabezado traslado',
+            data: res_enc
+          });
+          if(!res_enc.ok){
+            throw new Error(res_enc.message);
+          }
+
+          let det_traslado = []; //Arrary de promesas del detalle del traslado
+          let update_cant = []; // Array de promesas para actulizar las cantidades de los productos a actualizar
+          this.data_details.forEach( producto => {
+            let peticion = this.insertDetTraslado(producto).then( res => {
+              return res.data;
+            });
+            det_traslado.push(peticion);
+            if(this.enc_traslado.Etm_Estado == 1){
+              // Resta los productos de la movil origen
+              producto.simbol = '-';
+              producto.Mov_Id = this.enc_traslado.Etm_Mov_ID_entrega;
+              producto.Si_Cant = producto.Dtm_Cant;
+
+              let res_produ = this.updateInventarioMovil(producto).then( res => {
+                return res.data;
+              });
+              update_cant.push(res_produ);
+              // Suma los productos en la movil destino
+              producto.simbol = '+';
+              producto.Mov_Id = this.enc_traslado.Etm_Mov_Id_recibe;
+              producto.Si_Cant = producto.Dtm_Cant;
+              let suma_produ = this.updateInventarioMovil(producto).then( res => {
+                return res.data;
+              });
+              update_cant.push(suma_produ);
+            }
+          })
+
+          Promise.all(det_traslado).then( res_det => {
+            res_det.forEach( res => {
+              console.log({
+                msg: 'Respuesta insert update detalle traslado',
+                data: res.data
+              });
+              if(!res.ok){
+                throw new Error(res.message);
+              }
+            })
+          });
+          // Actualizamos las cantidades si el estado es entregado
+          if(this.enc_traslado.Etm_Estado == 1){
+            Promise.all(update_cant).then( res_det => {
+              res_det.forEach( res => {
+                console.log({
+                  msg: 'Respuesta insert update cantidades traslado',
+                  data: res.data
+                });
+                if(!res.ok){
+                  throw new Error(res.message);
+                }
+              })
+            });
+          }
+          this.$q.notify({
+            message: 'Guardado',
+            type: 'positive'
+          });
+          this.$emit('reload');
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    getDataMovilDestino(id_movil){
+      this.$q.loading.show({
+        message: 'Obteniendo integrantes de la movil, por favor espere...'
+      });
+      setTimeout( async () => {
+        try {
+          const member_movil = await this.getMembersMovil(id_movil).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   message: 'Repuesta get integrantes movile',
+          //   data: member_movil
+          // });
+          if(member_movil.ok){
+            if(member_movil.result){
+              integ_movil_destino.length = 0;
+              member_movil.data.forEach( member => {
+                if(member.Estado == 1){
+                  integ_movil_destino.push({
+                    label: member.Per_Nombre.toUpperCase(),
+                    value: member.Per_Num_documento,
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(member_movil.message)
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    // Valida el select estado
+    validateState(val){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(!val && val != 0){
+            resolve(false || 'Entregado es requerido')  
+          }
+          // call
+           resolve(true)
+        }, 300)
+      })
+    },
   }
 }
 </script>
