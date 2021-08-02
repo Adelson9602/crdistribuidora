@@ -24,6 +24,7 @@
               :propcolumns="columns"
               :propgrid="true"
               :propflat="true"
+              @ondetails="detailsTransfer"
             >
               <template v-slot:header-cell-calories="props">
                 <q-th :props="props">
@@ -32,6 +33,61 @@
                 </q-th>
               </template>
             </component-table>
+
+            <!-- Dialogo del detalle del traslado -->
+            <q-dialog v-model="dailog_details" persistent full-width>
+              <q-card>
+                <q-card-section class="row items-center">
+                  <q-icon name="description" size="xl" color="primary" />
+                  <span class="q-ml-sm text-h5">Detalle del traslado</span>
+                </q-card-section>
+                <q-card-section class="row">
+                  <div
+                    class="col-xs-12 col-md-3 col-lg-2 q-px-sm"
+                    v-for="(value, index) in encabezado_traslado"
+                    :key="index"
+                  >
+                    <q-field :hint="index" stack-label dense>
+                      <template v-slot:control>
+                        <div class="self-center full-width no-outline" tabindex="0">{{value}}</div>
+                      </template>
+                    </q-field>
+                  </div>
+                </q-card-section>
+                <q-card-section>
+                  <q-table
+                    title="Productos trasladados"
+                    :data="data_details"
+                    row-key="name"
+                    flat
+                    :pagination="initial_pagination"
+                    style="height: 50vh"
+                  >
+                    <template v-slot:header="props">
+                      <q-tr :props="props">
+                        <q-th
+                          v-for="col in props.cols"
+                          :key="col.name"
+                          :props="props"
+                          style="text-align: center !important"
+                        >
+                          {{ col.label }}
+                        </q-th>
+                      </q-tr>
+                    </template>
+                    <template v-slot:body-cell="props">
+                      <q-td :props="props" style="text-align: center !important">
+                        {{ props.value }}
+                      </q-td>
+                    </template>
+                  </q-table>
+                </q-card-section>
+                <q-card-actions align="right">
+                  <q-btn flat label="Cancel" color="primary" v-close-popup />
+                  <q-btn flat label="Turn on Wifi" color="primary" v-close-popup />
+                </q-card-actions>
+              </q-card>
+            </q-dialog>
           </q-tab-panel>
 
           <q-tab-panel name="transfer_cellar">
@@ -134,7 +190,15 @@ export default {
           field: 'Estado'
         },
       ],
-      data: []
+      data: [],
+      encabezado_selecte: {}, //Encabezado del traslado seleccionado
+      encabezado_traslado: {}, //Encabezado del traslado formateado para el frontend
+      dailog_details: false, //Dialogo para el detalle del traslado
+      data_details: [], //Productos trasladados
+      initial_pagination: {
+        page: 1,
+        rowsPerPage: 10
+      }
     }
   },
   created(){
@@ -144,6 +208,7 @@ export default {
     ...mapActions('warehouse', [
       "getTransfer",
       "getTransferRange",
+      'getDetailsTransfer'
     ]),
     getData(){
       this.$q.loading.show({
@@ -164,20 +229,19 @@ export default {
               res_traslados.data.forEach(element => {
                 this.data.push({
                   Etm_Estado: element.Etm_Estado,
-                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
-                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
                   Etm_Id: element.Etm_Id,
                   Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
                   Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
-                  Etm_Observaciones: element.Etm_Observaciones,
-                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
-                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
                   id: element.id,
+                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
                   name_m_entrega: element.name_m_entrega,
+                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
                   name_m_recibe: element.name_m_recibe,
                   name_p_entrega: element.name_p_entrega,
+                  Etm_Observaciones: element.Etm_Observaciones,
+                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
                   title: `Movimiento No. ${element.id}`,
-                  btndetails: true,
                   Estado: element.Etm_Estado == 1 ? 'ENTREGADO' : 'PENDIENTE',
                   status: element.Etm_Estado,
                   btn_details: true,
@@ -210,6 +274,64 @@ export default {
       setTimeout(()=> {
         this.getData();
       }, 500)
+    },
+    detailsTransfer(row){
+      console.log(row)
+      this.$q.loading.show({
+        message: 'Obteniendo detalles del traslado, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          this.encabezado_selecte = row;
+          // Modificamos las propiedades de la devolución seleccionada para luego recorrerlo con un for y mostrar los datos en el fronent
+          for (const key in this.encabezado_selecte) {
+            if( key !== 'Etm_Estado' && key !== 'Etm_Id' && key !== 'status' && key !== 'Etm_Mov_ID_entrega' && key !== 'Etm_Mov_Id_recibe' && key !== 'title' && key !== 'btn_edit' && key !== 'btn_status' && key !== 'btn_details' && key !== 'icon_btn_edit' && key !== 'icon_btn_status' && key !== 'icon_btn_details'){
+              let key_no_dash = key.replace(/_|#|-|@|<>/g, " ") //Reemplaza los guines con espacios
+              let key_capitalized = key_no_dash.replace(/\b\w/g, l => l.toUpperCase()); //Capitaliza el primer caracter de cada palabra
+              Object.defineProperty(this.encabezado_traslado, key_capitalized, {
+                value: this.encabezado_selecte[key],
+                writable: true,
+                enumerable: true,
+                configurable: true
+              })
+            }
+          }
+          const res_det = await this.getDetailsTransfer(row.id).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get detalle del traslado',
+            data: res_det
+          })
+          if(res_det.ok){
+            if(res_det.result){
+              this.data_details.length = 0;
+              res_det.data.forEach( product => {
+                this.data_details.push({
+                  'Id traslado': product.Etm_Id,
+                  'Id producto': product.Art_Id,
+                  'Codigo producto': product.Art_Codigo_inv,
+                  'Descripción': product.Art_Nombre,
+                  'Cantidad trasladada': product.Dtm_Cant,
+                  'Observación': product.Dtm_Observacion,
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Ops!, sin resultados',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_det.message);
+          }
+          this.dailog_details = true;
+        } catch (e) {
+          console.log(e)
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
     }
   }
 }

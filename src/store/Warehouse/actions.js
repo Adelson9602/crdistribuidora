@@ -39,6 +39,11 @@ export function getTransferRange(contex, data){
   return Vue.prototype.$axios.get(`select_enc_traslado_moviles_range/${base}/${data.Fecha_inicial}/${data.Fecha_final}`);
 }
 
+// Obtiene el detalle del traslado
+export function getDetailsTransfer(contex, id_traslado){
+  return Vue.prototype.$axios.get(`select_det_traslado_moviles/${base}/${id_traslado}`);
+}
+
 // Inserta o actualiza el encabezado del traslado entre moviles
 export function insertEncTransfer(contex, data){
   return Vue.prototype.$axios.post(`insert_update_enc_traslado_moviles`, data);
