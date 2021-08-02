@@ -103,10 +103,12 @@ module.exports = function (/* ctx */) {
 
       // Quasar plugins
       plugins: [ 
-      'Notify',
-      'Loading', 
-      'LoadingBar',
-      'Dialog']
+        'Notify',
+        'Loading', 
+        'LoadingBar',
+        'Dialog',
+        'AppFullscreen'
+      ]
     },
 
     // animations: 'all', // --- includes all animations
