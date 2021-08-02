@@ -469,6 +469,7 @@ export default {
           let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DDTHH:mm:ss');
           this.enc_traslado.Etm_Fecha_entrega = formattedString;
           this.enc_traslado.Etm_Fecha_recibe = formattedString;
+          this.enc_traslado.base = process.env.__BASE__;
           const res_enc = await this.insertEncTransfer(this.enc_traslado).then( res => {
             return res.data;
           });
@@ -476,23 +477,49 @@ export default {
             msg: 'Respuesta insert update encabezado traslado',
             data: res_enc
           });
+          if(!res_enc.ok){
+            throw new Error(res_enc.message);
+          }
 
           let det_traslado = []; //Arrary de promesas del detalle del traslado
           this.data_transfer.forEach( producto => {
+            producto.Etm_Id = res_enc.data.insertId;
             let peticion = this.insertDetTraslado(producto).then( res => {
               return res.data;
             })
             det_traslado.push(peticion);
           })
 
-          Promise.all(det_traslado).then( res => {
-            console.log({
-              msg: 'Respuesta insert update detalle traslado',
-              data: res
+          Promise.all(det_traslado).then( res_det => {
+            res_det.forEach( res => {
+              console.log({
+                msg: 'Respuesta insert update detalle traslado',
+                data: res.data
+              });
+              if(!res.ok){
+                throw new Error(res.message);
+              }
             })
-          })
+          });
+          this.$q.notify({
+            message: 'Guardado',
+            type: 'positive'
+          });
+          this.$emit('reload');
         } catch (e) {
-          
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
         } finally {
           this.$q.loading.hide();
         }
