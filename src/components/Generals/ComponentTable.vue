@@ -269,7 +269,7 @@
                     <q-item-label caption>
                       {{col.label != 'Estado' ? col.value : ''}}
                       <q-badge
-                        :color="col.value == 'ACTIVO' || col.value == 'ACEPTADO' || col.value == 'ACTIVADO' || col.value == 'ACEPTADO' ? 'positive' : 'negative'"
+                        :color="props.row.status == 1 ? 'positive' : 'negative'"
                         text-color="white"
                         :label="col.value"
                         v-if="col.label == 'Estado'"
