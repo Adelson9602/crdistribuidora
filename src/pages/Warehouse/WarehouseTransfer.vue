@@ -35,12 +35,16 @@
             </component-table>
 
             <!-- Dialogo del detalle del traslado -->
-            <q-dialog v-model="dailog_details" persistent full-width>
+            <q-dialog v-model="dailog_details" persistent transition-show="flip-down" transition-hide="flip-up" full-width>
               <q-card>
-                <q-card-section class="row items-center">
-                  <q-icon name="description" size="xl" color="primary" />
-                  <span class="q-ml-sm text-h5">Detalle del traslado</span>
-                </q-card-section>
+                <q-bar>
+                  <div class="text-center">
+                    <q-icon name="description" size="sm" color="primary" />
+                    Detalle del traslado
+                  </div>
+                  <q-space />
+                  <q-btn dense flat icon="close" v-close-popup />
+                </q-bar>
                 <q-card-section class="row">
                   <div
                     class="col-xs-12 col-md-3 col-lg-2 q-px-sm"
@@ -83,8 +87,7 @@
                   </q-table>
                 </q-card-section>
                 <q-card-actions align="right">
-                  <q-btn flat label="Cancel" color="primary" v-close-popup />
-                  <q-btn flat label="Turn on Wifi" color="primary" v-close-popup />
+                  <q-btn label="guardar" color="green" />
                 </q-card-actions>
               </q-card>
             </q-dialog>
@@ -120,11 +123,18 @@ export default {
           field: 'Etm_Id'
         },
         {
-          name: 'Etm_Mov_ID_entrega',
+          name: 'name_m_entrega',
           align: 'center',
-          label: 'Etm_Mov_ID_entrega',
+          label: 'Móvil origen',
           sortable: true,
-          field: 'Etm_Mov_ID_entrega'
+          field: 'name_m_entrega'
+        },
+        {
+          name: 'name_m_recibe',
+          align: 'center',
+          label: 'Móvil destino',
+          sortable: true,
+          field: 'name_m_recibe'
         },
         {
           name: 'Etm_Observaciones',
@@ -160,13 +170,6 @@ export default {
           label: 'Documento quien recibe',
           sortable: true,
           field: 'Etm_Usuario_recibe'
-        },
-        {
-          name: 'Etm_Mov_Id_recibe',
-          align: 'center',
-          label: 'Etm_Mov_Id_recibe',
-          sortable: true,
-          field: 'Etm_Mov_Id_recibe'
         },
         {
           name: 'Etm_Fecha_entrega',
@@ -219,10 +222,10 @@ export default {
           const res_traslados = await this.getTransfer().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get traslados',
-            data: res_traslados
-          })
+          // console.log({
+          //   msg: 'Respuesta get traslados',
+          //   data: res_traslados
+          // })
           if(res_traslados.ok){
             if(res_traslados.result){
               this.data.length = 0;
@@ -238,6 +241,7 @@ export default {
                   Etm_Usuario_recibe: element.Etm_Usuario_recibe,
                   name_m_recibe: element.name_m_recibe,
                   name_p_entrega: element.name_p_entrega,
+                  name_p_recibe: element.name_p_recibe,
                   Etm_Observaciones: element.Etm_Observaciones,
                   Etm_Fecha_entrega: element.Etm_Fecha_entrega,
                   Etm_Fecha_recibe: element.Etm_Fecha_recibe,
@@ -276,7 +280,6 @@ export default {
       }, 500)
     },
     detailsTransfer(row){
-      console.log(row)
       this.$q.loading.show({
         message: 'Obteniendo detalles del traslado, por favor espere...'
       });
@@ -284,17 +287,16 @@ export default {
         try {
           this.encabezado_selecte = row;
           // Modificamos las propiedades de la devolución seleccionada para luego recorrerlo con un for y mostrar los datos en el fronent
-          for (const key in this.encabezado_selecte) {
-            if( key !== 'Etm_Estado' && key !== 'Etm_Id' && key !== 'status' && key !== 'Etm_Mov_ID_entrega' && key !== 'Etm_Mov_Id_recibe' && key !== 'title' && key !== 'btn_edit' && key !== 'btn_status' && key !== 'btn_details' && key !== 'icon_btn_edit' && key !== 'icon_btn_status' && key !== 'icon_btn_details'){
-              let key_no_dash = key.replace(/_|#|-|@|<>/g, " ") //Reemplaza los guines con espacios
-              let key_capitalized = key_no_dash.replace(/\b\w/g, l => l.toUpperCase()); //Capitaliza el primer caracter de cada palabra
-              Object.defineProperty(this.encabezado_traslado, key_capitalized, {
-                value: this.encabezado_selecte[key],
-                writable: true,
-                enumerable: true,
-                configurable: true
-              })
-            }
+          this.encabezado_traslado = {
+            'Traslado No.': row.id,
+            'Móvil origen': row.name_m_entrega,
+            'Móvil destino': row.name_m_recibe,
+            'Documento quien entrega': row.Etm_Usuario_entrega,
+            'Nombre quien entrega': row.name_p_entrega,
+            'Documento quien recibe': row.Etm_Usuario_recibe,
+            'Nombre quien recibe': row.name_p_recibe,
+            'Observaciones': row.Etm_Observaciones,
+            'Estado': row.Estado,
           }
           const res_det = await this.getDetailsTransfer(row.id).then( res => {
             return res.data;
