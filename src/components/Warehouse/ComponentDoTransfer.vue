@@ -50,7 +50,7 @@
             v-model="enc_traslado.Etm_Estado"
             :options="options_state"
             hint="Entregado"
-            :rules="[val => !!val || 'Entregado es requerido']"
+            :rules="[validateState]"
             map-options
             emit-value
           />
@@ -793,7 +793,18 @@ export default {
            resolve(true)
         }, 300)
       })
-      val => !!val || 'Cantidad a trasladar es requerido'
+    },
+    // Valida el select estado
+    validateState(val){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(!val && val != 0){
+            resolve(false || 'Entregado es requerido')  
+          }
+          // call
+           resolve(true)
+        }, 300)
+      })
     },
     // Buscador para el select productos
     filterProducts (val, update, abort) {
