@@ -54,6 +54,11 @@ export function insertDetTraslado(contex, data){
   return Vue.prototype.$axios.post(`insert_update_det_traslado_moviles`, data);
 }
 
+// Actualiza las cantidades del inventario de las moviles
+export function updateInventarioMovil(contex, data){
+  return Vue.prototype.$axios.post(`insert_update_stock_inventario`, data);
+}
+
 // Inventario
 // Obtiene todo el inventario en general
 export function getStock(){

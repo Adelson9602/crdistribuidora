@@ -294,7 +294,7 @@ export default {
         },
         {
           label: 'PENDIENTE',
-          value: 2
+          value: 0
         },
       ],
     }
@@ -350,7 +350,6 @@ export default {
           msg: 'Atención! Estas cambiando el valor del select, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
         }).onOk(() => {
           this.onReset();
-          this.getDataMovilOrigen(value);
         })
         return;
       }
@@ -366,7 +365,6 @@ export default {
           msg: 'Atención! Estas cambiando el valor del select, esto borrará todos los datos agregados hasta ahora, ¿Está seguro que desea continuar?',
         }).onOk(() => {
           this.onReset();
-          this.getDataMovilOrigen(value);
         })
         return;
       }
@@ -393,7 +391,8 @@ export default {
     ...mapActions('warehouse', [
       'getStockMovil',
       'insertEncTransfer',
-      'insertDetTraslado'
+      'insertDetTraslado',
+      'updateInventarioMovil'
     ]),
     ...mapActions('master', [
       'getMovil',
@@ -459,6 +458,7 @@ export default {
         }
       }, 2000)
     },
+    // Realiza el traslado
     onSubmit(){
       this.$q.loading.show({
         message: 'Guardando traslado, por favor espere...',
@@ -482,12 +482,32 @@ export default {
           }
 
           let det_traslado = []; //Arrary de promesas del detalle del traslado
+          let update_cant = []; // Array de promesas para actulizar las cantidades de los productos a actualizar
           this.data_transfer.forEach( producto => {
             producto.Etm_Id = res_enc.data.insertId;
             let peticion = this.insertDetTraslado(producto).then( res => {
               return res.data;
-            })
+            });
             det_traslado.push(peticion);
+            if(this.enc_traslado.Etm_Estado == 1){
+              // Resta los productos de la movil origen
+              producto.simbol = '-';
+              producto.Mov_Id = this.enc_traslado.Etm_Mov_ID_entrega;
+              producto.Si_Cant = producto.Dtm_Cant;
+
+              let res_produ = this.updateInventarioMovil(producto).then( res => {
+                return res.data;
+              });
+              update_cant.push(res_produ);
+              // Suma los productos en la movil destino
+              producto.simbol = '+';
+              producto.Mov_Id = this.enc_traslado.Etm_Mov_Id_recibe;
+              producto.Si_Cant = producto.Dtm_Cant;
+              let suma_produ = this.updateInventarioMovil(producto).then( res => {
+                return res.data;
+              });
+              update_cant.push(suma_produ);
+            }
           })
 
           Promise.all(det_traslado).then( res_det => {
@@ -501,6 +521,20 @@ export default {
               }
             })
           });
+          // Actualizamos las cantidades si el estado es entregado
+          if(this.enc_traslado.Etm_Estado == 1){
+            Promise.all(update_cant).then( res_det => {
+              res_det.forEach( res => {
+                console.log({
+                  msg: 'Respuesta insert update cantidades traslado',
+                  data: res.data
+                });
+                if(!res.ok){
+                  throw new Error(res.message);
+                }
+              })
+            });
+          }
           this.$q.notify({
             message: 'Guardado',
             type: 'positive'
