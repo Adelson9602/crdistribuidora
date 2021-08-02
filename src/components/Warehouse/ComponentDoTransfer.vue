@@ -37,20 +37,20 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="integ_movil_destino"
-            :options="opt_inte_destino"
-            hint="Integrante destino"
-            :rules="[val => !!val || 'Integrante es requerido']"
-            map-options
-            emit-value
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
             v-model="enc_traslado.Etm_Estado"
             :options="options_state"
             hint="Entregado"
             :rules="[validateState]"
+            map-options
+            emit-value
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="enc_traslado.Etm_Estado == 1">
+          <q-select
+            v-model="integ_movil_destino"
+            :options="opt_inte_destino"
+            hint="Integrante destino"
+            :rules="[val => !!val || 'Integrante es requerido']"
             map-options
             emit-value
           />
@@ -356,7 +356,6 @@ export default {
     },
     integ_movil_destino(value, old_value){
       // Comparamos si el nuevo el valor del select es distinto al antiguo
-      this.enc_traslado.Etm_Usuario_recibe = value;
       if(old_value && value && value.value != old_value.value && this.data_transfer.length > 0){
         this.$q.dialog({
           component: dialog,
@@ -466,9 +465,12 @@ export default {
       setTimeout( async() => {
         try {
           let timeStamp = Date.now()
-          let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DDTHH:mm:ss');
+          let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DD');
           this.enc_traslado.Etm_Fecha_entrega = formattedString;
-          this.enc_traslado.Etm_Fecha_recibe = formattedString;
+          if(this.enc_traslado.Etm_Estado == 1){
+            this.enc_traslado.Etm_Fecha_recibe = formattedString;
+            this.enc_traslado.Etm_Usuario_recibe = this.integ_movil_destino.value;
+          }
           this.enc_traslado.base = process.env.__BASE__;
           const res_enc = await this.insertEncTransfer(this.enc_traslado).then( res => {
             return res.data;
