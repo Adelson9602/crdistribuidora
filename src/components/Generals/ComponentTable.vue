@@ -221,7 +221,7 @@
                         push
                         padding="5px"
                         :icon="props.row.icon_btn_details"
-                        @click="details(props.row.Id)"
+                        @click="details(props.row)"
                         v-if="props.row.btn_details"
                       />
 
@@ -439,8 +439,8 @@ export default {
       doc.save(this.pdf.title.title);
     },
     // Emite la función para editar
-    details(id) {
-      this.$emit("ondetails", id);
+    details(row) {
+      this.$emit("ondetails", row);
     },
     // genera el pdf con petición al servidor, archivo pdf php
     generatePdf(row) {
