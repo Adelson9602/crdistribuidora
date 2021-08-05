@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex';
 
 export default {
   name: 'ComponentAddCategories',
@@ -72,7 +72,7 @@ export default {
         Cat_Nombre: null,
         Cat_Descripcion: null,
         Cat_Estado: 1,
-        Cat_User_control: 123456789
+        Cat_User_control: null
       },
       options_status: [
         {
@@ -90,6 +90,12 @@ export default {
   props: [
     'edit_data'
   ],
+  computed: {
+    ...mapState('auth', 'user_logged'),
+    data_user(){
+      return this.user_logged;
+    }
+  },
   watch: {
     edit_data(value){
       // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
@@ -101,7 +107,7 @@ export default {
           Cat_Nombre: this.edit_category.Cat_Nombre,
           Cat_Descripcion: this.edit_category.Cat_Descripcion,
           Cat_Estado: this.edit_category.name_estado == 'ACTIVADO' ? 1 : 0,
-          Cat_User_control: 123456789
+          Cat_User_control: this.new_article.Art_User_control = this.data_user.Per_Num_documento
         }
         this.dialog_create_categories = true;
       }
@@ -115,7 +121,7 @@ export default {
           Cat_Nombre: null,
           Cat_Descripcion: null,
           Cat_Estado: 1,
-          Cat_User_control: 123456789
+          Cat_User_control: this.new_article.Art_User_control = this.data_user.Per_Num_documento
         };
       }
     }
