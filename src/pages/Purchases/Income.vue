@@ -233,6 +233,7 @@ export default {
                   Mp_Id: ingreso.Mp_Id,
                   Per_Nombre: ingreso.Per_Nombre,
                   Tc_Descripcion: ingreso.Tc_Descripcion,
+                  status: ingreso.Enc_Estado,
                   Tc_Id: ingreso.Tc_Id,
                   Id: ingreso.id,
                   title: ingreso.CP_Razon_social,

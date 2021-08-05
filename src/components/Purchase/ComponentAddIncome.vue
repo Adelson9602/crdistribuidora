@@ -9,10 +9,23 @@
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
             v-model="model"
-            :options="options"
-            hint="Proveedor"
-            :rules="[validateSelect]"
-          />
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            label="Proveedor"
+            :options="options_providers"
+            @filter="filterProviders"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
@@ -81,136 +94,88 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
+let all_providers = []; //Opciones para el select proveedores
 export default {
   name: 'ComponentAddIncome',
   data () {
     return {
+      options_providers: all_providers, //Opciones para el select proveedores
       model: null,
       options: [],
       text: null,
-      columns: [
-        {
-          name: 'name',
-          required: true,
-          label: 'Dessert (100g serving)',
-          align: 'left',
-          field: row => row.name,
-          format: val => `${val}`,
-          sortable: true
-        },
-        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
-        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-        { name: 'protein', label: 'Protein (g)', field: 'protein' },
-        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-        { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
-        { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
-      ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
-        }
-      ]
+      columns: [],
+      data: []
     }
   },
+  computed: {
+    ...mapState('auth', 'user_logged'),
+    data_user(){
+      return this.user_logged;
+    }
+  },
+  created(){
+    this.getData();
+  },
   methods:{
+    ...mapActions('shopping', [
+      'insertEncEntry',
+      'insertDetEntry',
+      'getProviders'
+    ]),
+    ...mapActions('warehouse', ['updateInventarioMovil']),
+    getData(){
+      this.$q.loading.show({
+        message: 'Obteniendo datos del servidor, por favor espere...'
+      });
+      setTimeout(async()=> {
+        try {
+          const res_provider = await this.getProviders().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get proveedor',
+            data: res_provider
+          });
+          if(res_provider.ok){
+            if(res_provider.result){
+              all_providers.length = 0;
+              res_provider.data.forEach( element => {
+                if(element.Tp_Id == 0 && element.CP_Razon_social){
+                  all_providers.push({
+                    label: element.CP_Razon_social,
+                    value: element.CP_Nit
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_provider.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
     onSubmit(){
 
     },
@@ -222,6 +187,28 @@ export default {
       if(!val){
         return 'Por favor seleccione una opción'
       }
+    },
+    // Buscador para el select proveedor
+    filterProviders(val, update, abort){
+      setTimeout(() => {
+        update(
+          () => {
+            if (val === '') {
+              this.options_providers = all_providers
+            }
+            else {
+              const needle = val.toLowerCase()
+              this.options_providers = all_providers.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1)
+            }
+          },
+          ref => {
+            if (val !== '' && ref.options.length > 0) {
+              ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+              ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+            }
+          }
+        )
+      }, 300)
     }
   }
 }

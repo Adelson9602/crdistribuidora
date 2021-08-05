@@ -23,6 +23,16 @@ export function getDetailsEntry(context, id){
   return Vue.prototype.$axios.get(`select_det_entrada_inventario_single/${base}/${id}`)
 }
 
+// Guarda o actualiza el encabezado de la entrada
+export function insertEncEntry(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_entrada_bodega`, data);
+}
+
+// Guarda o actualiza el detalle de la entrada
+export function insertDetEntry(contex, data){
+  return Vue.prototype.$axios.post(`insert_update_det_entrada_inventario`)
+}
+
 // Proveedores
 // Obtiene todos los proveedores o clientes
 export function getProviders(){
