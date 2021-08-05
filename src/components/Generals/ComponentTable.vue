@@ -2,10 +2,9 @@
   <div>
     <q-form @submit="search">
       <div class="q-gutter-y-md q-pb-md row">
-        <div class="col-xs-12 col-md-3 col-lg-3 q-px-sm" v-if="btns.range_date">
+        <div class="col-xs-12 col-md-4 col-lg-3 q-px-sm" v-if="btns.range_date">
           <q-field
             stack-label
-            class="date_training"
             hint="Seleccione un rango de fecha"
           >
             <template v-slot:control>
@@ -51,17 +50,15 @@
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-md-4 col-lg-2 q-gutter-md q-px-sm row justify-center">
-          <div>
-            <q-btn
-              @click="exportPDF"
-              push
-              color="white"
-              text-color="primary"
-              icon="picture_as_pdf"
-              v-if="btns.btn_export_pdf"
-            />
-          </div>
+        <div class="col-xs-12 col-md-4 col-lg-2 q-gutter-md q-px-sm">
+          <q-btn
+            @click="exportPDF"
+            push
+            color="white"
+            text-color="primary"
+            icon="picture_as_pdf"
+            v-if="btns.btn_export_pdf"
+          />
           <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
           <vue-excel-xlsx
             :data="excel.data"
