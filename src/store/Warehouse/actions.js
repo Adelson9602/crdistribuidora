@@ -36,7 +36,7 @@ export function getTransfer(){
 
 // Obtiene los traslados realizados filtrados por rango de fecha
 export function getTransferRange(contex, data){
-  return Vue.prototype.$axios.get(`select_enc_traslado_moviles_range/${base}/${data.Fecha_inicial}/${data.Fecha_final}`);
+  return Vue.prototype.$axios.get(`select_enc_traslado_moviles_range/${base}/${data.from}/${data.to}`);
 }
 
 // Obtiene el detalle del traslado
