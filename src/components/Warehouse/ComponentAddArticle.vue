@@ -108,7 +108,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 let options_categorias = [];
 let options_um = [];
 export default {
@@ -129,7 +129,7 @@ export default {
         Um_Id: null,
         Art_Imagen: null,
         Art_Estado: null,
-        Art_User_control: 123456789
+        Art_User_control: null
       },
       options_state: [
         {
@@ -146,6 +146,12 @@ export default {
   props: [
     "edit_data"
   ],
+  computed: {
+    ...mapState('auth', 'user_logged'),
+    data_user(){
+      return this.user_logged;
+    }
+  },
   created(){
     this.getData();
   },
@@ -268,6 +274,7 @@ export default {
       setTimeout( async() => {
         try {
           this.new_article.base = process.env.__BASE__;
+          this.new_article.Art_User_control = this.data_user.Per_Num_documento;
           const res_add = await this.addArticle(this.new_article).then( res => {
             return res.data;
           });
