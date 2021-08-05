@@ -100,8 +100,7 @@
       </div>
       <div class="row justify-end q-mt-0">
         <div class="q-gutter-x-md">
-          <q-btn label="Reset" type="reset" color="red" class="q-ml-sm" />
-          <q-btn label="Submit" type="submit" color="green"/>
+          <q-btn label="Guardar" type="submit" color="green"/>
         </div>
       </div>
     </q-form>
