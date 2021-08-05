@@ -24,7 +24,9 @@
               :propcolumns="columns"
               :propgrid="true"
               :propflat="true"
+              :propbtns="btns"
               @ondetails="detailsTransfer"
+              @getrangedata="getRange"
             >
               <template v-slot:header-cell-calories="props">
                 <q-th :props="props">
@@ -258,6 +260,11 @@ export default {
       opt_inte_destino: integ_movil_destino,
       integ_movil_destino: null,
       etm_Estado: null, //Estado seleciconado
+      btns: { //Activa los btns de la tabla general
+        range_date: true,
+        btn_export_pdf: true,
+        export_excel: true
+      },
     }
   },
   watch: {
@@ -411,6 +418,68 @@ export default {
             }, 300)
           }
           this.dailog_details = true;
+        } catch (e) {
+          console.log(e)
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    // Obtiene los traslados por un rango de fecha
+    getRange(range){
+      console.log(range)
+      this.$q.loading.show({
+        message: 'Obteniendo traslados en el rango seleccionado, por favor espere...'
+      });
+      setTimeout(async()=> {
+        try {
+          const res_range = await this.getTransferRange(range).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get traslados por rango',
+            data: res_range
+          });
+          if(res_range.ok){
+            if(res_range.result){
+              this.data.length = 0;
+              res_range.data.forEach( element => {
+                this.data.push({
+                  Etm_Estado: element.Etm_Estado,
+                  Etm_Id: element.Etm_Id,
+                  Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
+                  Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
+                  id: element.id,
+                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
+                  name_m_entrega: element.name_m_entrega,
+                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
+                  name_m_recibe: element.name_m_recibe,
+                  name_p_entrega: element.name_p_entrega,
+                  name_p_recibe: element.name_p_recibe,
+                  Etm_Observaciones: element.Etm_Observaciones,
+                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
+                  title: `Movimiento No. ${element.id}`,
+                  Estado: element.Etm_Estado == 1 ? 'ENTREGADO' : 'PENDIENTE',
+                  status: element.Etm_Estado,
+                  btn_details: true,
+                  icon_btn_details: "mdi-eye-settings",
+                  // btn_edit: false,
+                  // btn_status: false,
+                  // btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Ops! sin resultados',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_range.message);
+          }
         } catch (e) {
           console.log(e)
         } finally {
