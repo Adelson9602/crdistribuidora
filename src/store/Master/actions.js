@@ -16,3 +16,13 @@ export function getMovil(){
 export function getMembersMovil(conetext, id_movil){
     return Vue.prototype.$axios.get(`select_movil_integrante_single/${base}/${id_movil}`);
 }
+
+// Tipos de comprobante
+export function getTiposComprobante(){
+    return Vue.prototype.$axios.get(`select_tipo_comprobante/${base}`);
+}
+
+// medio de pago
+export function getMedioPago(){
+    return Vue.prototype.$axios.get(`select_medio_de_pago/${base}`)
+}

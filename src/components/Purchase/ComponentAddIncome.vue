@@ -30,17 +30,17 @@
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
             v-model="model"
-            :options="options"
+            :options="options_comprobantes"
             hint="Tipo comprobante"
-            :rules="[validateSelect]"
+            :rules="[val => !!val || 'Tipo comprobante es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
             v-model="model"
             :options="options"
-            hint="medio de pago"
-            :rules="[validateSelect]"
+            hint="Medio de pago"
+            :rules="[val => !!val || 'Medio de pago es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -74,7 +74,7 @@
     <div class="row">
       <div class="col-xs-12">
         <q-table
-          title="Inventario"
+          title="Productos a ingresar"
           :data="data"
           :columns="columns"
           row-key="name"
@@ -96,11 +96,13 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 let all_providers = []; //Opciones para el select proveedores
+let all_comprobante = []; //Opciones para el select tipo comprobante
 export default {
   name: 'ComponentAddIncome',
   data () {
     return {
       options_providers: all_providers, //Opciones para el select proveedores
+      options_comprobantes: all_comprobante, //Opciones para el select proveedores
       model: null,
       options: [],
       text: null,
@@ -123,7 +125,13 @@ export default {
       'insertDetEntry',
       'getProviders'
     ]),
-    ...mapActions('warehouse', ['updateInventarioMovil']),
+    ...mapActions('warehouse', [
+      'updateInventarioMovil'
+    ]),
+    ...mapActions('master', [
+      'getTiposComprobante',
+      'getMedioPago '
+    ]),
     getData(){
       this.$q.loading.show({
         message: 'Obteniendo datos del servidor, por favor espere...'
@@ -133,10 +141,10 @@ export default {
           const res_provider = await this.getProviders().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get proveedor',
-            data: res_provider
-          });
+          // console.log({
+          //   msg: 'Respuesta get proveedor',
+          //   data: res_provider
+          // });
           if(res_provider.ok){
             if(res_provider.result){
               all_providers.length = 0;
@@ -156,6 +164,47 @@ export default {
             }
           } else {
             throw new Error(res_provider.message);
+          }
+
+          const res_compro = await this.getTiposComprobante().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get tipo de comprobante',
+            data: res_compro
+          });
+          if(res_compro.ok){
+            if(res_compro.result){
+              all_comprobante.length = 0;
+              res_compro.data.forEach(element => {
+                if(element.Tc_Estado == 1){
+                  all_comprobante.push({
+                    label: element.Tc_Descripcion,
+                    value: element.Tc_Id
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_compro.message);
+          }
+
+          const res_medio = await this.getMedioPago().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get medio pago',
+            data: res_medio
+          });
+          if(res_medio.ok){
+            
+          } else {
+            throw new Error(res_medio.message);
           }
         } catch (e) {
           console.log(e);
