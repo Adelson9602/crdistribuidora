@@ -30,7 +30,7 @@ export function insertEncEntry(context, data){
 
 // Guarda o actualiza el detalle de la entrada
 export function insertDetEntry(contex, data){
-  return Vue.prototype.$axios.post(`insert_update_det_entrada_inventario`)
+  return Vue.prototype.$axios.post(`insert_update_det_entrada_inventario`, data);
 }
 
 // Proveedores
