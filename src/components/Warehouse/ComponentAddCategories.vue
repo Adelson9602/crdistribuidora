@@ -91,7 +91,7 @@ export default {
     'edit_data'
   ],
   computed: {
-    ...mapState('auth', 'user_logged'),
+    ...mapState('auth', ['user_logged']),
     data_user(){
       return this.user_logged;
     }
