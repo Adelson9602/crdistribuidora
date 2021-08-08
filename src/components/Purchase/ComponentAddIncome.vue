@@ -3,9 +3,11 @@
     <q-form
       @submit="addProduct"
       class="q-gutter-md"
+      ref="form_entry"
+      autocomplete="off"
     >
       <div class="row">
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="enc_entrada.CP_Nit"
             clearable
@@ -29,7 +31,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="enc_entrada.Tc_Id"
             clearable
@@ -53,7 +55,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="enc_entrada.Mp_Id"
             clearable
@@ -77,14 +79,14 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="enc_entrada.Enc_num_comprobante"
             hint="Número comprobante"
             :rules="[val => !!val || 'Númerocompra es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="enc_entrada.Enc_impuesto"
             hint="Impuesto"
@@ -94,7 +96,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-12 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-select
             v-model="producto_selecte"
             clearable
@@ -103,11 +105,10 @@
             fill-input
             input-debounce="0"
             hint="Producto"
-            :options="options_providers"
+            :options="options_products"
             @filter="filterProducts"
             :rules="[val => !!val || 'Producto es obligatorio']"
-            map-options
-            emit-value
+            ref="select_products"
           >
             <template v-slot:no-option>
               <q-item>
@@ -118,7 +119,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-input
             v-model="precio_compra"
             mask="#########"
@@ -126,7 +127,7 @@
             :rules="[val => !!val || 'Precio es requerido', val => val > 0 || 'La cantidad no puede ser 0']"
           />
         </div>
-        <div class="col-xs-12 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-input
             v-model="cantidad_compra"
             mask="#########"
@@ -144,17 +145,38 @@
         <q-table
           title="Productos a ingresar"
           :data="data_products"
+          :columns="columns_product"
           row-key="name"
           flat
         >
-          <template v-slot:header-cell-calories="props">
-            <q-th :props="props">
-              <q-icon name="thumb_up" size="1.5em" />
-              {{ props.col.label }}
-            </q-th>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td auto-width>
+                <q-btn icon="delete" size="sm" color="negative" round dense @click="delteProduct(props.row)" />
+              </q-td>
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.value }}
+              </q-td>
+            </q-tr>
           </template>
         </q-table>
-
       </div>
     </div>
   </div>
@@ -162,6 +184,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import dialog from 'components/Generals/ComponentDialogWarning';
 let all_providers = []; //Opciones para el select proveedores
 let all_comprobante = []; //Opciones para el select tipo comprobante
 let all_medios = []; //Opciones para el select medios de pago
@@ -179,6 +202,38 @@ export default {
       text: null,
       columns: [],
       data_products: [],
+      columns_product: [
+        {
+          name: 'Art_Id',
+          label: 'ID Producto',
+          align: 'center',
+          field: 'Art_Id'
+        },
+        {
+          name: 'Codigo_art',
+          label: 'Código artículo',
+          align: 'center',
+          field: 'Codigo_art'
+        },
+        {
+          name: 'Descripcion_art',
+          label: 'Descripción',
+          align: 'center',
+          field: 'Descripcion_art'
+        },
+        {
+          name: 'Dei_Cant',
+          label: 'Cantidad',
+          align: 'center',
+          field: 'Dei_Cant'
+        },
+        {
+          name: 'Dei_Precio_compra',
+          label: 'Precio compra',
+          align: 'center',
+          field: 'Dei_Precio_compra'
+        },
+      ],
       enc_entrada: {
         base: null,
         Ecb_Id: null,
@@ -353,13 +408,41 @@ export default {
         base: process.env.__BASE__,
         Enc_Id: null,
         Art_Id: this.producto_selecte.value,
+        Codigo_art: this.producto_selecte.codigo,
+        Descripcion_art: this.producto_selecte.label,
         Dei_Cant: this.cantidad_compra,
         Dei_Precio_compra: this.precio_compra
       }
-      this.data_products.push(product_add);
-      // console.log(this.producto_selecte);
-      // console.log(this.precio_compra);
-      // console.log(this.cantidad_compra);
+      let exits_product = this.data_products.find(product => product.Art_Id == product_add.Art_Id );
+      if(exits_product){
+        this.$q.notify({
+          message: 'El producto ya esta agregado',
+          type: 'warning'
+        })
+      } else {
+        this.data_products.push(product_add);
+        this.onReset();
+      }
+    },
+    delteProduct(row){
+      this.$q.dialog({
+        component: dialog,
+        parent: this,
+        title: 'Eliminar producto',
+        msg: 'Atención! vas a eliminar un producto agregado a la tabla, ¿Seguro que desea continuar?',
+      }).onOk(() => {
+        let index = this.data_products.indexOf(row)
+        this.data_products.splice(index, 1)
+      })
+    },
+    onReset(){
+      this.producto_selecte = null;
+      this.precio_compra = null;
+      this.cantidad_compra = null;
+      setTimeout(()=> {
+        this.$refs.form_entry.resetValidation();
+        this.$refs.select_products.focus();
+      }, 300)
     },
     // Buscador para el select proveedor
     filterProviders(val, update, abort){
