@@ -48,7 +48,7 @@
           </q-tab-panel>
 
           <q-tab-panel name="add_income">
-            <component-add-income/>
+            <component-add-income @reload="reload"/>
           </q-tab-panel>
         </q-tab-panels>
     </q-card>
@@ -394,6 +394,12 @@ export default {
     },
     editEntry(){
 
+    },
+    reload(){
+      this.tab = "incomies"
+      setTimeout(()=> {
+        this.getData();
+      }, 300)
     }
   }
 }
