@@ -14,6 +14,7 @@
             :rules="[val => !!val || 'Código producto es requerido']"
             maxlength="50"
             counter
+            disable
           />
         </div>
         <div class="col-xs-12 col-md-6 q-px-sm">
