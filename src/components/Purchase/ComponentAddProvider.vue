@@ -64,12 +64,6 @@
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
-            v-model="c"
-            
-            
-            
-          />
-          <q-select
             v-model="departamento_selecte"
             clearable
             use-input
