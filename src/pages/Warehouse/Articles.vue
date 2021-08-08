@@ -207,10 +207,10 @@ export default {
               return res.data;
             }
           );
-          console.log({
-            msg: 'Repeusta get artículos',
-            data: resgetDataArticles,
-          });
+          // console.log({
+          //   msg: 'Repeusta get artículos',
+          //   data: resgetDataArticles,
+          // });
           if (resgetDataArticles.ok) {
             if (resgetDataArticles.result) {
               this.data.length = 0;
@@ -231,6 +231,7 @@ export default {
                   Art_Fecha_control: element.Art_Fecha_control,
                   title: element.Art_Nombre,
                   Estado: element.Art_Estado,
+                  status: element.Art_Estado,
                   btn_edit: true,
                   btn_status: true,
                   // btn_details: true,
@@ -255,10 +256,10 @@ export default {
           const res_categorias = await this.getCategoriasAlmacen().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get categorias articulos',
-            data: res_categorias
-          });
+          // console.log({
+          //   msg: 'Respuesta get categorias articulos',
+          //   data: res_categorias
+          // });
           if(res_categorias.ok){
             if(res_categorias.result){
               categorias.length = 0;
@@ -284,10 +285,10 @@ export default {
           const res_um = await this.getAllUm().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get unidades de medida',
-            data: res_um
-          });
+          // console.log({
+          //   msg: 'Respuesta get unidades de medida',
+          //   data: res_um
+          // });
           if(res_um.ok){
             if(res_um.result){
               ums.length = 0;
@@ -357,11 +358,11 @@ export default {
                   Prefijo: element.Prefijo,
                   Art_Stockminimo: element.Art_Stockminimo,
                   Cat_Nombre: element.Cat_Nombre,
-                  Art_Estado:
-                    element.Art_Estado == 1 ? "ACTIVO" : "INHABILITADO",
+                  Art_Estado: element.Art_Estado == 1 ? "ACTIVO" : "INHABILITADO",
                   Art_User_control: element.Art_User_control,
                   Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
+                  status: element.Art_Estado,
                   btn_edit: true,
                   btn_status: true,
                   // btn_details: true,
