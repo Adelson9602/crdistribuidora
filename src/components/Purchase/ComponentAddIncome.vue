@@ -92,6 +92,7 @@
             v-model="enc_entrada.Enc_num_comprobante"
             hint="Número comprobante"
             :rules="[val => !!val || 'Númerocompra es obligatorio']"
+            @input="val => { enc_entrada.Enc_num_comprobante = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -106,17 +107,8 @@
           <q-input
             v-model="enc_entrada.Enc_total_compra"
             hint="Total compra"
+            mask="############"
             :rules="[val => !!val || 'Total compra es obligatorio']"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="enc_entrada.Enc_Estado"
-            :options="options_state"
-            hint="Estado"
-            :rules="[validateState]"
-            map-options
-            emit-value
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -233,21 +225,6 @@ export default {
       options_comprobantes: all_comprobante, //Opciones para el select proveedores
       options_medios: all_medios, //Opciones para el select medios de pago
       options_products: all_product, //Opciones para el select medios de pago
-      options_state: [
-        {
-          label: 'ANULADO',
-          value: 0
-        },
-        {
-          label: 'ACEPTADO',
-          value: 1
-        },
-        {
-          label: 'PENDIENTE',
-          value: 2
-        },
-        
-      ],
       model: null,
       options: [],
       text: null,
@@ -365,10 +342,10 @@ export default {
           const res_compro = await this.getTiposComprobante().then( res => {
             return res.data;
           });
-          // console.log({
-          //   msg: 'Respuesta get tipo de comprobante',
-          //   data: res_compro
-          // });
+          console.log({
+            msg: 'Respuesta get tipo de comprobante',
+            data: res_compro
+          });
           if(res_compro.ok){
             if(res_compro.result){
               all_comprobante.length = 0;
@@ -458,6 +435,7 @@ export default {
       setTimeout(async()=> {
         try {
           this.enc_entrada.Enc_dias_credito = this.enc_entrada.Mp_Id == 1 ? 0 : this.enc_entrada.Enc_dias_credito;
+          this.enc_entrada.Enc_Estado = this.enc_entrada.Mp_Id == 1 ? 1 : 2;
           this.enc_entrada.base = process.env.__BASE__;
           this.enc_entrada.Enc_User_control = this.data_user.Per_Num_documento;
           const res_ingreso = await this.insertEncEntry(this.enc_entrada).then( res => {
@@ -469,18 +447,41 @@ export default {
           })
           if(res_ingreso.ok){
             let insert_produc = [];
+            let upd_stock = [];
             this.data_products.forEach( product => {
               product.Enc_Id = res_ingreso.data.insertId;
               let save_product = this.insertDetEntry(product).then( res => {
                 return res.data;
               });
               insert_produc.push(save_product);
+              let new_art = {
+                base: process.env.__BASE__,
+                Art_Id: product.Art_Id,
+                Mov_Id: 1,
+                Si_Cant: product.Dei_Cant,
+                simbol: '+'
+              }
+              let update_stock = this.updateInventarioMovil(new_art).then( res => {
+                return res.data;
+              });
+              upd_stock.push(update_stock)
             });
             Promise.all(insert_produc).then( res_insert => {
-              console.log({
-                message: 'Respuesta insert detalle entrada',
-                data: res_insert
+              // console.log({
+              //   message: 'Respuesta insert detalle entrada',
+              //   data: res_insert
+              // })
+              res_insert.forEach(res => {
+                if(!res.ok){
+                  throw new Error(res.message)
+                }
               })
+            });
+            Promise.all(upd_stock).then( res_insert => {
+              // console.log({
+              //   message: 'Respuesta update stock',
+              //   data: res_insert
+              // })
               res_insert.forEach(res => {
                 if(!res.ok){
                   throw new Error(res.message)
@@ -628,18 +629,6 @@ export default {
         )
       }, 300)
     },
-    // Valida el select state
-    validateState(val){
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if(!val && val != 0){
-            resolve(false || 'Estado es requerido')  
-          }
-          // call
-           resolve(true)
-        }, 300)
-      })
-    }
   }
 }
 </script>
