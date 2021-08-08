@@ -26,3 +26,8 @@ export function getTiposComprobante(){
 export function getMedioPago(){
     return Vue.prototype.$axios.get(`select_medio_de_pago/${base}`)
 }
+
+// Obtiene todas las ciudades
+export function getCities(){
+    return Vue.prototype.$axios.get(`select_ciudad_general/${base}`)
+}
