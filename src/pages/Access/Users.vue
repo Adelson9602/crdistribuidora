@@ -201,6 +201,7 @@ export default {
                   name_estado_usuario: persona.name_estado_usuario,
                   img: persona.Per_Imagen ? persona.Per_Imagen : 'https://cdn.quasar.dev/img/boy-avatar.png',
                   title: persona.Per_Nombre,
+                  status: persona.Usu_Estado,
                   btn_status: true,
                   icon_btn_status: 'power_settings_new',
                   btn_edit: true,
