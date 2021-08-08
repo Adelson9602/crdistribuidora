@@ -79,11 +79,44 @@
             </template>
           </q-select>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="enc_entrada.Mp_Id == 2">
+          <q-input
+            v-model="enc_entrada.Enc_dias_credito"
+            mask="####"
+            hint="Días de crédito"
+            :rules="[val => !!val || 'Días de crédito es obligatorio']"
+          />
+        </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="enc_entrada.Enc_num_comprobante"
             hint="Número comprobante"
             :rules="[val => !!val || 'Númerocompra es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-input
+            v-model="enc_entrada.Enc_subtotal_compra"
+            hint="Subtotal compra"
+            mask="############"
+            :rules="[val => !!val || 'Subtotal compra es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-input
+            v-model="enc_entrada.Enc_total_compra"
+            hint="Total compra"
+            :rules="[val => !!val || 'Total compra es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-select
+            v-model="enc_entrada.Enc_Estado"
+            :options="options_state"
+            hint="Estado"
+            :rules="[validateState]"
+            map-options
+            emit-value
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -179,6 +212,9 @@
         </q-table>
       </div>
     </div>
+    <q-page-sticky position="bottom-right" :offset="[18,18]" expand>
+      <q-btn color="primary" icon="check" label="OK" @click="onSubmit" />
+    </q-page-sticky>
   </div>
 </template>
 
@@ -197,6 +233,21 @@ export default {
       options_comprobantes: all_comprobante, //Opciones para el select proveedores
       options_medios: all_medios, //Opciones para el select medios de pago
       options_products: all_product, //Opciones para el select medios de pago
+      options_state: [
+        {
+          label: 'ANULADO',
+          value: 0
+        },
+        {
+          label: 'ACEPTADO',
+          value: 1
+        },
+        {
+          label: 'PENDIENTE',
+          value: 2
+        },
+        
+      ],
       model: null,
       options: [],
       text: null,
@@ -401,7 +452,67 @@ export default {
       }, 2000)
     },
     onSubmit(){
-
+      this.$q.loading.show({
+        message: 'Guardando, por favor espere...'
+      });
+      setTimeout(async()=> {
+        try {
+          this.enc_entrada.Enc_dias_credito = this.enc_entrada.Mp_Id == 1 ? 0 : this.enc_entrada.Enc_dias_credito;
+          this.enc_entrada.base = process.env.__BASE__;
+          this.enc_entrada.Enc_User_control = this.data_user.Per_Num_documento;
+          const res_ingreso = await this.insertEncEntry(this.enc_entrada).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert encabezado entrada',
+            data: res_ingreso
+          })
+          if(res_ingreso.ok){
+            let insert_produc = [];
+            this.data_products.forEach( product => {
+              product.Enc_Id = res_ingreso.data.insertId;
+              let save_product = this.insertDetEntry(product).then( res => {
+                return res.data;
+              });
+              insert_produc.push(save_product);
+            });
+            Promise.all(insert_produc).then( res_insert => {
+              console.log({
+                message: 'Respuesta insert detalle entrada',
+                data: res_insert
+              })
+              res_insert.forEach(res => {
+                if(!res.ok){
+                  throw new Error(res.message)
+                }
+              })
+            });
+            this.$q.notify({
+              message: 'Guardado',
+              type: 'positive'
+            });
+            this.$emit('reload')
+          } else {
+            throw new Error(res_ingreso.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
     },
     addProduct(){
       let product_add = {
@@ -516,6 +627,18 @@ export default {
           }
         )
       }, 300)
+    },
+    // Valida el select state
+    validateState(val){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(!val && val != 0){
+            resolve(false || 'Estado es requerido')  
+          }
+          // call
+           resolve(true)
+        }, 300)
+      })
     }
   }
 }
