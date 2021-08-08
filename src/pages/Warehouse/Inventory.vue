@@ -44,7 +44,7 @@
         :proppdf="optionpdf"
         :propbtns="btns"
         :proppagination="initial_pagination"
-        @onedit="editStock"
+        :propactions="false"
       />
     </q-card>
   </q-page>
@@ -177,11 +177,11 @@ export default {
                   Si_Cant: stock.Si_Cant,
                   id: stock.id,
                   title: stock.Art_Nombre,
-                  btn_edit: true,
+                  // btn_edit: true,
                   // btn_status: true,
                   // btn_details: true,
                   // btn_pdf: true,
-                  icon_btn_edit: "mdi-pencil",
+                  // icon_btn_edit: "mdi-pencil",
                   // icon_btn_status: "power_settings_new",
                   // icon_btn_details: "mdi-eye-settings",
                 })
