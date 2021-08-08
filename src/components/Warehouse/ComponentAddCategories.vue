@@ -39,6 +39,15 @@
               />
             </div>
             <div class="col-xs-12 col-md-6 q-px-sm">
+              <q-input
+                v-model="category.Cat_precodigo"
+                type="text"
+                hint="Precódigo categoría"
+                :rules="[val => !!val || 'Precódigo es obligatorio']"
+                @input="val => { category.Cat_precodigo = val.toUpperCase()}"
+              />
+            </div>
+            <div class="col-xs-12 col-md-6 q-px-sm">
               <q-select
                 v-model="category.Cat_Estado"
                 :options="options_status"
@@ -72,7 +81,8 @@ export default {
         Cat_Nombre: null,
         Cat_Descripcion: null,
         Cat_Estado: 1,
-        Cat_User_control: null
+        Cat_User_control: null,
+        Cat_precodigo: null,
       },
       options_status: [
         {
@@ -107,7 +117,7 @@ export default {
           Cat_Nombre: this.edit_category.Cat_Nombre,
           Cat_Descripcion: this.edit_category.Cat_Descripcion,
           Cat_Estado: this.edit_category.name_estado == 'ACTIVADO' ? 1 : 0,
-          Cat_User_control: this.new_article.Art_User_control = this.data_user.Per_Num_documento
+          Cat_User_control: this.data_user.Per_Num_documento
         }
         this.dialog_create_categories = true;
       }
@@ -121,7 +131,7 @@ export default {
           Cat_Nombre: null,
           Cat_Descripcion: null,
           Cat_Estado: 1,
-          Cat_User_control: this.new_article.Art_User_control = this.data_user.Per_Num_documento
+          Cat_User_control: null
         };
       }
     }
@@ -137,6 +147,7 @@ export default {
       setTimeout( async() => {
         try {
           this.category.base = process.env.__BASE__;
+          this.category.Cat_User_control = this.data_user.Per_Num_documento;
           const res_add_category = await this.addCategory(this.category).then( res => {
             return res.data;
           });
