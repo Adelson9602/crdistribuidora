@@ -8,6 +8,7 @@
       <div class="row q-gutter-y-md">
         <div class="col-xs-12 col-md-6 q-px-sm">
           <q-input
+            @input="val => { new_article.Art_Codigo_inv = val.toUpperCase()}"
             v-model="new_article.Art_Codigo_inv"
             hint="Código producto"
             :rules="[val => !!val || 'Código producto es requerido']"
@@ -17,6 +18,7 @@
         </div>
         <div class="col-xs-12 col-md-6 q-px-sm">
           <q-input
+            @input="val => { new_article.Art_Nombre = val.toUpperCase()}"
             v-model="new_article.Art_Nombre"
             hint="Nombre"
             :rules="[val => !!val || 'Nombre es requerido']"
@@ -26,6 +28,7 @@
         </div>
         <div class="col-xs-12 col-md-6 q-px-sm">
           <q-input
+            @input="val => { new_article.Art_Descripcion = val.toUpperCase()}"
             v-model="new_article.Art_Descripcion"
             hint="Descripción"
             maxlength="100"
@@ -147,7 +150,7 @@ export default {
     "edit_data"
   ],
   computed: {
-    ...mapState('auth', 'user_logged'),
+    ...mapState('auth', ['user_logged']),
     data_user(){
       return this.user_logged;
     }
