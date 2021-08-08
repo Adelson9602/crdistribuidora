@@ -117,6 +117,7 @@ export default {
           Cat_Nombre: this.edit_category.Cat_Nombre,
           Cat_Descripcion: this.edit_category.Cat_Descripcion,
           Cat_Estado: this.edit_category.name_estado == 'ACTIVADO' ? 1 : 0,
+          Cat_precodigo: this.edit_category.Cat_precodigo,
           Cat_User_control: this.data_user.Per_Num_documento
         }
         this.dialog_create_categories = true;
@@ -131,7 +132,8 @@ export default {
           Cat_Nombre: null,
           Cat_Descripcion: null,
           Cat_Estado: 1,
-          Cat_User_control: null
+          Cat_User_control: null,
+          Cat_precodigo: null,
         };
       }
     }
