@@ -26,12 +26,16 @@
             :proppdf="optionpdf"
             :propflat="true"
             :propgrid="true"
+            @tostatus="setStatus"
+            @onedit="editRequest"
           />
         </q-tab-panel>
 
         <q-tab-panel name="formUser">
           <user-form
             @reload="reload"
+            :propDataUser="user_edit"
+            :editForm="edit_form"
           />
         </q-tab-panel>
       </q-tab-panels>
@@ -145,7 +149,9 @@ export default {
         styles: {
           font_size: 7,
         }
-      }
+      },
+      edit_form: false,
+      user_edit: null, //ALmacena el usuario a editar
     };
   },
   components: {
@@ -236,7 +242,22 @@ export default {
         }
       }, 2000);
     },
-    reload(){
+    reload() {
+      this.tab = "users";
+      this.renderComponent = false;
+      this.edit_form = false;
+      // Se hace el reload, para ello se debe eliminar el componente componenTable antes de hacer las peticiones y luego rendereizarlo de nuevo
+      setTimeout(() => {
+        this.getData();
+      }, 500);
+    },
+    editRequest(row) {
+      this.user_edit = row;
+      this.tab = "formUser";
+      this.edit_form = true;
+      this.label = 'Editar usuario';
+    },
+    setStatus(row){
 
     },
     encryptedAES(data) {
