@@ -31,3 +31,8 @@ export function getMedioPago(){
 export function getCities(){
     return Vue.prototype.$axios.get(`select_ciudad_general/${base}`)
 }
+
+// Obtiene todos los roles
+export function getRol(){
+    return Vue.prototype.$axios.get(`select_rol_general/${base}`);
+}
