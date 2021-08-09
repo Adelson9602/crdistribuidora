@@ -20,13 +20,14 @@
          emit-value
          map-options
           />
-          {{options_documento}}
+         
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Nit"
             type="text"
             hint="Número documento"
+            mask="###########"
             :rules="[val => !!val || 'Número documento es obligatorio']"
             :disable="this.edit_data ? true : false"
           />
@@ -36,6 +37,7 @@
             v-model="new_proveedor.CP_Digito_verificacion"
             type="text"
             hint="Digito verificacion"
+            mask="##"
             :rules="[val => !!val || 'Digito verificacion es obligatorio']"
           />
         </div>
@@ -44,7 +46,9 @@
             v-model="new_proveedor.CP_Direccion"
             type="text"
             hint="Dirección"
-            :rules="[val => !!val || 'Dirección es obligatorio']"
+            maxlength="500"
+            counter
+           
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -52,15 +56,16 @@
             v-model="new_proveedor.CP_Telefono"
             type="text"
             hint="Teléfono"
+            mask="##########"
             :rules="[val => !!val || 'Teléfono es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Email"
-            type="text"
+            type="email"
             hint="Email"
-            :rules="[val => !!val || 'Email es obligatorio']"
+           
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -95,13 +100,15 @@
              emit-value
              map-options
           />
-          {{options_ciudades}}
+         
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Urlweb"
             type="text"
             hint="Pagina web"
+            maxlength="100"
+            counter
           />
         </div>
       </div>
@@ -170,7 +177,7 @@ export default {
         value.ciudades.forEach(ciudad => {
           ciudades.push(ciudad);
         });
-        console.log(ciudades);
+     
       }
     },
 
@@ -191,10 +198,10 @@ export default {
           const res_ciudade = await this.getCities().then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get ciudades",
-            data: res_ciudade
-          });
+          // console.log({
+          //   msg: "Respuesta get ciudades",
+          //   data: res_ciudade
+          // });
           if (res_ciudade.ok) {
             if (res_ciudade.result) {
               //Creamos un nuevo objeto donde vamos a almacenar por ciudades.
@@ -237,10 +244,10 @@ export default {
           const res_tpdoc = await this.getTpDoc().then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get tipos documentos",
-            data: res_tpdoc
-          });
+          // console.log({
+          //   msg: "Respuesta get tipos documentos",
+          //   data: res_tpdoc
+          // });
           if (res_tpdoc.ok) {
             if (res_tpdoc.result) {
               this.options_documento.length = 0;
@@ -314,16 +321,17 @@ export default {
         try {
           this.new_proveedor.base = process.env.__BASE__;
           this.new_proveedor.CP_User_control = this.data_user.Per_Num_documento;
-         
+          this.new_proveedor.CP_Estado = 1;
+
           const res_add = await this.addProviders(this.new_proveedor).then(
             res => {
               return res.data;
             }
           );
-          console.log({
-            msg: "Respuesta insert update proveedores",
-            data: res_add
-          });
+          // console.log({
+          //   msg: "Respuesta insert update proveedores",
+          //   data: res_add
+          // });
           if (res_add.ok) {
             this.$q.notify({
               message: "Guardado",
