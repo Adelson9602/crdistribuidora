@@ -52,4 +52,9 @@ export function getAllPorcentaje(){
   export function addPorcentaje(contex, data){
       return Vue.prototype.$axios.post(`insert_update_porcentaje_venta`, data);
     }
+
+      // Agrega o edita los cargos
+  export function addCargos(contex, data){
+    return Vue.prototype.$axios.post(`insert_update_cargos`, data);
+  }
   
