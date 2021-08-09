@@ -159,6 +159,18 @@
                   counter
                 />
               </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+                <!-- selects -->
+                <q-select
+                  filled
+                  v-model="personal.Car_Id"
+                  :options="options_cargos"
+                  hint="Cargo"
+                  :rules="[val => !!val || 'Cargo es obligatorio']"
+                  map-options
+                  emit-value
+                />
+              </div>
               <div class="col-xs-12 text-body1 q-px-sm">
                 Datos de la cuenta
               </div>
@@ -231,7 +243,7 @@
                   v-model="usuario.Usu_Estado"
                   :options="estadooptions"
                   hint="Estado"
-                  :rules="[val => !!val || 'Estado es obligatorio']"
+                  :rules="[valState]"
                   map-options
                   emit-value
                 />
@@ -423,6 +435,7 @@ export default {
           value: 0,
         },
       ],
+      options_cargos: [],
       // estate_update_user: null,
       // estado_update_options: ['SI', 'NO'],
       dialog_avatar: false,
@@ -484,7 +497,8 @@ export default {
     ]),
     ...mapActions("master", [
       "getRol",
-      "GetDocumentTypes"
+      "GetDocumentTypes",
+      "getCargos"
     ]),
     ...mapMutations("auth", ["setUser", "setUserPermissions"]),
     ...mapActions("shopping", ["getTpDoc"]),
@@ -537,6 +551,34 @@ export default {
             }
           } else {
             throw new Error(res_docu.message);
+          }
+
+          const res_carg = await this.getCargos().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get cargos',
+            data: res_carg
+          });
+          if(res_carg.ok){
+            if(res_carg.result){
+              this.options_cargos.length = 0;
+              res_carg.data.forEach( cargo => {
+                if(cargo.Car_Estado == 1){
+                  this.options_cargos.push({
+                    label: cargo.Car_Descripcion,
+                    value: cargo.Car_Id
+                  })
+                }
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_carg.message);
           }
 
           // Si estamos editando el usuario, entonces asignamos los datos del usuario a editar cada uno de los inputs y selects
@@ -609,7 +651,6 @@ export default {
     // Envia los datosd el usuario al servidor BD
     sendDataUser(){
       // Empezamos a registrar el usuario
-      this.confirmPassword = this.aesEncrypt(this.confirmPassword);
       this.usuario.Usu_Clave_ppl = this.aesEncrypt(this.Password);
       this.$q.loading.show({
         message: "Guardando usuario, por favor espere...",
@@ -632,7 +673,7 @@ export default {
           if(!res_per.ok){
             throw new Error (res_per.message);
           }
-
+          console.log(this.usuario)
           const res_create = await this.InsertUpdateUsuario(this.usuario).then( res => {
             return res.data;
           });
@@ -655,10 +696,10 @@ export default {
                   Estado: 1,
                   Id_item: item.Id_item,
                   Usuario_control: this.data_user.Per_Num_documento,
-                  Crear: 1,
-                  Leer: 1,
-                  Actualizar: 1,
-                  Borrar: 1,
+                  Crear: item.Crear ? 1 : 0,
+                  Leer: item.Leer ? 1 : 0,
+                  Actualizar: item.Actualizar ? 1 : 0,
+                  Borrar: item.Borrar ? 1 : 0,
                   base: process.env.__BASE__,
                 };
                 let pro_per = this.insertUpdatePersmiso(PermitAditional).then( res => {
@@ -1026,6 +1067,17 @@ export default {
       while (text.toString().indexOf(busca) != -1)
           text = text.toString().replace(busca,reemplaza);
       return text;
+    },
+    valState(val){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(!val && val != 0){
+            resolve(false || 'Estado es requerido')  
+          }
+          // call
+           resolve(true)
+        }, 300)
+      })
     }
   },
 };

@@ -52,3 +52,8 @@ export function InsertUpdateUsuario(context, data){
 export function getCheckPermissions (context, ID_Rol)  {
     return Vue.prototype.$axios.get(`select_permiso_rol/${base}/${ID_Rol}`)
 }
+
+// Inserta los permisos del usuario
+export function insertUpdatePersmiso(contex, data){
+    return Vue.prototype.$axios.post(`insert_permiso_adicional`, data);
+}
