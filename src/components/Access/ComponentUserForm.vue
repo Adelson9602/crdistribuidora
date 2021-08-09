@@ -159,6 +159,18 @@
                   counter
                 />
               </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+                <!-- selects -->
+                <q-select
+                  filled
+                  v-model="personal.Car_Id"
+                  :options="options_cargos"
+                  hint="Cargo"
+                  :rules="[val => !!val || 'Cargo es obligatorio']"
+                  map-options
+                  emit-value
+                />
+              </div>
               <div class="col-xs-12 text-body1 q-px-sm">
                 Datos de la cuenta
               </div>
@@ -231,7 +243,7 @@
                   v-model="usuario.Usu_Estado"
                   :options="estadooptions"
                   hint="Estado"
-                  :rules="[val => !!val || 'Estado es obligatorio']"
+                  :rules="[valState]"
                   map-options
                   emit-value
                 />
@@ -423,6 +435,7 @@ export default {
           value: 0,
         },
       ],
+      options_cargos: [],
       // estate_update_user: null,
       // estado_update_options: ['SI', 'NO'],
       dialog_avatar: false,
@@ -480,11 +493,11 @@ export default {
       "getPermissionUser",
       "getPermissionUserEdit",
       "insertUpdatePersmiso",
-      "GetDataUser"
     ]),
     ...mapActions("master", [
       "getRol",
-      "GetDocumentTypes"
+      "GetDocumentTypes",
+      "getCargos"
     ]),
     ...mapMutations("auth", ["setUser", "setUserPermissions"]),
     ...mapActions("shopping", ["getTpDoc"]),
@@ -494,7 +507,7 @@ export default {
       this.$q.loading.show({
         message: "Obteniendo datos, por favor espere...",
       });
-      setTimeout(async () => {
+      this.timer = setTimeout(async () => {
         try {
           const resgetRol = await this.getRol(this.base).then((res) => {
             return res.data;
@@ -539,12 +552,32 @@ export default {
             throw new Error(res_docu.message);
           }
 
-          // Si estamos editando el usuario, entonces asignamos los datos del usuario a editar cada uno de los inputs y selects
-          if(this.editForm){
-            setTimeout(()=> {
-              this.isPwd = true;
-              this.assingEditData();
-            }, 500)
+          const res_carg = await this.getCargos().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get cargos',
+          //   data: res_carg
+          // });
+          if(res_carg.ok){
+            if(res_carg.result){
+              this.options_cargos.length = 0;
+              res_carg.data.forEach( cargo => {
+                if(cargo.Car_Estado == 1){
+                  this.options_cargos.push({
+                    label: cargo.Car_Descripcion,
+                    value: cargo.Car_Id
+                  })
+                }
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_carg.message);
           }
         } catch (e) {
           console.log(e);
@@ -561,6 +594,11 @@ export default {
           });
         } finally {
           this.$q.loading.hide();
+        }
+        // Si estamos editando el usuario, entonces asignamos los datos del usuario a editar cada uno de los inputs y selects
+        if(this.editForm){
+          this.isPwd = true;
+          this.timer = setTimeout(this.assingEditData(), 2000)
         }
       }, 2000);
     },
@@ -609,7 +647,6 @@ export default {
     // Envia los datosd el usuario al servidor BD
     sendDataUser(){
       // Empezamos a registrar el usuario
-      this.confirmPassword = this.aesEncrypt(this.confirmPassword);
       this.usuario.Usu_Clave_ppl = this.aesEncrypt(this.Password);
       this.$q.loading.show({
         message: "Guardando usuario, por favor espere...",
@@ -632,7 +669,7 @@ export default {
           if(!res_per.ok){
             throw new Error (res_per.message);
           }
-
+          console.log(this.usuario)
           const res_create = await this.InsertUpdateUsuario(this.usuario).then( res => {
             return res.data;
           });
@@ -655,10 +692,10 @@ export default {
                   Estado: 1,
                   Id_item: item.Id_item,
                   Usuario_control: this.data_user.Per_Num_documento,
-                  Crear: 1,
-                  Leer: 1,
-                  Actualizar: 1,
-                  Borrar: 1,
+                  Crear: item.Crear ? 1 : 0,
+                  Leer: item.Leer ? 1 : 0,
+                  Actualizar: item.Actualizar ? 1 : 0,
+                  Borrar: item.Borrar ? 1 : 0,
                   base: process.env.__BASE__,
                 };
                 let pro_per = this.insertUpdatePersmiso(PermitAditional).then( res => {
@@ -887,48 +924,36 @@ export default {
       });
       setTimeout(async() => {
         try {
-          const res_data = await this.GetDataUser(this.propDataUser.documento_sf).then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get data user edit',
-          //   data: res_data
-          // })
-          if(res_data.ok){
-            this.user_edit = res_data.data;
-            this.edit_form = this.editForm;
-            this.url = this.user_edit.Foto;
+          this.user_edit = this.propDataUser;
+          this.url = this.user_edit.img;
+          this.selected_rol = this.user_edit.Rol_Id;
+          this.personal = {
+            base: null,
+            Per_Num_documento: this.user_edit.Per_Num_documento,
+            Per_Nombre: this.user_edit.Per_Nombre,
+            Td_Id: this.user_edit.Td_Id,
+            Per_Direccion: this.user_edit.Per_Direccion,
+            Per_Telefono: this.user_edit.Per_Telefono,
+            Per_Email: this.user_edit.Per_Email,
+            Car_Id: this.user_edit.Car_Id,
+            Per_Imagen: this.user_edit.img,
+            Per_Estado: this.user_edit.Per_Estado,
+            Per_tipo_stock: this.user_edit.Per_tipo_stock
+          };
 
-            this.Password = this.decryptedAES(this.user_edit.Password);
-            this.confirmPassword = this.decryptedAES(this.user_edit.Password);
-            this.usuario = {
-              ID_Usuario: this.user_edit.ID_Usuario, //usuario tipo string
-              ID_Usuario_Person: this.user_edit.documento, // Cedula usuario
-              cc_creador: this.user_edit.cc_creador, //Usuario control, solo cuando se crea, no se puede editar
-              ID_Rol: this.user_edit.ID_Rol1,
-              Estado: this.user_edit.Estado,
-              Password: this.Password,
-              Foto: this.user_edit.Foto,
-              ID_Usuario_Control: this.user_edit.ID_Usuario_Control,
-              base: process.env.__BASE__
-            }
-            this.personal = {
-              documento: this.user_edit.documento,
-              Id_tipo_documento: this.user_edit.Id_tipo_documento, //Pendiente
-              nombres: this.user_edit.nombres,
-              apellidos: this.user_edit.apellidos,
-              fecha_nacimiento: this.user_edit.fecha_nacimiento,
-              tipo_persona: this.user_edit.tipo_persona,
-              usuario_control: this.user_edit.usuario_control,
-              email: this.user_edit.email,
-              direccion: this.user_edit.direccion,
-              telefonos: this.user_edit.telefonos,
-              base: process.env.__BASE__
-            };
-            this.selected_rol = this.user_edit.ID_Rol1;
-          } else {
-            throw new Error(res_data.message)
-          }
+          this.usuario = {
+            base: null,
+            Usu_Login: this.user_edit.Usu_Login,
+            Usu_Clave_ppl: this.user_edit.Usu_Clave_ppl,
+            Usu_Clave_verificacion: this.user_edit.Usu_Clave_verificacion,
+            Rol_Id: this.user_edit.Rol_Id,
+            Per_Num_documento: this.user_edit.Per_Num_documento,
+            Usu_Estado: this.user_edit.Usu_Estado,
+            Usu_User_control: null
+          };
+
+          this.Password = this.aesDencrypt(this.user_edit.Usu_Clave_ppl);
+          this.confirmPassword = this.aesDencrypt(this.user_edit.Usu_Clave_ppl);
         } catch (e) {
           console.log(e);
           if (e.message === "Error de conexión") {
@@ -1026,8 +1051,25 @@ export default {
       while (text.toString().indexOf(busca) != -1)
           text = text.toString().replace(busca,reemplaza);
       return text;
+    },
+    valState(val){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(!val && val != 0){
+            resolve(false || 'Estado es requerido')  
+          }
+          // call
+           resolve(true)
+        }, 300)
+      })
     }
   },
+  beforeDestroy () {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer)
+      this.$q.loading.hide()
+    }
+  }
 };
 </script>
 <style scoped>

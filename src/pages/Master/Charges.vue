@@ -163,7 +163,7 @@ export default {
   },
   methods: {
     ...mapActions("master", [
-      "getAllCargos",
+      "getCargos",
       "addCargos",
 
     ]),
@@ -174,7 +174,7 @@ export default {
       });
       setTimeout(async () => {
         try {
-          const resgetDataCargos = await this.getAllCargos().then(
+          const resgetDataCargos = await this.getCargos().then(
             res => {
               return res.data;
             }
