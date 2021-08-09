@@ -164,6 +164,19 @@ name: 'MainLayout',
         ]
       },
       {
+        label: 'Maestras',
+        icon: 'inventory',
+        visible: true,
+        expanded: true,
+        route: '/master/percentage',
+        items: [
+     
+          { label: "% de ventas", route: "master/percentsales" },
+            { label: "Cargos", route: "master/charges" },
+        
+        ]
+      },
+      {
         label: 'Compras',
         icon: 'shopping_bag',
         visible: true,

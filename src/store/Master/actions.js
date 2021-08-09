@@ -36,3 +36,28 @@ export function getCities(){
 export function getRol(){
     return Vue.prototype.$axios.get(`select_rol_general/${base}`);
 }
+
+
+//consulta general de porcentajes  trae todos los reasultados
+export function getAllPorcentaje(){
+  return Vue.prototype.$axios.get(`select_porcentaje_venta_general/${base}`)
+}
+
+// Agrega o edita los porcentajes
+export function addPorcentaje(contex, data){
+    return Vue.prototype.$axios.post(`insert_update_porcentaje_venta`, data);
+  }
+
+  //consulta general de Cargos  trae todos los reasultados
+export function getAllCargos(){
+    return Vue.prototype.$axios.get(`select_cargos_general/${base}`)
+  }
+  
+  // Agrega o edita los Cargos
+  export function addCargos(contex, data){
+      return Vue.prototype.$axios.post(`insert_update_cargos`, data);
+    }
+    
+  
+
+
