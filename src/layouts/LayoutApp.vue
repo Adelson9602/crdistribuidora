@@ -232,14 +232,10 @@ name: 'MainLayout',
     ]
   },
   computed: {
-    ...mapState("auth", ["user"]),
-    ...mapState("app", ["isOnline"]),
-    online(){
-      return this.isOnline;
-    },
-    dataUser() {
-      return this.user;
-    },
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged"]),
