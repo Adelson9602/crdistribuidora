@@ -97,16 +97,36 @@
                     <q-card-section class="row">
                       <!-- active_item -->
                       <div class="col-xs-12 col-md-6 q-px-sm">
-                        <q-input v-model="item.Descripcion" type="text" label="Descripción" />
+                        <q-input
+                          v-model="item.Descripcion"
+                          type="text"
+                          :rules="[val => !!val || 'Descripción es requerido']"
+                          label="Descripción"
+                        />
                       </div>
                       <div class="col-xs-12 col-md-6 q-px-sm">
-                        <q-input v-model="item.Icon" type="text" label="Icon" />
+                        <q-input
+                          v-model="item.Icon"
+                          type="text"
+                          :rules="[val => !!val || 'Icon es requerido']"
+                          label="Icon"
+                        />
                       </div>
                       <div class="col-xs-12 col-md-6 q-px-sm">
-                        <q-input v-model="item.label" type="text" label="Label" />
+                        <q-input
+                          v-model="item.label"
+                          type="text"
+                          :rules="[val => !!val || 'Label es requerido']"
+                          label="Label"
+                        />
                       </div>
                       <div class="col-xs-12 col-md-6 q-px-sm">
-                        <q-input v-model="item.router" type="text" label="Router" />
+                        <q-input
+                          v-model="item.router"
+                          type="text"
+                          :rules="[val => !!val || 'Router es requerido']"
+                          label="Router"
+                        />
                       </div>
                       <div class="col-xs-12 row justify-center q-mt-md">
                         <q-btn color="red" icon="delete" size="sm" @click="deleteItem(item)" v-if="item.new_item">
