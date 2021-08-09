@@ -1,46 +1,47 @@
 <template>
   <div>
-    <q-form
-      @submit="onSubmit"
-      @reset="onReset"
-      class="q-gutter-md"
-    >
+    <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
       <div class="row">
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="new_proveedor.CP_Razon_social"
             type="text"
             hint="Razon social"
             :rules="[val => !!val || 'Razon social es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
-          <q-input
-            v-model="text"
-            type="text"
-            hint="Nombre"
-            :rules="[val => !!val || 'Nombre es obligatorio']"
-          />
-        </div>
+
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
-            v-model="model"
-            :options="options"
+            v-model="new_proveedor.Td_Id"
+            :options="options_documento"
             hint="Tipo documento"
             :rules="[val => !!val || 'Tipo documento es obligatorio']"
+         emit-value
+         map-options
           />
+          {{options_documento}}
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="new_proveedor.CP_Nit"
             type="text"
             hint="Número documento"
             :rules="[val => !!val || 'Número documento es obligatorio']"
+            :disable="this.edit_data ? true : false"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="new_proveedor.CP_Digito_verificacion"
+            type="text"
+            hint="Digito verificacion"
+            :rules="[val => !!val || 'Digito verificacion es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-input
+            v-model="new_proveedor.CP_Direccion"
             type="text"
             hint="Dirección"
             :rules="[val => !!val || 'Dirección es obligatorio']"
@@ -48,7 +49,7 @@
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="new_proveedor.CP_Telefono"
             type="text"
             hint="Teléfono"
             :rules="[val => !!val || 'Teléfono es obligatorio']"
@@ -56,7 +57,7 @@
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="new_proveedor.CP_Email"
             type="text"
             hint="Email"
             :rules="[val => !!val || 'Email es obligatorio']"
@@ -74,8 +75,7 @@
             hint="Departamento"
             :rules="[val => !!val || 'Departamento es obligatorio']"
             @filter="filterDepartamento"
-            map-options
-            emit-value
+           
           >
             <template v-slot:no-option>
               <q-item>
@@ -88,34 +88,52 @@
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
-            v-model="model"
-            :options="options"
+            v-model="new_proveedor.Ciu_Id"
+            :options="options_ciudades"
             hint="Ciudad"
             :rules="[val => !!val || 'Ciudad es obligatorio']"
+             emit-value
+             map-options
+          />
+          {{options_ciudades}}
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-input
+            v-model="new_proveedor.CP_Urlweb"
+            type="text"
+            hint="Pagina web"
           />
         </div>
       </div>
       <div>
-        <q-btn label="Submit" type="submit" color="primary"/>
-        <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+        <q-btn label="Submit" type="submit" color="primary" />
+        <q-btn
+          label="Reset"
+          type="reset"
+          color="primary"
+          flat
+          class="q-ml-sm"
+        />
       </div>
     </q-form>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions } from "vuex";
 let departamentos = []; //Contiene todos los departamentos
+let ciudades = [];
+
 export default {
-  name: 'ComponentAddProvider',
-  data () {
+  name: "ComponentAddProvider",
+  data() {
     return {
       options_departamento: departamentos,
       model: null,
-      options: [],
-      text: null,
+      options_ciudades: ciudades,
+      options_documento: [],
       departamento_selecte: null,
-      proveedor: {
+      new_proveedor: {
         base: null,
         Dcp_Id: null,
         Dcp_Contacto: null,
@@ -123,68 +141,151 @@ export default {
         Dcp_Estado: null,
         Ciu_Id: null,
         CP_Nit: null,
-        Dcp_User_control: null
+        CP_Razon_social: null,
+        CP_Digito_verificacion: null,
+        Td_Id: null,
+        Tp_Id: 0,
+        CP_Direccion: null,
+        CP_Email: null,
+        CP_Urlweb: null,
+        CP_Telefono: null,
+        Ciu_Id: null,
+        CP_Estado: null,
+        CP_User_control: null
       }
+    };
+  },
+  props: ["edit_data"],
+  computed: {
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
     }
   },
+  watch: {
+    departamento_selecte(value) {
+      if (value) {
+        ciudades.length = 0;
+        this.new_proveedor.Ciu_Id = null;
+        value.ciudades.forEach(ciudad => {
+          ciudades.push(ciudad);
+        });
+        console.log(ciudades);
+      }
+    },
+
+  },
+
   created() {
     this.getData();
   },
-  methods:{
-    ...mapActions('master', [
-      'getCities'
-    ]),
-    getData(){
+  methods: {
+    ...mapActions("master", ["getCities"]),
+    ...mapActions("shopping", ["getTpDoc", "addProviders"]),
+    getData() {
       this.$q.loading.show({
-        message: 'Obteniendo datos del servidor, por favor espere...'
+        message: "Obteniendo datos del servidor, por favor espere..."
       });
-      setTimeout(async()=> {
+      setTimeout(async () => {
         try {
-          const res_ciudade = await this.getCities().then( res => {
+          const res_ciudade = await this.getCities().then(res => {
             return res.data;
           });
           console.log({
-            msg: 'Respuesta get ciudades',
+            msg: "Respuesta get ciudades",
             data: res_ciudade
           });
-          if(res_ciudade.ok){
-            if(res_ciudade.result){
-              //Creamos un nuevo objeto donde vamos a almacenar por ciudades. 
-              let nuevoObjeto = {}
-              //Recorremos el arreglo 
-              res_ciudade.data.forEach( x => {
+          if (res_ciudade.ok) {
+            if (res_ciudade.result) {
+              //Creamos un nuevo objeto donde vamos a almacenar por ciudades.
+              let nuevoObjeto = {};
+              //Recorremos el arreglo
+              res_ciudade.data.forEach(x => {
                 //Si la ciudad no existe en nuevoObjeto entonces
-                //la creamos e inicializamos el arreglo de profesionales. 
-                if( !nuevoObjeto.hasOwnProperty(x.Dep_Id)){
+                //la creamos e inicializamos el arreglo de profesionales.
+                if (!nuevoObjeto.hasOwnProperty(x.Dep_Id)) {
                   nuevoObjeto[x.Dep_Id] = {
                     label: x.Dep_Descripcion,
                     value: x.Dep_Id,
                     ciudades: []
-                  }
+                  };
                 }
-                
-                //Agregamos los datos de ciudades. 
-                if(x.Ciu_Estado == 1){
+
+                //Agregamos los datos de ciudades.
+                if (x.Ciu_Estado == 1) {
                   nuevoObjeto[x.Dep_Id].ciudades.push({
                     label: x.Ciu_Nombre,
-                    value: x.Ciu_Id,
-                  })
+                    value: x.Ciu_Id
+                  });
                 }
-              })
+              });
               departamentos.length = 0;
               for (const key in nuevoObjeto) {
-                departamentos.push(
-                  nuevoObjeto[key]
-                )
+                departamentos.push(nuevoObjeto[key]);
               }
             } else {
               this.$q.notify({
-                message: 'Sin resultados',
-                type: 'warning'
+                message: "Sin resultados",
+                type: "warning"
               });
             }
           } else {
             throw new Error(res_ciudade.message);
+          }
+
+          // Obtenemos los tipos de documento
+          const res_tpdoc = await this.getTpDoc().then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta get tipos documentos",
+            data: res_tpdoc
+          });
+          if (res_tpdoc.ok) {
+            if (res_tpdoc.result) {
+              this.options_documento.length = 0;
+              res_tpdoc.data.forEach(element => {
+                if (element.Td_Estado == 1) {
+                  this.options_documento.push({
+                    value: element.Td_Id,
+                    label: element.Tp_Desc_corta
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_tpdoc.message,
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_tpdoc.message);
+          }
+
+          if (this.edit_data) {
+            // Buscamos la categoria del producto asignada
+            // let categoria = options_categorias.find( categoria => categoria.label.toLowerCase() == this.edit_data.Cat_Nombre.toLowerCase());
+            // Buscamos la unidad de medida asiganada
+            // let um = options_um.find( um => um.prefijo.toLowerCase() == this.edit_data.Prefijo.toLowerCase())
+            this.new_proveedor = {
+              base: null,
+              Dcp_Id: null,
+              Dcp_Contacto: null,
+              Dcp_Telefono: null,
+              Dcp_Estado: null,
+              CP_Nit: this.edit_data.CP_Nit,
+              CP_Razon_social: this.edit_data.CP_Razon_social,
+              CP_Digito_verificacion: this.edit_data.CP_Digito_verificacion,
+              Td_Id: this.edit_data.Td_Id,
+              Tp_Id: 0,
+              CP_Direccion: this.edit_data.CP_Direccion,
+              CP_Email: this.edit_data.CP_Email,
+              CP_Urlweb: this.edit_data.CP_Urlweb,
+              CP_Telefono: this.edit_data.CP_Telefono,
+              Ciu_Id: this.edit_data.Ciu_Id,
+              CP_Estado: this.edit_data.CP_Estado,
+              CP_User_control: this.data_user.Per_Num_documento
+            };
           }
         } catch (e) {
           console.log(e);
@@ -198,35 +299,104 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative",
+            type: "negative"
           });
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000)
+      }, 2000);
     },
-    onSubmit(){
-
+    onSubmit() {
+      this.$q.loading.show({
+        message: "Agregando Proveedor, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          this.new_proveedor.base = process.env.__BASE__;
+          this.new_proveedor.CP_User_control = this.data_user.Per_Num_documento;
+         
+          const res_add = await this.addProviders(this.new_proveedor).then(
+            res => {
+              return res.data;
+            }
+          );
+          console.log({
+            msg: "Respuesta insert update proveedores",
+            data: res_add
+          });
+          if (res_add.ok) {
+            this.$q.notify({
+              message: "Guardado",
+              type: "positive"
+            });
+            this.$emit("reload");
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000);
     },
-    onReset(){
-
+    onReset() {
+      (this.departamento_selecte = null),
+        (this.new_proveedor = {
+          base: null,
+          Dcp_Id: null,
+          Dcp_Contacto: null,
+          Dcp_Telefono: null,
+          Dcp_Estado: null,
+          Ciu_Id: null,
+          CP_Nit: null,
+          CP_Razon_social: null,
+          CP_Digito_verificacion: null,
+          Td_Id: null,
+          Tp_Id: 0,
+          CP_Direccion: null,
+          CP_Email: null,
+          CP_Urlweb: null,
+          CP_Telefono: null,
+          Ciu_Id: null,
+          CP_Estado: null,
+          CP_User_control: null
+        });
     },
     // Buscador para el select departamento
-    filterDepartamento(val, update, abort){
+    filterDepartamento(val, update, abort) {
       setTimeout(() => {
-        update(() => {
-            const needle = val.toLowerCase()
-            this.options_departamento = departamentos.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1)
+        update(
+          () => {
+            const needle = val.toLowerCase();
+            this.options_departamento = departamentos.filter(
+              v =>
+                v.label.toLowerCase().indexOf(needle) > -1 ||
+                v.value
+                  .toString()
+                  .toLowerCase()
+                  .indexOf(needle) > -1
+            );
           },
           ref => {
-            if (val !== '' && ref.options.length > 0) {
-              ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
-              ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+            if (val !== "" && ref.options.length > 0) {
+              ref.setOptionIndex(-1); // reset optionIndex in case there is something selected
+              ref.moveOptionSelection(1, true); // focus the first selectable option and do not update the input-value
             }
           }
-        )
-      }, 300)
+        );
+      }, 300);
     }
   }
-}
+};
 </script>

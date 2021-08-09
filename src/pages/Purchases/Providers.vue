@@ -11,7 +11,7 @@
           narrow-indicator
         >
           <q-tab name="provider" label="proveedores" icon="person_add"/>
-          <q-tab name="add_provider" label="Agregar proveedor" icon="people"/>
+          <q-tab name="add_provider"   :label="!provider_edit ? 'Agregar proveedor' : 'Editar proveedor'" icon="people"/>
         </q-tabs>
 
         <q-separator />
@@ -24,7 +24,7 @@
             >
               <div class="row q-gutter-y-md">
                 <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
-                  <q-input v-model="nit_provider" type="text" hint="Número ingreso" mask="###############" counter/>
+                  <q-input v-model="nit_provider" type="text" hint="Id proveedor" mask="###############" counter/>
                 </div>
                 <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
                   <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
@@ -41,13 +41,13 @@
               :proppdf="optionpdf"
               :propbtns="btns"
               :proppagination="initial_pagination"
-              @onedit="editEntry"
-              @ondetails="detailsEntry"
+              @onedit="editProvider"
+        
             />
           </q-tab-panel>
 
           <q-tab-panel name="add_provider">
-            <component-add-provider/>
+            <component-add-provider @reload="reload" :edit_data="provider_edit"/>
           </q-tab-panel>
         </q-tab-panels>
     </q-card>
@@ -198,7 +198,15 @@ export default {
         page: 1,
         rowsPerPage: 9,
       },
-      nit_provider: null
+      nit_provider: null,
+      provider_edit:null
+    }
+  },
+   watch: {
+    tab(value){
+      if(value == "provider"){
+        this.provider_edit = null;
+      }
     }
   },
   created(){
@@ -250,8 +258,9 @@ export default {
                     title: provider.CP_Razon_social,
                     btn_edit: true,
                     icon_btn_details: 'visibility',
-                    btn_details: true,
+                    btn_details: false,
                     icon_btn_edit: 'edit',
+                    status: provider.CP_Estado,
                   })
                 }
               });
@@ -283,54 +292,7 @@ export default {
         }
       }, 2000)
     },
-    detailsEntry(id){
-      this.$q.loading.show({
-        message: 'Obteniendo detalle del ingreso, por favor espere...'
-      });
-      setTimeout( async() => {
-        try {
-          const res_detail = await this.getDetailsEntry(id).then( res => {
-            return res.data;
-          });
-          console.log({
-            msg: 'Respuesta get detalle ingreso',
-            data: res_detail
-          });
-          if(res_detail.ok){
-            if(res_detail.result){
-              this.data.length = 0 ;
-              res_detail.data.forEach( ingreso => {
-                this.data.push({
-                })
-              });
-            } else {
-              this.$q.notify({
-                message: res_detail.message,
-                type: 'warning'
-              });
-            }
-          } else {
-            throw new Error(res_detail.message);
-          }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
-        }
-      }, 2000)
-    },
+   
     searchProvider(){
       this.$q.loading.show({
         message: 'Buscando proveedor, por favor espere...'
@@ -368,9 +330,10 @@ export default {
                 name_tp: res_provider.data.name_tp,
                 Id: res_provider.data.id,
                 title: res_provider.data.CP_Razon_social,
+                status: res_provider.data.CP_Estado,
                 btn_edit: true,
                 icon_btn_details: 'visibility',
-                btn_details: true,
+                btn_details: false,
                 icon_btn_edit: 'edit',
               })
             } else {
@@ -401,9 +364,19 @@ export default {
         }
       }, 2000)
     },
-    editEntry(){
 
-    }
+     editProvider(row){
+       console.log(row);
+      this.provider_edit = row;
+      this.tab = "add_provider";
+    },
+     reload() {
+      this.tab = "provider";
+      this.edit_form = false;
+      setTimeout( ()=> {
+        this.getData();
+      }, 500)
+    },
   }
 }
 </script>

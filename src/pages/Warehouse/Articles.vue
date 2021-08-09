@@ -13,7 +13,8 @@
         <q-tab name="articles" label="Articulos" icon="inventory_2" />
         <q-tab
           name="create_article"
-          label="Agregar articulo"
+          :label="!article_edit ? 'Agregar articulo' : 'Editar articulo'" 
+  
           icon="add_business"
         />
       </q-tabs>

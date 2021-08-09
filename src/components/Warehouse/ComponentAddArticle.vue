@@ -6,7 +6,7 @@
       class="q-gutter-md"
     >
       <div class="row q-gutter-y-md">
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div  v-if="this.edit_data  ? true : false" class="col-xs-12 col-md-6 q-px-sm">
           <q-input
             @input="val => { new_article.Art_Codigo_inv = val.toUpperCase()}"
             v-model="new_article.Art_Codigo_inv"
@@ -14,7 +14,9 @@
             :rules="[val => !!val || 'Código producto es requerido']"
             maxlength="50"
             counter
-            disable
+            :disable="this.edit_data  ? true : false"
+           
+           
           />
         </div>
         <div class="col-xs-12 col-md-6 q-px-sm">
