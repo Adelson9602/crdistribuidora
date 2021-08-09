@@ -14,6 +14,7 @@
             :rules="[val => !!val || 'Código producto es requerido']"
             maxlength="50"
             counter
+            disable
           />
         </div>
         <div class="col-xs-12 col-md-6 q-px-sm">
@@ -91,6 +92,15 @@
             counter
           />
         </div>
+           <div class="col-xs-12 col-md-6 q-px-sm">
+          <q-input
+            @input="val => { new_article.Art_ubicacion = val.toUpperCase()}"
+            v-model="new_article.Art_ubicacion"
+            hint="Ubicacion"
+            maxlength="100"
+            counter
+          />
+        </div>
         <div class="col-xs-12 col-md-6 q-px-sm">
           <q-select
             v-model="new_article.Art_Estado"
@@ -130,6 +140,7 @@ export default {
         Art_Descripcion: null,
         Art_Stockminimo: null,
         Um_Id: null,
+        Art_ubicacion:null,
         Art_Imagen: null,
         Art_Estado: null,
         Art_User_control: null
@@ -233,6 +244,7 @@ export default {
 
           // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
           if(this.edit_data){
+         
             // Buscamos la categoria del producto asignada
             let categoria = options_categorias.find( categoria => categoria.label.toLowerCase() == this.edit_data.Cat_Nombre.toLowerCase());
             // Buscamos la unidad de medida asiganada
@@ -246,9 +258,10 @@ export default {
               Art_Descripcion: this.edit_data.Art_Descripcion,
               Art_Stockminimo: this.edit_data.Art_Stockminimo,
               Um_Id: um.value,
-              Art_Imagen: this.edit_data.Art_Imagen,
+              Art_ubicacion: this.edit_data.Art_ubicacion,
+              Art_Imagen: this.edit_data.Art_Imagen ? this.edit_data.Art_Imagen : this.new_article.Art_Imagen,
               Art_Estado: this.edit_data.Art_Estado,
-              Art_User_control: 123456789
+              Art_User_control: this.user_logged.Per_Num_documento
             }
           }
         } catch (e) {
