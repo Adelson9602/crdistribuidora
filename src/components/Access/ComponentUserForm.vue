@@ -94,43 +94,17 @@
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-input
                   filled
-                  v-model="personal.nombres"
-                  hint="Nombres"
+                  v-model="personal.Per_Nombre"
+                  hint="Nombres y apellidos"
                   :rules="[(val) => !!val || 'Nombres es obligatorio']"
                   maxlength="50"
-                  @input= "val => { personal.nombres = val.toUpperCase() }"
+                  @input= "val => { personal.Per_Nombre = val.toUpperCase() }"
                   counter
                 />
-              </div>
-              <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
-                <q-input
-                  filled
-                  v-model="personal.apellidos"
-                  hint="Apellidos"
-                  :rules="[(val) => !!val || 'Apellidos es obligatorio']"
-                  maxlength="50"
-                  @input= "val => { personal.apellidos = val.toUpperCase() }"
-                  counter
-                />
-              </div>
-              <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
-                <q-input filled v-model="personal.fecha_nacimiento" mask="date" :rules="['date']" hint="Fecha nacimiento">
-                  <template v-slot:append>
-                    <q-icon name="event" class="cursor-pointer">
-                      <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                        <q-date v-model="personal.fecha_nacimiento">
-                          <div class="row items-center justify-end">
-                            <q-btn v-close-popup label="Ok" color="primary" flat />
-                          </div>
-                        </q-date>
-                      </q-popup-proxy>
-                    </q-icon>
-                  </template>
-                </q-input>
               </div>
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-select
-                  v-model="personal.Id_tipo_documento"
+                  v-model="personal.Td_Id"
                   :options="options_tipo_documento"
                   hint="Tipo documento"
                   filled
@@ -142,7 +116,7 @@
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-input
                   filled
-                  v-model="usuario.ID_Usuario_Person"
+                  v-model="personal.Per_Num_documento"
                   hint="No. Documento"
                   :rules="[(val) => !!val || 'No. Documento es obligatorio']"
                   maxlength="15"
@@ -153,48 +127,36 @@
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-input
                   filled
-                  v-model="personal.email"
+                  v-model="personal.Per_Email"
                   hint="Email"
                   :rules="[(val) => !!val || 'Email es obligatorio']"
                   type="email"
                   maxlength="50"
-                  @input= "val => { personal.email = val.toUpperCase() }"
+                  @input= "val => { personal.Per_Email = val.toUpperCase() }"
                   counter
                 />
               </div>
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-input
                   filled
-                  v-model="personal.direccion"
+                  v-model="personal.Per_Direccion"
                   hint="Dirección"
                   type="text"
                   maxlength="250"
-                  @input= "val => { personal.direccion = val.toUpperCase() }"
+                  @input= "val => { personal.Per_Direccion = val.toUpperCase() }"
                   counter
                 />
               </div>
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-input
                   filled
-                  v-model="personal.telefonos"
+                  v-model="personal.Per_Telefono"
                   hint="Teléfono"
                   :rules="[(val) => !!val || 'Teléfono es obligatorio']"
                   maxlength="12"
                   mask="############"
-                  @input= "val => { personal.telefonos = val.toUpperCase() }"
+                  @input= "val => { personal.Per_Telefono = val.toUpperCase() }"
                   counter
-                />
-              </div>
-              <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
-                <!-- select tipo persona -->
-                <q-select
-                  filled
-                  v-model="personal.tipo_persona"
-                  :options="optionsPerson"
-                  hint="Tipo persona"
-                  :rules="[val => !!val || 'Tipo persona es obligatorio']"
-                  map-options
-                  emit-value
                 />
               </div>
               <div class="col-xs-12 text-body1 q-px-sm">
@@ -203,12 +165,23 @@
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-input
                   filled
-                  v-model="usuario.ID_Usuario"
+                  v-model="usuario.Usu_Login"
                   hint="Usuario"
                   :rules="[(val) => !!val || 'Usuario es obligatorio']"
                   type="text"
                   maxlength="36"
-                  @input= "val => { usuario.ID_Usuario = val.toUpperCase() }"
+                  @input= "val => { usuario.Usu_Login = val.toUpperCase() }"
+                  counter
+                />
+              </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+                <q-input
+                  filled
+                  v-model="usuario.Usu_Clave_verificacion"
+                  hint="Contraseña verificación"
+                  :rules="[(val) => !!val || 'Contraseña verificación es obligatorio']"
+                  type="text"
+                  maxlength="36"
                   counter
                 />
               </div>
@@ -255,7 +228,7 @@
                 <!-- selects -->
                 <q-select
                   filled
-                  v-model="usuario.Estado"
+                  v-model="usuario.Usu_Estado"
                   :options="estadooptions"
                   hint="Estado"
                   :rules="[val => !!val || 'Estado es obligatorio']"
@@ -320,7 +293,7 @@
                                 />
                               </q-item-label>
                               <!-- Temporalemte comentareado -->
-                              <!-- <q-item-label caption class="q-px-xl">
+                              <q-item-label caption class="q-px-xl">
                                 Acciones para el usuario
                               </q-item-label>
                               <q-item-label caption class="q-px-xl">
@@ -330,7 +303,6 @@
                                   label="Actualizar"
                                   val="1"
                                   v-if="items.selected"
-                                  disable
                                 />
                                 <q-checkbox
                                   v-model="items.Crear"
@@ -338,7 +310,6 @@
                                   label="Crear"
                                   val="1"
                                   v-if="items.selected"
-                                  disable
                                 />
                                 <q-checkbox
                                   v-model="items.Leer"
@@ -346,9 +317,8 @@
                                   label="Leer"
                                   val="1"
                                   v-if="items.selected"
-                                  disable
                                 />
-                              </q-item-label> -->
+                              </q-item-label>
                             </q-item-section>
                           </q-item>
                         </q-list>
@@ -356,8 +326,6 @@
                     </div>
                   </div>
                 </div>
-                <!-- <div class="row q-pt-md">
-                </div> -->
               </q-scroll-area>
             </div>
             <!--Modulos para permisos adicionales-->
@@ -423,28 +391,27 @@ export default {
       file: null, //Almacenamiento de datos Array de imagen
       array_bodegas: [],
       personal: {
-        documento: null,
-        Id_tipo_documento: null,
-        nombres: null,
-        apellidos: null,
-        fecha_nacimiento: null,
-        tipo_persona: null,
-        usuario_control: null,
-        email: null,
-        direccion: null,
-        telefonos: null,
-        base: null
+        base: null,
+        Per_Num_documento: null,
+        Per_Nombre: null,
+        Td_Id: null,
+        Per_Direccion: null,
+        Per_Telefono: null,
+        Per_Email: null,
+        Car_Id: null,
+        Per_Imagen: null,
+        Per_Estado: 1,
+        Per_tipo_stock: null
       },
       usuario: {
-        ID_Usuario: null, //usuario tipo string
-        ID_Usuario_Person: null, // Cedula usuario
-        cc_creador: null, //Usuario control, solo cuando se crea, no se puede editar
-        ID_Rol: null,
-        Estado: null,
-        Password: null,
-        Foto: null,
-        ID_Usuario_Control: null,
-        base: null
+        base: null,
+        Usu_Login: null,
+        Usu_Clave_ppl: null,
+        Usu_Clave_verificacion: null,
+        Rol_Id: null,
+        Per_Num_documento: null,
+        Usu_Estado: null,
+        Usu_User_control: null
       },
       estadooptions: [
         {
@@ -489,7 +456,7 @@ export default {
   watch: {
     selected_rol(newValue) {
       if (newValue) {
-        this.usuario.ID_Rol = newValue;
+        this.usuario.Rol_Id = newValue;
         this.CheckPermissions(newValue);
       }
     },
@@ -579,6 +546,211 @@ export default {
               this.assingEditData();
             }, 500)
           }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Error de conexión") {
+            e = e.message;
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000);
+    },
+    // Valida el formulario antes de enviar a la BD
+    async createUser() {
+      if(this.step == 2 ){
+        // Validamos coincidencia de contraseñas
+        if(this.confirmPassword !== this.Password){
+          this.$q.notify({
+            message: 'Las contraseñas no son iguales',
+            type: 'warning'
+          })
+        } else { 
+          if(this.personal.Per_Imagen) {
+            if(this.file){
+              // Se sube la foto al servidor
+              const formData = new FormData();
+              formData.append( "files", this.file, this.file.newname );
+              const ressaveFile = await this.saveFile(formData).then(async res => {
+                return res.data;
+              });
+              console.log({
+                msg: 'Respuesta subida foto de perfil',
+                data: ressaveFile
+              })
+  
+              this.personal.Per_Imagen = `${process.env.__URLAPI__}/adjuntos/${this.file.newname}`;
+              /*Se inicia guardado de datos en tabla usuario*/
+              this.sendDataUser();
+              return;
+            } else {
+              this.sendDataUser();
+              return;
+            }
+          } else {
+            this.$q.notify({
+              message: 'Debe seleccionar un avatar o una foto de perfil',
+              type: 'warning'
+            })
+          }
+        }
+      } else {
+        this.$refs.stepper.next();
+      }
+    },
+    // Envia los datosd el usuario al servidor BD
+    sendDataUser(){
+      // Empezamos a registrar el usuario
+      this.confirmPassword = this.aesEncrypt(this.confirmPassword);
+      this.usuario.Usu_Clave_ppl = this.aesEncrypt(this.Password);
+      this.$q.loading.show({
+        message: "Guardando usuario, por favor espere...",
+      });
+      setTimeout(async () => {
+        try {
+          this.usuario.Usu_User_control = this.data_user.Per_Num_documento;
+          this.usuario.base = process.env.__BASE__;
+          this.usuario.Per_Num_documento = this.personal.Per_Num_documento;
+
+          this.personal.base = process.env.__BASE__;
+          
+          const res_per = await this.InsertUpdatePersonal(this.personal).then( res => {
+            return res.data;
+          })
+          console.log({
+            msg: 'Respuesta insert persona',
+            data: res_per
+          })
+          if(!res_per.ok){
+            throw new Error (res_per.message);
+          }
+
+          const res_create = await this.InsertUpdateUsuario(this.usuario).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert user',
+            data: res_create
+          })
+          if(!res_create.ok){
+            throw new Error (res_create.message);
+          }
+          
+          // Inserta los permisos
+          let promesas_insert = [];
+          this.array_modules.forEach( modulo => {
+            modulo.items.forEach( item => {
+              console.log(item)
+              if(item.selected){
+                let PermitAditional = {
+                  Id_usuario: this.personal.Per_Num_documento,
+                  Estado: 1,
+                  Id_item: item.Id_item,
+                  Usuario_control: this.data_user.Per_Num_documento,
+                  Crear: 1,
+                  Leer: 1,
+                  Actualizar: 1,
+                  Borrar: 1,
+                  base: process.env.__BASE__,
+                };
+                let pro_per = this.insertUpdatePersmiso(PermitAditional).then( res => {
+                  return res.data;
+                })
+                promesas_insert.push(pro_per);
+              } else if (this.edit_form && !item.selected){ //Estamos desasociando el permiso
+                let PermitAditional = {
+                  Id_usuario: this.usuario.Per_Num_documento,
+                  Estado: 0,
+                  Id_item: item.Id_item,
+                  Usuario_control: this.data_user.Per_Num_documento,
+                  Crear: 0,
+                  Leer: 0,
+                  Actualizar: 0,
+                  Borrar: 0,
+                  base: process.env.__BASE__
+                };
+                let pro_per = this.insertUpdatePersmiso(PermitAditional).then( res => {
+                  return res.data;
+                })
+                promesas_insert.push(pro_per);
+              }
+            })
+          });
+          // Ejecuta las peticiones insert de los permisos
+          Promise.all(promesas_insert).then( res => {
+            res.forEach( data => {
+              console.log({
+                msg: 'Respuesta insert permisos',
+                data: data
+              });
+              if(!data.ok){
+                throw new Error(data.message)
+              }
+            })
+          });
+          if(this.edit_form && this.data_user.Per_Num_documento == this.usuario.Per_Num_documento){
+            let user_logged = {
+              user: this.dataUser.ID_Usuario,
+              password: this.usuario.Usu_Clave_ppl,
+              base: process.env.__BASE__,
+            }
+            const resPostLogin = await this.PostLogin(user_logged).then( res => {
+              return res.data;
+            })
+            console.log({
+              msg: 'mensaje login',
+              data: resPostLogin
+            })
+            this.setUser({}); //Vaciamos el estado antes de asginar los nuevos valores
+            this.setUser(resPostLogin.data);
+
+            let data = {
+              base: process.env.__BASE__, 
+              Id_usuario: this.user_edit.documento //Numero documento
+            };
+            const resgetPermissionUser = await this.getPermissionUserEdit(data).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta get permisos asignados del usuario',
+              data: resgetPermissionUser
+            });
+            let state_permissions = [];
+            this.setUserPermissions([]);
+            // Permisos para el estado
+            this.array_modules.forEach( modulo => {
+              resgetPermissionUser.data.forEach( permiso_basico => {
+                if (modulo.Id_modulo == permiso_basico.Id_modulo && permiso_basico.Estado == 1) {
+                  state_permissions.push({
+                    modulo: modulo.label.replace(/\b\w/g, (l) => l.toUpperCase()),
+                    Id_modulo: permiso_basico.Id_modulo,
+                    Actualizar: true,
+                    Borrar: true,
+                    Crear: true,
+                    Leer: true,
+                    route: `/${permiso_basico.router}`,
+                  })
+                }
+              });
+            })
+            this.setUserPermissions(state_permissions);
+            location.reload();
+          }
+
+          this.$q.notify({
+            message: 'Guardado',
+            type: 'positive'
+          })
+          // Limpiamos el formulario
+          this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Error de conexión") {
@@ -708,48 +880,6 @@ export default {
       }, 1000);
       /*Fin funcion api roles*/
     },
-    // Valida el formulario antes de enviar a la BD
-    async createUser() {
-      if(this.step == 2 ){
-        // Validamos coincidencia de contraseñas
-        if(this.confirmPassword !== this.Password){
-          this.$q.notify({
-            message: 'Las contraseñas no son iguales',
-            type: 'warning'
-          })
-        } else { 
-          if(this.usuario.Foto) {
-            if(this.file){
-              // Se sube la foto al servidor
-              const formData = new FormData();
-              formData.append( "files", this.file, this.file.newname );
-              const ressaveFile = await this.saveFile(formData).then(async res => {
-                return res.data;
-              });
-              console.log({
-                msg: 'Respuesta subida foto de perfil',
-                data: ressaveFile
-              })
-  
-              this.usuario.Foto = `${process.env.__URLAPI__}/adjuntos/${this.file.newname}`;
-              /*Se inicia guardado de datos en tabla usuario*/
-              this.sendDataUser();
-              return;
-            } else {
-              this.sendDataUser();
-              return;
-            }
-          } else {
-            this.$q.notify({
-              message: 'Debe seleccionar un avatar o una foto de perfil',
-              type: 'warning'
-            })
-          }
-        }
-      } else {
-        this.$refs.stepper.next();
-      }
-    },
     // Asigna los datos a editar a cada input y select
     assingEditData(){
       this.$q.loading.show({
@@ -830,170 +960,6 @@ export default {
         }
       })
     },
-    // Envia los datosd el usuario al servidor BD
-    sendDataUser(){
-      // Empezamos a registrar el usuario
-      this.confirmPassword = this.encryptedAES(this.confirmPassword);
-      this.usuario.Password = this.encryptedAES(this.Password);
-      this.$q.loading.show({
-        message: "Guardando usuario, por favor espere...",
-      });
-      setTimeout(async () => {
-        try {
-          this.usuario.cc_creador = this.dataUser.ID_Usuario_Person;
-          this.usuario.ID_Usuario_Control = this.dataUser.ID_Usuario_Person;
-          this.usuario.base = process.env.__BASE__;
-
-          this.personal.base = process.env.__BASE__;
-          this.personal.usuario_control = this.dataUser.ID_Usuario_Person;
-          this.personal.documento = this.usuario.ID_Usuario_Person;
-          
-          const res_per = await this.InsertUpdatePersonal(this.personal).then( res => {
-            return res.data;
-          })
-          // console.log({
-          //   msg: 'Respuesta insert persona',
-          //   data: res_per
-          // })
-          if(!res_per.ok){
-            throw new Error (res_per.message);
-          }
-
-          const res_create = await this.InsertUpdateUsuario(this.usuario).then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta insert user',
-          //   data: res_create
-          // })
-          if(!res_create.ok){
-            throw new Error (res_create.message);
-          }
-          
-          // Inserta los permisos
-          let promesas_insert = [];
-          this.array_modules.forEach( modulo => {
-            modulo.items.forEach( item => {
-              if(item.selected){
-                let PermitAditional = {
-                  Id_usuario: this.personal.documento,
-                  Estado: 1,
-                  Id_item: item.Id_item,
-                  Usuario_control: this.dataUser.ID_Usuario_Person,
-                  Crear: 1,
-                  Leer: 1,
-                  Actualizar: 1,
-                  Borrar: 1,
-                  base: process.env.__BASE__
-                };
-                let pro_per = this.insertUpdatePersmiso(PermitAditional).then( res => {
-                  return res.data;
-                })
-                promesas_insert.push(pro_per);
-              } else if (this.edit_form && !item.selected){ //Estamos desasociando el permiso
-                let PermitAditional = {
-                  Id_usuario: this.usuario.ID_Usuario_Person,
-                  Estado: 0,
-                  Id_item: item.Id_item,
-                  Usuario_control: this.dataUser.ID_Usuario_Person,
-                  Crear: 0,
-                  Leer: 0,
-                  Actualizar: 0,
-                  Borrar: 0,
-                  base: process.env.__BASE__
-                };
-                let pro_per = this.insertUpdatePersmiso(PermitAditional).then( res => {
-                  return res.data;
-                })
-                promesas_insert.push(pro_per);
-              }
-            })
-          });
-          // Ejecuta las peticiones insert de los permisos
-          Promise.all(promesas_insert).then( res => {
-            res.forEach( data => {
-              console.log({
-                msg: 'Respuesta insert permisos',
-                data: data
-              });
-              if(!data.ok){
-                throw new Error(data.message)
-              }
-            })
-          });
-          if(this.edit_form && this.dataUser.ID_Usuario_Person == this.usuario.ID_Usuario_Person){
-            let user_logged = {
-              user: this.dataUser.ID_Usuario,
-              password: this.usuario.Password,
-              base: process.env.__BASE__,
-            }
-            const resPostLogin = await this.PostLogin(user_logged).then( res => {
-              return res.data;
-            })
-            // console.log({
-            //   msg: 'mensaje login',
-            //   data: resPostLogin
-            // })
-            this.setUser({}); //Vaciamos el estado antes de asginar los nuevos valores
-            this.setUser(resPostLogin.data);
-
-            let data = {
-              base: process.env.__BASE__, 
-              Id_usuario: this.user_edit.documento //Numero documento
-            };
-            const resgetPermissionUser = await this.getPermissionUserEdit(data).then( res => {
-              return res.data;
-            });
-            // console.log({
-            //   msg: 'Respuesta get permisos asignados del usuario',
-            //   data: resgetPermissionUser
-            // });
-            let state_permissions = [];
-            this.setUserPermissions([]);
-            // Permisos para el estado
-            this.array_modules.forEach( modulo => {
-              resgetPermissionUser.data.forEach( permiso_basico => {
-                if (modulo.Id_modulo == permiso_basico.Id_modulo && permiso_basico.Estado == 1) {
-                  state_permissions.push({
-                    modulo: modulo.label.replace(/\b\w/g, (l) => l.toUpperCase()),
-                    Id_modulo: permiso_basico.Id_modulo,
-                    Actualizar: true,
-                    Borrar: true,
-                    Crear: true,
-                    Leer: true,
-                    route: `/${permiso_basico.router}`,
-                  })
-                }
-              });
-            })
-            this.setUserPermissions(state_permissions);
-            location.reload();
-          }
-
-          this.$q.notify({
-            message: 'Guardado',
-            type: 'positive'
-          })
-          // Limpiamos el formulario
-          this.$emit('reload')
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Error de conexión") {
-            e = e.message;
-          } else if (e.message === "Request failed with status code 404") {
-            e = "Error 404 al hacer la petición al servidor";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
-        }
-      }, 2000);
-    },
     cleanForm(){
       this.dialog = false;
       this.personal = {
@@ -1031,14 +997,14 @@ export default {
       this.file = file;
       this.url = URL.createObjectURL(file);
       this.dialog_avatar = false;
-      this.usuario.Foto = this.url;
+      this.personal.Per_Imagen = this.url;
     },
     // Asigna la imgen cargada y deshabilita el dialogo de avatars
     selectedAvatar(img) {
       this.avatar = img;
       this.url = img;
       this.dialog_avatar = false;
-      this.usuario.Foto = this.url;
+      this.personal.Per_Imagen = this.url;
     },
     // Encripta contraseñas o strings
     aesEncrypt(txt) {

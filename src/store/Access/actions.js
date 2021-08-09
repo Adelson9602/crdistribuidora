@@ -36,3 +36,19 @@ export function getGoals(){
 export function insertUpdateGoals(context, data){
     return Vue.prototype.$axios.post(`insert_update_metas`, data);
 }
+
+// USUARIO
+// Inserta o actualiza los datos personales
+export function InsertUpdatePersonal(context, data){
+    return Vue.prototype.$axios.post(`insert_update_personal`, data);
+}
+
+// Inserta o actualiza el usuario
+export function InsertUpdateUsuario(context, data){
+    return Vue.prototype.$axios.post(`insert_update_usuario`, data);
+}
+
+// Trae todos los permisos posible de modulo X items
+export function getCheckPermissions (context, ID_Rol)  {
+    return Vue.prototype.$axios.get(`select_permiso_rol/${base}/${ID_Rol}`)
+}
