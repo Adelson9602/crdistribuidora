@@ -36,3 +36,8 @@ export function getCities(){
 export function getRol(){
     return Vue.prototype.$axios.get(`select_rol_general/${base}`);
 }
+
+// Obtiene los cargos
+export function getCargos(){
+    return Vue.prototype.$axios.get(`select_cargos_general/${base}`)
+}
