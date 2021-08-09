@@ -114,7 +114,7 @@
       </div>
       <div>
         <q-btn label="Submit" type="submit" color="primary" />
-        <q-btn
+        <q-btn v-if="!this.edit_data"
           label="Reset"
           type="reset"
           color="primary"

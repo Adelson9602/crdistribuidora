@@ -42,8 +42,15 @@
               :propbtns="btns"
               :proppagination="initial_pagination"
               @onedit="editProvider"
-        
+        @tostatus="openDialogStatus"
             />
+             <!-- Dialogo para activar o inactivar una meta -->
+          <component-dialog-enable
+            :dialog="enable_diable"
+            :options_dialog="options_status"
+            @cancel="enable_diable = false"
+            @changeStatus="changeStatus"
+          />
           </q-tab-panel>
 
           <q-tab-panel name="add_provider">
@@ -57,12 +64,14 @@
 <script>
 import ComponentAddProvider from 'components/Purchase/ComponentAddProvider';
 import componentTable from "components/Generals/ComponentTable";
-import { mapActions } from 'vuex';
+import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
+import { mapActions,mapState } from 'vuex';
 export default {
   name: 'Categories',
   components: {
     ComponentAddProvider,
-    componentTable
+    componentTable,
+    ComponentDialogEnable
   },
   data(){
     return {
@@ -199,7 +208,12 @@ export default {
         rowsPerPage: 9,
       },
       nit_provider: null,
-      provider_edit:null
+      provider_edit:null,
+      enable_diable: false,
+      options_status: {
+        title: null,
+        msg: null
+      }
     }
   },
    watch: {
@@ -209,14 +223,22 @@ export default {
       }
     }
   },
+    computed: {
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
+  },
   created(){
     this.getData();
   },
   methods: {
     ...mapActions('shopping', [
       'getProviders',
-      'searchProviders'
+      'searchProviders',
+      'addProviders'
     ]),
+
     getData(){
       this.$q.loading.show({
         message: 'Obteniendo proveedores, por favor espere...'
@@ -226,10 +248,10 @@ export default {
           const res_provider = await this.getProviders().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get proveedor',
-            data: res_provider
-          });
+          // console.log({
+          //   msg: 'Respuesta get proveedor',
+          //   data: res_provider
+          // });
           if(res_provider.ok){
             if(res_provider.result){
               this.data.length = 0 ;
@@ -261,6 +283,8 @@ export default {
                     btn_details: false,
                     icon_btn_edit: 'edit',
                     status: provider.CP_Estado,
+                    btn_status: true,
+                     icon_btn_status: "power_settings_new"
                   })
                 }
               });
@@ -302,10 +326,10 @@ export default {
           const res_provider = await this.searchProviders(this.nit_provider).then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get proveedor',
-            data: res_provider
-          });
+          // console.log({
+          //   msg: 'Respuesta get proveedor',
+          //   data: res_provider
+          // });
           if(res_provider.ok){
             if(res_provider.result){
               this.data.length = 0 ;
@@ -335,6 +359,8 @@ export default {
                 icon_btn_details: 'visibility',
                 btn_details: false,
                 icon_btn_edit: 'edit',
+                btn_status: true,
+                     icon_btn_status: "power_settings_new"
               })
             } else {
               this.$q.notify({
@@ -366,7 +392,7 @@ export default {
     },
 
      editProvider(row){
-       console.log(row);
+   
       this.provider_edit = row;
       this.tab = "add_provider";
     },
@@ -377,6 +403,88 @@ export default {
         this.getData();
       }, 500)
     },
+     openDialogStatus(row) {
+     
+      // Buscamos la categoria del producto asignada
+      // let categoria = categorias.find( categoria => categoria.label.toLowerCase() == row.Cat_Nombre.toLowerCase());
+      // Buscamos la unidad de medida asiganada
+      // let um = ums.find( um => um.prefijo.toLowerCase() == row.Prefijo.toLowerCase())
+      this.provider_edit = {
+        base: null,
+        CP_Nit: row.CP_Nit,
+        CP_Razon_social: row.CP_Razon_social,
+        CP_Digito_verificacion: row.CP_Digito_verificacion,
+        Td_Id: row.Td_Id,
+        Tp_Id: row.Tp_Id,
+        CP_Direccion: row.CP_Direccion,
+        CP_Email: row.CP_Email,
+        CP_Urlweb: row.CP_Urlweb,
+        CP_Telefono: row.CP_Telefono,
+        Ciu_Id: row.Ciu_Id,
+        CP_Estado: row.CP_Estado == 1 ? 0 : 1,
+        CP_User_control: this.data_user.Per_Num_documento,
+      };
+      this.options_status.title =
+        row.CP_Estado == 1 ? "Desactivar proveedor" : "Activar proveedor";
+      this.options_status.msg =
+        row.CP_Estado == 1
+          ? "Está desactivando este proveedor, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivar?"
+          : "Está activando este proveedor, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
+      this.enable_diable = true;
+    },
+    changeStatus() {
+      this.$q.loading.show({
+        message: "Estamos cambiando el estado del cliente, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          this.provider_edit.base = process.env.__BASE__;
+        
+          const res_update = await this.addProviders(this.provider_edit).then(
+            res => {
+              return res.data;
+            }
+          );
+          // console.log({
+          //   msg: "Respuesta insert update proveedor",
+          //   data: res_update
+          // });
+          if (res_update.ok) {
+            if (res_update.data.affectedRows) {
+              this.$q.notify({
+                message: "Estado actualizado",
+                type: "positive"
+              });
+              setTimeout(() => {
+                this.enable_diable = false;
+                this.getData();
+              }, 500);
+            } else {
+              this.$q.notify({
+                message: "No se actualizó el estado",
+                type: "warning"
+              });
+            }
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000);
+    }
   }
 }
 </script>
