@@ -481,10 +481,10 @@ export default {
     this.getData();
   },
   computed: {
-    ...mapState("auth", ["user"]),
-    dataUser() {
-      return this.user;
-    },
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
   },
   watch: {
     selected_rol(newValue) {
@@ -515,11 +515,12 @@ export default {
       "insertUpdatePersmiso",
       "GetDataUser"
     ]),
-    ...mapActions("masters", [
+    ...mapActions("master", [
       "getRol",
       "GetDocumentTypes"
     ]),
     ...mapMutations("auth", ["setUser", "setUserPermissions"]),
+    ...mapActions("shopping", ["getTpDoc"]),
     ...mapActions("auth", ["PostLogin"]),
     // Obtiene datos del servidor, son los que se usan en el frontend, tanto para selects, inputs, cehckbox
     getData() {
@@ -537,15 +538,15 @@ export default {
           // });
           roles.length = 0;
           resgetRol.data.forEach((rol) => {
-            if(rol.ID_Rol >= this.dataUser.ID_Rol1){
+            if(rol.Rol_Id >= this.data_user.Rol_Id){
               roles.push({
-                label: rol.Rol,
-                value: rol.ID_Rol
+                label: rol.Rol_Descripcion,
+                value: rol.Rol_Id
               });
             }
           });
 
-          const res_docu = await this.GetDocumentTypes().then( res => {
+          const res_docu = await this.getTpDoc().then( res => {
             return res.data;
           });
           // console.log({

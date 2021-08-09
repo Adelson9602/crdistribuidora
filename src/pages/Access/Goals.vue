@@ -196,6 +196,7 @@ export default {
                   Met_vhasta: metas.Met_vhasta,
                   Per_Nombre: metas.Per_Nombre,
                   name_estado: metas.name_estado,
+                  status: metas.Met_Estado,
                   btn_status: true,
                   icon_btn_status: 'power_settings_new',
                   btn_edit: true,
