@@ -2,11 +2,13 @@
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
       <component-table
-        proptitle="Stock"
+        proptitle="Stock Precios"
         :propgrid="false"
         :propflat="true"
+      
         :propdata="data"
         :propcolumns="columns"
+        :propbtns="btns"
       />
     </q-card>
   </q-page>
@@ -14,135 +16,217 @@
 
 <script>
 import ComponentTable from 'components/Generals/ComponentTable';
+import { mapActions } from "vuex";
 export default {
   name: 'SaleswithoutBalance',
   components: {
     ComponentTable,
   },
-  data(){
+   data() {
     return {
-      tab: 'warranties',
+      tab: "articles",
+      // date_range: {
+      //   to: null,
+      //   from: null,
+      // },           
       columns: [
+        // {
+        //   name: "Id",
+        //   required: true,
+        //   label: "Id ",
+        //   align: "center",
+        //   field: "Id",
+        //   sortable: true,
+        // },
         {
-          name: 'name',
+          name: "Art_Codigo_inv",
           required: true,
-          label: 'Dessert (100g serving)',
-          align: 'left',
-          field: row => row.name,
-          format: val => `${val}`,
-          sortable: true
+          label: "Codigo",
+          align: "center",
+          field: "Art_Codigo_inv",
+          sortable: true,
         },
-        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
-        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-        { name: 'protein', label: 'Protein (g)', field: 'protein' },
-        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-        { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
-        { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+         {
+          name: "Cat_Nombre",
+          required: true,
+          label: "Categoria",
+          align: "center",
+          field: "Cat_Nombre",
+          sortable: true,
+        },
+        {
+          name: "Art_Nombre",
+          required: true,
+          label: "Nombre articulo",
+          align: "center",
+          field: "Art_Nombre",
+          sortable: true,
+        },
+        {
+          name: "Mov_Descripcion",
+          required: true,
+          label: "Ubicacion",
+          align: "center",
+          field: "Mov_Descripcion",
+          sortable: true,
+        },
+        {
+          name: "Si_Cant",
+          required: true,
+          label: "Cantidad",
+          align: "center",
+          field: "Si_Cant",
+          sortable: true,
+        },
+        {
+          name: "desc_porcen",
+          required: true,
+          label: "descuento",
+          align: "center",
+          field: "desc_porcen",
+          sortable: true,
+        },
+       
+        //  {
+        //   name: "Art_ubicacion",
+        //   required: true,
+        //   label: "Ubicacion",
+        //   align: "center",
+        //   field: "Art_ubicacion",
+        //   sortable: true,
+        // },
+        {
+          name: "porce_venta",
+          required: true,
+          label: "% venta",
+          align: "center",
+          field: "porce_venta",
+          sortable: true,
+        },
+        {
+          name: "precio_compra",
+          required: true,
+          label: "Precio Compra",
+          align: "center",
+          field: "precio_compra",
+          sortable: true,
+        },
+        {
+          name: "precio_venta",
+          required: true,
+          label: "Precio Venta",
+          align: "center",
+          field: "precio_venta",
+          sortable: true,
+        },
+      
       ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
+      data: [],
+      btns: {
+        range_date: false,
+        btn_export_pdf: false,
+        export_excel: true
+      },
+    
+    };
+  },
+
+  created() {
+    this.getData();
+  },
+
+  methods: {
+    ...mapActions("sales", [
+      "getAllstock",
+     
+    ]),
+ 
+    getData() {
+      this.$q.loading.show({
+        message: "Obteniendo datos existentes, por favor espere...",
+      });
+      setTimeout(async () => {
+        try {
+          const resgetDatastock = await this.getAllstock().then(
+            (res) => {
+              return res.data;
+            }
+          );
+          // console.log({
+          //   msg: 'Repeusta get artículos',
+          //   data: resgetDatastock,
+          // });
+          if (resgetDatastock.ok) {
+            if (resgetDatastock.result) {
+              this.data.length = 0;
+              resgetDatastock.data.forEach((element) => {
+                this.data.push({
+
+         
+                  Id: element.Id,
+                  Art_Id: element.Art_Id,
+                  Art_Codigo_inv: element.Art_Codigo_inv,
+                  Art_Nombre: element.Art_Nombre,
+                  Art_ubicacion:element.Art_ubicacion,
+                  Cat_Id: element.Cat_Id,
+                  Cat_Nombre:element.Cat_Nombre,
+                  Mov_Id: element.Mov_Id,
+                  Mov_Descripcion: element.Mov_Descripcion,
+                  Si_Cant: element.Si_Cant,  
+                  desc_porcen: element.desc_porcen,
+                  porce_venta: element.porce_venta==null? '% 0': '% '+element.porce_venta,
+                  precio_compra:element.precio_compra==null? '$ 0': '$ '+element.precio_compra,
+                  precio_venta:  element.precio_venta==null? '$ 0': '$ '+element.precio_venta,
+                  title: element.Art_Nombre,
+                  // btn_edit: false,
+                  // btn_status: false,
+                  // btn_details: true,
+                  // btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                  // icon_btn_details: "mdi-eye-settings",
+                });
+              });
+            } else {
+              this.$q.notify({
+                message: resgetDatastock.message,
+                type: "warning",
+              });
+            }
+          } else {
+            this.data.length = 0;
+            throw resgetDatastock.message;
+          }
+
+          
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
         }
-      ]
-    }
-  }
-}
+      }, 2000);
+    },
+ 
+  
+   
+  },
+};
 </script>
+
+<style scoped>
+p {
+  font-size: 55px;
+}
+</style>

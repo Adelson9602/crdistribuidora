@@ -38,3 +38,9 @@ export function getWarranties(){
 export function getClientes(){
   return Vue.prototype.$axios.get(`select_cliente_proveepor_general/${base}`)
 }
+
+// Proveedores
+// Obtiene todos los proveedores o clientes
+export function getAllstock(){
+  return Vue.prototype.$axios.get(`select_stock_porcentaje_general/${base}`)
+}
