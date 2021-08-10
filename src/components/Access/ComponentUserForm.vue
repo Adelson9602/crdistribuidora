@@ -669,7 +669,6 @@ export default {
           if(!res_per.ok){
             throw new Error (res_per.message);
           }
-          console.log(this.usuario)
           const res_create = await this.InsertUpdateUsuario(this.usuario).then( res => {
             return res.data;
           });
@@ -685,7 +684,6 @@ export default {
           let promesas_insert = [];
           this.array_modules.forEach( modulo => {
             modulo.items.forEach( item => {
-              console.log(item)
               if(item.selected){
                 let PermitAditional = {
                   Id_usuario: this.personal.Per_Num_documento,
@@ -709,7 +707,7 @@ export default {
                   Id_item: item.Id_item,
                   Usuario_control: this.data_user.Per_Num_documento,
                   Crear: 0,
-                  Leer: 0,
+                  Leer: 1,
                   Actualizar: 0,
                   Borrar: 0,
                   base: process.env.__BASE__
@@ -924,6 +922,7 @@ export default {
       });
       setTimeout(async() => {
         try {
+          this.edit_form = this.editForm;
           this.user_edit = this.propDataUser;
           this.url = this.user_edit.img;
           this.selected_rol = this.user_edit.Rol_Id;
