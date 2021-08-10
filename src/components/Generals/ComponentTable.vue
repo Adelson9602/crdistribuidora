@@ -50,15 +50,27 @@
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-md-4 col-lg-2 q-gutter-md q-px-sm">
-          <q-btn
-            @click="exportPDF"
-            push
-            color="white"
-            text-color="primary"
-            icon="picture_as_pdf"
-            v-if="btns.btn_export_pdf"
-          />
+        <div class="col-xs-12 col-md-4 col-lg-4 row" v-if="buscador.input">
+          <div class="col-xs-12 col-md-8">
+            <q-input v-model="id_search" type="text" :hint="buscador.label" />
+          </div>
+          <div class="col-xs-12 col-md-4 row q-px-sm">
+            <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
+          </div>
+        </div>
+        <div class="col-xs-12 col-md-4 col-lg-4">
+          <slot></slot>
+        </div>
+        <div class="col-xs-12 col-md-4 col-lg-2 row justify-around q-px-sm self-center" v-if="btns.btn_export_pdf || btns.export_excel">
+          <div v-if="btns.btn_export_pdf">
+            <q-btn
+              @click="exportPDF"
+              push
+              color="white"
+              text-color="primary"
+              icon="picture_as_pdf"
+            />
+          </div>
           <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
           <vue-excel-xlsx
             :data="excel.data"
@@ -76,17 +88,6 @@
               icon="mdi-microsoft-excel"
             />
           </vue-excel-xlsx>
-        </div>
-        <div class="col-xs-12 col-md-4 col-lg-4 row" v-if="buscador.input">
-          <div class="col-xs-12 col-md-8">
-            <q-input v-model="id_search" type="text" :hint="buscador.label" />
-          </div>
-          <div class="col-xs-12 col-md-4 row q-px-sm">
-            <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
-          </div>
-        </div>
-        <div class="col-xs-12 col-md-4 col-lg-4">
-          <slot></slot>
         </div>
       </div>
     </q-form>
@@ -328,7 +329,7 @@ export default {
       actions_user: null,
       visible_columns: [], //Permite mostrar u ocultar columnas
       filter_cols: [], //Permite buscar en la tabla sin que se visualice una columna
-      flat: false,
+      flat: true,
       excel: {
         columns: [],
         data: [],
@@ -375,14 +376,13 @@ export default {
     // this.actions_user = this.user_permissions.find( (e) => e.route === this.$route.path ); //Valida los permisos para las acciones del usuario
     this.columns = this.propcolumns;
     this.data = this.propdata;
-    this.grid = this.propgrid != undefined ? this.propgrid : false; //Activa la visualización grid de la tabla    
-    this.actions_card = this.propactions !== undefined ? this.propactions : true; //Muestra u oculta los botenes de las cards
-    this.toggle = this.proptoggle !== undefined ? this.proptoggle : true; //toggle de la tabla, para el modo de visualización
+    this.grid = this.propgrid ? this.propgrid : this.grid; //Activa la visualización grid de la tabla    
+    this.actions_card = this.propactions ? this.propactions : this.actions_card; //Muestra u oculta los botenes de las cards
+    this.toggle = this.proptoggle ? this.proptoggle : this.toggle; //toggle de la tabla, para el modo de visualización
     this.title = this.proptitle; //Titulo para la tabla
-    this.btn_export = this.prodbtn_export;
-    this.flat = this.propflat !== undefined ? this.propflat : false;
-    this.btns = this.propbtns != undefined ? this.propbtns : this.btns;
-    this.excel = this.propexcel != undefined ? this.propexcel : this.excel;
+    this.flat = this.propflat ? this.propflat : false;
+    this.btns = this.propbtns ? this.propbtns : this.btns;
+    this.excel = this.propexcel ? this.propexcel : this.excel;
     this.initial_pagination = this.proppagination =! undefined ? this.proppagination : this.initial_pagination;
     this.buscador = this.propbuscador ? this.propbuscador : this.buscador;
 
