@@ -189,7 +189,7 @@
               <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
                 <q-input
                   filled
-                  v-model="usuario.Usu_Clave_verificacion"
+                  v-model="clave_verificacion"
                   hint="Contraseña verificación"
                   :rules="[(val) => !!val || 'Contraseña verificación es obligatorio']"
                   type="text"
@@ -396,6 +396,7 @@ export default {
       data: [],
       Password: null,
       confirmPassword: null, //Comparativo con Password
+      clave_verificacion: null, 
       items: [],
       array_modules: [],
       optionsRoles: roles,
@@ -501,7 +502,7 @@ export default {
     ]),
     ...mapMutations("auth", ["setUser", "setUserPermissions"]),
     ...mapActions("shopping", ["getTpDoc"]),
-    ...mapActions("auth", ["PostLogin"]),
+    ...mapActions("auth", ["login"]),
     // Obtiene datos del servidor, son los que se usan en el frontend, tanto para selects, inputs, cehckbox
     getData() {
       this.$q.loading.show({
@@ -647,16 +648,16 @@ export default {
     // Envia los datosd el usuario al servidor BD
     sendDataUser(){
       // Empezamos a registrar el usuario
-      this.usuario.Usu_Clave_ppl = this.aesEncrypt(this.Password);
       this.$q.loading.show({
         message: "Guardando usuario, por favor espere...",
       });
       setTimeout(async () => {
         try {
+          this.usuario.Usu_Clave_ppl = this.aesEncrypt(this.Password);
+          this.usuario.Usu_Clave_verificacion = this.aesEncrypt(this.clave_verificacion);
           this.usuario.Usu_User_control = this.data_user.Per_Num_documento;
           this.usuario.base = process.env.__BASE__;
           this.usuario.Per_Num_documento = this.personal.Per_Num_documento;
-
           this.personal.base = process.env.__BASE__;
           
           const res_per = await this.InsertUpdatePersonal(this.personal).then( res => {
@@ -733,31 +734,27 @@ export default {
           });
           if(this.edit_form && this.data_user.Per_Num_documento == this.usuario.Per_Num_documento){
             let user_logged = {
-              user: this.dataUser.ID_Usuario,
+              user: this.usuario.Usu_Login,
               password: this.usuario.Usu_Clave_ppl,
               base: process.env.__BASE__,
             }
-            const resPostLogin = await this.PostLogin(user_logged).then( res => {
+            const resPostLogin = await this.login(user_logged).then( res => {
               return res.data;
             })
-            console.log({
-              msg: 'mensaje login',
-              data: resPostLogin
-            })
+            // console.log({
+            //   msg: 'mensaje login',
+            //   data: resPostLogin
+            // })
             this.setUser({}); //Vaciamos el estado antes de asginar los nuevos valores
             this.setUser(resPostLogin.data);
 
-            let data = {
-              base: process.env.__BASE__, 
-              Id_usuario: this.user_edit.documento //Numero documento
-            };
-            const resgetPermissionUser = await this.getPermissionUserEdit(data).then( res => {
+            const resgetPermissionUser = await this.getPermissionUserEdit(this.user_edit.Per_Num_documento).then( res => {
               return res.data;
             });
-            console.log({
-              msg: 'Respuesta get permisos asignados del usuario',
-              data: resgetPermissionUser
-            });
+            // console.log({
+            //   msg: 'Respuesta get permisos asignados del usuario',
+            //   data: resgetPermissionUser
+            // });
             let state_permissions = [];
             this.setUserPermissions([]);
             // Permisos para el estado
@@ -866,11 +863,7 @@ export default {
           }
           // Si se esta editando, se busca cuales permisos tiene el usuario y se selecciona
           if(this.edit_form){
-            let data = {
-              base: process.env.__BASE__, 
-              Id_usuario: this.user_edit.documento //Numero documento
-            };
-            const resgetPermissionUserEdit = await this.getPermissionUserEdit(data).then( res => {
+            const resgetPermissionUserEdit = await this.getPermissionUserEdit(this.user_edit.Per_Num_documento).then( res => {
               return res.data;
             });
             // console.log({
@@ -881,10 +874,10 @@ export default {
               modulo.items.forEach( permiso_basico => {
                 let permiso_selecte = resgetPermissionUserEdit.data.find( permiso_user => permiso_user.id == permiso_basico.Id_item );
                 if(permiso_selecte){
-                  permiso_basico.Estado = permiso_selecte.Estado;
-                  permiso_basico.Id_modulo = permiso_selecte.Id_modulo;
-                  permiso_basico.Id_rol = permiso_selecte.Id_rol;
-                  permiso_basico.Descripcion = permiso_selecte.Descripcion;
+                  // permiso_basico.Estado = permiso_selecte.Estado;
+                  // permiso_basico.Id_modulo = permiso_selecte.Id_modulo;
+                  // permiso_basico.Id_rol = permiso_selecte.Id_rol;
+                  // permiso_basico.Descripcion = permiso_selecte.Descripcion;
                   permiso_basico.modulo = permiso_selecte.modulo;
                   permiso_basico.selected = permiso_selecte.Estado == 1 ? true : false;
                   permiso_basico.basico = permiso_selecte.Estado == 1 ? true : false;;
@@ -952,6 +945,7 @@ export default {
           };
 
           this.Password = this.aesDencrypt(this.user_edit.Usu_Clave_ppl);
+          this.clave_verificacion = this.aesDencrypt(this.user_edit.Usu_Clave_verificacion);
           this.confirmPassword = this.aesDencrypt(this.user_edit.Usu_Clave_ppl);
         } catch (e) {
           console.log(e);

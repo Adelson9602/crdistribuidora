@@ -64,6 +64,6 @@ export function getPermissionUser(context, data){
 }
 
 // Obtiene los permisos que ya tiene asignado el usuario a editar
-export function getPermissionUserEdit(contex, data){
-    return Vue.prototype.$axios.get(`select_permisos_usuarios/${data.base}/${data.Id_usuario}`);
+export function getPermissionUserEdit(contex, Id_usuario){
+    return Vue.prototype.$axios.get(`select_permisos_usuarios/${base}/${Id_usuario}`);
 }
