@@ -9,6 +9,7 @@
           :propflat="true"
           :propbtns="btns"
           :proppagination="initial_pagination"
+          @ondetails="detatilSale"
         >
           <q-select
             v-model="client_selected"
@@ -225,7 +226,8 @@ export default {
     ...mapActions('movements', [
       'getSales',
       'getSalesClient',
-      'getDetailSales'
+      'getDetailSales',
+      'getDetSaleWaranties'
     ]),
     ...mapActions('shopping', [
       'getProviders'
@@ -365,7 +367,7 @@ export default {
       });
       setTimeout(async() => {
         try {
-          const res_deta = await this.getDetailSales().then( res => {
+          const res_deta = await this.getDetailSales(row.Ev_Id).then( res => {
             return res.data
           });
           console.log({
@@ -373,12 +375,41 @@ export default {
             data: res_deta
           });
           if(res_deta.ok){
+            if(res_deta.result){
 
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
           } else {
             throw new Error(res_deta.message)
           }
+
+          const res_wara = await this.getDetSaleWaranties(row.Ev_Id).then( res => {
+            return res.data
+          });
+          console.log({
+            msg: 'Respuesta get detalle garantia venta',
+            data: res_wara
+          });
+          if(res_wara.ok){
+            if(res_wara.result){
+
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_wara.message)
+          }
         } catch (e) {
           
+        } finally {
+          this.$q.loading.hide();
         }
       }, 2000)
     }

@@ -16,3 +16,8 @@ export function getSalesClient(context, nit){
 export function getDetailSales(context, id_venta){
   return Vue.prototype.$axios.get(`select_det_venta_single/${base}/${id_venta}`)
 }
+
+// Obtiebe el detalle de garantias de una venta
+export function getDetSaleWaranties(context, id_venta){
+  return Vue.prototype.$axios.get(`select_det_garantias_single/${base}/${id_venta}`)
+}
