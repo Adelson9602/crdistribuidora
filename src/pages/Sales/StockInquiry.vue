@@ -5,7 +5,6 @@
         proptitle="Stock Precios"
         :propgrid="false"
         :propflat="true"
-      
         :propdata="data"
         :propcolumns="columns"
         :propbtns="btns"
@@ -24,20 +23,8 @@ export default {
   },
    data() {
     return {
-      tab: "articles",
-      // date_range: {
-      //   to: null,
-      //   from: null,
-      // },           
+      tab: "articles", 
       columns: [
-        // {
-        //   name: "Id",
-        //   required: true,
-        //   label: "Id ",
-        //   align: "center",
-        //   field: "Id",
-        //   sortable: true,
-        // },
         {
           name: "Art_Codigo_inv",
           required: true,
@@ -123,8 +110,8 @@ export default {
       ],
       data: [],
       btns: {
-        range_date: false,
-        btn_export_pdf: false,
+        range_date: true,
+        btn_export_pdf: true,
         export_excel: true
       },
     
@@ -138,7 +125,6 @@ export default {
   methods: {
     ...mapActions("sales", [
       "getAllstock",
-     
     ]),
  
     getData() {
@@ -161,22 +147,20 @@ export default {
               this.data.length = 0;
               resgetDatastock.data.forEach((element) => {
                 this.data.push({
-
-         
                   Id: element.Id,
                   Art_Id: element.Art_Id,
                   Art_Codigo_inv: element.Art_Codigo_inv,
                   Art_Nombre: element.Art_Nombre,
-                  Art_ubicacion:element.Art_ubicacion,
+                  Art_ubicacion: element.Art_ubicacion,
                   Cat_Id: element.Cat_Id,
-                  Cat_Nombre:element.Cat_Nombre,
+                  Cat_Nombre: element.Cat_Nombre,
                   Mov_Id: element.Mov_Id,
                   Mov_Descripcion: element.Mov_Descripcion,
                   Si_Cant: element.Si_Cant,  
                   desc_porcen: element.desc_porcen,
-                  porce_venta: element.porce_venta==null? '% 0': '% '+element.porce_venta,
-                  precio_compra:element.precio_compra==null? '$ 0': '$ '+element.precio_compra,
-                  precio_venta:  element.precio_venta==null? '$ 0': '$ '+element.precio_venta,
+                  porce_venta: element.porce_venta ? '% '+element.porce_venta : '% 0',
+                  precio_compra: element.precio_compra ? '$ '+element.precio_compra : '$ 0',
+                  precio_venta: element.precio_venta ? '$ '+element.precio_venta : '$ 0',
                   title: element.Art_Nombre,
                   // btn_edit: false,
                   // btn_status: false,
