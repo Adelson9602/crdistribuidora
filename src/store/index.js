@@ -6,6 +6,7 @@ import auth from './Auth';
 import access from './Access';
 import master from './Master';
 import shopping from './Shopping';
+import salesinquiries from './SalesInquiries';
 
 import createPersistedState from 'vuex-persistedstate';
 
@@ -28,7 +29,8 @@ export default function (/* { ssrContext } */) {
       auth,
       access,
       master,
-      shopping
+      shopping,
+      salesinquiries
     },
     plugins: [createPersistedState()],
     // enable strict mode (adds overhead!)
