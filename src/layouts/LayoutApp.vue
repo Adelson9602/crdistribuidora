@@ -200,19 +200,20 @@ name: 'MainLayout',
           { label: "Consulta stock", route: "sales/stock_inquiry" },
         ]
       },
+      // {
+      //   label: 'Consulta Compras',
+      //   icon: 'donut_large',
+      //   visible: true,
+      //   expanded: false,
+      //   route: '/check_purchases/check_purchases',
+      // },
       {
-        label: 'Consulta Compras',
-        icon: 'donut_large',
-        visible: true,
-        expanded: false,
-        route: '/check_purchases/check_purchases',
-      },
-      {
-        label: 'Consulta Ventas',
+        label: 'Movimientos',
         icon: 'donut_large',
         visible: true,
         expanded: true,
         items: [
+          { label: "Consulta Compras", route: "check_purchases/check_purchases" },
           { label: "Consulta Ventas", route: "consult_sales/consult_sales" },
           { label: "Consulta Vendedor", route: "consult_sales/consult_seller" },
           { label: "Consulta Utilidad", route: "consult_sales/consult_utility" },
@@ -220,25 +221,27 @@ name: 'MainLayout',
         ]
       },
       {
-        label: 'Consulta Créditos',
+        label: 'Créditos y pagos',
         icon: 'donut_large',
         visible: true,
         expanded: true,
         items: [
           { label: "Créditos Cliente", route: "check_credits/customer_credits" },
           { label: "Créditos Proveedor", route: "check_credits/provider_credits" },
-        ]
-      },
-      {
-        label: 'Confirmación Pagos',
-        icon: 'donut_large',
-        visible: true,
-        expanded: true,
-        items: [
-          { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
+            { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
           { label: "Confirmación Ventas", route: "payment_confirmation/sales_confirmation" },
         ]
       },
+      // {
+      //   label: 'Confirmación Pagos',
+      //   icon: 'donut_large',
+      //   visible: true,
+      //   expanded: true,
+      //   items: [
+      //     { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
+      //     { label: "Confirmación Ventas", route: "payment_confirmation/sales_confirmation" },
+      //   ]
+      // },
     ]
   },
   computed: {
