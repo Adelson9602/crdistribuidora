@@ -200,7 +200,7 @@ export default {
             return res.data;
           });
           console.log({
-            msg: 'Respuesta get inventario general',
+            msg: 'Respuesta get moviles',
             data: res_movil
           });
           if(res_movil.ok){
