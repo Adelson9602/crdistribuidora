@@ -1,54 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
-
-        <q-toolbar-title>
-          <!-- SIGI -->
-        </q-toolbar-title>
-
-     
-
-          <q-btn dense round flat icon="notifications">
-            <q-badge color="red" floating transparent rounded>
-              4
-            </q-badge>
-          </q-btn>
-
-          <q-separator vertical inset color="white" class="separator"></q-separator>
-
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/img/avatar.png">
-            <q-menu
-              :offset="[0, 20]"
-            >
-              <q-list style="min-width: 100px">
-                <q-item clickable v-close-popup to="profile">
-                  <q-item-section>Perfil</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section> 
-                    <!-- <q-icon name="dashboard" />  -->
-                    Cerrar Sesión</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-avatar>
-       
-  
-      </q-toolbar>
-    </q-header>
-
     <q-drawer
-      v-model="leftDrawerOpen"
+      v-model="drawer"
       show-if-above
       :width="270" 
       elevated
@@ -59,13 +12,27 @@
         <div class="header-sidebar shadow-4 row justify-between" elevated>
           <img src="../statics/logo_menu.png" alt="logo de CR Distribuidora" class="img-logo">
         </div>
-        <q-scroll-area class="bg-transparent" style="height: calc(100% - 60px); ">
-          <q-item-label
-            header
-            class="text-grey-8"
-          >
-            <b>Navegación</b>
-          </q-item-label>
+        <div class="q-pa-md bg-transparent row" style="height: 90px; width: 100%">
+          <q-list class="q-pa-none full-width">
+            <q-item class="q-pa-none">
+              <q-item-section avatar>
+                <q-avatar size="56px" class="cursor-pointer">
+                  <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">Desarrollador pro</q-item-label>
+                <q-item-label class="text-weight-bold">Desarrollador</q-item-label>
+                <q-item-label>
+                  En línea
+                  <q-icon name="circle" size="xs" color="green"/>
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+        <q-separator />
+        <q-scroll-area class="bg-transparent" style="height: calc(100% - 150px); border-right: 1px solid #ddd">
           <q-list class="bg-transparent" v-for="(menu, index) in menu" :key="index">
             <q-expansion-item
                group="somegroup"
@@ -95,10 +62,19 @@
               <q-item-section>{{menu.label}}</q-item-section>
             </q-item>
           </q-list>
+          <q-item clickable>
+            <q-item-section avatar>
+              <q-icon name="logout" color="red"/>
+            </q-item-section>
+            <q-item-section class="text-red">Cerrar sesión</q-item-section>
+          </q-item>
         </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
+      <q-page-sticky position="top-left" :offset="[0,0]">
+        <q-btn color="white" text-color="black" icon="menu" @click="drawer = !drawer"/>
+      </q-page-sticky>
       <router-view />
     </q-page-container>
   </q-layout>
@@ -119,7 +95,6 @@ name: 'MainLayout',
       version: null,
       menu: [],
       baseurl: process.env.__URLBASE__,
-      leftDrawerOpen: false,
     };
   },
   mounted(){
@@ -152,7 +127,7 @@ name: 'MainLayout',
       },
       {
         label: 'Almacen',
-        icon: 'inventory',
+        icon: 'mdi-warehouse',
         visible: true,
         expanded: true,
         route: '/warehouse/articles',
@@ -165,7 +140,7 @@ name: 'MainLayout',
       },
       {
         label: 'Maestras',
-        icon: 'inventory',
+        icon: 'mdi-puzzle-plus',
         visible: true,
         expanded: true,
         route: '/master/percentage',
@@ -200,16 +175,9 @@ name: 'MainLayout',
           { label: "Consulta stock", route: "sales/stock_inquiry" },
         ]
       },
-      // {
-      //   label: 'Consulta Compras',
-      //   icon: 'donut_large',
-      //   visible: true,
-      //   expanded: false,
-      //   route: '/check_purchases/check_purchases',
-      // },
       {
         label: 'Movimientos',
-        icon: 'donut_large',
+        icon: 'mdi-transfer',
         visible: true,
         expanded: true,
         items: [
@@ -222,7 +190,7 @@ name: 'MainLayout',
       },
       {
         label: 'Créditos y pagos',
-        icon: 'donut_large',
+        icon: 'mdi-cash-multiple',
         visible: true,
         expanded: true,
         items: [
