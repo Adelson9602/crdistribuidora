@@ -85,6 +85,9 @@
             <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
           </div>
         </div>
+        <div class="col-xs-12 col-md-4 col-lg-4">
+          <slot></slot>
+        </div>
       </div>
     </q-form>
     <q-toggle v-model="grid" label="Visualización" v-if="toggle" />
