@@ -222,9 +222,10 @@ export default {
     this.getData();
   },
   methods: {
-    ...mapActions('salesinquiries', [
+    ...mapActions('movements', [
       'getSales',
-      'getSalesClient'
+      'getSalesClient',
+      'getDetailSales'
     ]),
     ...mapActions('shopping', [
       'getProviders'
@@ -358,6 +359,29 @@ export default {
         })
       }, 300)
     },
+    detatilSale(row){
+      this.$q.loading.show({
+        message: 'Obteniendo detalle de la venta, por favor espere..'
+      });
+      setTimeout(async() => {
+        try {
+          const res_deta = await this.getDetailSales().then( res => {
+            return res.data
+          });
+          console.log({
+            msg: 'Respuesta get detalle venta',
+            data: res_deta
+          });
+          if(res_deta.ok){
+
+          } else {
+            throw new Error(res_deta.message)
+          }
+        } catch (e) {
+          
+        }
+      }, 2000)
+    }
   }
 }
 </script>
