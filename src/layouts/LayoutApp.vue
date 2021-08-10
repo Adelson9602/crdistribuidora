@@ -204,11 +204,8 @@ name: 'MainLayout',
         label: 'Consulta Compras',
         icon: 'donut_large',
         visible: true,
-        expanded: true,
+        expanded: false,
         route: '/check_purchases/check_purchases',
-        items: [
-          { label: "Consulta Compras", route: "check_purchases/check_purchases" }, // Para todos los usuario
-        ]
       },
       {
         label: 'Consulta Ventas',
