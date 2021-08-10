@@ -6,11 +6,32 @@
           proptitle='Ventas registradas'
           :propdata="data"
           :propcolumns="columns"
-          :propgrid="false"
           :propflat="true"
           :propbtns="btns"
           :proppagination="initial_pagination"
-        />
+        >
+          <q-select
+            v-model="client_selected"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            hint="Cliente"
+            :options="options_clientes"
+            @filter="filterClientes"
+            emit-value
+            map-options
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </component-table>
       </q-card-section>
     </q-card>
   </q-page>
@@ -19,6 +40,7 @@
 <script>
 import componentTable from 'components/Generals/ComponentTable';
 import { mapActions } from 'vuex';
+let all_clients = []; //Contiene todos los clientes
 export default {
   name: 'CheckPurchases',
   components: {
@@ -213,6 +235,15 @@ export default {
         page: 1,
         rowsPerPage: 9,
       },
+      options_clientes: all_clients,
+      client_selected: null, //Cliente seleccionado
+    }
+  },
+  watch: {
+    client_selected(value){
+      if(value){
+        console.log(value)
+      }
     }
   },
   created(){
@@ -221,6 +252,9 @@ export default {
   methods: {
     ...mapActions('salesinquiries', [
       'getSales'
+    ]),
+    ...mapActions('shopping', [
+      'getProviders'
     ]),
     getData(){
       this.$q.loading.show({
@@ -280,13 +314,74 @@ export default {
           } else {
             throw new Error(res_sales.message)
           }
+
+          const res_provider = await this.getProviders().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get clientes',
+            data: res_provider
+          });
+          if(res_provider.ok){
+            if(res_provider.result){
+              all_clients.length = 0 ;
+              res_provider.data.forEach( cliente => {
+                if(cliente.name_tp == 'CLIENTE' && cliente.CP_Razon_social){
+                  all_clients.push({
+                    label: cliente.CP_Razon_social,
+                    value: cliente.CP_Nit
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_provider.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_provider.message);
+          }
         } catch (e) {
-          
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
         } finally {
           this.$q.loading.hide();
         }
       }, 2000)
-    }
+    },
+    // Busca o filtra las opciones del select categorias articulo
+    filterClientes (val, update, abort) {
+      // call abort() at any time if you can't retrieve data somehow
+      setTimeout(() => {
+        update(() => {
+          if (val === '') {
+            this.options_clientes = all_clients
+          }
+          else {
+            const needle = val.toLowerCase()
+            this.options_clientes = all_clients.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1)
+          }
+        },
+        ref => {
+          if (val !== '' && ref.options.length > 0) {
+            ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+            ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+          }
+        })
+      }, 300)
+    },
   }
 }
 </script>
