@@ -61,37 +61,36 @@
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
           <slot></slot>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 row justify-center self-center q-gutter-x-md" v-if="btns.btn_export_pdf || btns.export_excel">
-          <div v-if="btns.btn_export_pdf">
-            <q-btn
-              @click="exportPDF"
-              push
-              color="white"
-              text-color="primary"
-              icon="picture_as_pdf"
-            />
-          </div>
-          <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
-          <vue-excel-xlsx
-            :data="excel.data"
-            :columns="excel.columns"
-            :filename="excel.title"
-            sheetname="Hoja 1"
-            class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
-            tabindex="0"
-            v-if="btns.export_excel"
-          >
-            <q-btn
-              push
-              color="white"
-              text-color="positive"
-              icon="mdi-microsoft-excel"
-            />
-          </vue-excel-xlsx>
-        </div>
       </div>
     </q-form>
-    <q-toggle v-model="grid" label="Visualización" v-if="toggle" />
+    <div class="q-gutter-md q-pb-md">
+      <q-toggle v-model="grid" label="Visualización" v-if="toggle" />
+      <q-btn
+        @click="exportPDF"
+        push
+        color="white"
+        text-color="red"
+        icon="picture_as_pdf"
+        v-if="btns.btn_export_pdf"
+      />
+      <!-- Se habilita este componente cuando se instale la libreria para exportar excel -->
+      <vue-excel-xlsx
+        :data="excel.data"
+        :columns="excel.columns"
+        :filename="excel.title"
+        sheetname="Hoja 1"
+        class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable q-btn--wrap"
+        tabindex="0"
+        v-if="btns.export_excel"
+      >
+        <q-btn
+          push
+          color="white"
+          text-color="positive"
+          icon="mdi-microsoft-excel"
+        />
+      </vue-excel-xlsx>
+    </div>
     <q-table
       :title="title"
       :data="data"
