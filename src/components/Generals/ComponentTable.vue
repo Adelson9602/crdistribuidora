@@ -2,7 +2,7 @@
   <div>
     <q-form @submit="search">
       <div class="q-gutter-y-md q-pb-md row">
-        <div class="col-xs-12 col-md-4 col-lg-3 q-px-sm" v-if="btns.range_date">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm" v-if="btns.range_date">
           <q-field
             stack-label
             hint="Seleccione un rango de fecha"
@@ -50,7 +50,7 @@
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-md-4 col-lg-4 row" v-if="buscador.input">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 row" v-if="buscador.input">
           <div class="col-xs-12 col-md-8">
             <q-input v-model="id_search" type="text" :hint="buscador.label" />
           </div>
@@ -58,10 +58,10 @@
             <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
           </div>
         </div>
-        <div class="col-xs-12 col-md-4 col-lg-4">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
           <slot></slot>
         </div>
-        <div class="col-xs-12 col-md-4 col-lg-2 row justify-around q-px-sm self-center" v-if="btns.btn_export_pdf || btns.export_excel">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-2 row justify-center self-center q-gutter-x-md" v-if="btns.btn_export_pdf || btns.export_excel">
           <div v-if="btns.btn_export_pdf">
             <q-btn
               @click="exportPDF"
