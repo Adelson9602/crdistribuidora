@@ -44,3 +44,14 @@ export function getClientes(){
 export function getAllstock(){
   return Vue.prototype.$axios.get(`select_stock_porcentaje_general/${base}`)
 }
+
+// Ventas
+// Guarda o actualiza el encabezado de la venta
+export function insertUpdateEncVenta(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_venta`, data);
+}
+
+// Guarda o actualiza el detalle de la venta
+export function insertUpdateDetVenta(context, data){
+  return Vue.prototype.$axios.post(`insert_update_det_venta`, data);
+}
