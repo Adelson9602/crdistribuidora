@@ -32,14 +32,14 @@
             @input= "val=>{new_cliente.CP_Nit = val.toUpperCase()}"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-md-3 q-px-sm" v-if="new_cliente.Td_Id == 2">
           <q-input
             v-model="new_cliente.CP_Digito_verificacion"
             type="text"
-            hint="Digito verificacion"
+            hint="Dígito verificación"
             mask="##"
-            :rules="[val => !!val || 'Digito verificacion es obligatorio']"
-            @input= "val=>{new_cliente.CP_Razon_social = val.toUpperCase()}"
+            :rules="[val => !!val || 'Dígito de verificación es requerido']"
+            @input= "val=>{new_cliente.CP_Digito_verificacion = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -142,7 +142,7 @@ export default {
         Ciu_Id: null,
         CP_Nit: null,
         CP_Razon_social: null,
-        CP_Digito_verificacion: null,
+        CP_Digito_verificacion: 0,
         Td_Id: null,
         Tp_Id: 1,
         CP_Direccion: null,
@@ -352,27 +352,27 @@ export default {
       }, 2000);
     },
     onReset() {
-      (this.departamento_selecte = null),
-        (this.new_cliente = {
-          base: null,
-          Dcp_Id: null,
-          Dcp_Contacto: null,
-          Dcp_Telefono: null,
-          Dcp_Estado: null,
-          Ciu_Id: null,
-          CP_Nit: null,
-          CP_Razon_social: null,
-          CP_Digito_verificacion: null,
-          Td_Id: null,
-          Tp_Id: 1,
-          CP_Direccion: null,
-          CP_Email: null,
-          CP_Urlweb: null,
-          CP_Telefono: null,
-          Ciu_Id: null,
-          CP_Estado: null,
-          CP_User_control: null
-        });
+      this.departamento_selecte = null
+      this.new_cliente = {
+        base: null,
+        Dcp_Id: null,
+        Dcp_Contacto: null,
+        Dcp_Telefono: null,
+        Dcp_Estado: null,
+        Ciu_Id: null,
+        CP_Nit: null,
+        CP_Razon_social: null,
+        CP_Digito_verificacion: 0,
+        Td_Id: null,
+        Tp_Id: 1,
+        CP_Direccion: null,
+        CP_Email: null,
+        CP_Urlweb: null,
+        CP_Telefono: null,
+        Ciu_Id: null,
+        CP_Estado: null,
+        CP_User_control: null
+      };
     },
     // Buscador para el select departamento
     filterDepartamento(val, update, abort) {
