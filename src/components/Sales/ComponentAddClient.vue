@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-form @submit="onSubmit">
+    <q-form @submit="onSubmit" autocomplete="off">
       <div class="row">
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
@@ -94,12 +94,26 @@
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
             v-model="new_cliente.Ciu_Id"
-            :options="options_ciudades"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
             hint="Ciudad"
+            :options="options_ciudades"
+            @filter="filterCiudad"
             :rules="[val => !!val || 'Ciudad es obligatorio']"
-             emit-value
-             map-options
-          />
+            map-options
+            emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sin resultados
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
@@ -397,7 +411,28 @@ export default {
           }
         );
       }, 300);
-    }
+    },
+    // Buscador para el select proveedor
+    filterCiudad(val, update, abort){
+      setTimeout(() => {
+        update(() => {
+            if (val === '') {
+              this.options_ciudades = ciudades
+            }
+            else {
+              const needle = val.toLowerCase();
+              this.options_ciudades = ciudades.filter( v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1 );
+            }
+          },
+          ref => {
+            if (val !== '' && ref.options.length > 0) {
+              ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+              ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+            }
+          }
+        )
+      }, 300)
+    },
   }
 };
 </script>
