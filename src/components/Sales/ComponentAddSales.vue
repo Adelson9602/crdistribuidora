@@ -80,18 +80,20 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
-            v-model="numero"
-            type="text"
-            hint="Número"
-            disable
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-input
             v-model="impuesto"
             type="text"
             hint="Impuesto"
             :rules="[val => !!val || 'Impuesto es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-select
+            v-model="precio_venta"
+            :options="options_pre_venta"
+            hint="Precio de venta"
+            :rules="[validatePrecio]"
+            map-options
+            emit-value
           />
         </div>
       </div>
@@ -125,16 +127,6 @@
             v-model="cantidad"
             hint="Cantidad"
             :rules="[val => !!val || 'Cantidad es obligatorio']"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="precio_venta"
-            :options="options_pre_venta"
-            hint="Precio de venta"
-            :rules="[validatePrecio]"
-            map-options
-            emit-value
           />
         </div>
       </div>
