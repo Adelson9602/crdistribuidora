@@ -1,13 +1,12 @@
 <template>
   <div>
     <q-form
-      @submit="onSubmit"
-      @reset="onReset"
+      @submit="addProduct"
       class="q-gutter-md"
     >
       <!-- Encabezado -->
       <div class="row">
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="enc_entrada.Tc_Id"
             clearable
@@ -31,7 +30,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="enc_entrada.CP_Nit"
             clearable
@@ -55,41 +54,41 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="model"
+            v-model="tipo_documento"
             :options="options_tipo_documento"
             hint="Tipo documento"
             :rules="[val => !!val || 'Cliente es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="numero_documento"
             type="text"
             hint="Número documento"
             :rules="[val => !!val || 'Número documento es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="model"
+            v-model="forma_pago"
             :options="options_me_pago"
             hint="Forma de pago"
             :rules="[val => !!val || 'Forma de pago es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="numero"
             type="text"
             hint="Número"
-            :rules="[val => !!val || 'Número es obligatorio']"
+            disable
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
+            v-model="impuesto"
             type="text"
             hint="Impuesto"
             :rules="[val => !!val || 'Impuesto es obligatorio']"
@@ -98,7 +97,7 @@
       </div>
       <!-- Productos -->
       <div class="row">
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-select
             v-model="producto_selecte"
             clearable
@@ -121,28 +120,63 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
-            v-model="text"
-            :options="options"
+            v-model="cantidad"
             hint="Cantidad"
             :rules="[val => !!val || 'Cantidad es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="model"
-            :options="options"
+            v-model="precio_venta"
+            :options="options_pre_venta"
             hint="Precio de venta"
-            :rules="[val => !!val || 'Precio de venta es obligatorio']"
+            :rules="[validatePrecio]"
+            map-options
+            emit-value
           />
         </div>
       </div>
       <div>
         <q-btn label="Submit" type="submit" color="primary"/>
-        <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
       </div>
     </q-form>
+    <q-table
+      title="Productos a vender"
+      :data="data_sales"
+      :columns="columns_sales"
+      row-key="name"
+      flat
+    >
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th auto-width />
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td auto-width>
+            <q-btn icon="delete" size="sm" color="negative" round dense @click="delteProduct(props.row)" />
+          </q-td>
+          <q-td
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.value }}
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
   </div>
 </template>
 
@@ -152,6 +186,7 @@ let all_comprobante = []; //Contiene todos los tipos de comprobantes
 let all_product = []; //Contiene todos los productos
 let all_medios = []; //Contiene los medios de pago
 import { mapActions, mapState } from 'vuex';
+import dialog from 'components/Generals/ComponentDialogWarning';
 export default {
   // name: 'ComponentName',
   data () {
@@ -161,7 +196,25 @@ export default {
       options_tipo_documento: [],
       options_me_pago: all_medios,
       options_products: all_product,
-      text: null,
+      options_pre_venta: [
+        {
+          label: '0%',
+          value: 0,
+        },
+        {
+          label: '3%',
+          value: 3,
+        },
+        {
+          label: '5%',
+          value: 5,
+        },
+        {
+          label: '10%',
+          value: 10,
+        },
+      ],
+      precio_venta: null,
       producto_selecte: null,
       model: null,
       options: [
@@ -184,6 +237,50 @@ export default {
         Enc_Estado: null,
         Enc_User_control: null
       },
+      tipo_documento: null,
+      numero_documento: null,
+      forma_pago: null,
+      impuesto: null,
+      cantidad: null,
+      numero: null,
+      data_sales: [], //Productos a vender
+      columns_sales: [
+        {
+          name: 'id_producto',
+          align: 'center',
+          label: 'ID Producto',
+          sortable: true,
+          field: 'id_producto'
+        },
+        {
+          name: 'codigo',
+          align: 'center',
+          label: 'Código',
+          sortable: true,
+          field: 'codigo'
+        },
+        {
+          name: 'producto',
+          align: 'center',
+          label: 'Producto',
+          sortable: true,
+          field: 'producto'
+        },
+        {
+          name: 'cantidad',
+          align: 'center',
+          label: 'Cantidad',
+          sortable: true,
+          field: 'cantidad'
+        },
+        {
+          name: 'precio_venta',
+          align: 'center',
+          label: 'Precio venta',
+          sortable: true,
+          field: 'precio_venta'
+        },
+      ], //Columnas para la tabla productos a vender
     }
   },
   computed: {
@@ -360,6 +457,36 @@ export default {
     onSubmit(){
 
     },
+    addProduct(){
+      let product_add = {
+        codigo: this.producto_selecte.codigo,
+        producto: this.producto_selecte.label,
+        id_producto: this.producto_selecte.value,
+        cantidad: this.cantidad,
+        precio_venta: this.precio_venta,
+      }
+
+      let exits_product = this.data_sales.find( product => product.codigo == product_add.codigo );
+      if(exits_product){
+        this.$q.notify({
+          message: 'Producto ya está agregado',
+          type: 'warning'
+        })
+      } else {
+        this.data_sales.push(product_add);
+      }
+    },
+    delteProduct(row){
+      this.$q.dialog({
+        component: dialog,
+        parent: this,
+        title: 'Eliminar producto',
+        msg: 'Atención! vas a eliminar un producto agregado a la tabla, ¿Seguro que desea continuar?',
+      }).onOk(() => {
+        let index = this.data_sales.indexOf(row)
+        this.data_sales.splice(index, 1)
+      })
+    },
     onReset(){
 
     },
@@ -415,6 +542,18 @@ export default {
         })
       }, 300)
     },
+    // Valida el select precio venta
+    validatePrecio(val){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(!val && val != 0){
+            resolve(false || 'Precio es requerido')  
+          }
+          // call
+           resolve(true)
+        }, 300)
+      })
+    }
   }
 }
 </script>
