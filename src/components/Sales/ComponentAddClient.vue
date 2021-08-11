@@ -8,19 +8,18 @@
             type="text"
             hint="Nombre cliente"
             :rules="[val => !!val || 'Nombre cliente es obligatorio']"
+            @input= "val=>{new_cliente.CP_Razon_social = val.toUpperCase()}"
           />
         </div>
-
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
             v-model="new_cliente.Td_Id"
             :options="options_documento"
             hint="Tipo documento"
             :rules="[val => !!val || 'Tipo documento es obligatorio']"
-         emit-value
-         map-options
+            emit-value
+            map-options
           />
-         
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
@@ -30,6 +29,7 @@
             mask="###########"
             :rules="[val => !!val || 'Número documento es obligatorio']"
             :disable="this.edit_data ? true : false"
+            @input= "val=>{new_cliente.CP_Nit = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -39,6 +39,7 @@
             hint="Digito verificacion"
             mask="##"
             :rules="[val => !!val || 'Digito verificacion es obligatorio']"
+            @input= "val=>{new_cliente.CP_Razon_social = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -48,7 +49,7 @@
             hint="Dirección"
             maxlength="500"
             counter
-           
+            @input= "val=>{new_cliente.CP_Direccion = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -65,7 +66,7 @@
             v-model="new_cliente.CP_Email"
             type="email"
             hint="Email"
-           
+            @input= "val=>{new_cliente.CP_Email = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
@@ -80,7 +81,6 @@
             hint="Departamento"
             :rules="[val => !!val || 'Departamento es obligatorio']"
             @filter="filterDepartamento"
-           
           >
             <template v-slot:no-option>
               <q-item>
@@ -100,7 +100,6 @@
              emit-value
              map-options
           />
-         
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
@@ -109,6 +108,7 @@
             hint="Pagina web"
             maxlength="100"
             counter
+            @input= "val=>{new_cliente.CP_Urlweb = val.toUpperCase()}"
           />
         </div>
       </div>
