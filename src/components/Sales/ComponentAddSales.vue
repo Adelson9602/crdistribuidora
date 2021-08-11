@@ -4,6 +4,20 @@
       @submit="addProduct"
       class="q-gutter-md"
     >
+      <q-btn color="primary" icon="add" label="Agregar cliente" @click="dialog_create_user = true" />
+      <q-dialog v-model="dialog_create_user" persistent>
+        <q-card style="width: 70vw; max-width: 80vw;">
+          <q-bar dark class="bg-primary text-white">
+            <div class="col text-center text-weight-bold">
+              Crear cliente
+            </div>
+            <q-btn icon="close" flat round dense v-close-popup />
+          </q-bar>
+          <q-card-section class="row items-center">
+            <component-add-client />
+          </q-card-section>
+        </q-card>
+      </q-dialog>
       <!-- Encabezado -->
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -179,8 +193,12 @@ let all_product = []; //Contiene todos los productos
 let all_medios = []; //Contiene los medios de pago
 import { mapActions, mapState } from 'vuex';
 import dialog from 'components/Generals/ComponentDialogWarning';
+import ComponentAddClient from "components/Sales/ComponentAddClient";
 export default {
-  // name: 'ComponentName',
+  name: 'ComponentAddSales',
+  components: {
+    ComponentAddClient
+  },
   data () {
     return {
       options_comprobante: all_comprobante,
@@ -273,6 +291,7 @@ export default {
           field: 'precio_venta'
         },
       ], //Columnas para la tabla productos a vender
+      dialog_create_user: false,
     }
   },
   computed: {

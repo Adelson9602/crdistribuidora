@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-form @submit="onSubmit"   @reset="onReset" class="q-gutter-md">
+    <q-form @submit="onSubmit">
       <div class="row">
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-input
@@ -112,15 +112,8 @@
           />
         </div>
       </div>
-      <div>
-        <q-btn label="Submit" type="submit" color="primary" />
-        <q-btn v-if="!this.edit_data"
-          label="Reset"
-          type="reset"
-          color="primary"
-          flat
-          class="q-ml-sm"
-        />
+      <div class="row justify-end">
+        <q-btn label="Guardar" type="submit" color="primary" />
       </div>
     </q-form>
   </div>
