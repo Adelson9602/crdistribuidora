@@ -6,7 +6,7 @@
     >
       <q-btn color="primary" icon="add" label="Agregar cliente" @click="dialog_create_user = true" />
       <q-dialog v-model="dialog_create_user" persistent>
-        <q-card style="width: 70vw; max-width: 80vw;">
+        <q-card style="width: 920px; max-width: 90vw;">
           <q-bar dark class="bg-primary text-white">
             <div class="col text-center text-weight-bold">
               Crear cliente
@@ -22,7 +22,7 @@
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="enc_venta.CP_Nit"
+            v-model="enc_venta.Tc_Id"
             clearable
             use-input
             hide-selected
@@ -90,7 +90,7 @@
             emit-value
           />
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="enc_venta.Mp_Id">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="enc_venta.Mp_Id == 2">
           <q-input
             v-model="enc_venta.Ev_dias_credito"
             mask="#######"
@@ -108,10 +108,20 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="precio_venta"
+            v-model="enc_venta.Ev_Descuentog"
             :options="options_pre_venta"
             hint="Precio de venta"
             :rules="[validatePrecio]"
+            map-options
+            emit-value
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-select
+            v-model="movil_selecte"
+            :options="options_moviles"
+            hint="Movil"
+            :rules="[val => !!val || 'Movil es requerido']"
             map-options
             emit-value
           />
@@ -142,7 +152,14 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
+          <q-field hint="Cantidad disponible" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">{{cant_disponible}}</div>
+            </template>
+          </q-field>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-input
             v-model="cantidad"
             hint="Cantidad"
@@ -153,7 +170,7 @@
           <q-select
             v-model="descuento_art"
             :options="options_des_products"
-            hint="Producto"
+            hint="Descuento articulo"
             :rules="[val => !!val || 'Producto es obligatorio']"
           />
         </div>
@@ -221,6 +238,7 @@ export default {
       options_me_pago: all_medios,
       options_products: all_product,
       options_des_products: [],
+      options_moviles: [],
       options_pre_venta: [
         {
           label: '0%',
@@ -239,28 +257,30 @@ export default {
           value: 10,
         },
       ],
-      precio_venta: null,
       producto_selecte: null,
       model: null,
       cliente_selected: null,
       tipo_documento: null,
       numero_documento: null,
+      cant_disponible: null,
       cantidad: null,
       precio_venta_art: null,
       descuento_art: null,
+      movil_selecte: null,
       enc_venta: {
         base: null,
         Ev_Id: null,
+        Tc_Id: null,
         CP_Nit: null,
         Per_Num_documento: null, //Vendedor
         Mov_Id: null,
         Mp_Id: null,
         Ev_dias_credito: 0,
-        Ev_Impuesto: null,
+        Ev_Impuesto: null, // Para iva si lleva iva si no 0
         Ev_Subtotal: null,
-        Ev_Des_total_art: null,
-        Ev_Descuentog: 0, //Porcentaje de descuento de la factura final
-        Ev_Des_gen_venta: 0,
+        Ev_Des_total_art: null, //Descuento 
+        Ev_Descuentog: 0, //Porcentaje de descuento a la factura final osea 1% 2%
+        Ev_Des_gen_venta: 0, //Valor total en pesos 
         Ev_Total_venta: 0,
         Ev_Estado: null,
         Ev_conf_pago: null,
@@ -315,6 +335,56 @@ export default {
         this.tipo_documento = value.tip_doc;
         this.enc_venta.CP_Nit = value.value;
       }
+    },
+    movil_selecte(value){
+      this.$q.loading.show({
+        message: 'Obteniendo stock, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_product = await this.getStockMovil(value).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get productos',
+            data: res_product
+          });
+          if(res_product.ok){
+            all_product.length = 0;
+            res_product.data.forEach( element => {  
+              all_product.push({
+                label: element.Art_Nombre,
+                value: element.Art_Id,
+                codigo: element.Art_Codigo_inv,
+                cantidad: element.Si_Cant
+              });
+            })
+          } else {
+            throw new Error(res_product.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    producto_selecte(value){
+      if(value){
+        console.log(value)
+      }
     }
   },
   created(){
@@ -324,11 +394,11 @@ export default {
     // Insert update stock con simbolo -
     ...mapActions('shopping', [
       'getProviders',
-      'getTpDoc'
+      'getTpDoc',
     ]),
     ...mapActions('warehouse', [
       'updateInventarioMovil',
-      'getAllArticles'
+      'getStockMovil'
     ]),
     ...mapActions('master', [
       'getTiposComprobante',
@@ -336,6 +406,7 @@ export default {
     ]),
     ...mapActions('sales', [
       'getPercentSaleArt',
+      'getMovilUser'
     ]),
     getData(){
       this.$q.loading.show({
@@ -421,27 +492,34 @@ export default {
             throw new Error(res_medio.message);
           }
 
-          const res_product = await this.getAllArticles().then( res => {
+          const res_mov = await this.getMovilUser(this.data_user.Per_Num_documento).then( res => {
             return res.data;
           });
           // console.log({
-          //   msg: 'Respuesta get productos',
-          //   data: res_product
+          //   message: 'Respuesta get moviles usuario',
+          //   data: res_mov
           // });
-          if(res_product.ok){
-            all_product.length = 0;
-            res_product.data.forEach( element => {  
-              if(element.Art_Estado == 1){
-                all_product.push({
-                  label: element.Art_Nombre,
-                  value: element.Art_Id,
-                  codigo: element.Art_Codigo_inv
-                });
-              }
-            })
+          if(res_mov.ok){
+            if(res_mov.result){
+              this.options_moviles.length = 0;
+              res_mov.data.forEach( element => {
+                if(element.Estado == 1){
+                  this.options_moviles.push({
+                    label: element.Mov_Descripcion,
+                    value: element.Mov_Id,
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
           } else {
-            throw new Error(res_product.message);
+            throw new Error(res_mov.message);
           }
+
           const res_por_prod = await this.getPercentSaleArt().then( res => {
             return res.data;
           });
