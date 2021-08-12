@@ -14,7 +14,7 @@
             <q-btn icon="close" flat round dense v-close-popup />
           </q-bar>
           <q-card-section class="row items-center">
-            <component-add-client />
+            <component-add-client @reload="reload"/>
           </q-card-section>
         </q-card>
       </q-dialog>
@@ -22,7 +22,7 @@
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="enc_entrada.Tc_Id"
+            v-model="enc_venta.CP_Nit"
             clearable
             use-input
             hide-selected
@@ -46,7 +46,7 @@
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="enc_entrada.CP_Nit"
+            v-model="cliente_selected"
             clearable
             use-input
             hide-selected
@@ -56,8 +56,6 @@
             :options="options_clientes"
             @filter="filterClients"
             :rules="[val => !!val || 'Cliente es obligatorio']"
-            map-options
-            emit-value
           >
             <template v-slot:no-option>
               <q-item>
@@ -69,32 +67,40 @@
           </q-select>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="tipo_documento"
-            :options="options_tipo_documento"
-            hint="Tipo documento"
-            :rules="[val => !!val || 'Cliente es obligatorio']"
-          />
+          <q-field hint="Tipo documento" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">{{tipo_documento}}</div>
+            </template>
+          </q-field>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-input
-            v-model="numero_documento"
-            type="text"
-            hint="Número documento"
-            :rules="[val => !!val || 'Número documento es obligatorio']"
-          />
+          <q-field hint="Número documento" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">{{numero_documento}}</div>
+            </template>
+          </q-field>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
-            v-model="forma_pago"
+            v-model="enc_venta.Mp_Id"
             :options="options_me_pago"
             hint="Forma de pago"
             :rules="[val => !!val || 'Forma de pago es obligatorio']"
+            map-options
+            emit-value
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="enc_venta.Mp_Id">
+          <q-input
+            v-model="enc_venta.Ev_dias_credito"
+            mask="#######"
+            hint="Días de credito"
+            :rules="[val => !!val || 'Días de credito es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
-            v-model="impuesto"
+            v-model="enc_venta.Ev_Impuesto"
             type="text"
             hint="Impuesto"
             :rules="[val => !!val || 'Impuesto es obligatorio']"
@@ -143,6 +149,14 @@
             :rules="[val => !!val || 'Cantidad es obligatorio']"
           />
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+          <q-select
+            v-model="descuento_art"
+            :options="options_des_products"
+            hint="Producto"
+            :rules="[val => !!val || 'Producto es obligatorio']"
+          />
+        </div>
       </div>
       <div>
         <q-btn label="Submit" type="submit" color="primary"/>
@@ -187,7 +201,7 @@
 </template>
 
 <script>
-let all_providers = []; // Contiene todos los proveedores clientes
+let all_clients = []; // Contiene todos los proveedores clientes
 let all_comprobante = []; //Contiene todos los tipos de comprobantes
 let all_product = []; //Contiene todos los productos
 let all_medios = []; //Contiene los medios de pago
@@ -202,10 +216,11 @@ export default {
   data () {
     return {
       options_comprobante: all_comprobante,
-      options_clientes: all_providers,
+      options_clientes: all_clients,
       options_tipo_documento: [],
       options_me_pago: all_medios,
       options_products: all_product,
+      options_des_products: [],
       options_pre_venta: [
         {
           label: '0%',
@@ -227,40 +242,40 @@ export default {
       precio_venta: null,
       producto_selecte: null,
       model: null,
-      options: [
-        'Option 1',
-        'Option 2',
-        'Option 3',
-        'Option 4',
-      ],
-      enc_entrada: {
-        base: null,
-        Ecb_Id: null,
-        CP_Nit: null,
-        Tc_Id: null, //Tipo comprobante
-        Mp_Id: null, //Medio pago
-        Enc_dias_credito: null,
-        Enc_num_comprobante: null, //Numero comprobante
-        Enc_impuesto: null, //Numero impuesto
-        Enc_subtotal_compra: null, //
-        Enc_total_compra: null,
-        Enc_Estado: null,
-        Enc_User_control: null
-      },
+      cliente_selected: null,
       tipo_documento: null,
       numero_documento: null,
-      forma_pago: null,
-      impuesto: null,
       cantidad: null,
-      numero: null,
+      precio_venta_art: null,
+      descuento_art: null,
+      enc_venta: {
+        base: null,
+        Ev_Id: null,
+        CP_Nit: null,
+        Per_Num_documento: null, //Vendedor
+        Mov_Id: null,
+        Mp_Id: null,
+        Ev_dias_credito: 0,
+        Ev_Impuesto: null,
+        Ev_Subtotal: null,
+        Ev_Des_total_art: null,
+        Ev_Descuentog: 0, //Porcentaje de descuento de la factura final
+        Ev_Des_gen_venta: 0,
+        Ev_Total_venta: 0,
+        Ev_Estado: null,
+        Ev_conf_pago: null,
+        Ev_Entregado: null,
+        Ev_Fecha_venta: null,
+        Ev_Usuario_control: null, //Si es a credito es 0
+      },
       data_sales: [], //Productos a vender
       columns_sales: [
         {
-          name: 'id_producto',
+          name: 'Art_Id',
           align: 'center',
           label: 'ID Producto',
           sortable: true,
-          field: 'id_producto'
+          field: 'Art_Id'
         },
         {
           name: 'codigo',
@@ -277,18 +292,11 @@ export default {
           field: 'producto'
         },
         {
-          name: 'cantidad',
+          name: 'Dv_Cant',
           align: 'center',
           label: 'Cantidad',
           sortable: true,
-          field: 'cantidad'
-        },
-        {
-          name: 'precio_venta',
-          align: 'center',
-          label: 'Precio venta',
-          sortable: true,
-          field: 'precio_venta'
+          field: 'Dv_Cant'
         },
       ], //Columnas para la tabla productos a vender
       dialog_create_user: false,
@@ -300,10 +308,20 @@ export default {
       return this.user_logged;
     }
   },
+  watch: {
+    cliente_selected(value){
+      if(value){
+        this.numero_documento = value.value;
+        this.tipo_documento = value.tip_doc;
+        this.enc_venta.CP_Nit = value.value;
+      }
+    }
+  },
   created(){
     this.getData();
   },
   methods: {
+    // Insert update stock con simbolo -
     ...mapActions('shopping', [
       'getProviders',
       'getTpDoc'
@@ -315,6 +333,9 @@ export default {
     ...mapActions('master', [
       'getTiposComprobante',
       'getMedioPago'
+    ]),
+    ...mapActions('sales', [
+      'getPercentSaleArt',
     ]),
     getData(){
       this.$q.loading.show({
@@ -331,12 +352,13 @@ export default {
           // });
           if(res_provider.ok){
             if(res_provider.result){
-              all_providers.length = 0;
+              all_clients.length = 0;
               res_provider.data.forEach( element => {
                 if(element.Tp_Id == 1 && element.CP_Razon_social){
-                  all_providers.push({
+                  all_clients.push({
                     label: element.CP_Razon_social,
-                    value: element.CP_Nit
+                    value: element.CP_Nit,
+                    tip_doc: element.Tp_Desc_corta
                   })
                 }
               });
@@ -376,32 +398,6 @@ export default {
             }
           } else {
             throw new Error(res_compro.message);
-          }
-
-           const res_docu = await this.getTpDoc().then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get tipo documento',
-          //   data: res_docu
-          // });
-          if(res_docu.ok){
-            if(res_docu.result){
-              this.options_tipo_documento.length = 0;
-              res_docu.data.forEach( t_docu => {
-                this.options_tipo_documento.push({
-                  label: t_docu.Td_Descripcion,
-                  value: t_docu.Td_Id
-                })
-              });
-            } else {
-              this.$q.notify({
-                message: 'Ops! sin resultados',
-                type: 'warning'
-              })
-            }
-          } else {
-            throw new Error(res_docu.message);
           }
 
           const res_medio = await this.getMedioPago().then( res => {
@@ -446,6 +442,26 @@ export default {
           } else {
             throw new Error(res_product.message);
           }
+          const res_por_prod = await this.getPercentSaleArt().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get procentaje descuento productos',
+          //   data: res_por_prod
+          // });
+          if(res_por_prod.ok){
+            this.options_des_products.length = 0;
+            res_por_prod.data.forEach( element => {  
+              if(element.Pv_Estado == 1){
+                this.options_des_products.push({
+                  label: element.Pv_Descripcion,
+                  value: element.Pv_Id,
+                });
+              }
+            })
+          } else {
+            throw new Error(res_por_prod.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -466,15 +482,42 @@ export default {
       }, 2000)
     },
     onSubmit(){
-
+      this.$q.loading.show({
+        message: 'Realizando venta, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          this.enc_venta.Per_Num_documento = this.data_user.Per_Num_documento
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
     },
     addProduct(){
       let product_add = {
+        Ev_Id: null,
+        base: process.env.__BASE__,
         codigo: this.producto_selecte.codigo,
         producto: this.producto_selecte.label,
-        id_producto: this.producto_selecte.value,
-        cantidad: this.cantidad,
-        precio_venta: this.precio_venta,
+        Art_Id: this.producto_selecte.value,
+        Dv_Cant: this.cantidad,
+        Dv_Precio_compra: null,
+        Dv_precio_venta: this.precio_venta_art,
+        Dv_valor_descuento: this.descuento_art,
       }
 
       let exits_product = this.data_sales.find( product => product.codigo == product_add.codigo );
@@ -487,6 +530,7 @@ export default {
         this.data_sales.push(product_add);
       }
     },
+    // Borra productos de la tabla productos a vender
     delteProduct(row){
       this.$q.dialog({
         component: dialog,
@@ -497,6 +541,62 @@ export default {
         let index = this.data_sales.indexOf(row)
         this.data_sales.splice(index, 1)
       })
+    },
+    // Recarga el select luego de crear un cliente
+    reload(){
+      this.dialog_create_user = false;
+      setTimeout(()=> {
+        this.$q.loading.show({
+          message: 'Actualizando lista de cliente, por favor espere...'
+        })
+        setTimeout(async() => {
+          try {
+            const res_provider = await this.getProviders().then( res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Respuesta get proveedor',
+            //   data: res_provider
+            // });
+            if(res_provider.ok){
+              if(res_provider.result){
+                all_clients.length = 0;
+                res_provider.data.forEach( element => {
+                  if(element.Tp_Id == 1 && element.CP_Razon_social){
+                    all_clients.push({
+                      label: element.CP_Razon_social,
+                      value: element.CP_Nit
+                    })
+                  }
+                });
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                });
+              }
+            } else {
+              throw new Error(res_provider.message);
+            }
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative",
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+        }, 2000)
+      }, 200)
     },
     onReset(){
 
@@ -526,8 +626,13 @@ export default {
     filterClients(val, update, abort){
       setTimeout(() => {
         update(() => {
-            const needle = val.toLowerCase()
-            this.options_providers = all_providers.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1)
+            if (val === '') {
+              this.options_clientes = all_clients
+            }
+            else {
+              const needle = val.toLowerCase();
+              this.options_clientes = all_clients.filter( v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1 );
+            }
           },
           ref => {
             if (val !== '' && ref.options.length > 0) {
@@ -542,8 +647,13 @@ export default {
     filterComprobante(val, update, abort){
       setTimeout(() => {
         update(() => {
-          const needle = val.toLowerCase();
-          this.options_comprobantes = all_comprobante.filter( v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1 );
+          if (val === '') {
+            this.options_comprobantes = all_comprobante
+          }
+          else {
+            const needle = val.toLowerCase();
+            this.options_comprobantes = all_comprobante.filter( v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1 );
+          }
         },
         ref => {
           if (val !== '' && ref.options.length > 0) {
