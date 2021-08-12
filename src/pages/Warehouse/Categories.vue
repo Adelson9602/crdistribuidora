@@ -56,6 +56,13 @@ export default {
     return {
       columns: [
         {
+          name: 'Cat_precodigo',
+          align: 'center',
+          label: 'Pre código',
+          sortable: true,
+          field: 'Cat_precodigo'
+        },
+        {
           name: 'Cat_Nombre',
           align: 'center',
           label: 'Nombre',
@@ -140,6 +147,7 @@ export default {
                   Cat_Nombre: cat.Cat_Nombre,
                   Cat_User_control: cat.Cat_User_control,
                   Per_Nombre: cat.Per_Nombre,
+                  Cat_precodigo: cat.Cat_precodigo
                 })
               });
             } else {

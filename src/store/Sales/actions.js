@@ -32,3 +32,15 @@ export function requestGetSalestoListDetail(contex, data) {
 export function getWarranties(){
   return Vue.prototype.$axios.get(`select_garantias_a_devolver/${process.env.__BASE__}`)
 }
+
+// Proveedores
+// Obtiene todos los proveedores o clientes
+export function getClientes(){
+  return Vue.prototype.$axios.get(`select_cliente_proveepor_general/${base}`)
+}
+
+// Proveedores
+// Obtiene todos los proveedores o clientes
+export function getAllstock(){
+  return Vue.prototype.$axios.get(`select_stock_porcentaje_general/${base}`)
+}

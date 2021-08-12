@@ -1,53 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <!-- <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
-
-        <q-toolbar-title>
-          SIGI
-        </q-toolbar-title>
-
-     
-
-          <q-btn dense round flat icon="notifications">
-            <q-badge color="red" floating transparent rounded>
-              4
-            </q-badge>
-          </q-btn>
-
-          <q-separator vertical inset color="white" class="separator"></q-separator>
-
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/img/avatar.png">
-            <q-menu
-              :offset="[0, 20]"
-            >
-              <q-list style="min-width: 100px">
-                <q-item clickable v-close-popup to="profile">
-                  <q-item-section>Perfil</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section> 
-                    Cerrar Sesión</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-avatar>
-       
-  
-      </q-toolbar>
-    </q-header> -->
-
     <q-drawer
-      v-model="leftDrawerOpen"
+      v-model="drawer"
       show-if-above
       :width="270" 
       elevated
@@ -64,7 +18,7 @@
             <q-item-section clickable v-ripple side>
               <q-avatar size="50px">
                 <img src='https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png' />
-                <!-- <img :src="dataUser.Foto ? dataUser.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
+                <!-- <img :src="data_user.Foto ? data_user.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
               </q-avatar>
             </q-item-section>
           </router-link>
@@ -72,11 +26,11 @@
             <q-item-section>
               <q-item-label class="sidebar__user-name"
                 >
-                {{dataUser.Per_Nombre}}
+                {{data_user.Per_Nombre}}
                 </q-item-label
               >
               <q-item-label caption class="sidebar__text-rol">
-                {{dataUser.Rol_Descripcion}}
+                {{data_user.Rol_Descripcion}}
               </q-item-label>
             </q-item-section>
           </router-link>
@@ -253,7 +207,7 @@ name: 'MainLayout',
       },
       {
         label: 'Almacen',
-        icon: 'inventory',
+        icon: 'mdi-warehouse',
         visible: true,
         expanded: true,
         route: '/warehouse/articles',
@@ -262,6 +216,19 @@ name: 'MainLayout',
           { label: "Categorías", route: "warehouse/categories" },
           { label: "Traslado de bodega", route: "warehouse/warehouse_transfer" },
           { label: "Inventario", route: "warehouse/inventory" },
+        ]
+      },
+      {
+        label: 'Maestras',
+        icon: 'mdi-puzzle-plus',
+        visible: true,
+        expanded: true,
+        route: '/master/percentage',
+        items: [
+     
+          { label: "% de ventas", route: "master/percentsales" },
+            { label: "Cargos", route: "master/charges" },
+        
         ]
       },
       {
@@ -289,21 +256,12 @@ name: 'MainLayout',
         ]
       },
       {
-        label: 'Consulta Compras',
-        icon: 'donut_large',
-        visible: true,
-        expanded: true,
-        route: '/check_purchases/check_purchases',
-        items: [
-          { label: "Consulta Compras", route: "check_purchases/check_purchases" }, // Para todos los usuario
-        ]
-      },
-      {
-        label: 'Consulta Ventas',
-        icon: 'donut_large',
+        label: 'Movimientos',
+        icon: 'mdi-transfer',
         visible: true,
         expanded: true,
         items: [
+          { label: "Consulta Compras", route: "check_purchases/check_purchases" },
           { label: "Consulta Ventas", route: "consult_sales/consult_sales" },
           { label: "Consulta Vendedor", route: "consult_sales/consult_seller" },
           { label: "Consulta Utilidad", route: "consult_sales/consult_utility" },
@@ -311,44 +269,42 @@ name: 'MainLayout',
         ]
       },
       {
-        label: 'Consulta Créditos',
-        icon: 'donut_large',
+        label: 'Créditos y pagos',
+        icon: 'mdi-cash-multiple',
         visible: true,
         expanded: true,
         items: [
           { label: "Créditos Cliente", route: "check_credits/customer_credits" },
           { label: "Créditos Proveedor", route: "check_credits/provider_credits" },
-        ]
-      },
-      {
-        label: 'Confirmación Pagos',
-        icon: 'donut_large',
-        visible: true,
-        expanded: true,
-        items: [
-          { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
+            { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
           { label: "Confirmación Ventas", route: "payment_confirmation/sales_confirmation" },
         ]
       },
+      // {
+      //   label: 'Confirmación Pagos',
+      //   icon: 'donut_large',
+      //   visible: true,
+      //   expanded: true,
+      //   items: [
+      //     { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
+      //     { label: "Confirmación Ventas", route: "payment_confirmation/sales_confirmation" },
+      //   ]
+      // },
     ]
     
   },
   computed: {
     ...mapState("auth", ["user_logged"]),
-    ...mapState("app", ["isOnline"]),
-    online(){
-      return this.isOnline;
-    },
-    dataUser() {
+    data_user() {
       return this.user_logged;
-    },
+    }
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged"]),
     ...mapMutations("app", ["setIsOnline"]),
     ...mapActions("notifications", ["GetNotifications"]),
     async getNotificaciones(){
-      const resGetNotifications = await this.GetNotifications(this.dataUser.Per_Num_documento).then((res) => {
+      const resGetNotifications = await this.GetNotifications(this.data_user.Per_Num_documento).then((res) => {
         return res.data.data;
       });
       console.log({

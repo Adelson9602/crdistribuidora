@@ -7,6 +7,7 @@ import access from './Access';
 import master from './Master';
 import shopping from './Shopping';
 import notifications from './Notifications';
+import movements from './Movements';
 
 import createPersistedState from 'vuex-persistedstate';
 
@@ -31,6 +32,7 @@ export default function (/* { ssrContext } */) {
       master,
       shopping,
       notifications,
+      movements
     },
     plugins: [createPersistedState()],
     // enable strict mode (adds overhead!)

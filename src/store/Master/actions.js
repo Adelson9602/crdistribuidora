@@ -31,3 +31,30 @@ export function getMedioPago(){
 export function getCities(){
     return Vue.prototype.$axios.get(`select_ciudad_general/${base}`)
 }
+
+// Obtiene todos los roles
+export function getRol(){
+    return Vue.prototype.$axios.get(`select_rol_general/${base}`);
+}
+
+// Obtiene los cargos
+export function getCargos(){
+    return Vue.prototype.$axios.get(`select_cargos_general/${base}`)
+}
+
+
+//consulta general de porcentajes  trae todos los reasultados
+export function getAllPorcentaje(){
+    return Vue.prototype.$axios.get(`select_porcentaje_venta_general/${base}`)
+  }
+  
+  // Agrega o edita los porcentajes
+  export function addPorcentaje(contex, data){
+      return Vue.prototype.$axios.post(`insert_update_porcentaje_venta`, data);
+    }
+
+      // Agrega o edita los cargos
+  export function addCargos(contex, data){
+    return Vue.prototype.$axios.post(`insert_update_cargos`, data);
+  }
+  

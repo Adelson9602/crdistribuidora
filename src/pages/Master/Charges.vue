@@ -10,10 +10,10 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="percentage" label="Porcentaje" icon="inventory_2" />
+        <q-tab name="charges" label="Cargos" icon="inventory_2" />
         <q-tab
-          name="create_percentage"
-          :label="!percentage_edit ? 'Agregar %' : 'Editar %'"
+          name="create_charges"
+          :label="!charges_edit ? 'Agregar Cargos' : 'Editar Cargos'"
           icon="add_business"
         />
       </q-tabs>
@@ -21,16 +21,16 @@
       <q-separator />
 
       <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="percentage">
+        <q-tab-panel name="charges">
           <component-table
             class="q-mt-md height-table"
-            proptitle="Porcentaje"
+            proptitle="Cargos"
             :propdata="data"
             :propcolumns="columns"
             :propgrid="true"
             :propflat="true"
             :propbtns="btns"
-            @onedit="editPorcentaje"
+            @onedit="editCargos"
             @tostatus="openDialogStatus"
           />
           <!-- Dialogo para activar o inactivar una meta -->
@@ -42,10 +42,10 @@
           />
         </q-tab-panel>
 
-        <q-tab-panel name="create_percentage">
-          <component-add-percent-sales
+        <q-tab-panel name="create_charges">
+          <component-add-charges
             @reload="reload"
-            :edit_data="percentage_edit"
+            :edit_data="charges_edit"
           />
         </q-tab-panel>
       </q-tab-panels>
@@ -54,22 +54,22 @@
 </template>
 
 <script>
-import ComponentAddPercentSales from "src/components/Master/ComponentAddPercentSales.vue";
+import ComponentAddCharges from "src/components/Master/ComponentAddCharges.vue";
 import componentTable from "components/Generals/ComponentTable";
 import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
 import { mapActions, mapState } from "vuex";
 let categorias = [];
 let ums = [];
 export default {
-  name: "Percentage",
+  name: "charges",
   components: {
     componentTable,
     ComponentDialogEnable,
-    ComponentAddPercentSales
+    ComponentAddCharges
   },
   data() {
     return {
-      tab: "percentage",
+      tab: "charges",
       date_range: {
         to: null,
         from: null
@@ -89,21 +89,14 @@ export default {
           sortable: true
         },
         {
-          name: "Pv_Descripcion",
+          name: "Car_Descripcion",
           required: true,
           label: "Descripcion",
           align: "center",
-          field: "Pv_Descripcion",
+          field: "Car_Descripcion",
           sortable: true
         },
-        {
-          name: "Pv_Prcentaje",
-          required: true,
-          label: "% de Venta",
-          align: "center",
-          field: "Pv_Prcentaje",
-          sortable: true
-        },
+      
         {
           name: "name_estado",
           required: true,
@@ -113,11 +106,11 @@ export default {
           sortable: true
         },
         {
-          name: "Pv_User_control",
+          name: "Car_User_control",
           required: true,
           label: "User control",
           align: "center",
-          field: "Pv_User_control",
+          field: "Car_User_control",
           sortable: true
         },
         {
@@ -129,11 +122,11 @@ export default {
           sortable: true
         },
         {
-          name: "Pv_Fecha_control",
+          name: "Car_Fecha_control",
           required: true,
           label: "Fecha control",
           align: "center",
-          field: "Pv_Fecha_control",
+          field: "Car_Fecha_control",
           sortable: true
         }
        
@@ -144,7 +137,7 @@ export default {
         btn_export_pdf: true,
         export_excel: true
       },
-      percentage_edit: null,
+      charges_edit: null,
       enable_diable: false,
       options_status: {
         title: null,
@@ -163,15 +156,15 @@ export default {
   },
   watch: {
     tab(value) {
-      if (value == "percentage") {
-        this.percentage_edit = null;
+      if (value == "charges") {
+        this.charges_edit = null;
       }
     }
   },
   methods: {
     ...mapActions("master", [
-      "getAllPorcentaje",
-      "addPorcentaje",
+      "getCargos",
+      "addCargos",
 
     ]),
     ...mapActions("master", ["getAllUm"]),
@@ -181,7 +174,7 @@ export default {
       });
       setTimeout(async () => {
         try {
-          const resgetDataPorcentaje = await this.getAllPorcentaje().then(
+          const resgetDataCargos = await this.getCargos().then(
             res => {
               return res.data;
             }
@@ -190,23 +183,22 @@ export default {
           //   msg: 'Repeusta get artículos',
           //   data: resgetDataArticles,
           // });
-          if (resgetDataPorcentaje.ok) {
-            if (resgetDataPorcentaje.result) {
+          if (resgetDataCargos.ok) {
+            if (resgetDataCargos.result) {
               this.data.length = 0;
-              resgetDataPorcentaje.data.forEach(element => {
+              resgetDataCargos.data.forEach(element => {
                 this.data.push({
                   Id: element.Id,
-                  Pv_Id: element.Pv_Id,
-                  Pv_Descripcion: element.Pv_Descripcion,
-                  Pv_Prcentaje: element.Pv_Prcentaje,
-                  name_estado: element.Pv_Estado == 1 ? "ACTIVO" : "INACTIVO",
-                  Pv_Estado: element.Pv_Estado,
-                  Pv_User_control: element.Pv_User_control,
+                  Car_Id: element.Car_Id,
+                  Car_Descripcion: element.Car_Descripcion,
+                  name_estado: element.Car_Estado == 1 ? "ACTIVO" : "INACTIVO",
+                  Car_Estado: element.Car_Estado,
+                  Car_User_control: element.Car_User_control,
                   Per_Nombre: element.Per_Nombre,
-                  Pv_Fecha_control: element.Pv_Fecha_control,
-                  title: element.Pv_Descripcion,
-                  Estado: element.Pv_Estado,
-                  status: element.Pv_Estado,
+                  Car_Fecha_control: element.Car_Fecha_control,
+                  title: element.Car_Descripcion,
+                  Estado: element.Car_Estado,
+                  status: element.Car_Estado,
                   btn_edit: true,
                   btn_status: true,
                   // btn_details: true,
@@ -218,13 +210,13 @@ export default {
               });
             } else {
               this.$q.notify({
-                message: resgetDataPorcentaje.message,
+                message: resgetDataCargos.message,
                 type: "warning"
               });
             }
           } else {
             this.data.length = 0;
-            throw resgetDataPorcentaje.message;
+            throw resgetDataCargos.message;
           }
         } catch (e) {
           console.log(e);
@@ -246,55 +238,55 @@ export default {
       }, 2000);
     },
 
-    editPorcentaje(row) {
-      this.percentage_edit = row;
-      this.tab = "create_percentage";
+    editCargos(row) {
+      this.charges_edit = row;
+      this.tab = "create_charges";
     },
     reload() {
-      this.tab = "percentage";
+      this.tab = "charges";
       this.edit_form = false;
       setTimeout(() => {
         this.getData();
       }, 500);
     },
     openDialogStatus(row) {
-      this.percentage_edit = {
+      this.charges_edit = {
         base: null,
         Id: row.Id,
-        Pv_Id: row.Pv_Id,
-        Pv_Descripcion: row.Pv_Descripcion,
+        Car_Id: row.Car_Id,
+        Car_Descripcion: row.Car_Descripcion,
         Pv_Prcentaje: row.Pv_Prcentaje,
-        name_estado: row.Pv_Estado == 1 ? "ACTIVO" : "INACTIVO",
-        Pv_Estado: row.Pv_Estado == 1 ? 0 : 1,
-        Pv_User_control: this.data_user.Per_Num_documento,
+        name_estado: row.Car_Estado == 1 ? "ACTIVO" : "INACTIVO",
+        Car_Estado: row.Car_Estado == 1 ? 0 : 1,
+        Car_User_control: this.data_user.Per_Num_documento,
         Per_Nombre: row.Per_Nombre,
-        Pv_Fecha_control: row.Pv_Fecha_control,
-        title: row.Pv_Descripcion,
-        Estado: row.Pv_Estado,
-        status: row.Pv_Estado
+        Car_Fecha_control: row.Car_Fecha_control,
+        title: row.Car_Descripcion,
+        Estado: row.Car_Estado,
+        status: row.Car_Estado
       };
       this.options_status.title =
-        row.Pv_Estado == 1 ? "Desactivar Porcentaje" : "Activar Porcentaje";
+        row.Car_Estado == 1 ? "Desactivar Cargos" : "Activar Cargos";
       this.options_status.msg =
-        row.Pv_Estado == 1
-          ? "Está desactivando este Porcentaje, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivar?"
-          : "Está activando este Porcentaje, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
+        row.Car_Estado == 1
+          ? "Está desactivando este Cargos, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivar?"
+          : "Está activando este Cargos, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
       this.enable_diable = true;
     },
     changeStatus() {
       this.$q.loading.show({
-        message: "Estamos cambiando el estado del Porcentaje, por favor espere..."
+        message: "Estamos cambiando el estado del Cargos, por favor espere..."
       });
       setTimeout(async () => {
         try {
-          this.percentage_edit.base = process.env.__BASE__;
-          const res_update = await this.addPorcentaje(this.percentage_edit).then(
+          this.charges_edit.base = process.env.__BASE__;
+          const res_update = await this.addCargos(this.charges_edit).then(
             res => {
               return res.data;
             }
           );
           // console.log({
-          //   msg: "Respuesta insert update porcentaje",
+          //   msg: "Respuesta insert update Cargos",
           //   data: res_update
           // });
           if (res_update.ok) {
