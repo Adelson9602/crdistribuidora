@@ -384,6 +384,7 @@ export default {
     producto_selecte(value){
       if(value){
         console.log(value)
+        this.cant_disponible = value.cantidad;
       }
     }
   },
