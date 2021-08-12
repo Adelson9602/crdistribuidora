@@ -55,3 +55,8 @@ export function insertUpdateEncVenta(context, data){
 export function insertUpdateDetVenta(context, data){
   return Vue.prototype.$axios.post(`insert_update_det_venta`, data);
 }
+
+// Obtiene el porcentaje de descuento para el articulo
+export function getPercentSaleArt(context, data){
+  return Vue.prototype.$axios.get(`select_porcentaje_venta_general/${base}`)
+}
