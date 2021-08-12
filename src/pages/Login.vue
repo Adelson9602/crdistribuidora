@@ -55,6 +55,7 @@ export default {
         try {
           user.base = process.env.__BASE__;
           const { data } = await this.login(user); //login es la acción, está definida en mapActions de la tienda de datos de vuex
+          console.log(data.data)
           this.setUser(data.data);
           this.setIsLogged(true);
           this.$router.push('desktop')

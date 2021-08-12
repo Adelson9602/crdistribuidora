@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <!-- <q-header elevated>
       <q-toolbar>
         <q-btn
           flat
@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title>
-          <!-- SIGI -->
+          SIGI
         </q-toolbar-title>
 
      
@@ -36,7 +36,6 @@
                 </q-item>
                 <q-item clickable v-close-popup>
                   <q-item-section> 
-                    <!-- <q-icon name="dashboard" />  -->
                     Cerrar Sesión</q-item-section>
                 </q-item>
               </q-list>
@@ -45,7 +44,7 @@
        
   
       </q-toolbar>
-    </q-header>
+    </q-header> -->
 
     <q-drawer
       v-model="leftDrawerOpen"
@@ -60,9 +59,91 @@
           <img src="../statics/logo_menu.png" alt="logo de CR Distribuidora" class="img-logo">
         </div>
         <q-scroll-area class="bg-transparent" style="height: calc(100% - 60px); ">
+          <q-item class="sidebar__user">
+          <router-link to="/profile" class="no-decoration">
+            <q-item-section clickable v-ripple side>
+              <q-avatar size="50px">
+                <img src='https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png' />
+                <!-- <img :src="dataUser.Foto ? dataUser.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
+              </q-avatar>
+            </q-item-section>
+          </router-link>
+          <router-link to="/profile" class="no-decoration">
+            <q-item-section>
+              <q-item-label class="sidebar__user-name"
+                >
+                {{dataUser.Per_Nombre}}
+                </q-item-label
+              >
+              <q-item-label caption class="sidebar__text-rol">
+                {{dataUser.Rol_Descripcion}}
+              </q-item-label>
+            </q-item-section>
+          </router-link>
+          <q-item-section side style="overflow: hidden;">
+            <q-btn dense round flat icon="notifications" class="notificaciones__icon">
+              <q-badge color="red" rounded floating transparent v-if="count_notifications > 0"> 
+                {{count_notifications}} 
+              </q-badge>
+              <q-menu anchor="top right" self="top left" :offset="[30, 0]" class="no-scroll" style="overflow: hidden;"> 
+                <q-list style="max-width: 300px; min-width: 300px; overflow: hidden;" class="no-scroll">
+                  <q-item class="notificaciones__title">
+                    <q-item-label caption>Notificaciones</q-item-label>
+                    <router-link to="/notificaciones">
+                      <q-item-label class="notificaciones__link" caption>Ver todas</q-item-label>
+                    </router-link>
+                  </q-item>
+
+                  <q-separator />
+                  <div v-if="notifications.length > 0" class="notifications__content">
+                    <div v-for="(notification, index) in notifications" :key="index">
+                      <q-item clickable @click="editEstadoNotification(notification)">
+                        <q-item-section>
+                          <q-item-label>{{notification.nt_titulo}}</q-item-label>
+                          <q-item-label caption lines="2"
+                            >{{notification.nt_descripcion}}</q-item-label
+                          >
+                        </q-item-section>
+
+                        <q-item-section side top>
+                         <q-item-label v-if="notification.dias > 0" caption>hace {{notification.dias}} dia<span v-if="notification.dias > 1">s</span></q-item-label>
+
+                          <q-item-label v-if="notification.horas < 24 && notification.horas > 0" caption>hace {{notification.horas}} horas</q-item-label>
+
+                          <q-item-label v-if="notification.minutos < 59 && notification.minutos > 0" caption>hace {{notification.minutos}} minuto<span v-if="notification.minutos > 1">s</span></q-item-label>
+
+                          <q-item-label v-if="notification.minutos <= 0" caption>hace un momento</q-item-label>
+                          <q-icon
+                            name="circle"
+                            color="blue"
+                            size="10px"
+                            style="margin-top: 10px"
+                            v-if="notification.nt_estado == 1"
+                          />
+                        </q-item-section>
+                      </q-item>
+                      <q-separator spaced inset />
+                    </div>
+                  </div>
+                  <div v-else class="notifications__content">
+                    <div>
+                      <q-item clickable>
+                        <q-item-section>
+                          <q-item-label>Sin notificaciones</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-separator spaced inset />
+                    </div>
+                  </div>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-item-section>
+        </q-item>
+        <!-- <hr class="sidebar-separator" /> -->
           <q-item-label
             header
-            class="text-grey-8"
+            class="text-grey-8 sidebar__title-navegation"
           >
             <b>Navegación</b>
           </q-item-label>
@@ -95,17 +176,34 @@
               <q-item-section>{{menu.label}}</q-item-section>
             </q-item>
           </q-list>
+          <q-item clickable v-ripple @click="logout">
+            <q-item-section avatar>
+              <q-icon color="red" name="power_settings_new" />
+            </q-item-section>
+            <q-item-section>Cerrar Sesión</q-item-section>
+          </q-item>
         </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
+      <q-page-sticky position="top-left">
+        <q-btn
+          @click="leftDrawerOpen = !leftDrawerOpen"
+          square
+          class="btn-menu"
+          color="white"
+          text-color="black"
+          dense
+          icon="menu"
+        />
+      </q-page-sticky>
       <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 
 export default {
   // name: 'LayoutName',
@@ -120,6 +218,8 @@ name: 'MainLayout',
       menu: [],
       baseurl: process.env.__URLBASE__,
       leftDrawerOpen: false,
+      notifications: [],
+      count_notifications: null,
     };
   },
   mounted(){
@@ -130,6 +230,7 @@ name: 'MainLayout',
     window.addEventListener('offline', () => {
       this.setIsOnline(false)
     });
+    this.getNotificaciones();
     this.menu = [
       {
         label: 'Escritorio',
@@ -230,20 +331,47 @@ name: 'MainLayout',
         ]
       },
     ]
+    
   },
   computed: {
-    ...mapState("auth", ["user"]),
+    ...mapState("auth", ["user_logged"]),
     ...mapState("app", ["isOnline"]),
     online(){
       return this.isOnline;
     },
     dataUser() {
-      return this.user;
+      return this.user_logged;
     },
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged"]),
     ...mapMutations("app", ["setIsOnline"]),
+    ...mapActions("notifications", ["GetNotifications"]),
+    async getNotificaciones(){
+      const resGetNotifications = await this.GetNotifications(this.dataUser.Per_Num_documento).then((res) => {
+        return res.data.data;
+      });
+      console.log({
+        msg: "Respuesta notificaciones",
+        data: resGetNotifications,
+      });
+      resGetNotifications.forEach((element) => {
+        this.notifications.push({
+          nt_id: element.nt_id,
+          nt_titulo: element.nt_titulo,
+          nt_descripcion: element.nt_descripcion,
+          nt_fecha_control: element.nt_fecha_control,
+          dias: element.dias,
+          horas: element.horas,
+          minutos: element.minutos, 
+          nt_estado: element.nt_estado,
+        });
+        // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
+        if(element.nt_estado == 1){
+          this.count_notifications += 1
+        }
+      });
+    },
     logout() {
       this.$q.loading.show({
         message: "Cerrando sesión...",
@@ -252,7 +380,7 @@ name: 'MainLayout',
         this.setIsLogged(false);
         this.$router.push("/");
         this.$q.loading.hide();
-      }, 2000);
+      }, 1000);
     },
     deleteCache(){
       this.$q.loading.show({
@@ -276,11 +404,18 @@ name: 'MainLayout',
 </script>
 
 <style>
-.q-layout__section--marginal {
-  background: rgb(46,91,219);
-  background: linear-gradient(90deg, rgba(46,91,219,1) 0%, rgba(88,109,221,1) 0%, rgba(27,38,181,1) 30%, rgba(27,38,181,1) 53%, rgba(66,83,206,1) 90%, rgba(88,109,221,1) 100%);
-  color: #fff;
+.q-layout,
+.q-header,
+.q-footer,
+.q-page {
+  background: #efefef;
 }
+
+/* .q-layout__section--marginal {
+  background: rgb(255,157,0);
+  background: linear-gradient(90deg, rgba(255,157,0) 0%, rgba(255,157,0) 0%, rgba(255,157,0) 30%, rgba(255,157,0) 53%, rgba(255,157,0) 90%, rgba(255,157,0) 100%);
+  color: #fff;
+} */
 .separator{
   margin: 10px 20px;
 }
@@ -301,6 +436,11 @@ name: 'MainLayout',
   background: transparent;
   padding: 10px 0;
 }
+
+.sidebar__title-navegation{
+  padding: 10px 16px 0;
+}
+
 .q-page-sticky {
   z-index: 10000;
 }
@@ -323,5 +463,73 @@ name: 'MainLayout',
 .img-logo {
   width: 200px;
   margin: auto;
+}
+
+.sidebar__user {
+  border-radius: 5px;
+  margin: 10px 10px 7px 10px;
+  background: rgb(255,157,0);
+  background: linear-gradient(90deg, rgba(255,157,0) 0%, rgba(255,157,0) 0%, rgba(255,157,0) 30%, rgba(255,157,0) 53%, rgba(249,227,38) 100%, rgba(249,227,38) 100%);
+  color: #fff;
+}
+
+.sidebar__user-name {
+  color: #ffffff;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.sidebar__text-rol{
+  color: #FFF;
+  text-transform: capitalize;
+}
+
+.no-decoration {
+  text-decoration: none;
+}
+
+.sidebar-separator {
+  border: 0.1px solid #c8c8c8;
+}
+
+.notificaciones {
+  min-height: min-content;
+}
+.notificaciones__icon{
+  border: none;
+  color: #fff;
+}
+
+/* Notifications */
+.notificaciones__title{
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 70% 30%;
+  width: 100%;
+}
+
+.notifications__content{
+  margin-top: 30px;
+}
+
+.notificaciones__link{
+  float: right;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.q-position-engine::-webkit-scrollbar{
+    width:10px;
+    background:#fff
+}
+.q-position-engine::-webkit-scrollbar-thumb{
+    background:#C5C5C5;
+    border-left:.1px solid #fff;
+    border-right:.1px solid #fff;
+}
+.btn-menu{
+  height: 50px;
 }
 </style>

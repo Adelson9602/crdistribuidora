@@ -14,6 +14,14 @@ const routes = [
      
         ]
       },
+      { 
+        path: 'notificaciones',
+        component: () => import('layouts/LayoutApp'),
+        children: [
+          { path: '',
+          component: () => import('pages/Notifications/Notifications'), meta: {requiresAuth: true} }
+        ], 
+      },
       {
         path: 'access',
         component: () => import('layouts/LayoutApp'),
