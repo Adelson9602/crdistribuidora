@@ -19,6 +19,12 @@
           </div>
         </div>
       </div>
+      <div class="footer items-center">
+        <div class="footer-container">
+          <!-- Rights-->
+          <p class="footer__p"><span>&copy;</span><span class="copyright-year"></span><span>&nbsp;</span><span><b>{{name_company}}</b>. Todos los derechos reservados</span><span>.&nbsp;</span><a class="footer__appears" target="_blank" href="https://appears.com.co"> Desarrollado por Appears</a></p>
+        </div>
+      </div>
   </div>
   
 </template>
@@ -30,6 +36,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 export default {
   data(){
     return {
+      name_company: process.env.__PROJECT__,
       isForgot: false,
     }
   },
@@ -272,7 +279,7 @@ iframe {
 
 .login{
   width: 100%;
-  padding: 50px;
+  padding: 30px 50px;
   display: grid;
   justify-content: center;
   position: relative;
@@ -449,5 +456,23 @@ iframe {
 /* utils */
 .p-t-12 {
     padding-top: 12px;
+}
+
+/* Footer */
+.footer{
+  background: white;
+  bottom: 0;
+  text-align: center;
+  position: absolute;
+  z-index: 1111;
+  width: 100%;
+}
+.footer__p{
+  color: black;
+}
+.footer__appears{
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
 }
 </style>

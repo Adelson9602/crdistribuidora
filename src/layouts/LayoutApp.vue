@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-drawer
-      v-model="drawer"
+      v-model="leftDrawerOpen"
       show-if-above
       :width="270" 
       elevated
@@ -142,13 +142,14 @@
     <q-page-container>
       <q-page-sticky position="top-left">
         <q-btn
-          @click="leftDrawerOpen = !leftDrawerOpen"
           square
           class="btn-menu"
           color="white"
           text-color="black"
           dense
           icon="menu"
+          aria-label="Menu"
+          @click="leftDrawerOpen = !leftDrawerOpen"
         />
       </q-page-sticky>
       <router-view />
