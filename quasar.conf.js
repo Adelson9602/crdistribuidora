@@ -5,9 +5,14 @@
 
 // Configuration for your app
 // https://v1.quasar.dev/quasar-cli/quasar-conf-js
-
+const title = 'SIGI | Sistema para la gestion de inventarios';
+const description = "SIGI | Sistema para la gestion de inventarios";
 module.exports = function (/* ctx */) {
   return {
+    htmlVariables:{
+      title: title,
+      description: description,
+    },
     // https://v1.quasar.dev/quasar-cli/supporting-ts
     supportTS: false,
 
@@ -52,6 +57,7 @@ module.exports = function (/* ctx */) {
         __BASE__: 'crdistribuidora_newpruebas',
         __KEY__: '82f2ceed4c503896c8a291e560bd4325',
         __IV__: 'AES256',
+        __PROJECT__: 'SIGI',
       },
       // transpile: false,
 

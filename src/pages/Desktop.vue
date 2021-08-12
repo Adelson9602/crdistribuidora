@@ -285,6 +285,7 @@ export default {
 
 <style scoped>
 .my-card{
+  border-radius: 10px;
   height: 120px;
 }
 .number_card{
