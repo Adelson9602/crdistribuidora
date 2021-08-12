@@ -77,14 +77,8 @@ export default {
   mounted() {
     this.getNotifications();
   },
-  created() {
-    // Valida que permiso de acciones tiene el usuario
-    this.actions_user = this.user_permissions.find(
-      (e) => e.route === this.$route.path
-    );
-  },
   methods: {
-    ...mapActions("notifications", ["GetNotifications", "EditEstadoRegistro"]),
+    ...mapActions("notifications", ["GetNotifications", "PostInsertNotification"]),
     async getNotifications(){
       this.$q.loading.show({
         message: "Obteniendo notificaciones, por favor espere...",
@@ -102,6 +96,8 @@ export default {
             nt_id: element.nt_id,
             nt_titulo: element.nt_titulo,
             nt_descripcion: element.nt_descripcion,
+            nt_usuario_notificado: element.nt_usuario_notificado,
+            nt_usuario_control: element.nt_usuario_control,
             nt_fecha_control: element.nt_fecha_control,
             dias: element.dias,
             horas: element.horas,
@@ -130,40 +126,33 @@ export default {
         this.$q.loading.hide();
       }
     },
-    EstadoNotif(id){
-      this.notifications.forEach(element => {
-        if(element.nt_id == id){
-          element.nt_estado = 0;
-        }
-      });
-    },
-    async editEstadoNotification(data_notif){
-      console.log("Into")
+    async editEstadoNotification(notification){
       try{
-        if(data_notif.nt_estado == 1){
-          let dataEditEstadoRegistro = {
+        if(notification.nt_estado == 1){
+          let dataPostInsertNotification = {
+            nt_id: notification.nt_id,
+            nt_titulo: notification.nt_titulo,
+            nt_descripcion: notification.nt_descripcion,
+            nt_usuario_notificado: notification.nt_usuario_notificado,
+            nt_estado: 0,
+            nt_usuario_control: notification.nt_usuario_control,
             base: this.base, 
-            c_id: "nt_id",
-            id: data_notif.nt_id,
-            tabla: "notificaciones",
-            c_estado: "nt_estado",
-            newestado: 0,
-            c_fecha_control: "nt_fecha_control",
-            c_user_control: "nt_usuario_control",
-            newuser_control: this.dataUser.ID_Usuario_Person
           };
-          const resEditEstadoRegistro = await this.EditEstadoRegistro(dataEditEstadoRegistro).then((res) => {
+          const resPostInsertNotification = await this.PostInsertNotification(dataPostInsertNotification).then((res) => {
             return res.data;
           });
           console.log({
             msg: "Edit estado de notificación",
-            data: resEditEstadoRegistro,
+            data: resPostInsertNotification.data,
           });
-          if(resEditEstadoRegistro.affectedRows > 0){
-            // this.onReset();
-            this.EstadoNotif(data_notif.nt_id);
+          if(resPostInsertNotification.data.affectedRows > 0){
+            this.notifications.forEach(element => {
+              if(element.nt_id == notification.nt_id){
+                element.nt_estado = 0;
+              }
+            });
+            console.log("Llego al reload");
             this.reloadNotifications();
-            // this.getNotifications();
           }
         }
       }catch (e) {

@@ -14,7 +14,7 @@
         </div>
         <q-scroll-area class="bg-transparent" style="height: calc(100% - 60px); ">
           <q-item class="sidebar__user">
-          <router-link to="/profile" class="no-decoration">
+          <router-link to="/access/profile" class="no-decoration">
             <q-item-section clickable v-ripple side>
               <q-avatar size="50px">
                 <img src='https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png' />
@@ -22,7 +22,7 @@
               </q-avatar>
             </q-item-section>
           </router-link>
-          <router-link to="/profile" class="no-decoration">
+          <router-link to="/access/profile" class="no-decoration">
             <q-item-section>
               <q-item-label class="sidebar__user-name"
                 >
@@ -152,7 +152,7 @@
           @click="leftDrawerOpen = !leftDrawerOpen"
         />
       </q-page-sticky>
-      <router-view />
+      <router-view @reloadNotifications="reloadNotifications" />
     </q-page-container>
   </q-layout>
 </template>
@@ -165,6 +165,7 @@ export default {
 name: 'MainLayout',
   data() {
     return {
+      base: process.env.__BASE__,
       dialog_delete_cache: false,
       accept: false,
       drawer: false,
@@ -303,7 +304,7 @@ name: 'MainLayout',
   methods: {
     ...mapMutations("auth", ["setIsLogged"]),
     ...mapMutations("app", ["setIsOnline"]),
-    ...mapActions("notifications", ["GetNotifications"]),
+    ...mapActions("notifications", ["GetNotifications", "PostInsertNotification"]),
     async getNotificaciones(){
       const resGetNotifications = await this.GetNotifications(this.data_user.Per_Num_documento).then((res) => {
         return res.data.data;
@@ -317,6 +318,8 @@ name: 'MainLayout',
           nt_id: element.nt_id,
           nt_titulo: element.nt_titulo,
           nt_descripcion: element.nt_descripcion,
+          nt_usuario_notificado: element.nt_usuario_notificado,
+          nt_usuario_control: element.nt_usuario_control,
           nt_fecha_control: element.nt_fecha_control,
           dias: element.dias,
           horas: element.horas,
@@ -328,6 +331,56 @@ name: 'MainLayout',
           this.count_notifications += 1
         }
       });
+    },
+    async editEstadoNotification(notification){
+      try{
+        if(notification.nt_estado == 1){
+          let dataPostInsertNotification = {
+            nt_id: notification.nt_id,
+            nt_titulo: notification.nt_titulo,
+            nt_descripcion: notification.nt_descripcion,
+            nt_usuario_notificado: notification.nt_usuario_notificado,
+            nt_estado: 0,
+            nt_usuario_control: notification.nt_usuario_control,
+            base: this.base, 
+          };
+          const resPostInsertNotification = await this.PostInsertNotification(dataPostInsertNotification).then((res) => {
+            return res.data;
+          });
+          console.log({
+            msg: "Edit estado de notificación",
+            data: resPostInsertNotification,
+          });
+          if(resPostInsertNotification.data.affectedRows > 0){
+            this.onResetNotifs();
+            this.getNotificaciones();
+          }
+        }
+      }catch (e) {
+        console.log(e);
+        if (e.message === "Error de conexión") {
+          e = e.message;
+        } else if (e.message === "Request failed with status code 404") {
+          e = "Error 404 al hacer la petición al servidor";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative",
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
+    },
+    reloadNotifications(){
+      this.notifications = [];
+      this.count_notifications = null;
+      this.getNotificaciones();
+    },
+    onResetNotifs(){
+      this.notifications = [];
+      this.count_notifications = null;
     },
     logout() {
       this.$q.loading.show({
@@ -369,8 +422,8 @@ name: 'MainLayout',
 }
 
 /* .q-layout__section--marginal {
-  background: rgb(255,157,0);
-  background: linear-gradient(90deg, rgba(255,157,0) 0%, rgba(255,157,0) 0%, rgba(255,157,0) 30%, rgba(255,157,0) 53%, rgba(255,157,0) 90%, rgba(255,157,0) 100%);
+  background: rgb(249,167,38);
+  background: linear-gradient(90deg, rgba(249,167,38) 0%, rgba(249,167,38) 0%, rgba(249,167,38) 30%, rgba(249,167,38) 53%, rgba(249,167,38) 90%, rgba(249,167,38) 100%);
   color: #fff;
 } */
 .separator{
@@ -425,8 +478,7 @@ name: 'MainLayout',
 .sidebar__user {
   border-radius: 5px;
   margin: 10px 10px 7px 10px;
-  background: rgb(255,157,0);
-  background: linear-gradient(90deg, rgba(255,157,0) 0%, rgba(255,157,0) 0%, rgba(255,157,0) 30%, rgba(255,157,0) 53%, rgba(249,227,38) 100%, rgba(249,227,38) 100%);
+  background: linear-gradient(90deg, rgba(249,167,38) 0%, rgba(249,167,38) 0%, rgba(249,167,38) 30%, rgba(249,167,38) 53%, rgba(249,227,38) 100%, rgba(249,227,38) 100%);
   color: #fff;
 }
 
