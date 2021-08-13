@@ -46,10 +46,15 @@
 <script>
 import UserForm from "components/Access/ComponentUserForm";
 import ListUser from "components/Generals/ComponentTable";
+import dialog from 'components/Generals/ComponentDialogWarning';
 import { mapActions, mapState } from "vuex";
 import CryptoJS from 'crypto-js'
 
 export default {
+  components: {
+    UserForm,
+    ListUser,
+  },
   name: "PageUser",
   data() {
     return {
@@ -154,18 +159,20 @@ export default {
       user_edit: null, //ALmacena el usuario a editar
     };
   },
-  components: {
-    UserForm,
-    ListUser,
-  },
   created() {
     this.getData();
   },
   computed: {
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
   },
   methods: {
     ...mapActions('access', [
       'getPersons',
+      'InsertUpdateUsuario',
+      'InsertUpdatePersonal',
     ]),
     getData() {
       this.$q.loading.show({
@@ -258,6 +265,63 @@ export default {
       this.label = 'Editar usuario';
     },
     setStatus(row){
+      this.$q.dialog({
+        component: dialog,
+        parent: this,
+        title: row.Per_Estado == 1 ? 'Inactivar usuario' : 'Activar usuario',
+        msg: `Atención! Estas a un paso de ${row.Per_Estado == 1 ? 'innactivar el usuario, tenga en cuenta, que al inactivarlo, este ya no podrá acceder al sistema' : 'activar el usuario, tenga en cuenta, que al activarlo, este podrá acceder al sistema '}, ¿Desea continuar?`,
+      }).onOk(() => {
+        this.$q.loading.show({
+          message: 'Cambiando estado del usuario, por favor espere...'
+        });
+        this.timer = setTimeout(async() => {
+          try {
+            row.base = process.env.__BASE__;
+            row.Usu_User_control = this.data_user.Per_Num_documento;
+            row.Per_Estado = row.Per_Estado == 1 ? 0 : 1;
+            row.Usu_Estado = row.Usu_Estado == 1 ? 0 : 1;
+
+            const res_per = await this.InsertUpdatePersonal(row).then( res => {
+              return res.data;
+            })
+            console.log({
+              msg: 'Respuesta update persona',
+              data: res_per
+            })
+            if(!res_per.ok){
+              throw new Error (res_per.message);
+            }
+            const res_create = await this.InsertUpdateUsuario(row).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta update user',
+              data: res_create
+            })
+            if(!res_create.ok){
+              throw new Error (res_create.message);
+            }
+
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative",
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+          this.timer = setTimeout( this.getData(), 2000);
+        }, 2000)
+      })
 
     },
     encryptedAES(data) {
@@ -272,6 +336,12 @@ export default {
         padding: CryptoJS.pad.Pkcs7
       });
       return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+    }
+  },
+  beforeDestroy () {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer)
+      this.$q.loading.hide()
     }
   }
 };
