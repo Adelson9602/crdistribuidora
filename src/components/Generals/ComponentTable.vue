@@ -323,7 +323,7 @@ export default {
         btn_export_pdf: false,
         export_excel: false
       },
-      actions_card: true, //muestra u oculta los btns de las cards
+      actions_card: false, //muestra u oculta los btns de las cards
       toggle: true,
       actions_user: null,
       visible_columns: [], //Permite mostrar u ocultar columnas
