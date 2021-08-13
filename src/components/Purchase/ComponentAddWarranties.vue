@@ -6,93 +6,103 @@
       class="q-gutter-md"
     >
       <div class="row">
+        <div class="col-xs-12 q-px-sm q-gutter-x-sm">
+          <div class="text-body1">Tipo de salida a realizar</div>
+          <q-radio keep-color v-model="tipo_salida" val="1" label="Salida a proveedor" color="teal" />
+          <q-radio keep-color v-model="tipo_salida" val="2" label="Salida a garantía" color="orange" />
+          <q-radio keep-color v-model="tipo_salida" val="3" label="Salida a almacen" color="red" />
+        </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
           <q-select
-            v-model="tipo_salida"
-            :options="options_salida"
-            hint="Tipo salida"
+            v-model="proveedor_selected"
+            dense
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            hint="Proveedor"
+            :options="options_providers"
+            @filter="filterProvider"
             map-options
             emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sin resultado
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-select
+            v-model="enc_salida.Esp_Cedula_Autoriza"
+            dense
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            hint="Quíen autoriza"
+            :options="options_person"
+            @filter="filterPerson"
+            map-options
+            emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sin resultado
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-xs-12 col-md-3 q-px-sm">
+          <q-input
+            v-model="enc_salida.Esp_Autoriza_cliente"
+            dense
+            type="text"
+            hint="Cliente que autoriza"
+            maxlength="100"
+            counter
+            :rules="[val => !!val || 'Cliente que autoriza es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-md-3 q-px-sm">
-          <q-select
-            v-model="proveedor_selected"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            hint="Proveedor"
-            :options="options_providers"
-            @filter="filterProvider"
-            map-options
-            emit-value
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey">
-                  No results
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
+          <q-input
+            v-model="enc_salida.Esp_Nombre_Recibe"
+            dense
+            type="text"
+            hint="Cliente que recibe"
+            maxlength="100"
+            counter
+            :rules="[val => !!val || 'Quién recibe es obligatorio']"
+          />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
-          <q-select
-            v-model="proveedor_selected"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            hint="Proveedor"
-            :options="options_providers"
-            @filter="filterProvider"
-            map-options
-            emit-value
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey">
-                  No results
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
+        <div class="col-xs-12 q-px-sm">
+          <q-input
+            v-model="enc_salida.Esp_Observacion"
+            dense
+            type="textarea"
+            hint="Observación"
+            rows="3"
+          />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
-          <q-select
-            v-model="proveedor_selected"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            hint="Quién autoriza"
-            :options="options_providers"
-            @filter="filterProvider"
-            map-options
-            emit-value
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey">
-                  No results
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-md-4 q-px-sm">
           <q-select
             v-model="producto_selected"
+            dense
             clearable
             use-input
             hide-selected
             fill-input
             input-debounce="0"
-            hint="Quíen recibe"
+            hint="Producto"
             :options="options_products"
             @filter="filterProducts"
             map-options
@@ -101,11 +111,27 @@
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey">
-                  No results
+                  Sin resultado
                 </q-item-section>
               </q-item>
             </template>
           </q-select>
+        </div>
+        <div class="col-xs-12 col-md-4 q-px-sm">
+          <q-input
+            v-model="cantidad"
+            dense
+            type="text"
+            hint="Cantidad"
+          />
+        </div>
+        <div class="col-xs-12 col-md-4 q-px-sm">
+          <q-input
+            v-model="dsp_observacion"
+            dense
+            type="text"
+            hint="Observaciones"
+          />
         </div>
       </div>
       <div>
@@ -115,11 +141,12 @@
     <div class="row">
       <div class="col-xs-12">
         <q-table
-          title="Garantías a agregar"
-          :data="data"
+          title="Productos agregados"
+          :data="data_product"
           :columns="columns"
           row-key="name"
           flat
+          class="height"
         >
           <template v-slot:header-cell-calories="props">
             <q-th :props="props">
@@ -137,159 +164,67 @@
 import { mapActions, mapState } from 'vuex';
 let all_providers = []; //Contiene todos los proveedores
 let all_productos = []; //Contiene todos los productos
+let all_person = []; //Contiene todos los productos
 export default {
   name: 'ComponentAddWarranties',
   data () {
     return {
       options_providers: all_providers, //Opciones para el select proveedores
       options_products: all_productos, //Opciones para el select productos
-      options_salida: [
-        {
-          label: 'SALIDA A PROVEEDOR',
-          value: 1
-        },
-        {
-          label: 'SALIDA A GARANTÍA',
-          value: 2
-        },
-        {
-          label: 'SALIDA A ALMACEN',
-          value: 3
-        },
-      ],
+      options_person: all_person, //Opciones para el select quien autoriza
       tipo_salida: null,
       producto_selected: null,
       proveedor_selected: null,
       enc_salida: {
         base: null,
         Esp_Id: null,
-        Esp_Cedula_Autoriza: null,
-        Esp_Autoriza_cliente: null,
+        Esp_Cedula_Autoriza: null, 
+        Esp_Autoriza_cliente: null, //Nombre digitado
         CP_Nit: null,
-        Esp_Nombre_Recibe: null,
+        Esp_Nombre_Recibe: null, //Nombre digitado
         Esp_Observacion: null,
         Esp_User_control: null,
       },
+      dsp_observacion: null, //Obs para detalle salida
+      cantidad: null, //Cantidad productos par la salida
       columns: [
         {
-          name: 'name',
-          required: true,
-          label: 'Dessert (100g serving)',
-          align: 'left',
-          field: row => row.name,
-          format: val => `${val}`,
-          sortable: true
+          name: 'codigo',
+          aling: 'center',
+          label: 'Código',
+          sortable: true,
+          field: 'codigo'
         },
-        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
-        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-        { name: 'protein', label: 'Protein (g)', field: 'protein' },
-        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-        { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
-        { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+        {
+          name: 'descripcion',
+          aling: 'center',
+          label: 'Descripción producto',
+          sortable: true,
+          field: 'descripcion'
+        },
+        {
+          name: 'Art_Id',
+          aling: 'center',
+          label: 'ID Artículo',
+          sortable: true,
+          field: 'Art_Id'
+        },
+        {
+          name: 'Dsp_Cant',
+          aling: 'center',
+          label: 'Cantidad',
+          sortable: true,
+          field: 'Dsp_Cant'
+        },
+        {
+          name: 'Dsp_Observacion',
+          aling: 'center',
+          label: 'Observación',
+          sortable: true,
+          field: 'Dsp_Observacion'
+        },
       ],
-      data: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
-        }
-      ],
+      data_product: [],
     }
   },
   created(){
@@ -385,7 +320,8 @@ export default {
   methods: {
     ...mapActions('shopping', [
       'getProviders',
-      'getStockGarantias'
+      'getStockGarantias',
+      'getPersonAuthorized'
     ]),
     ...mapActions("warehouse", [
       "getStockMovil",
@@ -423,6 +359,34 @@ export default {
           } else {
             throw new Error(res_provider.message);
           }
+
+          const res_autorized = await this.getPersonAuthorized().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get personas autorizadas',
+            data: res_autorized
+          });
+          if(res_autorized.ok){
+            if(res_autorized.result){
+              all_person.length = 0 ;
+              res_autorized.data.forEach( person => {
+                if(person.Qa_Estado == 1){
+                  all_person.push({
+                    value: person.Per_Num_documento,
+                    label: person.Per_Nombre,
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_autorized.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_autorized.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -446,7 +410,24 @@ export default {
 
     },
     addProduct(){
-
+      let det_salida = {
+        base: process.env.__BASE__,
+        Esp_Id: null, //Id del encabezado
+        codigo: this.producto_selected.codigo,
+        descripcion: this.producto_selected.label,
+        Art_Id: this.producto_selected.value,
+        Dsp_Cant: this.cantidad,
+        Dsp_Observacion: this.dsp_observacion,
+      };
+      let exits_product = this.data_product.find( product => product.codigo == det_salida.codigo );
+      if(exits_product){
+        this.$q.notify({
+          message: 'Este producto ya esta gregado',
+          type: 'warning'
+        });
+      } else {
+        this.data_product.push(det_salida);
+      }
     },
     onReset(){
 
@@ -495,7 +476,33 @@ export default {
         )
       }, 300)
     },
-    // inventario_single
+    // Buscador para el select quién autoriza
+    filterPerson (val, update, abort) {
+      setTimeout(() => {
+        update(
+          () => {
+            if (val === '') {
+              this.options_person = all_person
+            }
+            else {
+              const needle = val.toLowerCase()
+              this.options_person = all_person.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.codigo.toLowerCase().indexOf(needle) > -1)
+            }
+          },
+          ref => {
+            if (val !== '' && ref.options.length > 0) {
+              ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+              ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+            }
+          }
+        )
+      }, 300)
+    },
   }
 }
 </script>
+<style scoped>
+.height{
+  height: 450px !important;
+}
+</style>

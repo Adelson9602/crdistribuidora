@@ -65,7 +65,17 @@ export function getStockGarantias(){
   return Vue.prototype.$axios.get(`select_stock_garantias_single/${base}/1`)
 }
 
+// Obtiene el personal que autoriza salida
+export function getPersonAuthorized(){
+  return Vue.prototype.$axios.get(`select_quien_autoriza_general/${base}`);
+}
+
 // Inserta el encabezado de la salida a garantía o proveedor
 export function insertEncSalidaProv(context, data){
   return Vue.prototype.$axios.post(`insert_update_enc_salida_proveedor`, data)
+}
+
+// Inserta el detalle de la salida a garantía o proveedor
+export function insertDetSalidaProv(context, data){
+  return Vue.prototype.$axios.post(`insert_update_det_salida_pro`, data);
 }
