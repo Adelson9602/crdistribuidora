@@ -30,7 +30,7 @@
             :propcolumns="columns"
             :propgrid="true"
             :propflat="true"
-            :propactions="false"
+            :propactions="true"
             @getrangedata="getArticleRang"
             @onedit="editArticle"
             @tostatus="openDialogStatus"
