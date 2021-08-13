@@ -49,14 +49,23 @@ export function searchProviders(context, nit){
   return Vue.prototype.$axios.get(`select_cliente_proveepor_single/${base}/${nit}`)
 }
 
+// Obtiene todos los proveedores o clientes
+export function getTpDoc(){
+  return Vue.prototype.$axios.get(`select_tipo_documento_general/${base}`)
+}
+
 // Garantias
 // Obtiene las salidas a garantias
 export function getWaraniesOutput(){
   return Vue.prototype.$axios.get(`select_stock_garantias_general/${base}`)
 }
 
-// Proveedores
-// Obtiene todos los proveedores o clientes
-export function getTpDoc(){
-  return Vue.prototype.$axios.get(`select_tipo_documento_general/${base}`)
+// Obtiene el stock para garantias
+export function getStockGarantias(){
+  return Vue.prototype.$axios.get(`select_stock_garantias_single/${base}/1`)
+}
+
+// Inserta el encabezado de la salida a garantía o proveedor
+export function insertEncSalidaProv(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_salida_proveedor`, data)
 }
