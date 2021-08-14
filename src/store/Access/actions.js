@@ -1,5 +1,10 @@
 import Vue from "vue";
 let base = process.env.__BASE__;
+
+export function saveFile(context, data){
+    return Vue.prototype.$axios.post(`file-upload`, data);
+}
+
 // PERMISOS
 //Inicio Select Login
 export function GetModules (context) {

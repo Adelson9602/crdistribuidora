@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-form
-      @submit="addArticle"
+      @submit="addProduct"
       autocomplete="off"
       ref="form_article"
     >
@@ -160,7 +160,7 @@
       </template>
     </q-table>
     <q-page-sticky position="bottom-right" :offset="[18,18]" expand v-if="data_articles.length > 0">
-        <q-btn label="Guardar" @click="onSubmit" color="green"/>
+      <q-btn label="Guardar" @click="onSubmit" color="green"/>
     </q-page-sticky>
   </div>  
 </template>
@@ -267,6 +267,10 @@ export default {
   watch: {
     img_articulo(value){
       if(value){
+        let extension_foto = value.type.split('/');
+        // Creamos un nombre con la fecha y hora del momento que se selecciona el archivo, a esa fecha le reemplazamos los . por ' ', los : y los - por _ y al resultado concatenamos un . y la extensión del archivo 
+        let name_file_foto= this.replaceAll(this.replaceAll(this.replaceAll(new Date().toISOString().toLowerCase(), ".", ""), ":", "_"), "-", "_")+"."+extension_foto[1];
+        value.newname = name_file_foto;
         this.tem_url_img = URL.createObjectURL(value);
       }
     }
@@ -278,6 +282,9 @@ export default {
     ]),
     ...mapActions('master', [
       'getAllUm'
+    ]),
+    ...mapActions('access', [
+      'saveFile',
     ]),
     getData(){
       this.$q.loading.show({
@@ -394,22 +401,32 @@ export default {
           let promesas = [];
           this.data_articles.forEach( articulo => {
             articulo.Art_User_control = this.data_user.Per_Num_documento;
-            console.log(articulo)
-            // promesas.push(this.addArticle(articulo).then( res => {
-            //   return res.data;
-            // }))
+            if(articulo.tem_img){
+              // Se sube la foto al servidor
+              const formData = new FormData();
+              formData.append("files", articulo.tem_img, articulo.tem_img.newname );
+              promesas.push(this.saveFile(formData).then(async res => {
+                res.data.msg = 'Respuesta subida foto';
+                return res.data;
+              }));
+              articulo.Art_Imagen = `${process.env.__URLAPI__}adjuntos/${articulo.tem_img.newname}`;
+            }
+            promesas.push(this.addArticle(articulo).then( res => {
+              res.data.msg = 'Respuesta insert update articulo';
+              return res.data;
+            }))
           })
-          // Promise.all(promesas).then( data => {
-          //   data.forEach( res => {
-          //     console.log({
-          //       msg: 'Respuesta insert update articulo',
-          //       data: res
-          //     });
-          //     if(!res.ok){
-          //       throw new Error('Erorr al agregar artículos');
-          //     }
-          //   })
-          // })
+          Promise.all(promesas).then( data => {
+            data.forEach( res => {
+              console.log({
+                msg: res.msg,
+                data: res
+              });
+              if(!res.ok || !res.saved){
+                throw new Error('Erorr al guardar artículo');
+              }
+            })
+          })
           this.$q.notify({
             message: 'Guardado',
             type: 'positive'
@@ -434,12 +451,12 @@ export default {
         }
       }, 2000)
     },
-    addArticle(){
+    addProduct(){
       let add_article = {
         base: process.env.__BASE__,
         Art_Id: null,
         art_cat: this.art_cat.label,
-        Cat_Id: this.new_article.Cat_Id,
+        Cat_Id: this.art_cat.value,
         Art_Codigo_inv: null,
         Art_Nombre: this.new_article.Art_Nombre,
         Art_Descripcion: this.new_article.Art_Descripcion,
@@ -531,6 +548,12 @@ export default {
           }
         })
       }, 300)
+    },
+    // Reemplaza elementos de un string
+    replaceAll( text, busca, reemplaza ){
+      while (text.toString().indexOf(busca) != -1)
+          text = text.toString().replace(busca,reemplaza);
+      return text;
     },
   }
 }
