@@ -14,7 +14,11 @@ export function getSalesClient(context, nit){
 
 // Obtiene las ventas por rango de fecha
 export function getSalesClientRange(context, data){  
-  return Vue.prototype.$axios.get(`select_enc_venta_general_cliente_range/${base}/${data.nit}/${data.from}/${data.to}`)
+  return Vue.prototype.$axios.get(`select_enc_venta_general_cliente_range/${base}/${data.from}/${data.to}`)
+}
+// Obtiene las ventas por el nit del cliente 
+export function getSalesClientSingle(context, nit){  
+  return Vue.prototype.$axios.get(`select_enc_venta_general_cliente_nit/${base}/${nit}`)
 }
 
 // Obtiene el detalle de una venta
