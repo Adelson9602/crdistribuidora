@@ -282,13 +282,13 @@ export default {
         }
       }, 2000)
     },
-    detailsEntry(id){
+    detailsEntry(row){
       this.$q.loading.show({
         message: 'Obteniendo detalle del ingreso, por favor espere...'
       });
       setTimeout( async() => {
         try {
-          const res_detail = await this.getDetailsEntry(id).then( res => {
+          const res_detail = await this.getDetailsEntry(row.Id).then( res => {
             return res.data;
           });
           console.log({
@@ -299,8 +299,7 @@ export default {
             if(res_detail.result){
               this.data.length = 0 ;
               res_detail.data.forEach( ingreso => {
-                this.data.push({
-                })
+                
               });
             } else {
               this.$q.notify({
