@@ -110,7 +110,7 @@ export default {
       ],
       data: [],
       btns: {
-        range_date: true,
+        range_date: false,
         btn_export_pdf: true,
         export_excel: true
       },
