@@ -400,7 +400,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000)
+      }, 1000)
     },
     editEntry(){
 
