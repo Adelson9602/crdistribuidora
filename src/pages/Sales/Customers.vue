@@ -266,7 +266,7 @@ export default {
             if (res_provider.result) {
               this.data.length = 0;
               res_provider.data.forEach(provider => {
-                if (provider.name_tp == "CLIENTE") {
+                if (provider.Tp_Id == 1) {
                   this.data.push({
                     base: null,
                     CP_Digito_verificacion: provider.CP_Digito_verificacion,
