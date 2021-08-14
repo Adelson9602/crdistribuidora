@@ -2,8 +2,8 @@
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
       <q-card-section>
-        <div class="row">
-          <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="row q-gutter-y-md">
+          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
             <q-field
               stack-label
               class="date_training"
@@ -52,10 +52,10 @@
               </template>
             </q-field>
           </div>
-          <div class="col-xs-12 col-md-3 q-px-sm">
+          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
             <q-select v-model="model" :options="options" hint="Vendedor" />
           </div>
-          <div class="col-xs-12 col-md-3 q-px-sm">
+          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
             <q-card class="my-card">
               <q-card-section>
                 <q-item>
@@ -73,7 +73,7 @@
               </q-card-section>
             </q-card>
           </div>
-          <div class="col-xs-12 col-md-3 q-px-sm">
+          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
             <q-card class="my-card">
               <q-card-section>
                 <q-item>
