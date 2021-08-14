@@ -50,7 +50,7 @@
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 row" v-if="buscador.input">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 row" v-if="buscador.input">
           <div class="col-xs-12 col-md-8">
             <q-input v-model="id_search" type="text" :hint="buscador.label" />
           </div>
@@ -58,7 +58,7 @@
             <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
           </div>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
           <slot></slot>
         </div>
       </div>
