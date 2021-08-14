@@ -53,6 +53,7 @@
             :proppdf="optionpdf"
             :propbtns="btns"
             :proppagination="initial_pagination"
+            :propactions="true"
             @onedit="editEntry"
             @tostatus="openDialogStatus"
           />

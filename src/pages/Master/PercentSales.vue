@@ -30,6 +30,7 @@
             :propgrid="true"
             :propflat="true"
             :propbtns="btns"
+            :propactions="true"
             @onedit="editPorcentaje"
             @tostatus="openDialogStatus"
           />

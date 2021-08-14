@@ -25,6 +25,7 @@
               :propgrid="true"
               :propflat="true"
               :propbtns="btns"
+              :propactions="true"
               @ondetails="detailsTransfer"
               @getrangedata="getRange"
             >

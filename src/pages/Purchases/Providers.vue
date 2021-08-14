@@ -41,8 +41,9 @@
               :proppdf="optionpdf"
               :propbtns="btns"
               :proppagination="initial_pagination"
+              :propactions="true"
               @onedit="editProvider"
-        @tostatus="openDialogStatus"
+              @tostatus="openDialogStatus"
             />
              <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable

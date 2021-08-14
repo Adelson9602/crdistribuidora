@@ -28,6 +28,7 @@
             :proppdf="optionpdf"
             :propbtns="btns"
             :proppagination="initial_pagination"
+            :propactions="true"
             @range="getSalesByRange"
             @onedit="editSale"
           />

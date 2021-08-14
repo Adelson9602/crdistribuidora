@@ -8,6 +8,7 @@
           :propcolumns="columns"
           :propflat="true"
           :propbtns="btns"
+          :propactions="true"
           :proppagination="initial_pagination"
           @ondetails="detatilSale"
         >
