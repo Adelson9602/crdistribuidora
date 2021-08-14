@@ -152,6 +152,14 @@
             </template>
           </q-select>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+          <q-select
+            v-model="descuento_art"
+            :options="options_des_products"
+            hint="Descuento articulo"
+            :rules="[val => !!val || 'Producto es obligatorio']"
+          />
+        </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-field hint="Cantidad disponible" stack-label>
             <template v-slot:control>
@@ -163,21 +171,14 @@
           <q-input
             v-model="cantidad"
             hint="Cantidad"
-            :rules="[val => !!val || 'Cantidad es obligatorio']"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
-          <q-select
-            v-model="descuento_art"
-            :options="options_des_products"
-            hint="Descuento articulo"
-            :rules="[val => !!val || 'Producto es obligatorio']"
+            mask="############"
+            :rules="[val => !!val || 'Cantidad es obligatorio',
+              val => val != 0 || 'La cantida no puede ser 0'
+            ]"
           />
         </div>
       </div>
-      <div>
-        <q-btn label="Submit" type="submit" color="primary"/>
-      </div>
+      <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
     </q-form>
     <q-table
       title="Productos a vender"
@@ -185,6 +186,7 @@
       :columns="columns_sales"
       row-key="name"
       flat
+      class="height"
     >
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -214,6 +216,25 @@
         </q-tr>
       </template>
     </q-table>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 q-pa-sm">
+        <q-field label="Subtotal" stack-label>
+          <template v-slot:control>
+            <div class="self-center full-width no-outline" tabindex="0">{{subtotal_venta}}</div>
+          </template>
+        </q-field>
+      </div>
+      <div class="col-xs-12 col-sm-6 q-pa-sm">
+        <q-field label="Total" stack-label>
+          <template v-slot:control>
+            <div class="self-center full-width no-outline" tabindex="0">{{total_venta}}</div>
+          </template>
+        </q-field>
+      </div>
+    </div>
+    <q-page-sticky position="bottom-right" :offset="[18,18]">
+      <q-btn color="primary" icon="check" label="OK"/>
+    </q-page-sticky>
   </div>
 </template>
 
@@ -267,6 +288,8 @@ export default {
       precio_venta_art: null,
       descuento_art: null,
       movil_selecte: null,
+      total_venta: null,
+      subtotal_venta: null,
       enc_venta: {
         base: null,
         Ev_Id: null,
@@ -599,14 +622,21 @@ export default {
         Dv_valor_descuento: this.descuento_art,
       }
 
-      let exits_product = this.data_sales.find( product => product.codigo == product_add.codigo );
-      if(exits_product){
+      if(this.cantidad > this.cant_disponible){
         this.$q.notify({
-          message: 'Producto ya está agregado',
+          message: 'La cantidad es mayor a la disponible',
           type: 'warning'
         })
       } else {
-        this.data_sales.push(product_add);
+        let exits_product = this.data_sales.find( product => product.codigo == product_add.codigo );
+        if(exits_product){
+          this.$q.notify({
+            message: 'Producto ya está agregado',
+            type: 'warning'
+          })
+        } else {
+          this.data_sales.push(product_add);
+        }
       }
     },
     // Borra productos de la tabla productos a vender
@@ -757,3 +787,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.height{
+  height: 350px !important;
+}
+</style>
