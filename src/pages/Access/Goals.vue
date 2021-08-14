@@ -26,6 +26,7 @@
             :proppdf="optionpdf"
             :propflat="true"
             :propgrid="true"
+            :propactions="true"
             @tostatus="openDialogStatus"
             :proppagination="initial_pagination"
             @onedit="editGoal"

@@ -193,6 +193,7 @@
         proptitle="Persmiso"
         :propflat="true"
         :propgrid="true"
+        :propactions="true"
         @onedit="editModulo"
         @ondetails="detailsModulo"
       />
