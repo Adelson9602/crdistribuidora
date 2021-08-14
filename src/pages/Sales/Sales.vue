@@ -31,7 +31,29 @@
             :propactions="true"
             @range="getSalesByRange"
             @onedit="editSale"
-          />
+          >
+            <q-select
+              v-model="client_selected"
+              clearable
+              use-input
+              hide-selected
+              fill-input
+              input-debounce="0"
+              hint="Cliente"
+              :options="options_clientes"
+              @filter="filterClientes"
+              emit-value
+              map-options
+            >
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey">
+                    No results
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </component-table>
         </q-tab-panel>
 
         <q-tab-panel name="add_sales">
@@ -46,6 +68,7 @@
 import ComponentAddSales from 'components/Sales/ComponentAddSales';
 import componentTable from "components/Generals/ComponentTable";
 import { mapActions } from 'vuex';
+let all_clients = []; //Contiene todos los clientes
 export default {
   name: 'DeparturesGuarantees',
   components: {
@@ -162,11 +185,11 @@ export default {
           field: 'Ev_Fecha_venta'
         },
         {
-          name: 'name_estado',
+          name: 'Estado',
           align: 'center',
           label: 'Estado',
           sortable: true,
-          field: 'name_estado'
+          field: 'Estado'
         },
       ],
       data: [],
@@ -201,22 +224,115 @@ export default {
         rowsPerPage: 9,
       },
       id_sale: null,
+      options_clientes: all_clients,
+      client_selected: null, //Cliente seleccionado
     }
   },
   created(){
     this.getData();
   },
+  watch: {
+    client_selected(value){
+      if(value){
+        this.$q.loading.show({
+          message: 'Obteniendo ventas del cliente, por favor espere...',
+        });
+        setTimeout(async() => {
+          try {
+            const res_client = await this.getSalesClient(value).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta get ventas al cliente',
+              data: res_client
+            });
+            if(res_client.ok){
+              if(res_client.result){
+                this.data.length = 0;
+                res_client.data.forEach( venta => {
+                  this.data.push({
+                    CP_Nit: venta.CP_Nit,
+                    CP_Razon_social: venta.CP_Razon_social,
+                    Ev_Des_gen_venta: venta.Ev_Des_gen_venta,
+                    Ev_Des_total_art: venta.Ev_Des_total_art,
+                    Ev_Descuentog: venta.Ev_Descuentog,
+                    Ev_Entregado: venta.Ev_Entregado,
+                    Ev_Estado: venta.Ev_Estado,
+                    Ev_Fecha_control: venta.Ev_Fecha_control,
+                    Ev_Fecha_venta: venta.Ev_Fecha_venta,
+                    Ev_Id: venta.Ev_Id,
+                    Ev_Impuesto: venta.Ev_Impuesto,
+                    Ev_Subtotal: venta.Ev_Subtotal,
+                    Ev_Total_venta: venta.Ev_Total_venta,
+                    Ev_conf_pago: venta.Ev_conf_pago,
+                    Ev_dias_credito: venta.Ev_dias_credito,
+                    Mov_Descripcion: venta.Mov_Descripcion,
+                    Mov_Id: venta.Mov_Id,
+                    Mp_Id: venta.Mp_Id,
+                    Per_Nombre: venta.Per_Nombre,
+                    Per_Num_documento: venta.Per_Num_documento,
+                    Estado: venta.name_estado,
+                    status: venta.Ev_Estado,
+                    title: venta.CP_Razon_social,
+                    name_mp: venta.name_mp,
+                    name_qautorizqa: venta.name_qautorizqa,
+                    // btn_edit: true,
+                    // btn_status: true,
+                    btn_details: true,
+                    // btn_pdf: true,
+                    // icon_btn_edit: "mdi-pencil",
+                    // icon_btn_status: "power_settings_new",
+                    icon_btn_details: "mdi-eye-settings",
+                  })
+                });
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                })
+              }
+            } else {
+              throw new Error(res_client.message);
+            }
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative",
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+        }, 2000)
+      }
+    }
+  },
   methods: {
     ...mapActions('sales', [
       'getSearchSales',
       'getSalesRange',
-      'getSales'
+      'getSales',
+      'getSales',
+      'getSalesClient',
+      'getDetailSales',
+      'getDetSaleWaranties'
+    ]),
+    ...mapActions('shopping', [
+      'getProviders'
     ]),
     getData(){
       this.$q.loading.show({
-        message: 'Obteniendo ventas, por favor espere...'
+        message: 'Obteniendo datos, por favor espere...'
       });
-      setTimeout( async() => {
+      setTimeout(async() => {
         try {
           const res_sales = await this.getSales().then( res => {
             return res.data;
@@ -226,54 +342,80 @@ export default {
             data: res_sales
           });
           if(res_sales.ok){
+            this.data.length = 0;
             if(res_sales.result){
-              this.data.length = 0 ;
-              res_sales.data.forEach( sale => {
+              res_sales.data.forEach( venta => {
                 this.data.push({
-                  CP_Nit: sale.CP_Nit,
-                  CP_Razon_social: sale.CP_Razon_social,
-                  Eg_Fecha_control: sale.Eg_Fecha_control,
-                  Eg_Id: sale.Eg_Id,
-                  Eg_Observacion: sale.Eg_Observacion,
-                  Eg_Quien_autoriza: sale.Eg_Quien_autoriza,
-                  Eg_estado: sale.Eg_estado,
-                  Ev_Des_gen_venta: sale.Ev_Des_gen_venta,
-                  Ev_Des_total_art: sale.Ev_Des_total_art,
-                  Ev_Descuentog: sale.Ev_Descuentog,
-                  Ev_Entregado: sale.Ev_Entregado,
-                  Ev_Estado: sale.Ev_Estado,
-                  Ev_Fecha_control: sale.Ev_Fecha_control,
-                  Ev_Fecha_venta: sale.Ev_Fecha_venta,
-                  Ev_Id: sale.Ev_Id,
-                  Ev_Impuesto: sale.Ev_Impuesto,
-                  Ev_Subtotal: sale.Ev_Subtotal,
-                  Ev_Total_venta: sale.Ev_Total_venta,
-                  Ev_Usuario_control: sale.Ev_Usuario_control,
-                  Ev_conf_pago: sale.Ev_conf_pago,
-                  Ev_dias_credito: sale.Ev_dias_credito,
-                  Mov_Descripcion: sale.Mov_Descripcion,
-                  Mov_Id: sale.Mov_Id,
-                  Mp_Id: sale.Mp_Id,
-                  Per_Nombre: sale.Per_Nombre,
-                  Per_Num_documento: sale.Per_Num_documento,
-                  name_estado: sale.name_estado.toUpperCase(),
-                  name_mp: sale.name_mp,
-                  name_qautorizqa: sale.name_qautorizqa,
-                  status: sale.Ev_Estado,
-                  btn_edit: true,
-                  icon_btn_details: 'visibility',
+                  CP_Nit: venta.CP_Nit,
+                  CP_Razon_social: venta.CP_Razon_social,
+                  Ev_Des_gen_venta: venta.Ev_Des_gen_venta,
+                  Ev_Des_total_art: venta.Ev_Des_total_art,
+                  Ev_Descuentog: venta.Ev_Descuentog,
+                  Ev_Entregado: venta.Ev_Entregado,
+                  Ev_Estado: venta.Ev_Estado,
+                  Ev_Fecha_control: venta.Ev_Fecha_control,
+                  Ev_Fecha_venta: venta.Ev_Fecha_venta,
+                  Ev_Id: venta.Ev_Id,
+                  Ev_Impuesto: venta.Ev_Impuesto,
+                  Ev_Subtotal: venta.Ev_Subtotal,
+                  Ev_Total_venta: venta.Ev_Total_venta,
+                  Ev_conf_pago: venta.Ev_conf_pago,
+                  Ev_dias_credito: venta.Ev_dias_credito,
+                  Mov_Descripcion: venta.Mov_Descripcion,
+                  Mov_Id: venta.Mov_Id,
+                  Mp_Id: venta.Mp_Id,
+                  Per_Nombre: venta.Per_Nombre,
+                  Per_Num_documento: venta.Per_Num_documento,
+                  Estado: venta.name_estado,
+                  status: venta.Ev_Estado,
+                  title: venta.CP_Razon_social,
+                  name_mp: venta.name_mp,
+                  name_qautorizqa: venta.name_qautorizqa,
+                  // btn_edit: true,
+                  // btn_status: true,
                   btn_details: true,
-                  icon_btn_edit: 'edit',
+                  // btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                  icon_btn_details: "mdi-eye-settings",
                 })
               });
             } else {
               this.$q.notify({
-                message: res_sales.message,
+                message: 'Sin resultados',
                 type: 'warning'
               });
             }
           } else {
-            throw new Error(res_sales.message);
+            throw new Error(res_sales.message)
+          }
+
+          const res_provider = await this.getProviders().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get clientes',
+            data: res_provider
+          });
+          if(res_provider.ok){
+            if(res_provider.result){
+              all_clients.length = 0 ;
+              res_provider.data.forEach( cliente => {
+                if(cliente.name_tp == 'CLIENTE' && cliente.CP_Razon_social){
+                  all_clients.push({
+                    label: cliente.CP_Razon_social,
+                    value: cliente.CP_Nit
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_provider.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_provider.message);
           }
         } catch (e) {
           console.log(e);
@@ -289,6 +431,58 @@ export default {
             message: e,
             type: "negative",
           });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
+    },
+    detatilSale(row){
+      this.$q.loading.show({
+        message: 'Obteniendo detalle de la venta, por favor espere..'
+      });
+      setTimeout(async() => {
+        try {
+          const res_deta = await this.getDetailSales(row.Ev_Id).then( res => {
+            return res.data
+          });
+          console.log({
+            msg: 'Respuesta get detalle venta',
+            data: res_deta
+          });
+          if(res_deta.ok){
+            if(res_deta.result){
+
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_deta.message)
+          }
+
+          const res_wara = await this.getDetSaleWaranties(row.Ev_Id).then( res => {
+            return res.data
+          });
+          console.log({
+            msg: 'Respuesta get detalle garantia venta',
+            data: res_wara
+          });
+          if(res_wara.ok){
+            if(res_wara.result){
+
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_wara.message)
+          }
+        } catch (e) {
+          
         } finally {
           this.$q.loading.hide();
         }
@@ -338,7 +532,7 @@ export default {
                   Mp_Id: sale.Mp_Id,
                   Per_Nombre: sale.Per_Nombre,
                   Per_Num_documento: sale.Per_Num_documento,
-                  name_estado: sale.name_estado.toUpperCase(),
+                  Estado: venta.name_estado,
                   name_mp: sale.name_mp,
                   name_qautorizqa: sale.name_qautorizqa,
                   status: sale.Ev_Estado,
@@ -420,7 +614,7 @@ export default {
                   Mp_Id: sale.Mp_Id,
                   Per_Nombre: sale.Per_Nombre,
                   Per_Num_documento: sale.Per_Num_documento,
-                  name_estado: sale.name_estado.toUpperCase(),
+                  Estado: venta.name_estado,
                   name_mp: sale.name_mp,
                   name_qautorizqa: sale.name_qautorizqa,
                   status: sale.Ev_Estado,
@@ -465,7 +659,28 @@ export default {
       setTimeout(()=> {
         this.getData()
       }, 200)
-    }
+    },
+    // Busca o filtra las opciones del select categorias articulo
+    filterClientes (val, update, abort) {
+      // call abort() at any time if you can't retrieve data somehow
+      setTimeout(() => {
+        update(() => {
+          if (val === '') {
+            this.options_clientes = all_clients
+          }
+          else {
+            const needle = val.toLowerCase()
+            this.options_clientes = all_clients.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1)
+          }
+        },
+        ref => {
+          if (val !== '' && ref.options.length > 0) {
+            ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+            ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+          }
+        })
+      }, 300)
+    },
   }
 }
 </script>

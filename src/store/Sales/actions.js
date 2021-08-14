@@ -13,11 +13,25 @@ export function getSalesRange(contex, data){
   return Vue.prototype.$axios.get(`select_enc_venta_range/${base}/${data.from}/${data.to}`);
 }
 
-// Obtiene todas las ventas realizadas
-export function getSales(){
-  return Vue.prototype.$axios.get(`select_enc_venta_general/${base}`)
+// Obtiene las ventas en general
+export function getSales() {
+  return Vue.prototype.$axios.get(`select_enc_venta_general/${base}`);
 }
 
+// Obtiene las ventas de un cliente
+export function getSalesClient(context, nit){
+  return Vue.prototype.$axios.get(`select_enc_venta_general_cliente/${base}/${nit}`)
+}
+
+// Obtiene las ventas por el nit del cliente 
+export function getSalesClientSingle(context, nit){  
+  return Vue.prototype.$axios.get(`select_enc_venta_general_cliente_nit/${base}/${nit}`)
+}
+
+// Obtiene el detalle de una venta
+export function getDetailSales(context, id_venta){
+  return Vue.prototype.$axios.get(`select_det_venta_single/${base}/${id_venta}`)
+}
 // Lista todos los productos agrupados por articulos y discriminados por ventas
 export function requestGetSalestoList(contex, data) {
   return Vue.prototype.$axios.get(`select_list_picking_range/${data.base}/${data.from}/${data.to}`);
