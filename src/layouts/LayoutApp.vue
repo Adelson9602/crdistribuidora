@@ -263,11 +263,11 @@ name: 'MainLayout',
         visible: true,
         expanded: true,
         items: [
-          { label: "Consulta Compras", route: "check_purchases/check_purchases" },
-          { label: "Consulta Ventas", route: "consult_sales/consult_sales" },
-          { label: "Consulta Vendedor", route: "consult_sales/consult_seller" },
-          { label: "Consulta Utilidad", route: "consult_sales/consult_utility" },
-          { label: "Ventas para alistar", route: "consult_sales/sales_to_list" },
+          { label: "Consulta Compras", route: "movements/check_purchases" },
+          { label: "Consulta Ventas", route: "movements/consult_sales" },
+          { label: "Consulta Vendedor", route: "movements/consult_seller" },
+          { label: "Consulta Utilidad", route: "movements/consult_utility" },
+          { label: "Ventas para alistar", route: "movements/sales_to_list" },
         ]
       },
       {
@@ -282,16 +282,6 @@ name: 'MainLayout',
           { label: "Confirmación Ventas", route: "payment_confirmation/sales_confirmation" },
         ]
       },
-      // {
-      //   label: 'Confirmación Pagos',
-      //   icon: 'donut_large',
-      //   visible: true,
-      //   expanded: true,
-      //   items: [
-      //     { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
-      //     { label: "Confirmación Ventas", route: "payment_confirmation/sales_confirmation" },
-      //   ]
-      // },
     ]
     
   },

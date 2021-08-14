@@ -77,7 +77,7 @@ const routes = [
         ],
       },
       {
-        path: 'consult_sales',
+        path: 'movements',
         component: () => import('layouts/LayoutApp'),
         meta: {requiresAuth: true} ,
         children: [
