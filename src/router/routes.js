@@ -77,22 +77,15 @@ const routes = [
         ],
       },
       {
-        path: 'check_purchases',
-        component: () => import('layouts/LayoutApp'),
-        meta: {requiresAuth: true} ,
-        children: [
-          { path: 'check_purchases', component: () => import('pages/CheckPurchases/CheckPurchases'), meta: {requiresAuth: true} },
-        ],
-      },
-      {
         path: 'consult_sales',
         component: () => import('layouts/LayoutApp'),
         meta: {requiresAuth: true} ,
         children: [
-          { path: 'consult_sales', component: () => import('pages/ConsultSales/ConsultSales'), meta: {requiresAuth: true} },
-          { path: 'consult_seller', component: () => import('pages/ConsultSales/ConsultSeller'), meta: {requiresAuth: true} },
-          { path: 'consult_utility', component: () => import('pages/ConsultSales/ConsultUtility'), meta: {requiresAuth: true} },
-          { path: 'sales_to_list', component: () => import('pages/ConsultSales/SalesToList'), meta: {requiresAuth: true} },
+          { path: 'consult_sales', component: () => import('pages/Movements/ConsultSales'), meta: {requiresAuth: true} },
+          { path: 'consult_seller', component: () => import('pages/Movements/ConsultSeller'), meta: {requiresAuth: true} },
+          { path: 'consult_utility', component: () => import('pages/Movements/ConsultUtility'), meta: {requiresAuth: true} },
+          { path: 'sales_to_list', component: () => import('pages/Movements/SalesToList'), meta: {requiresAuth: true} },
+          { path: 'check_purchases', component: () => import('pages/Movements/CheckPurchases'), meta: {requiresAuth: true} },
         ],
       },
       {
