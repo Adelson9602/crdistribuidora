@@ -246,8 +246,9 @@ export default {
     this.getData();
   },
   methods: {
-    ...mapActions("sales", ["getClientes", "searchProviders"]),
-    ...mapActions("shopping", ["addProviders"]),
+    ...mapActions("sales", ["getClientes"]),
+    ...mapActions("shopping", ["addProviders", "searchProviders"]),
+
     getData() {
       this.$q.loading.show({
         message: "Obteniendo clientes, por favor espere..."
