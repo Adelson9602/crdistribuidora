@@ -9,8 +9,8 @@ export function getEntries(){
 }
 
 // Obtiene las entradas por rango de fecha
-export function getEntriesRange(){
-  return Vue.prototype.$axios.get(`select_enc_entrada_bodega_range/${base}/${data.Fecha_inicial}/${data.Fecha_final}`);
+export function getEntriesRange(context, date){
+  return Vue.prototype.$axios.get(`select_enc_entrada_bodega_range/${base}/${date.from}/${date.to}`);
 }
 
 // Obtiene la entrada especifica porr id

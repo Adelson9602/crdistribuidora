@@ -18,19 +18,6 @@
 
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="incomies">
-            <q-form
-              @submit="searchEntry"
-              class="q-gutter-md"
-            >
-              <div class="row q-gutter-y-md">
-                <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
-                  <q-input v-model="id_entry" type="text" hint="Número ingreso" />
-                </div>
-                <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
-                  <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
-                </div>
-              </div>
-            </q-form>
             <component-table
               class="q-mt-md"
               proptitle="Inventario actual"
@@ -44,8 +31,20 @@
               :propactions="true"
               @onedit="editEntry"
               @ondetails="detailsEntry"
+              @getrangedata="searchEntryRange"
               :propbuscador="buscador"
-            />
+            >
+              <q-form
+                @submit="searchEntry"
+              >
+                <q-input
+                  v-model="id_entry"
+                  type="text"
+                  hint="Número ingreso"
+                  :rules="[val => !!val || 'Número de ingreso es requerido']"
+                />
+              </q-form>
+            </component-table>
           </q-tab-panel>
 
           <q-tab-panel name="add_income">
@@ -185,7 +184,7 @@ export default {
         }
       },
       btns: {
-        range_date: false,
+        range_date: true,
         btn_export_pdf: true,
         export_excel: true
       },
@@ -207,7 +206,8 @@ export default {
     ...mapActions('shopping', [
       'getEntries',
       'getDetailsEntry',
-      'getSingleEntry'
+      'getSingleEntry',
+      'getEntriesRange'
     ]),
     getData(){
       this.$q.loading.show({
@@ -404,6 +404,79 @@ export default {
     },
     editEntry(){
 
+    },
+    searchEntryRange(date){
+      this.$q.loading.show({
+        message: 'Obteniendo ingresos, por favor espere...'
+      });
+      setTimeout( async() => {
+        try {
+          const res_ingresos = await this.getEntriesRange(date).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get ingresos',
+            data: res_ingresos
+          });
+          if(res_ingresos.ok){
+            if(res_ingresos.result){
+              this.data.length = 0 ;
+              res_ingresos.data.forEach( ingreso => {
+                this.data.push({
+                  CP_Nit: ingreso.CP_Nit,
+                  CP_Razon_social: ingreso.CP_Razon_social,
+                  Ecb_Id: ingreso.Ecb_Id,
+                  Enc_Estado: ingreso.Enc_Estado,
+                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                  Enc_User_control: ingreso.Enc_User_control,
+                  Enc_dias_credito: ingreso.Enc_dias_credito,
+                  Enc_impuesto: ingreso.Enc_impuesto,
+                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                  Enc_total_compra: ingreso.Enc_total_compra,
+                  Mp_Id: ingreso.Mp_Id,
+                  Per_Nombre: ingreso.Per_Nombre,
+                  Tc_Descripcion: ingreso.Tc_Descripcion,
+                  status: ingreso.Enc_Estado,
+                  Tc_Id: ingreso.Tc_Id,
+                  Id: ingreso.id,
+                  no_ingreso: ingreso.id,
+                  title: `Ingreso No. ${ingreso.id}`,
+                  name_estado: ingreso.name_estado,
+                  name_mp: ingreso.name_mp,
+                  btn_edit: false,
+                  icon_btn_details: 'visibility',
+                  btn_details: true,
+                  icon_btn_edit: 'edit',
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_ingresos.message,
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_ingresos.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000)
     },
     reload(){
       this.tab = "incomies"
