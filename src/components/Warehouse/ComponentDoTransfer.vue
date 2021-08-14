@@ -567,7 +567,7 @@ export default {
         movil_origen: this.movil_origen.label,
         integrante_movil: this.integrante_movil.label,
         movil_destino: this.movil_destino.label,
-        integ_movil_destino: this.integ_movil_destino.label,
+        integ_movil_destino: this.enc_traslado.Etm_Estado == 1 ? this.integ_movil_destino.label : 0,
         Etm_Observaciones: this.enc_traslado.Etm_Observaciones,
         // Detalle
         base: process.env.__BASE__,
