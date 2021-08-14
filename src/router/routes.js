@@ -85,7 +85,6 @@ const routes = [
           { path: 'consult_seller', component: () => import('pages/Movements/ConsultSeller'), meta: {requiresAuth: true} },
           { path: 'consult_utility', component: () => import('pages/Movements/ConsultUtility'), meta: {requiresAuth: true} },
           { path: 'sales_to_list', component: () => import('pages/Movements/SalesToList'), meta: {requiresAuth: true} },
-          { path: 'check_purchases', component: () => import('pages/Movements/CheckPurchases'), meta: {requiresAuth: true} },
         ],
       },
       {

@@ -263,7 +263,6 @@ name: 'MainLayout',
         visible: true,
         expanded: true,
         items: [
-          { label: "Consulta Compras", route: "movements/check_purchases" },
           { label: "Consulta Ventas", route: "movements/consult_sales" },
           { label: "Consulta Vendedor", route: "movements/consult_seller" },
           { label: "Consulta Utilidad", route: "movements/consult_utility" },
