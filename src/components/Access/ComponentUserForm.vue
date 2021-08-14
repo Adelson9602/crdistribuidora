@@ -19,10 +19,10 @@
         >
           <div class="row">
             <!-- Foto de perfil -->
-            <div class="col-xs-12 col-md-4 offset-md-4">
-              <div class="text-body1 text-center">
-                Foto de perfil
-              </div>
+            <div class="col-xs-12 text-body1 text-center">
+              Foto de perfil
+            </div>
+            <div class="col-xs-12 col-md-4 offset-md-4 row justify-center">
               <div class="column justify-center items-center profile-img">
                 <q-avatar id="preview" square class="q-mb-md avatar_preview">
                   <img v-if="url" :src="url" />
@@ -1078,6 +1078,7 @@ export default {
 .profile-img {
   border: 1px solid rgb(202, 202, 202);
   border-radius: 10px;
+  width: 200px;
 }
 input[type="file"]#idImgUser {
   width: 0.1px;
