@@ -1,12 +1,12 @@
 <template>
   <div>
     <q-form
-      @submit="onSubmit"
-      @reset="onReset"
-      class="q-gutter-md"
+      @submit="addArticle"
+      autocomplete="off"
+      ref="form_article"
     >
       <div class="row q-gutter-y-md">
-        <div  v-if="this.edit_data  ? true : false" class="col-xs-12 col-md-6 q-px-sm">
+        <div v-if="this.edit_data ? true : false" class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
           <q-input
             @input="val => { new_article.Art_Codigo_inv = val.toUpperCase()}"
             v-model="new_article.Art_Codigo_inv"
@@ -15,11 +15,9 @@
             maxlength="50"
             counter
             :disable="this.edit_data  ? true : false"
-           
-           
           />
         </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
           <q-input
             @input="val => { new_article.Art_Nombre = val.toUpperCase()}"
             v-model="new_article.Art_Nombre"
@@ -29,7 +27,7 @@
             counter
           />
         </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
           <q-input
             @input="val => { new_article.Art_Descripcion = val.toUpperCase()}"
             v-model="new_article.Art_Descripcion"
@@ -38,9 +36,9 @@
             counter
           />
         </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
           <q-select
-            v-model="new_article.Cat_Id"
+            v-model="art_cat"
             clearable
             use-input
             hide-selected
@@ -49,8 +47,6 @@
             hint="Categoría"
             :options="options_categorias"
             @filter="filterFn"
-            emit-value
-            map-options
           >
             <template v-slot:no-option>
               <q-item>
@@ -61,9 +57,9 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
           <q-select
-            v-model="new_article.Um_Id"
+            v-model="art_um"
             clearable
             use-input
             hide-selected
@@ -72,8 +68,6 @@
             hint="Unidad de medida"
             :options="options_um"
             @filter="filterUm"
-            emit-value
-            map-options
           >
             <template v-slot:no-option>
               <q-item>
@@ -84,7 +78,32 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+          <q-select
+            v-model="new_article.Art_Estado"
+            :options="options_state"
+            hint="Estado"
+            emit-value
+            map-options
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+          <q-input
+            @input="val => { new_article.Art_ubicacion = val.toUpperCase()}"
+            v-model="new_article.Art_ubicacion"
+            hint="Ubicacion"
+            maxlength="100"
+            counter
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+          <q-file
+            v-model="img_articulo"
+            hint="Imagen artículo"
+            counter
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
           <q-input
             v-model="new_article.Art_Stockminimo"
             hint="Stock mínimo"
@@ -94,36 +113,61 @@
             counter
           />
         </div>
-           <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-input
-            @input="val => { new_article.Art_ubicacion = val.toUpperCase()}"
-            v-model="new_article.Art_ubicacion"
-            hint="Ubicacion"
-            maxlength="100"
-            counter
-          />
-        </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
-          <q-select
-            v-model="new_article.Art_Estado"
-            :options="options_state"
-            hint="Estado"
-            emit-value
-            map-options
-          />
-        </div>
       </div>
-      <div class="row justify-end q-mt-0">
-        <div class="q-gutter-x-md">
-          <q-btn label="Guardar" type="submit" color="green"/>
-        </div>
-      </div>
+      <q-btn color="primary" icon="check" label="OK" type="submit" class="hide-btn_submit"/>
     </q-form>
+    <q-table
+      title="Artículos a agregar"
+      :data="data_articles"
+      :columns="columns_articles"
+      row-key="name"
+      flat
+    >
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th auto-width />
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            style="text-align: center !important;"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td auto-width>
+            <q-btn size="sm" color="accent" round dense @click="deleteItem(props.row)" icon="delete"/>
+          </q-td>
+          <q-td
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            style="text-align: center !important;"
+          >
+            {{ col.name != 'image' ? col.value : ''}}
+            <q-avatar
+              size="50px"
+              square
+              v-if="col.name == 'image'"
+            >
+              <img :src="col.value" alt="Imagen del articulo">
+            </q-avatar>
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+    <q-page-sticky position="bottom-right" :offset="[18,18]" expand v-if="data_articles.length > 0">
+        <q-btn label="Guardar" @click="onSubmit" color="green"/>
+    </q-page-sticky>
   </div>  
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import dialog from 'components/Generals/ComponentDialogWarning';
 let options_categorias = [];
 let options_um = [];
 export default {
@@ -147,6 +191,10 @@ export default {
         Art_Estado: null,
         Art_User_control: null
       },
+      art_cat: null,
+      art_um: null,
+      img_articulo: null,
+      tem_url_img: null,
       options_state: [
         {
           label: 'ACTIVO',
@@ -156,7 +204,52 @@ export default {
           label: 'INACTIVO',
           value: 0,
         },
-      ]
+      ],
+      columns_articles: [
+        {
+          name: 'art_cat',
+          label: 'Categoría',
+          sortable: true,
+          field: 'art_cat'
+        },
+        {
+          name: 'Art_Nombre',
+          label: 'Nombre artículo',
+          sortable: true,
+          field: 'Art_Nombre'
+        },
+        {
+          name: 'Art_Descripcion',
+          label: 'Descripción artículo',
+          sortable: true,
+          field: 'Art_Descripcion'
+        },
+        {
+          name: 'Art_Stockminimo',
+          label: 'Stock mínimo',
+          sortable: true,
+          field: 'Art_Stockminimo'
+        },
+        {
+          name: 'art_um',
+          label: 'Um',
+          sortable: true,
+          field: 'art_um'
+        },
+        {
+          name: 'Art_ubicacion',
+          label: 'Ubicación articulo',
+          sortable: true,
+          field: 'Art_ubicacion'
+        },
+        {
+          name: 'image',
+          label: 'Imagen',
+          sortable: true,
+          field: 'image'
+        },
+      ],
+      data_articles: [],
     }
   },
   props: [
@@ -170,6 +263,13 @@ export default {
   },
   created(){
     this.getData();
+  },
+  watch: {
+    img_articulo(value){
+      if(value){
+        this.tem_url_img = URL.createObjectURL(value);
+      }
+    }
   },
   methods: {
     ...mapActions('warehouse', [
@@ -291,22 +391,30 @@ export default {
       });
       setTimeout( async() => {
         try {
-          this.new_article.base = process.env.__BASE__;
-          this.new_article.Art_User_control = this.data_user.Per_Num_documento;
-          const res_add = await this.addArticle(this.new_article).then( res => {
-            return res.data;
+          let promesas = [];
+          this.data_articles.forEach( articulo => {
+            articulo.Art_User_control = this.data_user.Per_Num_documento;
+            console.log(articulo)
+            // promesas.push(this.addArticle(articulo).then( res => {
+            //   return res.data;
+            // }))
+          })
+          // Promise.all(promesas).then( data => {
+          //   data.forEach( res => {
+          //     console.log({
+          //       msg: 'Respuesta insert update articulo',
+          //       data: res
+          //     });
+          //     if(!res.ok){
+          //       throw new Error('Erorr al agregar artículos');
+          //     }
+          //   })
+          // })
+          this.$q.notify({
+            message: 'Guardado',
+            type: 'positive'
           });
-          console.log({
-            msg: 'Respuesta insert update articulo',
-            data: res_add
-          });
-          if(res_add.ok){
-            this.$q.notify({
-              message: 'Guardado',
-              type: 'positive'
-            });
-            this.$emit('reload');
-          }
+          this.$emit('reload');
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -326,8 +434,61 @@ export default {
         }
       }, 2000)
     },
+    addArticle(){
+      let add_article = {
+        base: process.env.__BASE__,
+        Art_Id: null,
+        art_cat: this.art_cat.label,
+        Cat_Id: this.new_article.Cat_Id,
+        Art_Codigo_inv: null,
+        Art_Nombre: this.new_article.Art_Nombre,
+        Art_Descripcion: this.new_article.Art_Descripcion,
+        Art_Stockminimo: this.new_article.Art_Stockminimo,
+        Um_Id: this.art_um.value,
+        art_um: this.art_um.label,
+        Art_ubicacion:this.new_article.Art_ubicacion,
+        Art_Imagen: null,
+        Art_Estado: this.new_article.Art_Estado,
+        Art_User_control: null,
+        image: this.tem_url_img,
+        tem_img: this.img_articulo,
+      }
+      this.data_articles.push(add_article);      
+      this.onReset();
+      setTimeout(() => {
+        this.$refs.form_article.resetValidation();
+      }, 200)
+    },
     onReset(){
-
+      this.new_article =  {
+        base: null,
+        Art_Id: null,
+        Cat_Id: null,
+        Art_Codigo_inv: null,
+        Art_Nombre: null,
+        Art_Descripcion: null,
+        Art_Stockminimo: null,
+        Um_Id: null,
+        Art_ubicacion:null,
+        Art_Imagen: null,
+        Art_Estado: null,
+        Art_User_control: null
+      }
+      this.img_articulo = null;
+      this.tem_url_img = null;
+      this.art_cat = null;
+      this.art_um = null;
+    },
+    // Borra productos de la tabla productos a trasladar
+    deleteItem(row){
+      this.$q.dialog({
+          component: dialog,
+          parent: this,
+          title: 'Eliminar producto agregado',
+          msg: `Atención! Estas a un paso de eliminar un producto agregado ¿Está seguro que desea continuar?`,
+        }).onOk(() => {
+          this.data_articles.splice(this.data_articles.indexOf(row), 1)
+        })
     },
     // Busca o filtra las opciones del select categorias articulo
     filterFn (val, update, abort) {
