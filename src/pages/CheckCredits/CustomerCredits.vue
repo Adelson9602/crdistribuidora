@@ -20,13 +20,13 @@
               <q-menu>
                 <q-list dense style="min-width: 100px">
                   <q-item clickable v-close-popup>
-                    <q-item-section>Realizar abono</q-item-section>
+                    <q-item-section @click="form_abono = true">Realizar abono</q-item-section>
                   </q-item>
 
                   <q-separator />
 
                   <q-item clickable v-close-popup>
-                    <q-item-section>Salir</q-item-section>
+                    <q-item-section @click="form_abono = false">Cancelar abono</q-item-section>
                   </q-item>
                 </q-list>
               </q-menu>
@@ -56,7 +56,7 @@
             <q-form
               @submit="doPay"
               class="q-gutter-md"
-              v-if="credit_selected.status_credito"
+              v-if="credit_selected.status_credito && form_abono"
             >
               <div class="row">
                 <div class="col-xs-12 col-md-3 q-px-sm">
@@ -124,6 +124,8 @@
                         icon="paid"
                         round
                         @click="confimPayment(props.row)"
+                        v-if="props.row.Dc_Conf_pago == 0"
+                        size="sm"
                       >
                         <q-tooltip>
                           Confirmar pago
@@ -166,7 +168,7 @@
 <script>
 import componentTable from 'components/Generals/ComponentTable';
 import { mapActions, mapState } from 'vuex';
-import { Dialog } from 'quasar'
+import CryptoJS from 'crypto-js';
 export default {
   name: 'CheckPurchases',
   components: {
@@ -276,6 +278,7 @@ export default {
       ],
       data: [],
       dialog_detalle_credit: false,
+      form_abono: false,
       credit_selected: {
         CP_Nit: null,
         CP_Razon_social: null,
@@ -304,6 +307,27 @@ export default {
           label: 'ID',
           sortable: true,
           field: 'Dc_Id'
+        },
+        {
+          name: 'name_verecibe_pago_cliente',
+          align: 'center',
+          label: 'Pago recibido por',
+          sortable: true,
+          field: 'name_verecibe_pago_cliente'
+        },
+        {
+          name: 'Dc_User_Recibe_abono',
+          align: 'center',
+          label: 'Documento recibe pago',
+          sortable: true,
+          field: 'Dc_User_Recibe_abono'
+        },
+        {
+          name: 'Dc_Observaciones',
+          align: 'center',
+          label: 'Observaciones',
+          sortable: true,
+          field: 'Dc_Observaciones'
         },
         {
           name: 'Dc_Conf_pago',
@@ -341,19 +365,13 @@ export default {
           field: 'dias_mas'
         },
         {
-          name: 'name_estado',
-          align: 'center',
-          label: 'Estado',
-          sortable: true,
-          field: 'name_estado'
-        },
-        {
           name: 'tota_abonos',
           align: 'center',
           label: 'Total abono',
           sortable: true,
           field: 'tota_abonos'
         },
+
       ],
       data_historico: [],
       data_product: [],
@@ -560,17 +578,16 @@ export default {
           const res_det = await this.getDetailCredit(row.Ev_Id).then( res => {
             return res.data;
           });
-          // console.log({
-          //   msg: 'Respuesta get detalle crédito',
-          //   data: res_det
-          // });
+          console.log({
+            msg: 'Respuesta get detalle crédito',
+            data: res_det
+          });
           this.data_historico.length = 0;
           if(res_det.ok){
             if(res_det.result){
               res_det.data.forEach( det => {
                 this.data_historico.push(det)
               })
-              this.dialog_detalle_credit = true;
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
@@ -583,10 +600,10 @@ export default {
           const res_deta = await this.getDetailSales(row.Ev_Id).then( res => {
             return res.data
           });
-          console.log({
-            msg: 'Respuesta get detalle venta',
-            data: res_deta
-          });
+          // console.log({
+          //   msg: 'Respuesta get detalle venta',
+          //   data: res_deta
+          // });
           this.data_product.length = 0;
           if(res_deta.ok){
             if(res_deta.result){
@@ -602,6 +619,7 @@ export default {
           } else {
             throw new Error(res_deta.message)
           }
+          this.dialog_detalle_credit = true;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -679,8 +697,64 @@ export default {
         },
         cancel: true,
         persistent: true
-      }).onOk( data => {
-        console.log(data)
+      }).onOk( async data => {
+        let password = this.aesEncrypt(data)
+        if( password == this.data_user.Usu_Clave_verificacion ){
+          this.$q.loading.show({
+            message: 'Confirmando abono, por favor espere..'
+          })
+          setTimeout(async ()=> {
+            try {
+              this.det_credit = {
+                base: process.env.__BASE__,
+                Dc_Id: row.Dc_Id,
+                Ev_Id: row.Dc_Id,
+                Dc_Valor_abono: row.tota_abonos,
+                Dc_Observaciones: row.Dc_Observaciones,
+                Dc_Aumento_plazo: row.Dc_Aumento_plazo,
+                Dc_User_Recibe_abono: row.Dc_User_Recibe_abono, //vendedor recibe pago
+                Dc_Conf_pago: 1,
+                Dc_User_conf_pago: this.data_user.Per_Num_documento, //Recibe plata en bodega
+              }
+              const res_update = await this.insertUpdateCredito(this.det_credit).then( res => {
+                return res.data;
+              });
+              console.log({
+                msg: 'Respuesta insert update abono',
+                data: res_update
+              });
+              if(!res_update.ok){
+                throw new Error(res_update.message);
+              }
+              this.$q.notify({
+                message: 'Abono confirmado',
+                type: 'positive'
+              })
+              this.dialog_detalle_credit = false;
+            } catch (e) {
+              console.log(e);
+              if (e.message === "Network Error") {
+                e = e.message;
+              }
+              if (e.message === "Request failed with status code 404") {
+                e = "URL de solicitud no existe, err 404";
+              } else if (e.message) {
+                e = e.message;
+              }
+              this.$q.notify({
+                message: e,
+                type: "negative"
+              });
+            } finally {
+              this.$q.loading.hide();
+            }
+          }, 1000)
+        } else {
+          this.$q.notify({
+            message: 'Las contraseñas no coinciden',
+            type: 'warning'
+          })
+        }
       })
     },
     onReset(){
@@ -695,7 +769,15 @@ export default {
         Dc_Conf_pago: 0,
         Dc_User_conf_pago: 0, //Recibe plata en bodega
       }
-    }
+    },
+    // Encripta contraseñas o strings
+    aesEncrypt(txt) {
+      const cipher = this.CryptoJS.AES.encrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
+        iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+        mode: CryptoJS.mode.CBC
+      }).toString()
+      return cipher.toString()
+    },
   }
 }
 </script>
