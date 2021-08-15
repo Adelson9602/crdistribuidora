@@ -90,6 +90,8 @@
           icon="mdi-microsoft-excel"
         />
       </vue-excel-xlsx>
+      <slot name="toggle">
+      </slot>
     </div>
     <q-table
       :title="title"
