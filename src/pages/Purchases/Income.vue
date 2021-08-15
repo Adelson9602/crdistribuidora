@@ -39,15 +39,41 @@
             :propbuscador="buscador"
           >
             <q-form @submit="searchEntry">
+                 <div class="row q-gutter-y-md">
+              <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
               <q-input
                 v-model="id_entry"
                 type="text"
                 hint="Número ingreso"
                 :rules="[val => !!val || 'Número de ingreso es requerido']"
               />
+               </div>
+              <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
+                <q-btn
+                  label="Buscar"
+                  type="submit"
+                  icon="search"
+                  color="primary"
+                  class="self-center"
+                />
+              </div>
+            </div>
             </q-form>
             <template v-slot:toggle>
-              <q-toggle v-model="filter_pendientes" label="Ver Pentientes" />
+               <div class="row q-gutter-y-md">
+               <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
+               <q-select
+                        dense
+                        v-model="filter_pendientes"
+                        :options="options_state"
+                        hint="Estados Movimiento"
+                        map-options
+                        emit-value
+                      
+                      />
+               </div>
+               </div>
+              <!-- <q-toggle v-model="filter_pendientes" label="Ver Pentientes" /> -->
             </template>
           </component-table>
 
@@ -235,7 +261,7 @@ export default {
         }
       ],
       data: [],
-      filter_pendientes: false,
+      filter_pendientes: 3,
       encabezado_entrada: {}, //Encabezado del traslado formateado para el frontend
       dailog_details: false, //Dialogo para el detalle del traslado
       data_details: [], //Productos trasladados
@@ -273,15 +299,34 @@ export default {
       buscador: {
         input: false,
         label: ""
-      }
+      },
+        options_state: [
+        {
+          label: 'Anulado',
+          value: 0
+        },
+         {
+          label: 'Aceptado',
+          value: 1
+        },
+          {
+          label: 'Credito',
+          value: 2
+        },
+        {
+          label: 'Todos',
+          value: 3
+        },
+      ],
     };
   },
   watch:{
 filter_pendientes(value){
-  if(value){
-
-  }else{
+ 
+  if(value==3){
     setTimeout(this.getData(),300)
+  }else{
+      setTimeout(this.getDataSelect(value),300)
   }
 }
   },
@@ -293,7 +338,8 @@ filter_pendientes(value){
       "getEntries",
       "getDetailsEntry",
       "getSingleEntry",
-      "getEntriesRange"
+      "getEntriesRange",
+      "getEntriesEstado"
     ]),
     getData() {
       this.$q.loading.show({
@@ -348,6 +394,79 @@ filter_pendientes(value){
             }
           } else {
             throw new Error(res_ingresos.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000);
+    },
+     getDataSelect(value) {
+      this.$q.loading.show({
+        message: "Obteniendo ingresos, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          const res_ingresosEstado = await this.getEntriesEstado(value).then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta get ingresos",
+            data: res_ingresosEstado
+          });
+          if (res_ingresosEstado.ok) {
+            if (res_ingresosEstado.result) {
+              this.data.length = 0;
+              res_ingresosEstado.data.forEach(ingreso => {
+                this.data.push({
+                  CP_Nit: ingreso.CP_Nit,
+                  CP_Razon_social: ingreso.CP_Razon_social,
+                  Ecb_Id: ingreso.Ecb_Id,
+                  Enc_Estado: ingreso.Enc_Estado,
+                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                  Enc_User_control: ingreso.Enc_User_control,
+                  Enc_dias_credito: ingreso.Enc_dias_credito,
+                  Enc_impuesto: ingreso.Enc_impuesto,
+                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                  Enc_total_compra: ingreso.Enc_total_compra,
+                  Mp_Id: ingreso.Mp_Id,
+                  Per_Nombre: ingreso.Per_Nombre,
+                  Tc_Descripcion: ingreso.Tc_Descripcion,
+                  status: ingreso.Enc_Estado,
+                  Tc_Id: ingreso.Tc_Id,
+                  Id: ingreso.id,
+                  no_ingreso: ingreso.id,
+                  title: `Ingreso No. ${ingreso.id}`,
+                  name_estado: ingreso.name_estado,
+                  name_mp: ingreso.name_mp,
+                  btn_edit: false,
+                  icon_btn_details: "visibility",
+                  btn_details: true,
+                  icon_btn_edit: "edit"
+                });
+              });
+            } else {
+              this.$q.notify({
+                message: res_ingresosEstado.message,
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_ingresosEstado.message);
           }
         } catch (e) {
           console.log(e);
