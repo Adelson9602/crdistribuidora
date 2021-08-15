@@ -8,6 +8,11 @@ export function getEntries(){
   return Vue.prototype.$axios.get(`select_enc_entrada_bodega_limit/${base}`);
 }
 
+// Obtiene la entrada especifica porr id
+export function getEntriesEstado(context, id){
+  return Vue.prototype.$axios.get(`select_enc_entrada_bodega_estado/${base}/${id}`)
+}
+
 // Obtiene las entradas por rango de fecha
 export function getEntriesRange(context, date){
   return Vue.prototype.$axios.get(`select_enc_entrada_bodega_range/${base}/${date.from}/${date.to}`);
