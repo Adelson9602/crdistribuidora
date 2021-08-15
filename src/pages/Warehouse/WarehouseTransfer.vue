@@ -53,7 +53,7 @@
                   </q-bar>
                   <q-card-section class="row">
                     <div
-                      class="col-xs-12 col-md-4 col-lg-3 q-px-sm"
+                      class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
                       v-for="(value, index) in encabezado_traslado"
                       :key="index"
                     >
@@ -73,7 +73,7 @@
                         :hint="index"
                         stack-label
                         dense
-                        v-if="encabezado_selecte.Etm_Estado == 0 && index != 'Estado' && encabezado_selecte.Etm_Estado == 0 && index != 'Nombre quien recibe'"
+                        v-if="encabezado_selecte.Etm_Estado == 0 && index != 'Estado' && index != 'Nombre quien recibe'"
                       >
                         <template v-slot:control>
                           <div class="self-center full-width no-outline" tabindex="0">{{value}}</div>
@@ -101,6 +101,9 @@
                       />
                     </div>
                   </q-card-section>
+                  <q-card-actions align="right">
+                    <q-btn label="guardar" type="submit" color="green" v-if="etm_Estado == 1"/>
+                  </q-card-actions>
                   <q-card-section>
                     <q-table
                       title="Productos trasladados"
@@ -129,9 +132,6 @@
                       </template>
                     </q-table>
                   </q-card-section>
-                  <q-card-actions align="right">
-                    <q-btn label="guardar" type="submit" color="green" v-if="etm_Estado == 1"/>
-                  </q-card-actions>
                 </q-form>
               </q-card>
             </q-dialog>
@@ -253,10 +253,6 @@ export default {
           label: 'ENTREGADO',
           value: 1
         },
-        {
-          label: 'PENDIENTE',
-          value: 0
-        },
       ],
       opt_inte_destino: integ_movil_destino,
       integ_movil_destino: null,
@@ -273,12 +269,6 @@ export default {
       this.encabezado_selecte.Etm_Usuario_recibe = value;
       this.encabezado_traslado['Documento quien recibe'] = value;
     },
-    etm_Estado(value){
-      let timeStamp = Date.now()
-      let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DD');
-      this.encabezado_traslado['Fecha recibido'] = formattedString;
-      this.encabezado_selecte.Etm_Estado = value;
-    }
   },
   created(){
     this.getData();
@@ -349,7 +339,19 @@ export default {
             throw new Error(res_traslados.message)
           }
         } catch (e) {
-          
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
         } finally {
           this.$q.loading.hide();
         }
@@ -365,7 +367,7 @@ export default {
       this.$q.loading.show({
         message: 'Obteniendo detalles del traslado, por favor espere...'
       });
-      setTimeout(async() => {
+      this.timer = setTimeout(async() => {
         try {
           this.encabezado_selecte = row;
           this.encabezado_selecte.Etm_Estado = Number(row.Etm_Estado)
@@ -386,10 +388,10 @@ export default {
           const res_det = await this.getDetailsTransfer(row.id).then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get detalle del traslado',
-            data: res_det
-          })
+          // console.log({
+          //   msg: 'Respuesta get detalle del traslado',
+          //   data: res_det
+          // })
           if(res_det.ok){
             if(res_det.result){
               this.data_details.length = 0;
@@ -412,19 +414,28 @@ export default {
           } else {
             throw new Error(res_det.message);
           }
-
-          if(this.encabezado_selecte.Etm_Estado == 0){
-            setTimeout(() => {
-              this.getDataMovilDestino(this.encabezado_selecte.id);
-            }, 300)
-          }
           this.dailog_details = true;
         } catch (e) {
-          console.log(e)
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000)
+        if(this.encabezado_selecte.Etm_Estado == 0){
+          this.timer = setTimeout(this.getDataMovilDestino(this.encabezado_selecte.Etm_Mov_Id_recibe), 1000)
+        }
+      }, 1000)
     },
     // Obtiene los traslados por un rango de fecha
     getRange(range){
@@ -493,68 +504,64 @@ export default {
       this.$q.loading.show({
         message: 'Realizando entrega, por favor espere...'
       });
-      setTimeout( async ()=> {
+      this.timer = setTimeout( async ()=> {
         try {
-          if(this.encabezado_selecte.Etm_Estado == 1){
-            let timeStamp = Date.now()
-            let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DD');
-            this.encabezado_selecte.base = process.env.__BASE__;
-            this.encabezado_selecte.Etm_Fecha_recibe = formattedString;
-            this.encabezado_selecte.Etm_Usuario_recibe = this.integ_movil_destino;
-            const res_enc = await this.insertEncTransfer(this.encabezado_selecte).then( res => {
+          let timeStamp = Date.now()
+          let formattedString = date.formatDate(timeStamp, 'YYYY-MM-DD');
+          this.encabezado_selecte.base = process.env.__BASE__;
+          this.encabezado_selecte.Etm_Fecha_recibe = formattedString;
+          this.encabezado_selecte.Etm_Estado = 1;
+          this.encabezado_selecte.Etm_Usuario_recibe = this.integ_movil_destino;
+          const res_enc = await this.insertEncTransfer(this.encabezado_selecte).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert update encabezado traslado',
+            data: res_enc
+          });
+          if(!res_enc.ok){
+            throw new Error(res_enc.message);
+          }
+
+          let update_cant = []; // Array de promesas para actulizar las cantidades de los productos a actualizar
+          this.data_details.forEach( producto => {
+            // Resta los productos de la movil origen
+            producto.base = process.env.__BASE__;
+            producto.simbol = '-';
+            producto.Mov_Id = this.encabezado_selecte.Etm_Mov_ID_entrega;
+            producto.Si_Cant = producto['Cantidad trasladada'];
+            producto.Art_Id = producto['Id producto'];
+            let res_produ = this.updateInventarioMovil(producto).then( res => {
               return res.data;
             });
-            console.log({
-              msg: 'Respuesta insert update encabezado traslado',
-              data: res_enc
+            update_cant.push(res_produ);
+            // Suma los productos en la movil destino
+            producto.simbol = '+';
+            producto.Mov_Id = this.encabezado_selecte.Etm_Mov_Id_recibe;
+            producto.Si_Cant = producto['Cantidad trasladada'];
+            producto.Art_Id = producto['Id producto'];
+            let suma_produ = this.updateInventarioMovil(producto).then( res => {
+              return res.data;
             });
-            if(!res_enc.ok){
-              throw new Error(res_enc.message);
-            }
-
-            let update_cant = []; // Array de promesas para actulizar las cantidades de los productos a actualizar
-            this.data_details.forEach( producto => {
-              // Resta los productos de la movil origen
-              producto.base = process.env.__BASE__;
-              producto.simbol = '-';
-              producto.Mov_Id = this.encabezado_selecte.Etm_Mov_ID_entrega;
-              producto.Si_Cant = producto['Cantidad trasladada'];
-              producto.Art_Id = producto['Id producto'];
-              let res_produ = this.updateInventarioMovil(producto).then( res => {
-                return res.data;
+            update_cant.push(suma_produ);
+          })
+          // Actualizamos las cantidades si el estado es entregado
+          Promise.all(update_cant).then( res_det => {
+            res_det.forEach( res => {
+              console.log({
+                msg: 'Respuesta insert update cantidades traslado',
+                data: res.data
               });
-              update_cant.push(res_produ);
-              // Suma los productos en la movil destino
-              producto.simbol = '+';
-              producto.Mov_Id = this.encabezado_selecte.Etm_Mov_Id_recibe;
-              producto.Si_Cant = producto['Cantidad trasladada'];
-              producto.Art_Id = producto['Id producto'];
-              let suma_produ = this.updateInventarioMovil(producto).then( res => {
-                return res.data;
-              });
-              update_cant.push(suma_produ);
+              if(!res.ok){
+                throw new Error(res.message);
+              }
             })
-            // Actualizamos las cantidades si el estado es entregado
-            Promise.all(update_cant).then( res_det => {
-              res_det.forEach( res => {
-                console.log({
-                  msg: 'Respuesta insert update cantidades traslado',
-                  data: res.data
-                });
-                if(!res.ok){
-                  throw new Error(res.message);
-                }
-              })
-            });
-            this.$q.notify({
-              message: 'Guardado',
-              type: 'positive'
-            });
-            this.dailog_details = false;
-            setTimeout(() => {
-              this.getData();
-            }, 300)
-          }
+          });
+          this.$q.notify({
+            message: 'Guardado',
+            type: 'positive'
+          });
+          this.dailog_details = false;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -572,7 +579,8 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000)
+        this.timer = setTimeout(this.getData(), 1000)
+      }, 1000)
     },
     getDataMovilDestino(id_movil){
       this.$q.loading.show({
@@ -638,6 +646,12 @@ export default {
         }, 300)
       })
     },
+  },
+  beforeDestroy () {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer)
+      this.$q.loading.hide()
+    }
   }
 }
 </script>
