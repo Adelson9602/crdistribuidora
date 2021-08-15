@@ -184,161 +184,104 @@ export default {
     return {
       seller_selecte: null,
       options_seller: all_seller,
-      options: ["Option 1", "Option 2", "Option 3"],
       date_range: {
         to: null,
         from: null,
       },
       columns: [
         {
-          name: "name",
-          required: true,
-          label: "Dessert (100g serving)",
-          align: "left",
-          field: (row) => row.name,
-          format: (val) => `${val}`,
+          name: 'Per_Num_documento',
+          align: 'center',
+          label: 'Documento vendedor',
           sortable: true,
+          field: 'Per_Num_documento'
         },
         {
-          name: "calories",
-          align: "center",
-          label: "Calories",
-          field: "calories",
+          name: 'CP_Nit',
+          align: 'center',
+          label: 'NIT',
           sortable: true,
-        },
-        { name: "fat", label: "Fat (g)", field: "fat", sortable: true },
-        {
-          name: "carbs",
-          label: "Carbs (g)",
-          field: "carbs",
+          field: 'CP_Nit'
         },
         {
-          name: "protein",
-          label: "Protein (g)",
-          field: "protein",
-        },
-        {
-          name: "sodium",
-          label: "Sodium (mg)",
-          field: "sodium",
-        },
-        {
-          name: "calcium",
-          label: "Calcium (%)",
-          field: "calcium",
+          name: 'Ev_dias_credito',
+          align: 'center',
+          label: 'Días de credito',
           sortable: true,
-          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
+          field: 'Ev_dias_credito'
         },
         {
-          name: "iron",
-          label: "Iron (%)",
-          field: "iron",
+          name: 'Ev_Impuesto',
+          align: 'center',
+          label: 'Impuesto',
           sortable: true,
-          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
+          field: 'Ev_Impuesto'
+        },
+        {
+          name: 'Ev_Subtotal',
+          align: 'center',
+          label: 'Subtotal',
+          sortable: true,
+          field: 'Ev_Subtotal'
+        },
+        {
+          name: 'Ev_Des_total_art',
+          align: 'center',
+          label: 'Descuento total artículo',
+          sortable: true,
+          field: 'Ev_Des_total_art'
+        },
+        {
+          name: 'Ev_Descuentog',
+          align: 'center',
+          label: 'Ev_Descuentog',
+          sortable: true,
+          field: 'Ev_Descuentog'
+        },
+        {
+          name: 'Ev_Des_gen_venta',
+          align: 'center',
+          label: 'Ev_Des_gen_venta',
+          sortable: true,
+          field: 'Ev_Des_gen_venta'
+        },
+        {
+          name: 'Ev_Total_venta',
+          align: 'center',
+          label: 'Total venta',
+          sortable: true,
+          field: 'Ev_Total_venta'
+        },
+        {
+          name: 'Ev_Estado',
+          align: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'Ev_Estado'
+        },
+        {
+          name: 'Ev_conf_pago',
+          align: 'center',
+          label: 'Confirmación pago',
+          sortable: true,
+          field: 'Ev_conf_pago'
+        },
+        {
+          name: 'Ev_Entregado',
+          align: 'center',
+          label: 'Entregado',
+          sortable: true,
+          field: 'Ev_Entregado'
+        },
+        {
+          name: 'Ev_Fecha_control',
+          align: 'center',
+          label: 'Fecha venta',
+          sortable: true,
+          field: 'Ev_Fecha_control'
         },
       ],
-      data: [
-        {
-          name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: "14%",
-          iron: "1%",
-        },
-        {
-          name: "Ice cream sandwich",
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: "8%",
-          iron: "1%",
-        },
-        {
-          name: "Eclair",
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: "6%",
-          iron: "7%",
-        },
-        {
-          name: "Cupcake",
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: "3%",
-          iron: "8%",
-        },
-        {
-          name: "Gingerbread",
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: "7%",
-          iron: "16%",
-        },
-        {
-          name: "Jelly bean",
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: "0%",
-          iron: "0%",
-        },
-        {
-          name: "Lollipop",
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: "0%",
-          iron: "2%",
-        },
-        {
-          name: "Honeycomb",
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: "0%",
-          iron: "45%",
-        },
-        {
-          name: "Donut",
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: "2%",
-          iron: "22%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: "12%",
-          iron: "6%",
-        },
-      ],
+      data: [],
       comision: {
         commission: 0,
         total_sales: 0,
@@ -358,20 +301,20 @@ export default {
             type: 'warning'
           });
           return;
-        } else {
-          let tem_date = this.date_range;
-          this.date_range = {
-            to: tem_date,
-            from: tem_date
-          };
         }
         this.$q.loading.show({
           message: 'Obteniendo datos, por favor espere....'
         })
         setTimeout(async() => {
           try {
-            this.date_range.Per_Num_documento = value;
-            const res_data = await this.getCommissionSeller(this.date_range).then( res => {
+            let params = {
+              Per_Num_documento: value,
+              to: null,
+              from: null
+            }
+            params.from = typeof(this.date_range) == 'object' ? this.date_range.from : this.date_range;
+            params.to = typeof(this.date_range) == 'object' ? this.date_range.to : this.date_range;
+            const res_data = await this.getCommissionSeller(params).then( res => {
               return res.data;
             });
             console.log({
@@ -381,9 +324,9 @@ export default {
             if(res_data.ok){
               if(res_data.result){
                 this.comision = {
-                  commission: res_data.data.comision,
-                  total_sales: res_data.data.vt,
-                  percent_commission: res_data.data.pc,
+                  commission: res_data.data.comision ? res_data.data.comision : 0,
+                  total_sales: res_data.data.vt ? res_data.data.vt : 0,
+                  percent_commission: res_data.data.pc ? res_data.data.pc : 0,
                 }
               } else {
                 this.$q.notify({
@@ -394,16 +337,38 @@ export default {
             } else {
               throw new Error(res_data.message)
             }
-            const res_deta = await this.getCommissionSellerDet(this.date_range).then( res => {
+            const res_deta = await this.getCommissionSellerDet(params).then( res => {
               return res.data;
             });
             console.log({
               msg: 'Repuesta detalle comision vendedor',
-              data: res_data
+              data: res_deta
             })
-            if(res_data.ok){
-              if(res_data.result){
-                
+            if(res_deta.ok){
+              if(res_deta.result){
+                this.data.length = 0;
+                res_deta.data.forEach( venta => {
+                  this.data.push({
+                    Ev_Id: venta.Ev_Id,
+                    CP_Nit: venta.CP_Nit,
+                    Mov_Id: venta.Mov_Id,
+                    Mp_Id: venta.Mp_Id,
+                    Tc_Id: venta.Tc_Id,
+                    Per_Num_documento: venta.Per_Num_documento,
+                    Ev_dias_credito: venta.Ev_dias_credito,
+                    Ev_Impuesto: venta.Ev_Impuesto,
+                    Ev_Subtotal: venta.Ev_Subtotal,
+                    Ev_Des_total_art: venta.Ev_Des_total_art,
+                    Ev_Descuentog: venta.Ev_Descuentog,
+                    Ev_Des_gen_venta: venta.Ev_Des_gen_venta,
+                    Ev_Total_venta: venta.Ev_Total_venta,
+                    Ev_Estado: venta.Ev_Estado,
+                    Ev_conf_pago: venta.Ev_conf_pago,
+                    Ev_Entregado: venta.Ev_Entregado,
+                    Ev_Usuario_control: venta.Ev_Usuario_control,
+                    Ev_Fecha_control: venta.Ev_Fecha_control,
+                  })
+                })
               } else {
                 this.$q.notify({
                   message: 'Sin resultados',
@@ -411,7 +376,7 @@ export default {
                 });
               }
             } else {
-              throw new Error(res_data.message)
+              throw new Error(res_deta.message)
             }
           } catch (e) {
             console.log(e);
