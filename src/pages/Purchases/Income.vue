@@ -46,6 +46,9 @@
                 :rules="[val => !!val || 'Número de ingreso es requerido']"
               />
             </q-form>
+            <template v-slot:toggle>
+              <q-toggle v-model="filter_pendientes" label="Ver Pentientes" />
+            </template>
           </component-table>
 
           <!-- Dialogo del detalle del traslado -->
@@ -72,18 +75,17 @@
                   :key="index"
                 >
                   <!-- Items para entregados -->
-                      <q-field
-                        :hint="index"
-                        stack-label
-                        dense
-                       
+                  <q-field :hint="index" stack-label dense>
+                    <template v-slot:control>
+                      <div
+                        class="self-center full-width no-outline"
+                        tabindex="0"
                       >
-                        <template v-slot:control>
-                          <div class="self-center full-width no-outline" tabindex="0">{{value}}</div>
-                        </template>
-                      </q-field>
-                      
+                        {{ value }}
                       </div>
+                    </template>
+                  </q-field>
+                </div>
               </q-card-section>
 
               <q-card-section>
@@ -233,7 +235,7 @@ export default {
         }
       ],
       data: [],
-
+      filter_pendientes: false,
       encabezado_entrada: {}, //Encabezado del traslado formateado para el frontend
       dailog_details: false, //Dialogo para el detalle del traslado
       data_details: [], //Productos trasladados
@@ -273,6 +275,15 @@ export default {
         label: ""
       }
     };
+  },
+  watch:{
+filter_pendientes(value){
+  if(value){
+
+  }else{
+    setTimeout(this.getData(),300)
+  }
+}
   },
   created() {
     this.getData();
@@ -355,7 +366,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000);
+      }, 1000);
     },
     detailsEntry(row) {
       this.$q.loading.show({
@@ -363,11 +374,10 @@ export default {
       });
       setTimeout(async () => {
         try {
-  
           // Modificamos muestra el encabezado de la entrada
           this.encabezado_entrada = {
             "Entrada No.": row.Id,
-            "Nit": row.CP_Nit,
+            Nit: row.CP_Nit,
             "Razon social": row.CP_Razon_social,
             "Fecha Entrada": row.Enc_Fecha_hora,
             "Dias credito": row.Enc_dias_credito,
@@ -376,9 +386,9 @@ export default {
             "Subtotal compra": row.Enc_subtotal_compra,
             "Total compra": row.Enc_total_compra,
             "Medio pago": row.name_mp,
-            "Estado": row.name_estado
+            Estado: row.name_estado
           };
-       
+
           const res_detail = await this.getDetailsEntry(row.Id).then(res => {
             return res.data;
           });
@@ -426,7 +436,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000);
+      }, 1000);
     },
     searchEntry() {
       this.$q.loading.show({
@@ -575,7 +585,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000);
+      }, 1000);
     },
     reload() {
       this.tab = "incomies";
