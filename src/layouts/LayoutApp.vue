@@ -269,15 +269,13 @@ name: 'MainLayout',
         ]
       },
       {
-        label: 'Créditos y pagos',
+        label: 'Créditos',
         icon: 'mdi-cash-multiple',
         visible: true,
         expanded: true,
         items: [
           { label: "Créditos Cliente", route: "check_credits/customer_credits" },
           { label: "Créditos Proveedor", route: "check_credits/provider_credits" },
-            { label: "Confirmación Créditos", route: "payment_confirmation/credits_confirmation" },
-          { label: "Confirmación Ventas", route: "payment_confirmation/sales_confirmation" },
         ]
       },
     ]

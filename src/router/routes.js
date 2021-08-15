@@ -95,15 +95,6 @@ const routes = [
           { path: 'provider_credits', component: () => import('pages/CheckCredits/ProviderCredits'), meta: {requiresAuth: true} },
         ],
       },
-      {
-        path: 'payment_confirmation',
-        component: () => import('layouts/LayoutApp'),
-        meta: {requiresAuth: true} ,
-        children: [
-          { path: 'credits_confirmation', component: () => import('pages/PaymentConfirmation/CreditsConfirmation'), meta: {requiresAuth: true} },
-          { path: 'sales_confirmation', component: () => import('pages/PaymentConfirmation/SalesConfirmation'), meta: {requiresAuth: true} },
-        ],
-      },
     ]
   },
 
