@@ -317,10 +317,10 @@ export default {
             const res_data = await this.getCommissionSeller(params).then( res => {
               return res.data;
             });
-            console.log({
-              msg: 'Repuesta comision vendedor',
-              data: res_data
-            })
+            // console.log({
+            //   msg: 'Repuesta comision vendedor',
+            //   data: res_data
+            // })
             if(res_data.ok){
               if(res_data.result){
                 this.comision = {
@@ -340,10 +340,10 @@ export default {
             const res_deta = await this.getCommissionSellerDet(params).then( res => {
               return res.data;
             });
-            console.log({
-              msg: 'Repuesta detalle comision vendedor',
-              data: res_deta
-            })
+            // console.log({
+            //   msg: 'Repuesta detalle comision vendedor',
+            //   data: res_deta
+            // })
             if(res_deta.ok){
               if(res_deta.result){
                 this.data.length = 0;
