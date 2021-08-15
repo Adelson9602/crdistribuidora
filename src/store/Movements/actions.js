@@ -9,5 +9,10 @@ export function getDetSaleWaranties(context, id_venta){
 // CONSULTA VENDEDOR
 // Obtiene la comisión del vendedor
 export function getCommissionSeller(contex, data){
-  return Vue.prototype.$axios.get(`select_ventas_comision_range/${base}/${data.Per_Num_documento}/${data.fecha_ini}/${data.fechafin}`)
+  return Vue.prototype.$axios.get(`select_ventas_comision_range/${base}/${data.Per_Num_documento}/${data.from}/${data.to}`)
+}
+
+// Obtiene el detalle de la comision
+export function getCommissionSellerDet(contex, data){
+  return Vue.prototype.$axios.get(`select_ventas_comision_range_detail/${base}/${data.Per_Num_documento}/${data.from}/${data.to}`)
 }

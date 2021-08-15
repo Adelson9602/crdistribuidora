@@ -1,9 +1,9 @@
 <template>
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
-      <q-card-section>
+      <q-card-section class="q-gutter-y-md">
         <div class="row q-gutter-y-md">
-          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <div class="col-xs-12 col-sm-6 col-md-4 q-px-md">
             <q-field
               stack-label
               class="date_training"
@@ -51,7 +51,7 @@
               </template>
             </q-field>
           </div>
-          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <div class="col-xs-12 col-sm-6 col-md-4 q-px-md">
             <q-select
               v-model="seller_selecte"
               clearable
@@ -62,6 +62,8 @@
               hint="Vendedor"
               :options="options_seller"
               @filter="filterSeller"
+              emit-value
+              map-options
             >
               <template v-slot:no-option>
                 <q-item>
@@ -72,39 +74,89 @@
               </template>
             </q-select>
           </div>
-          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+        </div>
+        <div class="row">
+          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
             <q-card class="my-card">
               <q-card-section>
-                <q-item>
-                  <q-item-section top avatar>
-                    <q-avatar color="primary" text-color="white" icon="sell" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-h6">Ventas</q-item-label>
-                    <q-item-label caption lines="2">total</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-card-section>
-              <q-card-section>
-                <div class="text-h5">$18.559.000</div>
+                <q-list>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label>Procentaje</q-item-label>
+                      <q-item-label class="number_card">{{comision.percent_commission}}</q-item-label>
+                      <q-item-label>
+                        <q-icon
+                          name="info"
+                          color="positive"
+                        /> Comisión
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-avatar
+                        size="60px"
+                        class="bg-primary-gradient"
+                        text-color="white"
+                        icon="trending_up"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
             </q-card>
           </div>
-          <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
             <q-card class="my-card">
               <q-card-section>
-                <q-item>
-                  <q-item-section top avatar>
-                    <q-icon color="green" text-color="white" name="paid" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-h6">Comisión</q-item-label>
-                    <q-item-label caption lines="2">alcanzada</q-item-label>
-                  </q-item-section>
-                </q-item>
+                <q-list>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label>Comisión</q-item-label>
+                      <q-item-label class="number_card">{{comision.commission}}</q-item-label>
+                      <q-item-label>
+                        <q-icon
+                          name="info"
+                          color="positive"
+                        /> Alcanzado
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-avatar
+                        size="60px"
+                        class="bg-danger-gradient"
+                        text-color="white"
+                        icon="mdi-rocket-launch"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
+            </q-card>
+          </div>
+          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
+            <q-card class="my-card">
               <q-card-section>
-                <div class="text-h5">$532.000</div>
+                <q-list>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label>Total ventas</q-item-label>
+                      <q-item-label class="number_card">{{comision.total_sales}}</q-item-label>
+                      <q-item-label>
+                        <q-icon
+                          name="info"
+                          color="positive"
+                        /> Facturadas
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-avatar
+                        size="60px"
+                        class="bg-secondary-gradient"
+                        text-color="white"
+                        icon="attach_money"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
             </q-card>
           </div>
@@ -287,10 +339,100 @@ export default {
           iron: "6%",
         },
       ],
+      comision: {
+        commission: 0,
+        total_sales: 0,
+        percent_commission: 0,
+      }
     };
   },
   created(){
     this.getData();
+  },
+  watch: {
+    seller_selecte(value){
+      if(value){
+        if(typeof(this.date_range) == 'object' && !this.date_range.to){
+          this.$q.notify({
+            message: 'Seleccione un rango de fecha',
+            type: 'warning'
+          });
+          return;
+        } else {
+          let tem_date = this.date_range;
+          this.date_range = {
+            to: tem_date,
+            from: tem_date
+          };
+        }
+        this.$q.loading.show({
+          message: 'Obteniendo datos, por favor espere....'
+        })
+        setTimeout(async() => {
+          try {
+            this.date_range.Per_Num_documento = value;
+            const res_data = await this.getCommissionSeller(this.date_range).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Repuesta comision vendedor',
+              data: res_data
+            })
+            if(res_data.ok){
+              if(res_data.result){
+                this.comision = {
+                  commission: res_data.data.comision,
+                  total_sales: res_data.data.vt,
+                  percent_commission: res_data.data.pc,
+                }
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                });
+              }
+            } else {
+              throw new Error(res_data.message)
+            }
+            const res_deta = await this.getCommissionSellerDet(this.date_range).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Repuesta detalle comision vendedor',
+              data: res_data
+            })
+            if(res_data.ok){
+              if(res_data.result){
+                
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                });
+              }
+            } else {
+              throw new Error(res_data.message)
+            }
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative",
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+        }, 1000)
+      }
+    }
   },
   methods: {
     ...mapActions('access', [
@@ -298,6 +440,7 @@ export default {
     ]),
     ...mapActions('movements', [
       'getCommissionSeller',
+      'getCommissionSellerDet'
     ]),
     getData() {
       this.$q.loading.show({
@@ -375,3 +518,25 @@ export default {
   },
 };
 </script>
+<style scoped>
+.my-card{
+  border-radius: 10px;
+  height: 120px;
+}
+.number_card{
+  font-weight: 600 !important;
+  font-size: 1.5rem;
+}
+.bg-primary-gradient {
+  background: linear-gradient(to bottom right, #9e88f5 0%, #6259ca 100%) !important;
+}
+.bg-danger-gradient {
+  background-image: linear-gradient(to bottom right, #f1bf64 0%, #f71d36 100%) !important;
+}
+.bg-secondary-gradient {
+  background: linear-gradient(to bottom right, #9070ff 0%, #ff5d9e 100%) !important;
+}
+.bg-success-gradient {
+  background: linear-gradient(to bottom right, #4be8d4 0%, #129bd2 100%) !important;
+}
+</style>
