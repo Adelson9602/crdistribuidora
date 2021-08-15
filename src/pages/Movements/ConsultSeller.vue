@@ -42,7 +42,6 @@
                             label="Ok"
                             color="primary"
                             flat
-                            @click="range"
                           />
                         </div>
                       </q-date>
@@ -53,7 +52,25 @@
             </q-field>
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-            <q-select v-model="model" :options="options" hint="Vendedor" />
+            <q-select
+              v-model="seller_selecte"
+              clearable
+              use-input
+              hide-selected
+              fill-input
+              input-debounce="0"
+              hint="Vendedor"
+              :options="options_seller"
+              @filter="filterSeller"
+            >
+              <template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey">
+                    No results
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
           </div>
           <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
             <q-card class="my-card">
@@ -107,11 +124,14 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+let all_seller = []; //Contiene todos los vendedores
 export default {
   name: "ConsultSeller",
   data() {
     return {
-      mode: null,
+      seller_selecte: null,
+      options_seller: all_seller,
       options: ["Option 1", "Option 2", "Option 3"],
       date_range: {
         to: null,
@@ -269,6 +289,89 @@ export default {
       ],
     };
   },
-  methods: {},
+  created(){
+    this.getData();
+  },
+  methods: {
+    ...mapActions('access', [
+      'getPersons',
+    ]),
+    ...mapActions('movements', [
+      'getCommissionSeller',
+    ]),
+    getData() {
+      this.$q.loading.show({
+        message: "Obteniendo datos del servidor, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          const res_persons = await this.getPersons().then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get personal',
+            data: res_persons
+          });
+          if(res_persons.ok){
+            if(res_persons.result){
+              all_seller.length = 0;
+              res_persons.data.forEach( persona => {
+                if(persona.Usu_Estado == 1){
+                  all_seller.push({
+                    label: persona.Per_Nombre,
+                    value: persona.Per_Num_documento
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_persons.message,
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_persons.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000);
+    },
+    // Buscador del select vendedor
+    filterSeller(val, update, abort){
+      // call abort() at any time if you can't retrieve data somehow
+      setTimeout(() => {
+        update(() => {
+          if (val === '') {
+            this.options_seller = all_seller
+          }
+          else {
+            const needle = val.toLowerCase()
+            this.options_seller = all_seller.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1)
+          }
+        },
+        ref => {
+          if (val !== '' && ref.options.length > 0) {
+            ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+            ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+          }
+        })
+      }, 300)
+    }
+  },
 };
 </script>
