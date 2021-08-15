@@ -267,12 +267,18 @@
                   >
                     <!-- Value del columna izquierda de las card -->
                     <q-item-label caption>
-                      {{col.label != 'Estado' ? col.value : ''}}
+                      {{col.label != 'Estado' && col.name != 'conf_pago' ? col.value : ''}}
                       <q-badge
                         :color="props.row.status == 1 ? 'positive' : 'negative'"
                         text-color="white"
                         :label="col.value"
                         v-if="col.label == 'Estado'"
+                      />
+                      <q-badge
+                        :color="props.row.pdt_conf_pago == 0 ? 'positive' : 'warning'"
+                        text-color="white"
+                        :label="col.value"
+                        v-if=" col.name == 'conf_pago'"
                       />
                     </q-item-label>
                   </q-item-section>
