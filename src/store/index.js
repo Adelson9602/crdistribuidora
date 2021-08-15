@@ -8,6 +8,7 @@ import master from './Master';
 import shopping from './Shopping';
 import notifications from './Notifications';
 import movements from './Movements';
+import credits from './Credits';
 
 import createPersistedState from 'vuex-persistedstate';
 
@@ -32,7 +33,8 @@ export default function (/* { ssrContext } */) {
       master,
       shopping,
       notifications,
-      movements
+      movements,
+      credits
     },
     plugins: [createPersistedState()],
     // enable strict mode (adds overhead!)
