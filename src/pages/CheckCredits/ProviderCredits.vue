@@ -10,7 +10,13 @@
         :propbtns="btns"
         :propactions="true"
         @ondetails="viewDetail"
-      />
+        v-if="rendercomponent"
+      >
+       <template v-slot:toggle>
+           
+            <q-toggle v-model="filter_pendientes" label="saldos pendientes" />
+          </template>
+      </component-table>
       <q-dialog v-model="dialog_detalle_credit" persistent full-width>
         <q-card>
           <q-bar dark class="bg-primary text-white">
@@ -282,6 +288,7 @@ export default {
         },
       ],
       data: [],
+       filter_pendientes: false,
       column_historico: [
         {
           name: 'Dc_Id',
@@ -437,6 +444,8 @@ export default {
         status: null,
         status_credito: null,
       },
+       datageneral: [],
+       rendercomponent :true,
       encabezado_credito: null,
       dialog_detalle_credit: false,
     }
@@ -447,6 +456,24 @@ export default {
       return this.user_logged;
     }
   },
+watch:{
+     filter_pendientes(value) {
+   
+      if (value) {
+       this.rendercomponent = false;
+        let dataselect = this.datageneral.filter(credit => credit.status_credito == 0);
+        this.data.length = 0;
+
+        setTimeout(() => {
+          this.data = dataselect;
+
+          this.rendercomponent = true;
+        }, 300);
+      } else {
+        setTimeout(this.getData(), 300);
+      }
+    },
+},
   created(){
     this.getData();
   },
@@ -474,6 +501,7 @@ export default {
           if(res_credits.ok){
             if(res_credits.result){
               this.data.length = 0;
+               this.datageneral.length=0;
               // Create our number formatter.
               var formatter = new Intl.NumberFormat('en-US', {
                 style: 'currency',
@@ -486,6 +514,30 @@ export default {
 
               res_credits.data.forEach( credit => {
                 this.data.push({
+                  CP_Nit: credit.CP_Nit,
+                  CP_Razon_social: credit.CP_Razon_social,
+                  Dcc_Aumento_plazo: credit.Dcc_Aumento_plazo,
+                  Dcc_Id: credit.Dcc_Id,
+                  Dcc_Observaciones: credit.Dcc_Observaciones,
+                  Dcc_Valor_abono: credit.Dcc_Valor_abono,
+                  Ecb_Id: credit.Ecb_Id,
+                  Enc_Estado: credit.Enc_Estado,
+                  Enc_User_control: credit.Enc_User_control,
+                  Enc_dias_credito: credit.Enc_dias_credito,
+                  Enc_num_comprobante: credit.Enc_num_comprobante,
+                  Enc_total_compra: credit.Enc_total_compra,
+                  Fecha_compra: credit.Fecha_compra,
+                  Per_Nombre: credit.Per_Nombre,
+                  dcredito: credit.dcredito,
+                  dias_mas: credit.dias_mas,
+                  status: credit.Enc_Estado,
+                  status_credito: credit.status_credito,
+                  Estado: credit.status_credito == 1 ? 'Aprobado' : 'Con saldo pendiente', //Estado de la venta
+                  title: credit.CP_Razon_social,
+                  btn_details: true,
+                  icon_btn_details: "mdi-eye-settings",
+                })
+                 this.datageneral.push({
                   CP_Nit: credit.CP_Nit,
                   CP_Razon_social: credit.CP_Razon_social,
                   Dcc_Aumento_plazo: credit.Dcc_Aumento_plazo,
