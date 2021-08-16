@@ -2,201 +2,222 @@
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
       <q-tabs
-          v-model="tab"
-          dense
-          class="text-primary"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
-        >
-          <q-tab name="provider" label="proveedores" icon="person_add"/>
-          <q-tab name="add_provider"   :label="!provider_edit ? 'Agregar proveedor' : 'Editar proveedor'" icon="people"/>
-        </q-tabs>
+        v-model="tab"
+        dense
+        class="text-primary"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="provider" label="proveedores" icon="person_add" />
+        <q-tab
+          name="add_provider"
+          :label="!provider_edit ? 'Agregar proveedor' : 'Editar proveedor'"
+          icon="people"
+        />
+      </q-tabs>
 
-        <q-separator />
+      <q-separator />
 
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="provider">
-            <q-form
-              @submit="searchProvider"
-              class="q-gutter-md"
-            >
-              <div class="row q-gutter-y-md">
-                <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
-                  <q-input v-model="nit_provider" type="text" hint="Id proveedor" mask="###############" counter/>
-                </div>
-                <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
-                  <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
-                </div>
+      <q-tab-panels v-model="tab" animated>
+        <q-tab-panel name="provider">
+          <q-form @submit="searchProvider" class="q-gutter-md">
+            <div class="row q-gutter-y-md">
+              <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
+                <q-input
+                  v-model="nit_provider"
+                  type="text"
+                  hint="Id proveedor"
+                  mask="###############"
+                  counter
+                />
               </div>
-            </q-form>
-            <component-table
-              class="q-mt-md"
-              proptitle="Proveedores"
-              :propdata="data"
-              :propcolumns="columns"
-              :propgrid="true"
-              :propflat="true"
-              :proppdf="optionpdf"
-              :propbtns="btns"
-              :proppagination="initial_pagination"
-              :propactions="true"
-              @onedit="editProvider"
-              @tostatus="openDialogStatus"
-            />
-             <!-- Dialogo para activar o inactivar una meta -->
+              <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
+                <q-btn
+                  label="Buscar"
+                  type="submit"
+                  icon="search"
+                  color="primary"
+                  class="self-center"
+                />
+              </div>
+            </div>
+          </q-form>
+          <component-table
+            class="q-mt-md"
+            proptitle="Proveedores"
+            :propdata="data"
+            :propcolumns="columns"
+            :propgrid="true"
+            :propflat="true"
+            :proppdf="optionpdf"
+            :propbtns="btns"
+            :proppagination="initial_pagination"
+            :propactions="true"
+            @onedit="editProvider"
+            @tostatus="openDialogStatus"
+            v-if="rendercomponent"
+          >
+            <template v-slot:toggle>
+              <q-toggle v-model="filter_pendientes" label="Pendiente" />
+            </template>
+          </component-table>
+          <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable
             :dialog="enable_diable"
             :options_dialog="options_status"
             @cancel="enable_diable = false"
             @changeStatus="changeStatus"
           />
-          </q-tab-panel>
+        </q-tab-panel>
 
-          <q-tab-panel name="add_provider">
-            <component-add-provider @reload="reload" :edit_data="provider_edit"/>
-          </q-tab-panel>
-        </q-tab-panels>
+        <q-tab-panel name="add_provider">
+          <component-add-provider @reload="reload" :edit_data="provider_edit" />
+        </q-tab-panel>
+      </q-tab-panels>
     </q-card>
   </q-page>
 </template>
 
 <script>
-import ComponentAddProvider from 'components/Purchase/ComponentAddProvider';
+import ComponentAddProvider from "components/Purchase/ComponentAddProvider";
 import componentTable from "components/Generals/ComponentTable";
 import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
-import { mapActions,mapState } from 'vuex';
+import { mapActions, mapState } from "vuex";
 export default {
-  name: 'Categories',
+  name: "Categories",
   components: {
     ComponentAddProvider,
     componentTable,
     ComponentDialogEnable
   },
-  data(){
+  data() {
     return {
-      tab: 'provider',
+      tab: "provider",
       columns: [
         {
-          name: 'CP_Digito_verificacion',
-          align: 'center',
-          label: 'Digito verificación',
+          name: "CP_Digito_verificacion",
+          align: "center",
+          label: "Digito verificación",
           sortable: true,
-          field: 'CP_Digito_verificacion'
+          field: "CP_Digito_verificacion"
         },
         {
-          name: 'CP_Fecha_control',
-          align: 'center',
-          label: 'Fecha creación',
+          name: "CP_Fecha_control",
+          align: "center",
+          label: "Fecha creación",
           sortable: true,
-          field: 'CP_Fecha_control'
+          field: "CP_Fecha_control"
         },
         {
-          name: 'CP_Nit',
-          align: 'center',
-          label: 'NIT',
+          name: "CP_Nit",
+          align: "center",
+          label: "NIT",
           sortable: true,
-          field: 'CP_Nit'
+          field: "CP_Nit"
         },
         {
-          name: 'CP_Razon_social',
-          align: 'center',
-          label: 'Razon social',
+          name: "CP_Razon_social",
+          align: "center",
+          label: "Razon social",
           sortable: true,
-          field: 'CP_Razon_social'
+          field: "CP_Razon_social"
         },
         {
-          name: 'CP_Telefono',
-          align: 'center',
-          label: 'Teléfono',
+          name: "CP_Telefono",
+          align: "center",
+          label: "Teléfono",
           sortable: true,
-          field: 'CP_Telefono'
+          field: "CP_Telefono"
         },
         {
-          name: 'CP_Direccion',
-          align: 'center',
-          label: 'Dirección',
+          name: "CP_Direccion",
+          align: "center",
+          label: "Dirección",
           sortable: true,
-          field: 'CP_Direccion'
+          field: "CP_Direccion"
         },
         {
-          name: 'CP_Email',
-          align: 'center',
-          label: 'Email',
+          name: "CP_Email",
+          align: "center",
+          label: "Email",
           sortable: true,
-          field: 'CP_Email'
+          field: "CP_Email"
         },
         {
-          name: 'CP_Urlweb',
-          align: 'center',
-          label: 'Sitio web',
+          name: "CP_Urlweb",
+          align: "center",
+          label: "Sitio web",
           sortable: true,
-          field: 'CP_Urlweb'
+          field: "CP_Urlweb"
         },
         {
-          name: 'Ciu_Nombre',
-          align: 'center',
-          label: 'Ciudad',
+          name: "Ciu_Nombre",
+          align: "center",
+          label: "Ciudad",
           sortable: true,
-          field: 'Ciu_Nombre'
+          field: "Ciu_Nombre"
         },
         {
-          name: 'CP_User_control',
-          align: 'center',
-          label: 'Documento creador',
+          name: "CP_User_control",
+          align: "center",
+          label: "Documento creador",
           sortable: true,
-          field: 'CP_User_control'
+          field: "CP_User_control"
         },
         {
-          name: 'Per_Nombre',
-          align: 'center',
-          label: 'Creado por',
+          name: "Per_Nombre",
+          align: "center",
+          label: "Creado por",
           sortable: true,
-          field: 'Per_Nombre'
+          field: "Per_Nombre"
         },
         {
-          name: 'Tp_Desc_corta',
-          align: 'center',
-          label: 'Tipo documento',
+          name: "Tp_Desc_corta",
+          align: "center",
+          label: "Tipo documento",
           sortable: true,
-          field: 'Tp_Desc_corta'
+          field: "Tp_Desc_corta"
         },
         {
-          name: 'name_estado',
-          align: 'center',
-          label: 'Estado',
+          name: "name_estado",
+          align: "center",
+          label: "Estado",
           sortable: true,
-          field: 'name_estado'
+          field: "name_estado"
         },
         {
-          name: 'name_tp',
-          align: 'center',
-          label: 'Tipo cliente',
+          name: "name_tp",
+          align: "center",
+          label: "Tipo cliente",
           sortable: true,
-          field: 'name_tp'
-        },
+          field: "name_tp"
+        }
       ],
       data: [],
+      datageneral: [],
+      rendercomponent: true,
+      filter_pendientes: false,
       optionpdf: {
         columns: [
-          { header: "Art_Codigo_inv", datakey: "Art_Codigo_inv"},
-          { header: "Art_Id", datakey: "Art_Id"},
-          { header: "Art_Nombre", datakey: "Art_Nombre"},
-          { header: "Mov_Descripcion", datakey: "Mov_Descripcion"},
-          { header: "Mov_Id", datakey: "Mov_Id"},
-          { header: "Si_Cant", datakey: "Si_Cant"},
-          { header: "id", datakey: "id"},
+          { header: "Art_Codigo_inv", datakey: "Art_Codigo_inv" },
+          { header: "Art_Id", datakey: "Art_Id" },
+          { header: "Art_Nombre", datakey: "Art_Nombre" },
+          { header: "Mov_Descripcion", datakey: "Mov_Descripcion" },
+          { header: "Mov_Id", datakey: "Mov_Id" },
+          { header: "Si_Cant", datakey: "Si_Cant" },
+          { header: "id", datakey: "id" }
         ],
         data: [],
-        orientation: 'l', // l => landscape, p => portrait
+        orientation: "l", // l => landscape, p => portrait
         title: {
-          title: 'Inventario actual',
+          title: "Inventario actual",
           potitionx: 300,
-          potitiony: 30,
+          potitiony: 30
         },
         styles: {
-          font_size: 7,
+          font_size: 7
         }
       },
       btns: {
@@ -206,58 +227,76 @@ export default {
       },
       initial_pagination: {
         page: 1,
-        rowsPerPage: 9,
+        rowsPerPage: 9
       },
       nit_provider: null,
-      provider_edit:null,
+      provider_edit: null,
       enable_diable: false,
       options_status: {
         title: null,
         msg: null
       }
-    }
+    };
   },
-   watch: {
-    tab(value){
-      if(value == "provider"){
+  watch: {
+    tab(value) {
+      if (value == "provider") {
         this.provider_edit = null;
+      }
+    },
+    filter_pendientes(value) {
+      if (value) {
+        this.rendercomponent = false;
+        let dataselect = this.datageneral.filter(
+          credit => credit.CP_Estado == 0
+        );
+        this.data.length = 0;
+
+        setTimeout(() => {
+          this.data = dataselect;
+
+          this.rendercomponent = true;
+        }, 300);
+      } else {
+        setTimeout(this.getData(), 300);
       }
     }
   },
-    computed: {
+  computed: {
     ...mapState("auth", ["user_logged"]),
     data_user() {
       return this.user_logged;
     }
   },
-  created(){
+  created() {
     this.getData();
   },
   methods: {
-    ...mapActions('shopping', [
-      'getProviders',
-      'searchProviders',
-      'addProviders'
+    ...mapActions("shopping", [
+      "getProviders",
+      "searchProviders",
+      "addProviders"
     ]),
 
-    getData(){
+    getData() {
       this.$q.loading.show({
-        message: 'Obteniendo proveedores, por favor espere...'
+        message: "Obteniendo proveedores, por favor espere..."
       });
-      setTimeout( async() => {
+      setTimeout(async () => {
         try {
-          const res_provider = await this.getProviders().then( res => {
+          const res_provider = await this.getProviders().then(res => {
             return res.data;
           });
           // console.log({
           //   msg: 'Respuesta get proveedor',
           //   data: res_provider
           // });
-          if(res_provider.ok){
-            if(res_provider.result){
-              this.data.length = 0 ;
-              res_provider.data.forEach( provider => {
-                if(provider.Tp_Id == 0){
+          if (res_provider.ok) {
+            if (res_provider.result) {
+              this.data.length = 0;
+              this.datageneral.length = 0;
+              res_provider.data.forEach(provider => {
+                if (provider.Tp_Id == 0) {
                   this.data.push({
                     CP_Digito_verificacion: provider.CP_Digito_verificacion,
                     CP_Direccion: provider.CP_Direccion,
@@ -280,19 +319,48 @@ export default {
                     Id: provider.id,
                     title: provider.CP_Razon_social,
                     btn_edit: true,
-                    icon_btn_details: 'visibility',
+                    icon_btn_details: "visibility",
                     btn_details: false,
-                    icon_btn_edit: 'edit',
+                    icon_btn_edit: "edit",
                     status: provider.CP_Estado,
                     btn_status: true,
-                     icon_btn_status: "power_settings_new"
-                  })
+                    icon_btn_status: "power_settings_new"
+                  });
+                  this.datageneral.push({
+                    CP_Digito_verificacion: provider.CP_Digito_verificacion,
+                    CP_Direccion: provider.CP_Direccion,
+                    CP_Email: provider.CP_Email,
+                    CP_Estado: provider.CP_Estado,
+                    CP_Fecha_control: provider.CP_Fecha_control,
+                    CP_Nit: provider.CP_Nit,
+                    CP_Razon_social: provider.CP_Razon_social,
+                    CP_Telefono: provider.CP_Telefono,
+                    CP_Urlweb: provider.CP_Urlweb,
+                    CP_User_control: provider.CP_User_control,
+                    Ciu_Id: provider.Ciu_Id,
+                    Ciu_Nombre: provider.Ciu_Nombre,
+                    Per_Nombre: provider.Per_Nombre,
+                    Td_Id: provider.Td_Id,
+                    Tp_Desc_corta: provider.Tp_Desc_corta,
+                    Tp_Id: provider.Tp_Id,
+                    name_estado: provider.name_estado,
+                    name_tp: provider.name_tp,
+                    Id: provider.id,
+                    title: provider.CP_Razon_social,
+                    btn_edit: true,
+                    icon_btn_details: "visibility",
+                    btn_details: false,
+                    icon_btn_edit: "edit",
+                    status: provider.CP_Estado,
+                    btn_status: true,
+                    icon_btn_status: "power_settings_new"
+                  });
                 }
               });
             } else {
               this.$q.notify({
                 message: res_provider.message,
-                type: 'warning'
+                type: "warning"
               });
             }
           } else {
@@ -310,32 +378,35 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative",
+            type: "negative"
           });
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000)
+      }, 2000);
     },
-   
-    searchProvider(){
+
+    searchProvider() {
       this.$q.loading.show({
-        message: 'Buscando proveedor, por favor espere...'
+        message: "Buscando proveedor, por favor espere..."
       });
-      setTimeout( async() => {
+      setTimeout(async () => {
         try {
-          const res_provider = await this.searchProviders(this.nit_provider).then( res => {
+          const res_provider = await this.searchProviders(
+            this.nit_provider
+          ).then(res => {
             return res.data;
           });
           // console.log({
           //   msg: 'Respuesta get proveedor',
           //   data: res_provider
           // });
-          if(res_provider.ok){
-            if(res_provider.result){
-              this.data.length = 0 ;
+          if (res_provider.ok) {
+            if (res_provider.result) {
+              this.data.length = 0;
               this.data.push({
-                CP_Digito_verificacion: res_provider.data.CP_Digito_verificacion,
+                CP_Digito_verificacion:
+                  res_provider.data.CP_Digito_verificacion,
                 CP_Direccion: res_provider.data.CP_Direccion,
                 CP_Email: res_provider.data.CP_Email,
                 CP_Estado: res_provider.data.CP_Estado,
@@ -357,16 +428,16 @@ export default {
                 title: res_provider.data.CP_Razon_social,
                 status: res_provider.data.CP_Estado,
                 btn_edit: true,
-                icon_btn_details: 'visibility',
+                icon_btn_details: "visibility",
                 btn_details: false,
-                icon_btn_edit: 'edit',
+                icon_btn_edit: "edit",
                 btn_status: true,
-                     icon_btn_status: "power_settings_new"
-              })
+                icon_btn_status: "power_settings_new"
+              });
             } else {
               this.$q.notify({
                 message: res_provider.message,
-                type: 'warning'
+                type: "warning"
               });
             }
           } else {
@@ -384,28 +455,26 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative",
+            type: "negative"
           });
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000)
+      }, 2000);
     },
 
-     editProvider(row){
-   
+    editProvider(row) {
       this.provider_edit = row;
       this.tab = "add_provider";
     },
-     reload() {
+    reload() {
       this.tab = "provider";
       this.edit_form = false;
-      setTimeout( ()=> {
+      setTimeout(() => {
         this.getData();
-      }, 500)
+      }, 500);
     },
-     openDialogStatus(row) {
-     
+    openDialogStatus(row) {
       // Buscamos la categoria del producto asignada
       // let categoria = categorias.find( categoria => categoria.label.toLowerCase() == row.Cat_Nombre.toLowerCase());
       // Buscamos la unidad de medida asiganada
@@ -423,7 +492,7 @@ export default {
         CP_Telefono: row.CP_Telefono,
         Ciu_Id: row.Ciu_Id,
         CP_Estado: row.CP_Estado == 1 ? 0 : 1,
-        CP_User_control: this.data_user.Per_Num_documento,
+        CP_User_control: this.data_user.Per_Num_documento
       };
       this.options_status.title =
         row.CP_Estado == 1 ? "Desactivar proveedor" : "Activar proveedor";
@@ -440,7 +509,7 @@ export default {
       setTimeout(async () => {
         try {
           this.provider_edit.base = process.env.__BASE__;
-        
+
           const res_update = await this.addProviders(this.provider_edit).then(
             res => {
               return res.data;
@@ -487,9 +556,7 @@ export default {
       }, 2000);
     }
   }
-}
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

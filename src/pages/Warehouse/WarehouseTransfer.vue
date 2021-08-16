@@ -28,7 +28,12 @@
               :propactions="true"
               @ondetails="detailsTransfer"
               @getrangedata="getRange"
-            >
+             v-if="rendercomponent"
+      >
+       <template v-slot:toggle>
+           
+            <q-toggle v-model="filter_pendientes" label="Pendiente" />
+          </template>
               <template v-slot:header-cell-calories="props">
                 <q-th :props="props">
                   <q-icon name="thumb_up" size="1.5em" />
@@ -240,6 +245,9 @@ export default {
         },
       ],
       data: [],
+      datageneral:[],
+      rendercomponent: true,
+      filter_pendientes:false,
       encabezado_selecte: {}, //Encabezado del traslado seleccionado
       encabezado_traslado: {}, //Encabezado del traslado formateado para el frontend
       dailog_details: false, //Dialogo para el detalle del traslado
@@ -268,6 +276,22 @@ export default {
     integ_movil_destino(value){
       this.encabezado_selecte.Etm_Usuario_recibe = value;
       this.encabezado_traslado['Documento quien recibe'] = value;
+    },
+     filter_pendientes(value) {
+   
+      if (value) {
+       this.rendercomponent = false;
+        let dataselect = this.datageneral.filter(credit => credit.Etm_Estado == 0);
+        this.data.length = 0;
+
+        setTimeout(() => {
+          this.data = dataselect;
+
+          this.rendercomponent = true;
+        }, 300);
+      } else {
+        setTimeout(this.getData(), 300);
+      }
     },
   },
   created(){
@@ -300,8 +324,35 @@ export default {
           if(res_traslados.ok){
             if(res_traslados.result){
               this.data.length = 0;
+              this.datageneral.length=0;
               res_traslados.data.forEach(element => {
                 this.data.push({
+                  Etm_Estado: element.Etm_Estado,
+                  Etm_Id: element.Etm_Id,
+                  Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
+                  Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
+                  id: element.id,
+                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
+                  name_m_entrega: element.name_m_entrega,
+                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
+                  name_m_recibe: element.name_m_recibe,
+                  name_p_entrega: element.name_p_entrega,
+                  name_p_recibe: element.name_p_recibe,
+                  Etm_Observaciones: element.Etm_Observaciones,
+                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
+                  title: `Movimiento No. ${element.id}`,
+                  Estado: element.Etm_Estado == 1 ? 'ENTREGADO' : 'PENDIENTE',
+                  status: element.Etm_Estado,
+                  btn_details: true,
+                  icon_btn_details: "mdi-eye-settings",
+                  // btn_edit: false,
+                  // btn_status: false,
+                  // btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                })
+                     this.datageneral.push({
                   Etm_Estado: element.Etm_Estado,
                   Etm_Id: element.Etm_Id,
                   Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,

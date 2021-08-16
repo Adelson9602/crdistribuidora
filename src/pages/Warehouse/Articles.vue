@@ -34,7 +34,13 @@
             @getrangedata="getArticleRang"
             @onedit="editArticle"
             @tostatus="openDialogStatus"
-          />
+           v-if="rendercomponent"
+      >
+       <template v-slot:toggle>
+           
+            <q-toggle v-model="filter_pendientes" label="Articulos pendientes" />
+          </template>
+      </component-table>
           <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable
             :dialog="enable_diable"
@@ -172,6 +178,9 @@ export default {
         },
       ],
       data: [],
+      datageneral:[],
+      rendercomponent: true,
+      filter_pendientes:false,
       article_edit: null,
       enable_diable: false,
       options_status: {
@@ -194,7 +203,23 @@ export default {
       if(value == "articles"){
         this.article_edit = null;
       }
-    }
+    },
+     filter_pendientes(value) {
+   
+      if (value) {
+       this.rendercomponent = false;
+        let dataselect = this.datageneral.filter(credit => credit.Art_Estado == 0);
+        this.data.length = 0;
+
+        setTimeout(() => {
+          this.data = dataselect;
+
+          this.rendercomponent = true;
+        }, 300);
+      } else {
+        setTimeout(this.getData(), 300);
+      }
+    },
   },
   methods: {
     ...mapActions("warehouse", [
@@ -224,8 +249,35 @@ export default {
           if (resgetDataArticles.ok) {
             if (resgetDataArticles.result) {
               this.data.length = 0;
+              this.datageneral.length=0;
               resgetDataArticles.data.forEach((element) => {
                 this.data.push({
+                  Id: element.Id,
+                  Art_Id: element.Art_Id,
+                  Art_Codigo_inv: element.Art_Codigo_inv,
+                  Art_Nombre: element.Art_Nombre,
+                  Art_Descripcion: element.Art_Descripcion,
+                  Prefijo: element.Prefijo,
+                  Art_Stockminimo: element.Art_Stockminimo,
+                  Cat_Nombre: element.Cat_Nombre,
+                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",  
+                  Art_Estado: element.Art_Estado,
+                  Art_User_control: element.Art_User_control,
+                  Per_Nombre: element.Per_Nombre,
+                  Art_Fecha_control: element.Art_Fecha_control,
+                  Art_ubicacion: element.Art_ubicacion,
+                  title: element.Art_Nombre,
+                  Estado: element.Art_Estado,
+                  status: element.Art_Estado,
+                  btn_edit: true,
+                  btn_status: true,
+                  // btn_details: true,
+                  // btn_pdf: true,
+                  icon_btn_edit: "mdi-pencil",
+                  icon_btn_status: "power_settings_new",
+                  // icon_btn_details: "mdi-eye-settings",
+                });
+                 this.datageneral.push({
                   Id: element.Id,
                   Art_Id: element.Art_Id,
                   Art_Codigo_inv: element.Art_Codigo_inv,
