@@ -87,7 +87,7 @@
 
                 <q-card-actions align="right">
                   <q-btn
-                    label="guardar"
+                    label="Recibir Garantias"
                     type="submit"
                     color="green"
                     v-if="encabezado_entrada.Estado == 'PENDIENTE'"
@@ -552,7 +552,7 @@ export default {
               base: process.env.__BASE__,
               simbol: "-",
               Mov_Id: this.encabezado_entrada["ID Movil"],
-              Si_Cant: producto.Cantidad,
+              Sg_Cant: producto.Cantidad,
               Art_Id: producto["Id producto"]
             };
 
@@ -567,7 +567,7 @@ export default {
               base: process.env.__BASE__,
               simbol: "+",
               Mov_Id: 1,
-              Si_Cant: producto.Cantidad,
+              Sg_Cant: producto.Cantidad,
               Art_Id: producto["Id producto"]
             };
 
