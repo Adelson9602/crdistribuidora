@@ -51,6 +51,11 @@ export function getWarrantiesSelect(context, id){
   return Vue.prototype.$axios.get(`select_garantias_a_devolver_id/${process.env.__BASE__}/${id}`)
 }
 
+
+export function getDetailsGuarantess(context, id){
+  return Vue.prototype.$axios.get(`select_garantias_a_devolver_details/${process.env.__BASE__}/${id}`)
+}
+
 // Proveedores
 // Obtiene todos los proveedores o clientes
 export function getClientes(){
@@ -68,6 +73,18 @@ export function getAllstock(){
 export function insertUpdateEncVenta(context, data){
   return Vue.prototype.$axios.post(`insert_update_enc_venta`, data);
 }
+
+// Guarda o actualiza el inventario de garantias
+export function insertUpdateStcok_garantias(context, data){
+  return Vue.prototype.$axios.post(`insert_update_stock_garantias`, data);
+}
+
+// Guarda o actualiza el encabezado de la garantia
+export function insertUpdateEncGarantia(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_garantia`, data);
+}
+
+
 
 // Guarda o actualiza el detalle de la venta
 export function insertUpdateDetVenta(context, data){
