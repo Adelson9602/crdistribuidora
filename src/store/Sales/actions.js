@@ -2,7 +2,7 @@ import Vue from 'vue';
 
 let base = process.env.__BASE__;
 
-// Ventas
+// VENTAS
 // Busca una venta por el id
 export function getSearchSales(contex, id){
   return Vue.prototype.$axios.get(`select_enc_venta_single/${base}/${id}`)
@@ -32,6 +32,7 @@ export function getSalesClientSingle(context, nit){
 export function getDetailSales(context, id_venta){
   return Vue.prototype.$axios.get(`select_det_venta_single/${base}/${id_venta}`)
 }
+
 // Lista todos los productos agrupados por articulos y discriminados por ventas
 export function requestGetSalestoList(contex, data) {
   return Vue.prototype.$axios.get(`select_list_picking_range/${data.base}/${data.from}/${data.to}`);
@@ -42,6 +43,20 @@ export function requestGetSalestoListDetail(contex, data) {
   return Vue.prototype.$axios.get(`select_list_picking_detail_range/${data.base}/${data.from}/${data.to}`)
 }
 
+// insert_update_stock_inventario => Se reutiliza petición del modulo warehouse
+
+// Proveedores
+// Obtiene todos los proveedores o clientes
+export function getClientes(){
+  return Vue.prototype.$axios.get(`select_cliente_proveepor_general/${base}`)
+}
+
+// Obtiene todos los proveedores o clientes
+export function getAllstock(){
+  return Vue.prototype.$axios.get(`select_stock_porcentaje_general/${base}`)
+}
+
+// GARANTÍAS
 // Lista las garantías
 export function getWarranties(){
   return Vue.prototype.$axios.get(`select_garantias_a_devolver/${process.env.__BASE__}`)
@@ -51,27 +66,9 @@ export function getWarrantiesSelect(context, id){
   return Vue.prototype.$axios.get(`select_garantias_a_devolver_id/${process.env.__BASE__}/${id}`)
 }
 
-
+// Obtiene el detalle de la garantía
 export function getDetailsGuarantess(context, id){
   return Vue.prototype.$axios.get(`select_garantias_a_devolver_details/${process.env.__BASE__}/${id}`)
-}
-
-// Proveedores
-// Obtiene todos los proveedores o clientes
-export function getClientes(){
-  return Vue.prototype.$axios.get(`select_cliente_proveepor_general/${base}`)
-}
-
-// Proveedores
-// Obtiene todos los proveedores o clientes
-export function getAllstock(){
-  return Vue.prototype.$axios.get(`select_stock_porcentaje_general/${base}`)
-}
-
-// Ventas
-// Guarda o actualiza el encabezado de la venta
-export function insertUpdateEncVenta(context, data){
-  return Vue.prototype.$axios.post(`insert_update_enc_venta`, data);
 }
 
 // Guarda o actualiza el inventario de garantias
@@ -84,13 +81,6 @@ export function insertUpdateEncGarantia(context, data){
   return Vue.prototype.$axios.post(`insert_update_enc_garantia`, data);
 }
 
-
-
-// Guarda o actualiza el detalle de la venta
-export function insertUpdateDetVenta(context, data){
-  return Vue.prototype.$axios.post(`insert_update_det_venta`, data);
-}
-
 // Obtiene el porcentaje de descuento para el articulo
 export function getPercentSaleArt(context, data){
   return Vue.prototype.$axios.get(`select_porcentaje_venta_general/${base}`)
@@ -99,4 +89,14 @@ export function getPercentSaleArt(context, data){
 // Obtiene las moviles del usuario
 export function getMovilUser(context, documento){
   return Vue.prototype.$axios.get(`select_movil_integrante_user/${base}/${documento}`);
+}
+
+// Insert y actualizacion de la tabla det_garantias
+export function insertDetGarantia(context, data){
+  return Vue.prototype.$axios.post(`insert_update_det_garantias`, data);
+}
+
+// Insert y actualizacion de la tabla stock_garantias
+export function insertInsUpdStockGarantia(context, data){
+  return Vue.prototype.$axios.post(`insert_update_stock_garantias`, data);
 }
