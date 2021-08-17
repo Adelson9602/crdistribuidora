@@ -6,6 +6,7 @@
         :propgrid="true"
         :propflat="true"
         :propdata="data"
+        :propexcel="excel"
         :propcolumns="columns"
         :propbtns="btns"
         :propactions="true"
@@ -287,6 +288,72 @@ export default {
           field: 'Estado'
         },
       ],
+       excel: {
+        columns:  [
+        {
+          label: 'NIT',
+          field: 'CP_Nit'
+        },
+        {
+          label: 'Razon social',
+          field: 'CP_Razon_social'
+        },
+        {
+          label: 'Documento vendedor',
+          field: 'Dcc_Aumento_plazo'
+        },
+        {
+          label: 'Observaciones',
+          field: 'Dcc_Observaciones'
+        },
+        {
+          label: 'Valor abono',
+          field: 'Dcc_Valor_abono'
+        },
+        {
+          label: 'Ecb_Id',
+          field: 'Ecb_Id'
+        },
+        {
+          label: 'Enc_Estado',
+          field: 'Enc_Estado'
+        },
+        {
+          label: 'Enc_dias_credito',
+          field: 'Enc_dias_credito'
+        },
+        {
+          label: 'Numero comprobante',
+          field: 'Enc_num_comprobante'
+        },
+        {
+          label: 'Total compra',
+          field: 'Enc_total_compra'
+        },
+        {
+          label: 'Fecha compra',
+          field: 'Fecha_compra'
+        },
+        {
+          label: 'Nombre vendedor',
+          field: 'Per_Nombre'
+        },
+        {
+          label: 'Días de crédito',
+          field: 'dcredito'
+        },
+        {
+          label: 'Días de más',
+          field: 'dias_mas'
+        },
+        {
+          label: 'Estado',
+          field: 'Estado'
+        },
+      ],
+        data: [],
+        title: "Creditos Proveedor"
+      },
       data: [],
        filter_pendientes: false,
       column_historico: [
@@ -417,7 +484,7 @@ export default {
       data_product: [],
       btns: {
         range_date: true,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       initial_pagination: {
@@ -571,6 +638,7 @@ watch:{
           } else {
             throw new Error(res_credits.message)
           }
+           this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

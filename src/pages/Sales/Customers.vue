@@ -49,6 +49,7 @@
             :propgrid="true"
             :propflat="true"
             :propdata="data"
+            :propexcel="excel"
             :propcolumns="columns"
             :proppdf="optionpdf"
             :propbtns="btns"
@@ -189,6 +190,68 @@ export default {
           field: "name_tp"
         }
       ],
+      excel: {
+        columns: [
+          {
+            label: "Digito verificación",
+            field: "CP_Digito_verificacion"
+          },
+          {
+            label: "Fecha creación",
+            field: "CP_Fecha_control"
+          },
+          {
+            label: "NIT",
+            field: "CP_Nit"
+          },
+          {
+            label: "Razon social",
+            field: "CP_Razon_social"
+          },
+          {
+            label: "Teléfono",
+            field: "CP_Telefono"
+          },
+          {
+            label: "Dirección",
+            field: "CP_Direccion"
+          },
+          {
+            label: "Email",
+            field: "CP_Email"
+          },
+          {
+            label: "Sitio web",
+            field: "CP_Urlweb"
+          },
+          {
+            label: "Ciudad",
+            field: "Ciu_Nombre"
+          },
+          {
+            label: "Documento creador",
+            field: "CP_User_control"
+          },
+          {
+            label: "Creado por",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Tipo documento",
+            field: "Tp_Desc_corta"
+          },
+          {
+            label: "Estado",
+            field: "name_estado"
+          },
+          {
+            label: "Tipo cliente",
+            field: "name_tp"
+          }
+        ],
+        data: [],
+        title: "Clientes"
+      },
       data: [],
       optionpdf: {
         columns: [
@@ -213,7 +276,7 @@ export default {
       },
       btns: {
         range_date: false,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       initial_pagination: {
@@ -465,7 +528,6 @@ export default {
       }, 500);
     },
     openDialogStatus(row) {
-     
       // Buscamos la categoria del producto asignada
       // let categoria = categorias.find( categoria => categoria.label.toLowerCase() == row.Cat_Nombre.toLowerCase());
       // Buscamos la unidad de medida asiganada
@@ -483,7 +545,7 @@ export default {
         CP_Telefono: row.CP_Telefono,
         Ciu_Id: row.Ciu_Id,
         CP_Estado: row.CP_Estado == 1 ? 0 : 1,
-        CP_User_control: this.data_user.Per_Num_documento,
+        CP_User_control: this.data_user.Per_Num_documento
       };
       this.options_status.title =
         row.CP_Estado == 1 ? "Desactivar cliente" : "Activar cliente";
