@@ -3,6 +3,8 @@
     <q-form
       @submit="addProduct"
       class="q-gutter-md"
+      ref="form_sales"
+      autocomplete="off"
     >
       <q-btn color="primary" icon="add" label="Agregar cliente" @click="dialog_create_user = true" />
       <q-dialog v-model="dialog_create_user" persistent>
@@ -220,14 +222,28 @@
       <div class="col-xs-12 col-sm-6 q-pa-sm">
         <q-field label="Subtotal" stack-label>
           <template v-slot:control>
-            <div class="self-center full-width no-outline" tabindex="0">{{subtotal_venta}}</div>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{subtotal_venta}}</div>
           </template>
         </q-field>
       </div>
       <div class="col-xs-12 col-sm-6 q-pa-sm">
         <q-field label="Total" stack-label>
           <template v-slot:control>
-            <div class="self-center full-width no-outline" tabindex="0">{{total_venta}}</div>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{total_venta}}</div>
+          </template>
+        </q-field>
+      </div>
+      <div class="col-xs-12 col-sm-6 q-pa-sm">
+        <q-field label="Ev_Des_total_art" stack-label>
+          <template v-slot:control>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{Ev_Des_total_art}}</div>
+          </template>
+        </q-field>
+      </div>
+      <div class="col-xs-12 col-sm-6 q-pa-sm">
+        <q-field label="Ev_Des_gen_venta" stack-label>
+          <template v-slot:control>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{Ev_Des_gen_venta}}</div>
           </template>
         </q-field>
       </div>
@@ -341,8 +357,32 @@ export default {
           sortable: true,
           field: 'Dv_Cant'
         },
+        {
+          name: 'precio_venta',
+          align: 'center',
+          label: 'Precio venta',
+          sortable: true,
+          field: 'precio_venta'
+        },
+        {
+          name: 'des_articulo',
+          align: 'center',
+          label: 'Descuento aplicado',
+          sortable: true,
+          field: 'des_articulo'
+        },
+        {
+          name: 'subtotal_product',
+          align: 'center',
+          label: 'Subtotal',
+          sortable: true,
+          field: 'subtotal_product'
+        },
       ], //Columnas para la tabla productos a vender
       dialog_create_user: false,
+      Ev_Des_total_art: null,
+      Ev_Subtotal: null,
+      Ev_Des_gen_venta: null,
     }
   },
   computed: {
@@ -379,7 +419,10 @@ export default {
                 label: element.Art_Nombre,
                 value: element.Art_Id,
                 codigo: element.Art_Codigo_inv,
-                cantidad: element.Si_Cant
+                cantidad: element.Si_Cant,
+                porcentaje_venta: element.porcentaje_venta,
+                precio_compra: element.precio_compra,
+                precio_venta: element.precio_venta,
               });
             })
           } else {
@@ -406,8 +449,8 @@ export default {
     },
     producto_selecte(value){
       if(value){
-        console.log(value)
         this.cant_disponible = value.cantidad;
+        this.descuento_art = this.options_des_products.find( porcentaje => porcentaje.value == value.porcentaje_venta)
       }
     }
   },
@@ -557,7 +600,7 @@ export default {
               if(element.Pv_Estado == 1){
                 this.options_des_products.push({
                   label: element.Pv_Descripcion,
-                  value: element.Pv_Id,
+                  value: element.Pv_Prcentaje,
                 });
               }
             })
@@ -589,7 +632,11 @@ export default {
       });
       setTimeout(async() => {
         try {
-          this.enc_venta.Per_Num_documento = this.data_user.Per_Num_documento
+          this.enc_venta.Per_Num_documento = this.data_user.Per_Num_documento;
+          this.enc_venta.Ev_Subtotal = this.subtotal_venta;
+          this.enc_venta.Ev_Des_total_art = this.ev_des_total_art;
+          this.enc_venta.Ev_Des_gen_venta = (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100)
+          this.enc_venta.Ev_Total_venta = this.subtotal_venta - this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art - this.enc_venta.Ev_Des_gen_venta;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -619,7 +666,12 @@ export default {
         Dv_Cant: this.cantidad,
         Dv_Precio_compra: null,
         Dv_precio_venta: this.precio_venta_art,
-        Dv_valor_descuento: this.descuento_art,
+        Dv_valor_descuento: this.descuento_art.value,
+        porcentaje_venta: this.producto_selecte.porcentaje_venta,
+        precio_compra: this.producto_selecte.precio_compra,
+        precio_venta: this.producto_selecte.precio_venta,
+        subtotal_product: null,
+        des_articulo: this.descuento_art.label,
       }
 
       if(this.cantidad > this.cant_disponible){
@@ -635,7 +687,31 @@ export default {
             type: 'warning'
           })
         } else {
+          // subtotal_product = precio_compra + (porcentaje_venta * precio_compra / 100) *
+
+          // Ev_Subtotal => venta_total sin ningun descuento ***
+          // Ev_Des_total_art => Suma total de lo que se desconto por cada articulo, cliente aa ... *
+          // Ev_Total_venta => Ev_Subtotal - Ev_Des_total_art - Ev_Des_gen_venta *
+          // Ev_Descuentog => porcentaje descuento de la factura final (10% ...)
+          // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
+          // diferencia entre precio venta y subtotal
+
+
+          product_add.subtotal_product = (this.producto_selecte.precio_compra + (this.descuento_art.value * this.producto_selecte.precio_compra / 100)) * this.cantidad; //calcula el subtotal por cada articulo
+          this.Ev_Des_total_art = this.Ev_Des_total_art + (product_add.precio_venta * this.cantidad ) - product_add.subtotal_product; //Calculamos el descuento de cada articulo
+
+          this.subtotal_venta = this.subtotal_venta + (this.producto_selecte.precio_venta * this.cantidad); // se asigna el subtotal de la factura
+          this.Ev_Subtotal = this.subtotal_venta;
+
+          this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
+
+          this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+
           this.data_sales.push(product_add);
+          this.onReset();
+          setTimeout(() => {
+            this.$refs.form_sales.resetValidation();
+          }, 300)
         }
       }
     },
@@ -649,6 +725,8 @@ export default {
       }).onOk(() => {
         let index = this.data_sales.indexOf(row)
         this.data_sales.splice(index, 1)
+        this.Ev_Des_total_art = this.Ev_Des_total_art - (row.subtotal_product * Number(row.Dv_Cant));
+        this.subtotal_venta = this.subtotal_venta - (row.precio_venta * Number(row.Dv_Cant));
       })
     },
     // Recarga el select luego de crear un cliente
@@ -708,7 +786,10 @@ export default {
       }, 200)
     },
     onReset(){
-
+      this.producto_selecte = null;
+      this.descuento_art = null;
+      this.cantidad = null;
+      this.cant_disponible = null;
     },
     // Buscador para el select medio de pago
     filterProducts(val, update, abort){
