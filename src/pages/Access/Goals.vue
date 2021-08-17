@@ -26,7 +26,9 @@
             :proppdf="optionpdf"
             :propflat="true"
             :propgrid="true"
+            :propexcel="excel"
             :propactions="true"
+            :propbtns="btns"
             @tostatus="openDialogStatus"
             :proppagination="initial_pagination"
             @onedit="editGoal"
@@ -116,6 +118,52 @@ export default {
           field: 'name_estado',
         },
       ],
+      excel: {
+        columns:  [
+        {
+          label: 'Fecha creación',
+          field: 'Met_Fecha_control',
+        },
+        {
+         
+          label: 'Creado por',
+         
+          field: 'Met_User_control',
+        },
+        {
+         
+          label: 'Porcentaje meta',
+         
+          field: 'Met_porcentaje',
+        },
+        {
+         
+          label: 'Incio',
+         
+          field: 'Met_vdesde',
+        },
+        {
+         
+          label: 'Hasta',
+         
+          field: 'Met_vhasta',
+        },
+        {
+         
+          label: 'Nombres',
+         
+          field: 'Per_Nombre',
+        },
+        {
+         
+          label: 'Estado',
+        
+          field: 'name_estado',
+        },
+      ],
+        data: [],
+        title: 'Metas',
+      },
       data: [],
       initial_pagination: {
         sortBy: 'desc',
@@ -144,6 +192,11 @@ export default {
         styles: {
           font_size: 7,
         }
+      },
+      btns: {
+        range_date: false,
+        btn_export_pdf: false,
+        export_excel: true
       },
       label: 'Agregar metas',
       tab: "goals",
@@ -213,6 +266,8 @@ export default {
           } else {
             throw new Error(res_metas.message);
           }
+          
+          this.excel.data=this.data
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

@@ -74,12 +74,7 @@ export default {
       date_range: {
         to: null,
         from: null
-      },
-
-     
-                
-                  
-           
+      },    
       columns: [
         {
           name: "Id",

@@ -374,7 +374,8 @@ export default {
     "propflat",
     "propbtns",
     "proppagination",
-    "propbuscador"
+    "propbuscador",
+    "propexcel"
   ],
   computed: {
     // ...mapState("auth", ["user_permissions"]),
