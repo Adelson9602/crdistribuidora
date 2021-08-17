@@ -213,7 +213,7 @@
             :key="col.name"
             :props="props"
           >
-            {{ col.value }}
+            {{ col.name != 'Dv_precio_venta' && col.name != 'subtotal_product' ? col.value : new Intl.NumberFormat().format(col.value)}}
           </q-td>
         </q-tr>
       </template>
@@ -222,28 +222,28 @@
       <div class="col-xs-12 col-sm-6 q-pa-sm">
         <q-field label="Subtotal" stack-label>
           <template v-slot:control>
-            <div class="self-center full-width no-outline" tabindex="0">$ {{subtotal_venta}}</div>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{new Intl.NumberFormat().format(subtotal_venta)}}</div>
           </template>
         </q-field>
       </div>
       <div class="col-xs-12 col-sm-6 q-pa-sm">
         <q-field label="Total" stack-label>
           <template v-slot:control>
-            <div class="self-center full-width no-outline" tabindex="0">$ {{total_venta}}</div>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{new Intl.NumberFormat().format(total_venta)}}</div>
           </template>
         </q-field>
       </div>
       <div class="col-xs-12 col-sm-6 q-pa-sm">
-        <q-field label="Ev_Des_total_art" stack-label>
+        <q-field label="Descuento total de artículos" stack-label>
           <template v-slot:control>
-            <div class="self-center full-width no-outline" tabindex="0">$ {{Ev_Des_total_art}}</div>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{new Intl.NumberFormat().format(Ev_Des_total_art)}}</div>
           </template>
         </q-field>
       </div>
       <div class="col-xs-12 col-sm-6 q-pa-sm">
-        <q-field label="Ev_Des_gen_venta" stack-label>
+        <q-field label="Descuento general" stack-label>
           <template v-slot:control>
-            <div class="self-center full-width no-outline" tabindex="0">$ {{Ev_Des_gen_venta}}</div>
+            <div class="self-center full-width no-outline" tabindex="0">$ {{new Intl.NumberFormat().format(Ev_Des_gen_venta)}}</div>
           </template>
         </q-field>
       </div>
@@ -358,11 +358,11 @@ export default {
           field: 'Dv_Cant'
         },
         {
-          name: 'precio_venta',
+          name: 'Dv_precio_venta',
           align: 'center',
           label: 'Precio venta',
           sortable: true,
-          field: 'precio_venta'
+          field: 'Dv_precio_venta'
         },
         {
           name: 'des_articulo',
@@ -664,12 +664,10 @@ export default {
         producto: this.producto_selecte.label,
         Art_Id: this.producto_selecte.value,
         Dv_Cant: this.cantidad,
-        Dv_Precio_compra: null,
-        Dv_precio_venta: this.precio_venta_art,
+        Dv_Precio_compra: this.producto_selecte.precio_compra,
+        Dv_precio_venta: this.producto_selecte.precio_venta,
         Dv_valor_descuento: this.descuento_art.value,
         porcentaje_venta: this.producto_selecte.porcentaje_venta,
-        precio_compra: this.producto_selecte.precio_compra,
-        precio_venta: this.producto_selecte.precio_venta,
         subtotal_product: null,
         des_articulo: this.descuento_art.label,
       }
@@ -697,10 +695,10 @@ export default {
           // diferencia entre precio venta y subtotal
 
 
-          product_add.subtotal_product = (this.producto_selecte.precio_compra + (this.descuento_art.value * this.producto_selecte.precio_compra / 100)) * this.cantidad; //calcula el subtotal por cada articulo
-          this.Ev_Des_total_art = this.Ev_Des_total_art + (product_add.precio_venta * this.cantidad ) - product_add.subtotal_product; //Calculamos el descuento de cada articulo
+          product_add.subtotal_product = product_add.Dv_Precio_compra + (this.descuento_art.value * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
+          this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
 
-          this.subtotal_venta = this.subtotal_venta + (this.producto_selecte.precio_venta * this.cantidad); // se asigna el subtotal de la factura
+          this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
           this.Ev_Subtotal = this.subtotal_venta;
 
           this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
@@ -726,7 +724,7 @@ export default {
         let index = this.data_sales.indexOf(row)
         this.data_sales.splice(index, 1)
         this.Ev_Des_total_art = this.Ev_Des_total_art - (row.subtotal_product * Number(row.Dv_Cant));
-        this.subtotal_venta = this.subtotal_venta - (row.precio_venta * Number(row.Dv_Cant));
+        this.subtotal_venta = this.subtotal_venta - (row.Dv_precio_venta * Number(row.Dv_Cant));
       })
     },
     // Recarga el select luego de crear un cliente
