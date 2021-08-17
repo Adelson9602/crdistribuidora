@@ -15,7 +15,7 @@
           label="Garantías"
           icon="check_circle_outline"
         />
-        <q-tab name="add_warranties" label="Agregar garantía" icon="add_task" />
+        <!-- <q-tab name="add_warranties" label="Agregar garantía" icon="add_task" /> -->
       </q-tabs>
 
       <q-separator />
@@ -84,16 +84,9 @@
                       </template>
                     </q-field>
                   </div> </q-card-section
-                >}
+                >
 
-                <q-card-actions align="right">
-                  <q-btn
-                    label="Recibir Garantias"
-                    type="submit"
-                    color="green"
-                    v-if="encabezado_entrada.Estado == 'PENDIENTE'"
-                  />
-                </q-card-actions>
+               
                 <q-card-section>
                   <q-table
                     title="Productos "
@@ -141,12 +134,12 @@
 <script>
 import { mapActions } from "vuex";
 import ComponentTable from "components/Generals/ComponentTable";
-import ComponentAddSalesWarranties from "components/Sales/ComponentAddSalesWarranties";
+// import ComponentAddSalesWarranties from "components/Sales/ComponentAddSalesWarranties";
 export default {
   name: "SaleswithoutBalance",
   components: {
     ComponentTable,
-    ComponentAddSalesWarranties
+    // ComponentAddSalesWarranties
   },
   data() {
     return {
