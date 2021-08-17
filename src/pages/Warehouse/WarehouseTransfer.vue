@@ -25,6 +25,7 @@
               :propgrid="true"
               :propflat="true"
               :propbtns="btns"
+              :propexcel="excel"
               :propactions="true"
               @ondetails="detailsTransfer"
               @getrangedata="getRange"
@@ -244,6 +245,56 @@ export default {
           field: 'Estado'
         },
       ],
+       excel: {
+        columns: [
+        {
+         label: 'ID Traslado',
+          field: 'Etm_Id'
+        },
+        {
+         label: 'Móvil origen',
+          field: 'name_m_entrega'
+        },
+        {
+         label: 'Móvil destino',
+          field: 'name_m_recibe'
+        },
+        {
+         label: 'Observaciones',
+          field: 'Etm_Observaciones'
+        },
+        {
+         label: 'Mombre quien entrega',
+          field: 'name_p_entrega'
+        },
+        {
+         label: 'Documento quien entrega',
+          field: 'Etm_Usuario_entrega'
+        },
+        {
+         label: 'Nombre quien recibe',
+          field: 'name_p_recibe'
+        },
+        {
+         label: 'Documento quien recibe',
+          field: 'Etm_Usuario_recibe'
+        },
+        {
+         label: 'Fecha entrega',
+          field: 'Etm_Fecha_entrega'
+        },
+        {
+         label: 'Fecha recibido',
+          field: 'Etm_Fecha_recibe'
+        },
+        {
+         label: 'Estado',
+          field: 'Estado'
+        },
+      ],
+        data: [],
+        title: "Traslados"
+      },
       data: [],
       datageneral:[],
       rendercomponent: true,
@@ -389,6 +440,7 @@ export default {
           } else {
             throw new Error(res_traslados.message)
           }
+           this.excel.data=this.data
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -506,8 +558,35 @@ export default {
           if(res_range.ok){
             if(res_range.result){
               this.data.length = 0;
+              this.datageneral.length=0;
               res_range.data.forEach( element => {
                 this.data.push({
+                  Etm_Estado: element.Etm_Estado,
+                  Etm_Id: element.Etm_Id,
+                  Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
+                  Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
+                  id: element.id,
+                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
+                  name_m_entrega: element.name_m_entrega,
+                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
+                  name_m_recibe: element.name_m_recibe,
+                  name_p_entrega: element.name_p_entrega,
+                  name_p_recibe: element.name_p_recibe,
+                  Etm_Observaciones: element.Etm_Observaciones,
+                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
+                  title: `Movimiento No. ${element.id}`,
+                  Estado: element.Etm_Estado == 1 ? 'ENTREGADO' : 'PENDIENTE',
+                  status: element.Etm_Estado,
+                  btn_details: true,
+                  icon_btn_details: "mdi-eye-settings",
+                  // btn_edit: false,
+                  // btn_status: false,
+                  // btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                })
+                   this.datageneral.push({
                   Etm_Estado: element.Etm_Estado,
                   Etm_Id: element.Etm_Id,
                   Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
@@ -543,6 +622,7 @@ export default {
           } else {
             throw new Error(res_range.message);
           }
+           this.excel.data=this.data
         } catch (e) {
           console.log(e)
         } finally {

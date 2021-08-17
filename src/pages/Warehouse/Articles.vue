@@ -30,6 +30,8 @@
             :propcolumns="columns"
             :propgrid="true"
             :propflat="true"
+            :propexcel="excel"
+             :propbtns="btns"
             :propactions="true"
             @getrangedata="getArticleRang"
             @onedit="editArticle"
@@ -177,6 +179,84 @@ export default {
           sortable: true,
         },
       ],
+        excel: {
+        columns: [
+        {
+          
+          label: "Id ",
+          field: "Id",
+          
+        },
+        {
+          
+          label: "Codigo",
+          field: "Art_Codigo_inv",
+          
+        },
+        {
+          
+          label: "Nombre articulo",
+          field: "Art_Nombre",
+          
+        },
+        {
+          
+          label: "Descripcion articulo",
+          field: "Art_Descripcion",
+          
+        },
+        {
+          
+          label: "UNDM",
+          field: "Prefijo",
+          
+        },
+        {
+          
+          label: "Stock min articulo",
+          field: "Art_Stockminimo",
+          
+        },
+        {
+          
+          label: "Categoria",
+          field: "Cat_Nombre",
+          
+        },
+         {
+          
+          label: "Ubicacion",
+          field: "Art_ubicacion",
+          
+        },
+        {
+          
+          label: "Estado",
+          field: "name_estado",
+          
+        },
+        {
+          
+          label: "User Control",
+          field: "Art_User_control",
+          
+        },
+        {
+          
+          label: "Nombre Control",
+          field: "Per_Nombre",
+          
+        },
+        {
+          
+          label: "Fecha Control",
+          field: "Art_Fecha_control",
+          
+        },
+      ],
+        data: [],
+        title: "Articulos"
+      },
       data: [],
       datageneral:[],
       rendercomponent: true,
@@ -186,6 +266,11 @@ export default {
       options_status: {
         title: null,
         msg: null
+      },
+       btns: {
+        range_date: false,
+        btn_export_pdf: false,
+        export_excel: true
       },
     };
   },
@@ -373,6 +458,7 @@ export default {
           } else {
             throw new Error(res_um.message);
           }
+          this.excel.data=this.data
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -446,6 +532,7 @@ export default {
             this.data.length = 0;
             throw resrequestgetDataArticlesRange.message;
           }
+           this.excel.data=this.data
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

@@ -26,6 +26,8 @@
             :proppdf="optionpdf"
             :propflat="true"
             :propgrid="true"
+            :propexcel="excel"
+             :propbtns="btns"
             :propactions="true"
             @tostatus="setStatus"
             @onedit="editRequest"
@@ -47,14 +49,14 @@
 <script>
 import UserForm from "components/Access/ComponentUserForm";
 import ListUser from "components/Generals/ComponentTable";
-import dialog from 'components/Generals/ComponentDialogWarning';
+import dialog from "components/Generals/ComponentDialogWarning";
 import { mapActions, mapState } from "vuex";
-import CryptoJS from 'crypto-js'
+import CryptoJS from "crypto-js";
 
 export default {
   components: {
     UserForm,
-    ListUser,
+    ListUser
   },
   name: "PageUser",
   data() {
@@ -63,69 +65,111 @@ export default {
       data_users: [],
       columns: [
         {
-          name: 'Car_Descripcion',
-          aling: 'center',
-          label: 'Cargo',
+          name: "Car_Descripcion",
+          aling: "center",
+          label: "Cargo",
           sortable: true,
-          field: 'Car_Descripcion'
+          field: "Car_Descripcion"
         },
         {
-          name: 'Per_Direccion',
-          aling: 'center',
-          label: 'Dirección',
+          name: "Per_Direccion",
+          aling: "center",
+          label: "Dirección",
           sortable: true,
-          field: 'Per_Direccion'
+          field: "Per_Direccion"
         },
         {
-          name: 'Per_Email',
-          aling: 'center',
-          label: 'Email',
+          name: "Per_Email",
+          aling: "center",
+          label: "Email",
           sortable: true,
-          field: 'Per_Email'
+          field: "Per_Email"
         },
         {
-          name: 'Per_Num_documento',
-          aling: 'center',
-          label: 'Documento',
+          name: "Per_Num_documento",
+          aling: "center",
+          label: "Documento",
           sortable: true,
-          field: 'Per_Num_documento'
+          field: "Per_Num_documento"
         },
         {
-          name: 'Per_Telefono',
-          aling: 'center',
-          label: 'Telefono',
+          name: "Per_Telefono",
+          aling: "center",
+          label: "Telefono",
           sortable: true,
-          field: 'Per_Telefono'
+          field: "Per_Telefono"
         },
         {
-          name: 'Rol_Descripcion',
-          aling: 'center',
-          label: 'Rol',
+          name: "Rol_Descripcion",
+          aling: "center",
+          label: "Rol",
           sortable: true,
-          field: 'Rol_Descripcion'
+          field: "Rol_Descripcion"
         },
         {
-          name: 'Tp_Desc_corta',
-          aling: 'center',
-          label: 'Tipo documento',
+          name: "Tp_Desc_corta",
+          aling: "center",
+          label: "Tipo documento",
           sortable: true,
-          field: 'Tp_Desc_corta'
+          field: "Tp_Desc_corta"
         },
         {
-          name: 'Usu_Login',
-          aling: 'center',
-          label: 'Usuario',
+          name: "Usu_Login",
+          aling: "center",
+          label: "Usuario",
           sortable: true,
-          field: 'Usu_Login'
+          field: "Usu_Login"
         },
         {
-          name: 'name_estado_usuario',
-          aling: 'center',
-          label: 'Estado',
+          name: "name_estado_usuario",
+          aling: "center",
+          label: "Estado",
           sortable: true,
-          field: 'name_estado_usuario'
-        },
+          field: "name_estado_usuario"
+        }
       ],
+      excel: {
+        columns: [
+          {
+            label: "Cargo",
+            field: "Car_Descripcion"
+          },
+          {
+            label: "Dirección",
+            field: "Per_Direccion"
+          },
+          {
+            label: "Email",
+            field: "Per_Email"
+          },
+          {
+            label: "Documento",
+            field: "Per_Num_documento"
+          },
+          {
+            label: "Telefono",
+            field: "Per_Telefono"
+          },
+          {
+            label: "Rol",
+            field: "Rol_Descripcion"
+          },
+          {
+            label: "Tipo documento",
+            field: "Tp_Desc_corta"
+          },
+          {
+            label: "Usuario",
+            field: "Usu_Login"
+          },
+          {
+            label: "Estado",
+            field: "name_estado_usuario"
+          }
+        ],
+        data: [],
+        title: "Usuarios"
+      },
       label: "Crear Usuario",
       tabForm: false,
       dataUser: {},
@@ -146,18 +190,23 @@ export default {
           { header: "Estado", dataKey: "Usuario_Estado" }
         ],
         data: [],
-        orientation: 'l', // l => landscape, p => portrait
+        orientation: "l", // l => landscape, p => portrait
         title: {
-          title: 'Usuarios registrados',
+          title: "Usuarios registrados",
           potitionx: 300,
-          potitiony: 30,
+          potitiony: 30
         },
         styles: {
-          font_size: 7,
+          font_size: 7
         }
       },
+        btns: {
+        range_date: false,
+        btn_export_pdf: false,
+        export_excel: true
+      },
       edit_form: false,
-      user_edit: null, //ALmacena el usuario a editar
+      user_edit: null //ALmacena el usuario a editar
     };
   },
   created() {
@@ -170,10 +219,10 @@ export default {
     }
   },
   methods: {
-    ...mapActions('access', [
-      'getPersons',
-      'InsertUpdateUsuario',
-      'InsertUpdatePersonal',
+    ...mapActions("access", [
+      "getPersons",
+      "InsertUpdateUsuario",
+      "InsertUpdatePersonal"
     ]),
     getData() {
       this.$q.loading.show({
@@ -185,13 +234,13 @@ export default {
             return res.data;
           });
           console.log({
-            msg: 'Respuesta get personal',
+            msg: "Respuesta get personal",
             data: res_persons
           });
-          if(res_persons.ok){
-            if(res_persons.result){
+          if (res_persons.ok) {
+            if (res_persons.result) {
               this.data_users.length = 0;
-              res_persons.data.forEach( persona => {
+              res_persons.data.forEach(persona => {
                 this.data_users.push({
                   Car_Descripcion: persona.Car_Descripcion,
                   Car_Id: persona.Car_Id,
@@ -213,24 +262,27 @@ export default {
                   Usu_Login: persona.Usu_Login,
                   name_estado: persona.name_estado,
                   name_estado_usuario: persona.name_estado_usuario,
-                  img: persona.Per_Imagen ? persona.Per_Imagen : 'https://cdn.quasar.dev/img/boy-avatar.png',
+                  img: persona.Per_Imagen
+                    ? persona.Per_Imagen
+                    : "https://cdn.quasar.dev/img/boy-avatar.png",
                   title: persona.Per_Nombre,
                   status: persona.Usu_Estado,
                   btn_status: true,
-                  icon_btn_status: 'power_settings_new',
+                  icon_btn_status: "power_settings_new",
                   btn_edit: true,
-                  icon_btn_edit: 'edit',
-                })
+                  icon_btn_edit: "edit"
+                });
               });
             } else {
               this.$q.notify({
                 message: res_persons.message,
-                type: 'warning'
-              })
+                type: "warning"
+              });
             }
           } else {
             throw new Error(res_persons.message);
           }
+            this.excel.data=this.data_users
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -243,7 +295,7 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative",
+            type: "negative"
           });
         } finally {
           this.$q.loading.hide();
@@ -263,67 +315,73 @@ export default {
       this.user_edit = row;
       this.tab = "formUser";
       this.edit_form = true;
-      this.label = 'Editar usuario';
+      this.label = "Editar usuario";
     },
-    setStatus(row){
-      this.$q.dialog({
-        component: dialog,
-        parent: this,
-        title: row.Per_Estado == 1 ? 'Inactivar usuario' : 'Activar usuario',
-        msg: `Atención! Estas a un paso de ${row.Per_Estado == 1 ? 'innactivar el usuario, tenga en cuenta, que al inactivarlo, este ya no podrá acceder al sistema' : 'activar el usuario, tenga en cuenta, que al activarlo, este podrá acceder al sistema '}, ¿Desea continuar?`,
-      }).onOk(() => {
-        this.$q.loading.show({
-          message: 'Cambiando estado del usuario, por favor espere...'
+    setStatus(row) {
+      this.$q
+        .dialog({
+          component: dialog,
+          parent: this,
+          title: row.Per_Estado == 1 ? "Inactivar usuario" : "Activar usuario",
+          msg: `Atención! Estas a un paso de ${
+            row.Per_Estado == 1
+              ? "innactivar el usuario, tenga en cuenta, que al inactivarlo, este ya no podrá acceder al sistema"
+              : "activar el usuario, tenga en cuenta, que al activarlo, este podrá acceder al sistema "
+          }, ¿Desea continuar?`
+        })
+        .onOk(() => {
+          this.$q.loading.show({
+            message: "Cambiando estado del usuario, por favor espere..."
+          });
+          this.timer = setTimeout(async () => {
+            try {
+              row.base = process.env.__BASE__;
+              row.Usu_User_control = this.data_user.Per_Num_documento;
+              row.Per_Estado = row.Per_Estado == 1 ? 0 : 1;
+              row.Usu_Estado = row.Usu_Estado == 1 ? 0 : 1;
+
+              const res_per = await this.InsertUpdatePersonal(row).then(res => {
+                return res.data;
+              });
+              console.log({
+                msg: "Respuesta update persona",
+                data: res_per
+              });
+              if (!res_per.ok) {
+                throw new Error(res_per.message);
+              }
+              const res_create = await this.InsertUpdateUsuario(row).then(
+                res => {
+                  return res.data;
+                }
+              );
+              console.log({
+                msg: "Respuesta update user",
+                data: res_create
+              });
+              if (!res_create.ok) {
+                throw new Error(res_create.message);
+              }
+            } catch (e) {
+              console.log(e);
+              if (e.message === "Network Error") {
+                e = e.message;
+              }
+              if (e.message === "Request failed with status code 404") {
+                e = "URL de solicitud no existe, err 404";
+              } else if (e.message) {
+                e = e.message;
+              }
+              this.$q.notify({
+                message: e,
+                type: "negative"
+              });
+            } finally {
+              this.$q.loading.hide();
+            }
+            this.timer = setTimeout(this.getData(), 2000);
+          }, 2000);
         });
-        this.timer = setTimeout(async() => {
-          try {
-            row.base = process.env.__BASE__;
-            row.Usu_User_control = this.data_user.Per_Num_documento;
-            row.Per_Estado = row.Per_Estado == 1 ? 0 : 1;
-            row.Usu_Estado = row.Usu_Estado == 1 ? 0 : 1;
-
-            const res_per = await this.InsertUpdatePersonal(row).then( res => {
-              return res.data;
-            })
-            console.log({
-              msg: 'Respuesta update persona',
-              data: res_per
-            })
-            if(!res_per.ok){
-              throw new Error (res_per.message);
-            }
-            const res_create = await this.InsertUpdateUsuario(row).then( res => {
-              return res.data;
-            });
-            console.log({
-              msg: 'Respuesta update user',
-              data: res_create
-            })
-            if(!res_create.ok){
-              throw new Error (res_create.message);
-            }
-
-          } catch (e) {
-            console.log(e);
-            if (e.message === "Network Error") {
-              e = e.message;
-            }
-            if (e.message === "Request failed with status code 404") {
-              e = "URL de solicitud no existe, err 404";
-            } else if (e.message) {
-              e = e.message;
-            }
-            this.$q.notify({
-              message: e,
-              type: "negative",
-            });
-          } finally {
-            this.$q.loading.hide();
-          }
-          this.timer = setTimeout( this.getData(), 2000);
-        }, 2000)
-      })
-
     },
     encryptedAES(data) {
       var key = CryptoJS.HmacSHA1("sha256", "oW%c76+jb2");
@@ -339,10 +397,10 @@ export default {
       return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
     }
   },
-  beforeDestroy () {
+  beforeDestroy() {
     if (this.timer !== void 0) {
-      clearTimeout(this.timer)
-      this.$q.loading.hide()
+      clearTimeout(this.timer);
+      this.$q.loading.hide();
     }
   }
 };

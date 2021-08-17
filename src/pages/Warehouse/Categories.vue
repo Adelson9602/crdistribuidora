@@ -1,7 +1,11 @@
 <template>
   <q-page padding>
      <q-card class="height-card_page q-pa-md">
+       <!-- <q-tab-panel name="users" class="q-gutter-sm"> -->
+       
+        <!-- </q-tab-panel> -->
         <component-add-categories @reload="reload" :edit_data="category_edit"/>
+        
          <q-table
           title="Categoría productos"
           :data="data"
@@ -46,11 +50,13 @@
 
 <script>
 import { mapActions } from 'vuex';
+
 import ComponentAddCategories from 'components/Warehouse/ComponentAddCategories';
 export default {
   name: 'Categories',
   components: {
     ComponentAddCategories,
+
   },
   data(){
     return {
@@ -111,6 +117,11 @@ export default {
         descending: false,
         page: 1,
         rowsPerPage: 15
+      },
+       btns: {
+        range_date: false,
+        btn_export_pdf: false,
+        export_excel: true
       },
       category_edit: null, //Almacena los datos de la categoria a editar
     }
