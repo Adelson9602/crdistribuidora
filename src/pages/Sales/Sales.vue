@@ -58,7 +58,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="add_sales">
-          <component-add-sales/>
+          <component-add-sales @reload="reload"/>
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -193,7 +193,7 @@ export default {
           field: 'Estado'
         },
       ],
-        excel: {
+      excel: {
         columns: [
         {
           label: 'NIT',
@@ -730,6 +730,7 @@ export default {
       this.category_edit = row;
     },
     reload(){
+      this.tab = 'sales';
       setTimeout(()=> {
         this.getData()
       }, 200)

@@ -128,6 +128,21 @@
             emit-value
           />
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-input hint="Fecha venta" v-model="enc_venta.Ev_Fecha_venta" :rules="[val => !!val || 'Ingrese fecha de venta']">
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                  <q-date v-model="enc_venta.Ev_Fecha_venta" mask="YYYY-MM-DD">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </div>
       </div>
       <!-- Productos -->
       <div class="row">
@@ -249,7 +264,7 @@
       </div>
     </div>
     <q-page-sticky position="bottom-right" :offset="[18,18]">
-      <q-btn color="primary" icon="check" label="OK"/>
+      <q-btn color="primary" icon="check" label="OK" @click="onSubmit"/>
     </q-page-sticky>
   </div>
 </template>
@@ -473,7 +488,9 @@ export default {
     ]),
     ...mapActions('sales', [
       'getPercentSaleArt',
-      'getMovilUser'
+      'getMovilUser',
+      'insertEncVenta',
+      'insertDetVenta',
     ]),
     getData(){
       this.$q.loading.show({
@@ -633,10 +650,42 @@ export default {
       setTimeout(async() => {
         try {
           this.enc_venta.Per_Num_documento = this.data_user.Per_Num_documento;
+          this.enc_venta.Ev_Estado = this.enc_venta.Mp_Id;
+          this.enc_venta.Ev_Entregado = this.enc_venta.Tc_Id == 2 ? 0 : 1;
+          this.enc_venta.Ev_conf_pago = this.enc_venta.Mp_Id == 1 ? 1 : 0;
           this.enc_venta.Ev_Subtotal = this.subtotal_venta;
-          this.enc_venta.Ev_Des_total_art = this.ev_des_total_art;
+          this.enc_venta.Ev_Des_total_art = this.Ev_Des_total_art;
           this.enc_venta.Ev_Des_gen_venta = (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100)
-          this.enc_venta.Ev_Total_venta = this.subtotal_venta - this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art - this.enc_venta.Ev_Des_gen_venta;
+          this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+          this.enc_venta.Mov_Id = this.movil_selecte;
+          this.enc_venta.Ev_Usuario_control = this.data_user.Per_Num_documento;
+          this.enc_venta.base = process.env.__BASE__;
+          console.log(this.enc_venta)
+          const res_enc = await this.insertEncVenta(this.enc_venta).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert enc venta',
+            data: res_enc
+          });
+          let promesas = [];
+          this.data_sales.forEach( product => {
+            product.Ev_Id = res_enc.data.insertId;
+            promesas.push(this.insertDetVenta(product).then( res => {
+              res.data.msg = 'Respuesta insert det venta';
+              return res.data;
+            }));
+          });
+          Promise.all(promesas).then( data => {
+            data.forEach( res => {
+              console.log(res)
+            })
+          })
+          this.$q.notify({
+            message: 'Venta realizada',
+            type: 'positive'
+          });
+          this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

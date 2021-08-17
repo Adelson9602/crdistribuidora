@@ -43,6 +43,16 @@ export function requestGetSalestoListDetail(contex, data) {
   return Vue.prototype.$axios.get(`select_list_picking_detail_range/${data.base}/${data.from}/${data.to}`)
 }
 
+// Insert y actualizacion de la tabla enc_venta
+export function insertEncVenta(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_venta`, data)
+}
+
+// Insert y actualizacion de la tabla det_venta
+export function insertDetVenta(context, data){
+  return Vue.prototype.$axios.post(`insert_update_det_venta`, data)
+}
+
 // insert_update_stock_inventario => Se reutiliza petición del modulo warehouse
 
 // Proveedores
