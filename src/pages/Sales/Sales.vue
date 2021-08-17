@@ -25,6 +25,7 @@
             :propcolumns="columns"
             :propgrid="true"
             :propflat="true"
+               :propexcel="excel"
             :proppdf="optionpdf"
             :propbtns="btns"
             :proppagination="initial_pagination"
@@ -192,6 +193,76 @@ export default {
           field: 'Estado'
         },
       ],
+        excel: {
+        columns: [
+        {
+          label: 'NIT',
+          field: 'CP_Nit'
+        },
+        {
+          label: 'Descuento general venta',
+          field: 'Ev_Des_gen_venta'
+        },
+        {
+          label: 'Descuento total artículo',
+          field: 'Ev_Des_total_art'
+        },
+        {
+          label: 'Impuesto',
+          field: 'Ev_Impuesto'
+        },
+        {
+          label: 'Subtotal',
+          field: 'Ev_Subtotal'
+        },
+        {
+          label: 'Venta total',
+          field: 'Ev_Total_venta'
+        },
+        {
+          label: 'Días crédito',
+          field: 'Ev_dias_credito'
+        },
+        {
+          label: 'Nombre movil',
+          field: 'Mov_Descripcion'
+        },
+        {
+          label: 'Nombre vendedor',
+          field: 'Per_Nombre'
+        },
+        {
+          label: 'Documento vendedor',
+          field: 'Per_Num_documento'
+        },
+        {
+          label: 'Autoriza garantía',
+          field: 'name_qautorizqa'
+        },
+        {
+          label: 'Documento autoriza garantía',
+          field: 'Eg_Quien_autoriza'
+        },
+        {
+          label: 'Observación',
+          field: 'Eg_Observacion'
+        },
+        {
+          label: 'Fecha garantía',
+          field: 'Eg_Fecha_control'
+        },
+        {
+          label: 'Fecha venta',
+          field: 'Ev_Fecha_venta'
+        },
+        {
+          label: 'Estado',
+          field: 'Estado'
+        },
+      ],
+        data: [],
+        title: "Ventas"
+      },
       data: [],
       optionpdf: {
         columns: [
@@ -216,7 +287,7 @@ export default {
       },
       btns: {
         range_date: true,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       initial_pagination: {
@@ -294,6 +365,7 @@ export default {
             } else {
               throw new Error(res_client.message);
             }
+            this.excel.data = this.data;
           } catch (e) {
             console.log(e);
             if (e.message === "Network Error") {
@@ -417,6 +489,7 @@ export default {
           } else {
             throw new Error(res_provider.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -551,6 +624,7 @@ export default {
           } else {
             throw new Error(res_sales.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

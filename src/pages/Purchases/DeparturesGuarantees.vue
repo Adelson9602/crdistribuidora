@@ -25,6 +25,7 @@
               :propcolumns="columns"
               :propgrid="true"
               :propflat="true"
+               :propexcel="excel"
               :proppdf="optionpdf"
               :propbtns="btns"
               :proppagination="initial_pagination"
@@ -90,6 +91,32 @@ export default {
           field: 'Sg_Cant'
         },
       ],
+       excel: {
+        columns:[
+        {
+          label: 'ID articulo',
+          field: 'Art_Id'
+        },
+        {
+          label: 'Nombre articulo',
+          field: 'Art_Nombre'
+        },
+        {
+          label: 'ID movimiento',
+          field: 'Mov_Id'
+        },
+        {
+          label: 'Descripción movimiento',
+          field: 'Mov_Descripcion'
+        },
+        {
+          label: 'Cantidad',
+          field: 'Sg_Cant'
+        },
+      ],
+        data: [],
+        title: "Salidas proveedor"
+      },
       data: [],
       optionpdf: {
         columns: [
@@ -114,7 +141,7 @@ export default {
       },
       btns: {
         range_date: false,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       initial_pagination: {
@@ -169,6 +196,7 @@ export default {
           } else {
             throw new Error(res_waranties.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

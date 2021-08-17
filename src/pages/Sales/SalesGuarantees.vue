@@ -27,6 +27,7 @@
             :propgrid="true"
             :propflat="true"
             :propdata="data"
+            :propexcel="excel"
             :propcolumns="columns"
             :propactions="true"
             :propbtns="btns"
@@ -245,6 +246,66 @@ export default {
           field: "Per_Nombre"
         }
       ],
+      excel: {
+        columns: [
+          {
+            label: "ID movimiento",
+            field: "Eg_Id"
+          },
+          {
+            label: "Fecha",
+            field: "Eg_Fecha_control"
+          },
+          {
+            label: "ID Venta",
+            field: "Ev_Id"
+          },
+          {
+            label: "ID Cliente",
+            field: "CP_Nit"
+          },
+          {
+            label: "Cliente",
+            field: "CP_Razon_social"
+          },
+          {
+            label: "Movil",
+            field: "Mov_Descripcion"
+          },
+          {
+            label: "Vendedor",
+            field: "name_integrnate"
+          },
+
+          {
+            label: "Observación",
+            field: "Eg_Observacion"
+          },
+          {
+            label: "Autorizado",
+            field: "Eg_Quien_autoriza"
+          },
+          {
+            label: "Name Autorizado",
+            field: "name_autoriza"
+          },
+          {
+            label: "Estado",
+            field: "name_estado"
+          },
+          {
+            label: "Documento control",
+            field: "Eg_User_control"
+          },
+
+          {
+            label: "Nombre control",
+            field: "Per_Nombre"
+          }
+        ],
+        data: [],
+        title: "Salidas Garantias"
+      },
       data: [],
       dailog_details: false, //Dialogo para el detalle de las garantias
       data_details: [], //Productos garantias
@@ -274,7 +335,7 @@ export default {
       },
       btns: {
         range_date: true,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       initial_pagination: {
@@ -353,6 +414,7 @@ export default {
           } else {
             throw new Error(res_metas.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -495,6 +557,7 @@ export default {
           } else {
             throw new Error(res_metas.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -556,12 +619,13 @@ export default {
               Art_Id: producto["Id producto"]
             };
 
-            let res_produ = this.insertUpdateStcok_garantias(sumapro).then( res => {
-              return res.data;
-            });
+            let res_produ = this.insertUpdateStcok_garantias(sumapro).then(
+              res => {
+                return res.data;
+              }
+            );
             update_cant.push(res_produ);
             // Suma los productos en la movil destino  Art_Id, Mov_Id, Sg_Cant
-           
 
             let restapro = {
               base: process.env.__BASE__,
@@ -571,23 +635,24 @@ export default {
               Art_Id: producto["Id producto"]
             };
 
-            
-            let suma_produ = this.insertUpdateStcok_garantias(restapro).then( res => {
-              return res.data;
-            });
+            let suma_produ = this.insertUpdateStcok_garantias(restapro).then(
+              res => {
+                return res.data;
+              }
+            );
             update_cant.push(suma_produ);
-            })
-            // Actualizamos las cantidades si el estado es entregado
-            Promise.all(update_cant).then( res_det => {
-              res_det.forEach( res => {
-                console.log({
-                  msg: 'Respuesta insert update cantidades garantias',
-                  data: res.data
-                });
-                if(!res.ok){
-                  throw new Error(res.message);
-                }
-              })
+          });
+          // Actualizamos las cantidades si el estado es entregado
+          Promise.all(update_cant).then(res_det => {
+            res_det.forEach(res => {
+              console.log({
+                msg: "Respuesta insert update cantidades garantias",
+                data: res.data
+              });
+              if (!res.ok) {
+                throw new Error(res.message);
+              }
+            });
           });
           this.$q.notify({
             message: "Guardado",

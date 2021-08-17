@@ -308,6 +308,7 @@ export default {
           } else {
             throw new Error(res_provider.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -432,6 +433,7 @@ export default {
           } else {
             throw new Error(res_provider.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

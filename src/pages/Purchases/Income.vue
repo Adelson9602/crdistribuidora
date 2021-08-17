@@ -31,6 +31,7 @@
             :propflat="true"
             :proppdf="optionpdf"
             :propbtns="btns"
+            :propexcel="excel"
             :proppagination="initial_pagination"
             :propactions="true"
             @onedit="editEntry"
@@ -260,6 +261,64 @@ export default {
           field: "name_mp"
         }
       ],
+       excel: {
+        columns: [
+        {
+          label: "No. Ingreso",
+          field: "no_ingreso"
+        },
+        {
+          label: "NIT",
+          field: "CP_Nit"
+        },
+        {
+          label: "RAZON SOCIAL",
+          field: "CP_Razon_social"
+        },
+        {
+          label: "Fecha ingreso",
+          field: "Enc_Fecha_hora"
+        },
+        {
+          label: "Días de credito",
+          field: "Enc_dias_credito"
+        },
+        {
+          label: "Número comprobante",
+          field: "Enc_num_comprobante"
+        },
+        {
+          label: "Subtotal compra",
+          field: "Enc_subtotal_compra"
+        },
+        {
+          label: "Total compra",
+          field: "Enc_total_compra"
+        },
+        {
+          label: "Documento",
+          field: "Enc_User_control"
+        },
+        {
+          label: "Nombre",
+          field: "Per_Nombre"
+        },
+        {
+          label: "Tipo comprobante",
+          field: "Tc_Descripcion"
+        },
+        {
+          label: "Estado",
+          field: "name_estado"
+        },
+        {
+          label: "Medio pago",
+          field: "name_mp"
+        }
+      ],
+        data: [],
+        title: "Ingresos"
+      },
       data: [],
       filter_pendientes: 3,
       encabezado_entrada: {}, //Encabezado del traslado formateado para el frontend
@@ -288,7 +347,7 @@ export default {
       },
       btns: {
         range_date: true,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       initial_pagination: {
@@ -395,6 +454,7 @@ filter_pendientes(value){
           } else {
             throw new Error(res_ingresos.message);
           }
+           this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -468,6 +528,7 @@ filter_pendientes(value){
           } else {
             throw new Error(res_ingresosEstado.message);
           }
+           this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -613,6 +674,7 @@ filter_pendientes(value){
           } else {
             throw new Error(res_ingreso.message);
           }
+           this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -687,6 +749,7 @@ filter_pendientes(value){
           } else {
             throw new Error(res_ingresos.message);
           }
+           this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

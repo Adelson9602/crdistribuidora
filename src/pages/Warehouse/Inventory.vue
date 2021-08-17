@@ -41,6 +41,7 @@
         :propcolumns="columns"
         :propgrid="true"
         :propflat="true"
+         :propexcel="excel"
         :proppdf="optionpdf"
         :propbtns="btns"
         :proppagination="initial_pagination"
@@ -105,6 +106,36 @@ export default {
           field: 'Si_Cant'
         },
       ],
+       excel: {
+        columns: [
+        {
+          label: 'ID',
+          field: 'id'
+        },
+        {
+          label: 'Codigo articulo',
+          field: 'Art_Codigo_inv'
+        },
+        {
+          label: 'Nombre articulo',
+          field: 'Art_Nombre'
+        },
+        {
+          label: 'ID Movil',
+          field: 'Mov_Id'
+        },
+        {
+          label: 'Nombre Movil',
+          field: 'Mov_Descripcion'
+        },
+        {
+          label: 'Cantidad en inventario',
+          field: 'Si_Cant'
+        },
+      ],
+        data: [],
+        title: "Inventarios"
+      },
       data: [],
       optionpdf: {
         columns: [
@@ -132,6 +163,7 @@ export default {
         btn_export_pdf: true,
         export_excel: true
       },
+      
       options_movil: all_movils,
       movil_selecte: null,
       initial_pagination: {
@@ -221,6 +253,7 @@ export default {
           } else {
             throw new Error(res_stock.message);
           }
+            this.excel.data=this.data
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -284,6 +317,7 @@ export default {
           } else {
             throw new Error(res_stock.message);
           }
+           this.excel.data=this.data
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

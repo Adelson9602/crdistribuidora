@@ -30,6 +30,7 @@
             :propgrid="true"
             :propflat="true"
             :propbtns="btns"
+            :propexcel="excel"
             :propactions="true"
             @onedit="editCargos"
             @tostatus="openDialogStatus"
@@ -44,10 +45,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="create_charges">
-          <component-add-charges
-            @reload="reload"
-            :edit_data="charges_edit"
-          />
+          <component-add-charges @reload="reload" :edit_data="charges_edit" />
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -74,7 +72,38 @@ export default {
       date_range: {
         to: null,
         from: null
-      },    
+      },
+      excel: {
+        columns: [
+          {
+            label: "Id ",
+            field: "Id"
+          },
+          {
+            label: "Descripcion",
+            field: "Car_Descripcion"
+          },
+
+          {
+            label: "Estado",
+            field: "name_estado"
+          },
+          {
+            label: "User control",
+            field: "Car_User_control"
+          },
+          {
+            label: "Nombre control",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Fecha control",
+            field: "Car_Fecha_control"
+          }
+        ],
+        data: [],
+        title: "Cargos"
+      },
       columns: [
         {
           name: "Id",
@@ -92,7 +121,7 @@ export default {
           field: "Car_Descripcion",
           sortable: true
         },
-      
+
         {
           name: "name_estado",
           required: true,
@@ -125,12 +154,11 @@ export default {
           field: "Car_Fecha_control",
           sortable: true
         }
-       
       ],
       data: [],
       btns: {
         range_date: false,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       charges_edit: null,
@@ -158,11 +186,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions("master", [
-      "getCargos",
-      "addCargos",
-
-    ]),
+    ...mapActions("master", ["getCargos", "addCargos"]),
     ...mapActions("master", ["getAllUm"]),
     getData() {
       this.$q.loading.show({
@@ -170,11 +194,9 @@ export default {
       });
       setTimeout(async () => {
         try {
-          const resgetDataCargos = await this.getCargos().then(
-            res => {
-              return res.data;
-            }
-          );
+          const resgetDataCargos = await this.getCargos().then(res => {
+            return res.data;
+          });
           // console.log({
           //   msg: 'Repeusta get artículos',
           //   data: resgetDataArticles,
@@ -214,6 +236,7 @@ export default {
             this.data.length = 0;
             throw resgetDataCargos.message;
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

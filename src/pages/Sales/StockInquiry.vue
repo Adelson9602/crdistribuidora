@@ -5,6 +5,7 @@
         proptitle="Stock Precios"
         :propgrid="false"
         :propflat="true"
+        :propexcel="excel"
         :propdata="data"
         :propcolumns="columns"
         :propbtns="btns"
@@ -14,16 +15,16 @@
 </template>
 
 <script>
-import ComponentTable from 'components/Generals/ComponentTable';
+import ComponentTable from "components/Generals/ComponentTable";
 import { mapActions } from "vuex";
 export default {
-  name: 'SaleswithoutBalance',
+  name: "SaleswithoutBalance",
   components: {
-    ComponentTable,
+    ComponentTable
   },
-   data() {
+  data() {
     return {
-      tab: "articles", 
+      tab: "stock",
       columns: [
         {
           name: "Art_Codigo_inv",
@@ -31,15 +32,15 @@ export default {
           label: "Codigo",
           align: "center",
           field: "Art_Codigo_inv",
-          sortable: true,
+          sortable: true
         },
-         {
+        {
           name: "Cat_Nombre",
           required: true,
           label: "Categoria",
           align: "center",
           field: "Cat_Nombre",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Nombre",
@@ -47,7 +48,7 @@ export default {
           label: "Nombre articulo",
           align: "center",
           field: "Art_Nombre",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Mov_Descripcion",
@@ -55,7 +56,7 @@ export default {
           label: "Ubicacion",
           align: "center",
           field: "Mov_Descripcion",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Si_Cant",
@@ -63,7 +64,7 @@ export default {
           label: "Cantidad",
           align: "center",
           field: "Si_Cant",
-          sortable: true,
+          sortable: true
         },
         {
           name: "desc_porcen",
@@ -71,9 +72,9 @@ export default {
           label: "descuento",
           align: "center",
           field: "desc_porcen",
-          sortable: true,
+          sortable: true
         },
-       
+
         //  {
         //   name: "Art_ubicacion",
         //   required: true,
@@ -88,7 +89,7 @@ export default {
           label: "% venta",
           align: "center",
           field: "porce_venta",
-          sortable: true,
+          sortable: true
         },
         {
           name: "precio_compra",
@@ -96,7 +97,7 @@ export default {
           label: "Precio Compra",
           align: "center",
           field: "precio_compra",
-          sortable: true,
+          sortable: true
         },
         {
           name: "precio_venta",
@@ -104,17 +105,57 @@ export default {
           label: "Precio Venta",
           align: "center",
           field: "precio_venta",
-          sortable: true,
-        },
-      
+          sortable: true
+        }
       ],
+      excel: {
+        columns: [
+          {
+            label: "Codigo",
+            field: "Art_Codigo_inv"
+          },
+          {
+            label: "Categoria",
+            field: "Cat_Nombre"
+          },
+          {
+            label: "Nombre articulo",
+            field: "Art_Nombre"
+          },
+          {
+            label: "Ubicacion",
+            field: "Mov_Descripcion"
+          },
+          {
+            label: "Cantidad",
+            field: "Si_Cant"
+          },
+          {
+            label: "descuento",
+            field: "desc_porcen"
+          },
+          {
+            label: "% venta",
+            field: "porce_venta"
+          },
+          {
+            label: "Precio Compra",
+            field: "precio_compra"
+          },
+          {
+            label: "Precio Venta",
+            field: "precio_venta"
+          }
+        ],
+        data: [],
+        title: "Stock Inventario"
+      },
       data: [],
       btns: {
         range_date: false,
         btn_export_pdf: true,
         export_excel: true
-      },
-    
+      }
     };
   },
 
@@ -123,21 +164,17 @@ export default {
   },
 
   methods: {
-    ...mapActions("sales", [
-      "getAllstock",
-    ]),
- 
+    ...mapActions("sales", ["getAllstock"]),
+
     getData() {
       this.$q.loading.show({
-        message: "Obteniendo datos existentes, por favor espere...",
+        message: "Obteniendo datos existentes, por favor espere..."
       });
       setTimeout(async () => {
         try {
-          const resgetDatastock = await this.getAllstock().then(
-            (res) => {
-              return res.data;
-            }
-          );
+          const resgetDatastock = await this.getAllstock().then(res => {
+            return res.data;
+          });
           // console.log({
           //   msg: 'Repeusta get artículos',
           //   data: resgetDatastock,
@@ -145,7 +182,7 @@ export default {
           if (resgetDatastock.ok) {
             if (resgetDatastock.result) {
               this.data.length = 0;
-              resgetDatastock.data.forEach((element) => {
+              resgetDatastock.data.forEach(element => {
                 this.data.push({
                   Id: element.Id,
                   Art_Id: element.Art_Id,
@@ -156,12 +193,18 @@ export default {
                   Cat_Nombre: element.Cat_Nombre,
                   Mov_Id: element.Mov_Id,
                   Mov_Descripcion: element.Mov_Descripcion,
-                  Si_Cant: element.Si_Cant,  
+                  Si_Cant: element.Si_Cant,
                   desc_porcen: element.desc_porcen,
-                  porce_venta: element.porce_venta ? '% '+element.porce_venta : '% 0',
-                  precio_compra: element.precio_compra ? '$ '+element.precio_compra : '$ 0',
-                  precio_venta: element.precio_venta ? '$ '+element.precio_venta : '$ 0',
-                  title: element.Art_Nombre,
+                  porce_venta: element.porce_venta
+                    ? "% " + element.porce_venta
+                    : "% 0",
+                  precio_compra: element.precio_compra
+                    ? "$ " + element.precio_compra
+                    : "$ 0",
+                  precio_venta: element.precio_venta
+                    ? "$ " + element.precio_venta
+                    : "$ 0",
+                  title: element.Art_Nombre
                   // btn_edit: false,
                   // btn_status: false,
                   // btn_details: true,
@@ -174,7 +217,7 @@ export default {
             } else {
               this.$q.notify({
                 message: resgetDatastock.message,
-                type: "warning",
+                type: "warning"
               });
             }
           } else {
@@ -182,7 +225,7 @@ export default {
             throw resgetDatastock.message;
           }
 
-          
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -195,17 +238,14 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative",
+            type: "negative"
           });
         } finally {
           this.$q.loading.hide();
         }
       }, 2000);
-    },
- 
-  
-   
-  },
+    }
+  }
 };
 </script>
 

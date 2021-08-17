@@ -53,6 +53,7 @@
             :propflat="true"
             :proppdf="optionpdf"
             :propbtns="btns"
+            :propexcel="excel"
             :proppagination="initial_pagination"
             :propactions="true"
             @onedit="editProvider"
@@ -195,6 +196,68 @@ export default {
           field: "name_tp"
         }
       ],
+      excel: {
+        columns: [
+          {
+            label: "Digito verificación",
+            field: "CP_Digito_verificacion"
+          },
+          {
+            label: "Fecha creación",
+            field: "CP_Fecha_control"
+          },
+          {
+            label: "NIT",
+            field: "CP_Nit"
+          },
+          {
+            label: "Razon social",
+            field: "CP_Razon_social"
+          },
+          {
+            label: "Teléfono",
+            field: "CP_Telefono"
+          },
+          {
+            label: "Dirección",
+            field: "CP_Direccion"
+          },
+          {
+            label: "Email",
+            field: "CP_Email"
+          },
+          {
+            label: "Sitio web",
+            field: "CP_Urlweb"
+          },
+          {
+            label: "Ciudad",
+            field: "Ciu_Nombre"
+          },
+          {
+            label: "Documento creador",
+            field: "CP_User_control"
+          },
+          {
+            label: "Creado por",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Tipo documento",
+            field: "Tp_Desc_corta"
+          },
+          {
+            label: "Estado",
+            field: "name_estado"
+          },
+          {
+            label: "Tipo cliente",
+            field: "name_tp"
+          }
+        ],
+        data: [],
+        title: "Proveedores"
+      },
       data: [],
       datageneral: [],
       rendercomponent: true,
@@ -222,7 +285,7 @@ export default {
       },
       btns: {
         range_date: false,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       initial_pagination: {
@@ -366,6 +429,7 @@ export default {
           } else {
             throw new Error(res_provider.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -443,6 +507,7 @@ export default {
           } else {
             throw new Error(res_provider.message);
           }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {

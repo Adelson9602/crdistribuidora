@@ -30,6 +30,7 @@
             :propgrid="true"
             :propflat="true"
             :propbtns="btns"
+            :propexcel="excel"
             :propactions="true"
             @onedit="editPorcentaje"
             @tostatus="openDialogStatus"
@@ -75,11 +76,40 @@ export default {
         to: null,
         from: null
       },
-
-     
-                
-                  
-           
+      excel: {
+        columns: [
+          {
+            label: "Id ",
+            field: "Id"
+          },
+          {
+            label: "Descripcion",
+            field: "Pv_Descripcion"
+          },
+          {
+            label: "% de Venta",
+            field: "Pv_Prcentaje"
+          },
+          {
+            label: "Estado",
+            field: "name_estado"
+          },
+          {
+            label: "User control",
+            field: "Pv_User_control"
+          },
+          {
+            label: "Nombre control",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Fecha control",
+            field: "Pv_Fecha_control"
+          }
+        ],
+        data: [],
+        title: "Porcentaje"
+      },
       columns: [
         {
           name: "Id",
@@ -137,12 +167,11 @@ export default {
           field: "Pv_Fecha_control",
           sortable: true
         }
-       
       ],
       data: [],
       btns: {
         range_date: false,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       },
       percentage_edit: null,
@@ -170,11 +199,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions("master", [
-      "getAllPorcentaje",
-      "addPorcentaje",
-
-    ]),
+    ...mapActions("master", ["getAllPorcentaje", "addPorcentaje"]),
     ...mapActions("master", ["getAllUm"]),
     getData() {
       this.$q.loading.show({
@@ -227,6 +252,8 @@ export default {
             this.data.length = 0;
             throw resgetDataPorcentaje.message;
           }
+
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -284,16 +311,17 @@ export default {
     },
     changeStatus() {
       this.$q.loading.show({
-        message: "Estamos cambiando el estado del Porcentaje, por favor espere..."
+        message:
+          "Estamos cambiando el estado del Porcentaje, por favor espere..."
       });
       setTimeout(async () => {
         try {
           this.percentage_edit.base = process.env.__BASE__;
-          const res_update = await this.addPorcentaje(this.percentage_edit).then(
-            res => {
-              return res.data;
-            }
-          );
+          const res_update = await this.addPorcentaje(
+            this.percentage_edit
+          ).then(res => {
+            return res.data;
+          });
           // console.log({
           //   msg: "Respuesta insert update porcentaje",
           //   data: res_update
