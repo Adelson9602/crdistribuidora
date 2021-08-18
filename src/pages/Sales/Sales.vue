@@ -56,6 +56,61 @@
               </template>
             </q-select>
           </component-table>
+          <!-- Dialogo para ver el detalle de la venta -->
+          <q-dialog v-model="dialog_detail" persistent full-width>
+            <q-card>
+              <q-bar dark class="bg-primary text-white">
+                <div class="col text-center text-weight-bold">
+                  Detalle de la venta
+                </div>
+                <q-btn text-color="white" icon="close" round flat v-close-popup />
+              </q-bar>
+              <q-card-section class="row">
+                <div
+                  class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                  v-for="(value, index) in encebezado_venta"
+                  :key="index"
+                >
+                  <!-- Items para entregados -->
+                  <q-field :hint="index" stack-label dense>
+                    <template v-slot:control>
+                      <div
+                        class="self-center full-width no-outline"
+                        tabindex="0"
+                      >
+                        {{ value }}
+                      </div>
+                    </template>
+                  </q-field>
+                </div>
+              </q-card-section>
+              <q-card-section class="row">
+                <div class="col-xs-12 col-md-6 q-px-sm">
+                  <q-table
+                    flat
+                    title="Productos vendidos"
+                    :data="data_products"
+                    :columns="columns_products"
+                    row-key="name"
+                    class="alto_tabla"
+                  />
+                </div>
+                <div class="col-xs-12 col-md-6 q-px-sm">
+                  <q-table
+                    flat
+                    title="Productos en garantía"
+                    :data="data_garantias"
+                    :columns="columns_products"
+                    row-key="name"
+                    class="alto_tabla"
+                  />
+                </div>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn flat label="Ok" color="primary" v-close-popup />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </q-tab-panel>
 
         <q-tab-panel name="add_sales">
@@ -298,6 +353,99 @@ export default {
       id_sale: null,
       options_clientes: all_clients,
       client_selected: null, //Cliente seleccionado
+      dialog_detail: false,
+      encabezado_selected: null,
+      encebezado_venta: null,
+      data_products: [],
+      columns_products: [
+        {
+          name: 'Art_Id',
+          align: 'center',
+          label: 'ID Artículo',
+          sortable: true,
+          field: 'Art_Id',
+        },
+        {
+          name: 'Art_Descripcion',
+          align: 'center',
+          label: 'Descripción articulo',
+          sortable: true,
+          field: 'Art_Descripcion',
+        },
+        {
+          name: 'Dv_Precio_compra',
+          align: 'center',
+          label: 'Precio de compra',
+          sortable: true,
+          field: 'Dv_Precio_compra',
+        },
+        {
+          name: 'Dv_precio_venta',
+          align: 'center',
+          label: 'Precio de venta',
+          sortable: true,
+          field: 'Dv_precio_venta',
+        },
+        {
+          name: 'Dv_valor_descuento',
+          align: 'center',
+          label: 'Valor descuento',
+          sortable: true,
+          field: 'Dv_valor_descuento',
+        },
+        {
+          name: 'categoria',
+          align: 'center',
+          label: 'Categoría producto',
+          sortable: true,
+          field: 'categoria',
+        },
+      ],
+      columns_garantia: [
+        {
+          name: 'Art_Id',
+          align: 'center',
+          label: 'ID Artículo',
+          sortable: true,
+          field: 'Art_Id'
+        },
+        {
+          name: 'Art_Codigo_inv',
+          align: 'center',
+          label: 'Código artículo',
+          sortable: true,
+          field: 'Art_Codigo_inv'
+        },
+        {
+          name: 'Art_Nombre',
+          align: 'center',
+          label: 'Descripción articulo',
+          sortable: true,
+          field: 'Art_Nombre'
+        },
+        {
+          name: 'Dg_Cant',
+          align: 'center',
+          label: 'Cantidad',
+          sortable: true,
+          field: 'Dg_Cant'
+        },
+        {
+          name: 'Eg_Observacion',
+          align: 'center',
+          label: 'Observación',
+          sortable: true,
+          field: 'Eg_Observacion'
+        },
+        {
+          name: 'Estado',
+          align: 'center',
+          label: 'Estado',
+          sortable: true,
+          field: 'Estado'
+        },
+      ],
+      data_garantias: [],
     }
   },
   created(){
@@ -516,6 +664,24 @@ export default {
       });
       setTimeout(async() => {
         try {
+          this.encebezado_venta = {
+            'NIT': row.CP_Nit,
+            'Descuento general venta': row.Ev_Des_gen_venta,
+            'Descuento total articulos': row.Ev_Des_total_art,
+            'Impuesto': row.Ev_Impuesto,
+            Subtotal: row.Ev_Subtotal,
+            'Total venta': row.Ev_Total_venta,
+            'Días de crédito': row.Ev_dias_credito,
+            'Descripción': row.Mov_Descripcion,
+            'Nombre vendedor': row.Per_Nombre,
+            'Documento vendedor': row.Per_Num_documento,
+            'Autoriza garantía': row.name_qautorizqa,
+            'Quién autoriza': row.Eg_Quien_autoriza,
+            'Observación': row.Eg_Observacion,
+            'Fecha venta': row.Ev_Fecha_venta,
+            Estado: row.Estado,
+          }
+          this.data_products.length = 0;
           const res_deta = await this.getDetailSales(row.Ev_Id).then( res => {
             return res.data
           });
@@ -525,7 +691,9 @@ export default {
           });
           if(res_deta.ok){
             if(res_deta.result){
-
+              res_deta.data.forEach( product => {
+                this.data_products.push(product);
+              })
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
@@ -536,6 +704,7 @@ export default {
             throw new Error(res_deta.message)
           }
 
+          this.data_garantias.length = 0;
           const res_wara = await this.getDetailsGuarantess(row.Ev_Id).then( res => {
             return res.data
           });
@@ -545,7 +714,10 @@ export default {
           });
           if(res_wara.ok){
             if(res_wara.result){
-
+              res_wara.data.forEach( producto => {
+                producto.Estado = producto.Eg_estado == 0 ? 'Pendiente por devolver' : producto.Eg_estado == 1 ? 'Devuelto' : 'Descontado';
+                this.data_garantias.push(producto);
+              })
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
@@ -555,8 +727,22 @@ export default {
           } else {
             throw new Error(res_wara.message)
           }
+
+          this.dialog_detail = true;
         } catch (e) {
-          
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
         } finally {
           this.$q.loading.hide();
         }
@@ -764,5 +950,8 @@ export default {
 <style scoped>
 p{
   font-size: 55px;
+}
+.alto_tabla{
+  height: 450px;
 }
 </style>
