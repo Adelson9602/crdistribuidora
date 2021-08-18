@@ -184,14 +184,6 @@
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
-          <q-input
-            v-model="cantidad_garantia"
-            hint="Cantidad para garantía"
-            mask="############"
-            :rules="[val => !!val || 'Cantidad garantía es obligatorio']"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-field hint="Cantidad disponible" stack-label>
             <template v-slot:control>
               <div class="self-center full-width no-outline" tabindex="0">{{cant_disponible}}</div>
@@ -206,6 +198,14 @@
             :rules="[val => !!val || 'Cantidad es obligatorio',
               val => val != 0 || 'La cantida no puede ser 0'
             ]"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
+          <q-input
+            v-model="cantidad_garantia"
+            hint="Cantidad para garantía"
+            mask="############"
+            :rules="[val => !!val || 'Cantidad garantía es obligatorio']"
           />
         </div>
       </div>
@@ -515,7 +515,9 @@ export default {
       'getMovilUser',
       'insertEncVenta',
       'insertDetVenta',
-      'insertUpdateEncGarantia'
+      'insertUpdateEncGarantia',
+      'insertDetGarantia',
+      'insertUpdateStockGarantia'
     ]),
     getData(){
       this.$q.loading.show({
@@ -685,7 +687,6 @@ export default {
           this.enc_venta.Mov_Id = this.movil_selecte;
           this.enc_venta.Ev_Usuario_control = this.data_user.Per_Num_documento;
           this.enc_venta.base = process.env.__BASE__;
-          console.log(this.enc_venta)
           const res_enc = await this.insertEncVenta(this.enc_venta).then( res => {
             return res.data;
           });
@@ -693,17 +694,6 @@ export default {
             msg: 'Respuesta insert enc venta',
             data: res_enc
           });
-          if(this.cantidad_garantia){
-            this.ecn_garantia = {
-              base: process.env.__BASE__,
-              Eg_Id: null,
-              Eg_Quien_autoriza: 0,
-              Ev_Id: res_enc.data.insertId,
-              Eg_Observacion: null,
-              Eg_estado: 0,
-              Eg_User_control: this.data_user.Per_Num_documento,
-            }
-          }
           let promesas = [];
           this.data_sales.forEach( product => {
             product.Ev_Id = res_enc.data.insertId;
@@ -716,6 +706,41 @@ export default {
               return res.data;
             }))
           });
+          if(this.cantidad_garantia){
+            this.ecn_garantia = {
+              base: process.env.__BASE__,
+              Eg_Id: null,
+              Eg_Quien_autoriza: 0,
+              Ev_Id: res_enc.data.insertId,
+              Eg_Observacion: null,
+              Eg_estado: 0,
+              Eg_User_control: this.data_user.Per_Num_documento,
+            }
+            const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta insert enc garantia',
+              data: res_gara
+            });
+            if(!res_gara.data.affectedRows){
+              throw new Error(res_gara.message)
+            }
+            this.data_sales.forEach( product => {
+              product.Eg_Id = res_gara.data.insertId;
+              product.Dg_Cant = this.cantidad_garantia;
+              promesas.push(this.insertDetGarantia(product).then( res => {
+                res.data.msg = 'Respuesta insert det garantía';
+                return res.data;
+              }))
+              product.Sg_Cant = this.cantidad_garantia;
+              product.simbol = '+';
+              promesas.push(this.insertUpdateStockGarantia(product).then( res => {
+                res.data.msg = 'Respuesta update stock garantía';
+                return res.data;
+              }))
+            })
+          }
           Promise.all(promesas).then( data => {
             data.forEach( res => {
               console.log(res)
@@ -760,13 +785,11 @@ export default {
         subtotal_product: null,
         des_articulo: this.descuento_art.label,
         // Propiedade para actualizar el stock
-        base: process.env.__BASE__,
-        Mov_Id: this.enc_venta.Mov_Id,
-        Si_Cant: this.cantidad,
+        Mov_Id: this.movil_selecte,
+        Si_Cant: this.cantidad + this.cantidad_garantia,
         simbol: '-',
         // Art_Id: null, -> ya esa declarado
       }
-
       if(this.cantidad > this.cant_disponible){
         this.$q.notify({
           message: 'La cantidad es mayor a la disponible',
