@@ -102,6 +102,6 @@ export function insertUpdateEncGarantia(context, data){
 }
 
 // Guarda o actualiza el inventario de garantias
-export function insertUpdateStcok_garantias(context, data){
+export function insertUpdateStockGarantia(context, data){
   return Vue.prototype.$axios.post(`insert_update_stock_garantias`, data);
 }
