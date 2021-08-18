@@ -25,13 +25,14 @@
             :propcolumns="columns"
             :propgrid="true"
             :propflat="true"
-               :propexcel="excel"
+            :propexcel="excel"
             :proppdf="optionpdf"
             :propbtns="btns"
             :proppagination="initial_pagination"
             :propactions="true"
             @range="getSalesByRange"
             @onedit="editSale"
+            @ondetails="detatilSale"
           >
             <q-select
               v-model="client_selected"
@@ -395,7 +396,7 @@ export default {
       'getSales',
       'getSalesClient',
       'getDetailSales',
-      'getDetSaleWaranties'
+      'getDetailsGuarantess'
     ]),
     ...mapActions('shopping', [
       'getProviders'
@@ -535,7 +536,7 @@ export default {
             throw new Error(res_deta.message)
           }
 
-          const res_wara = await this.getDetSaleWaranties(row.Ev_Id).then( res => {
+          const res_wara = await this.getDetailsGuarantess(row.Ev_Id).then( res => {
             return res.data
           });
           console.log({
