@@ -278,7 +278,7 @@
       </div>
     </div>
     <q-page-sticky position="bottom-right" :offset="[18,18]">
-      <q-btn color="primary" icon="check" label="OK" @click="onSubmit"/>
+      <q-btn color="green" icon="save" label="Guardar" @click="onSubmit" v-if="data_sales.length > 0"/>
     </q-page-sticky>
   </div>
 </template>
