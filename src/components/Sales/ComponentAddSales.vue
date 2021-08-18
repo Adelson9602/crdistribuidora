@@ -143,6 +143,12 @@
             </template>
           </q-input>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-9 q-px-sm">
+          <q-input
+            v-model="ecn_garantia.Eg_Observacion"
+            hint="Observación para productos con garantía"
+          />
+        </div>
       </div>
       <!-- Productos -->
       <div class="row">
@@ -169,12 +175,20 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-select
             v-model="descuento_art"
             :options="options_des_products"
             hint="Descuento articulo"
             :rules="[val => !!val || 'Producto es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
+          <q-input
+            v-model="cantidad_garantia"
+            hint="Cantidad para garantía"
+            mask="############"
+            :rules="[val => !!val || 'Cantidad garantía es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
@@ -398,6 +412,16 @@ export default {
       Ev_Des_total_art: null,
       Ev_Subtotal: null,
       Ev_Des_gen_venta: null,
+      cantidad_garantia: null,
+      ecn_garantia: {
+        base: null,
+        Eg_Id: null,
+        Eg_Quien_autoriza: null,
+        Ev_Id: null,
+        Eg_Observacion: null,
+        Eg_estado: null,
+        Eg_User_control: null,
+      }
     }
   },
   computed: {
@@ -491,6 +515,7 @@ export default {
       'getMovilUser',
       'insertEncVenta',
       'insertDetVenta',
+      'insertUpdateEncGarantia'
     ]),
     getData(){
       this.$q.loading.show({
@@ -668,6 +693,17 @@ export default {
             msg: 'Respuesta insert enc venta',
             data: res_enc
           });
+          if(this.cantidad_garantia){
+            this.ecn_garantia = {
+              base: process.env.__BASE__,
+              Eg_Id: null,
+              Eg_Quien_autoriza: 0,
+              Ev_Id: res_enc.data.insertId,
+              Eg_Observacion: null,
+              Eg_estado: 0,
+              Eg_User_control: this.data_user.Per_Num_documento,
+            }
+          }
           let promesas = [];
           this.data_sales.forEach( product => {
             product.Ev_Id = res_enc.data.insertId;
@@ -675,6 +711,10 @@ export default {
               res.data.msg = 'Respuesta insert det venta';
               return res.data;
             }));
+            promesas.push(this.updateInventarioMovil(product).then( res => {
+              res.data.msg = 'Respuesta update inventario movil';
+              return res.data;
+            }))
           });
           Promise.all(promesas).then( data => {
             data.forEach( res => {
@@ -719,6 +759,12 @@ export default {
         porcentaje_venta: this.producto_selecte.porcentaje_venta,
         subtotal_product: null,
         des_articulo: this.descuento_art.label,
+        // Propiedade para actualizar el stock
+        base: process.env.__BASE__,
+        Mov_Id: this.enc_venta.Mov_Id,
+        Si_Cant: this.cantidad,
+        simbol: '-',
+        // Art_Id: null, -> ya esa declarado
       }
 
       if(this.cantidad > this.cant_disponible){

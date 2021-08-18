@@ -105,8 +105,3 @@ export function getMovilUser(context, documento){
 export function insertDetGarantia(context, data){
   return Vue.prototype.$axios.post(`insert_update_det_garantias`, data);
 }
-
-// Insert y actualizacion de la tabla stock_garantias
-export function insertInsUpdStockGarantia(context, data){
-  return Vue.prototype.$axios.post(`insert_update_stock_garantias`, data);
-}
