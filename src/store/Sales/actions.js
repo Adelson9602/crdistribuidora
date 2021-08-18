@@ -81,16 +81,6 @@ export function getDetailsGuarantess(context, id){
   return Vue.prototype.$axios.get(`select_garantias_a_devolver_details/${process.env.__BASE__}/${id}`)
 }
 
-// Guarda o actualiza el inventario de garantias
-export function insertUpdateStcok_garantias(context, data){
-  return Vue.prototype.$axios.post(`insert_update_stock_garantias`, data);
-}
-
-// Guarda o actualiza el encabezado de la garantia
-export function insertUpdateEncGarantia(context, data){
-  return Vue.prototype.$axios.post(`insert_update_enc_garantia`, data);
-}
-
 // Obtiene el porcentaje de descuento para el articulo
 export function getPercentSaleArt(context, data){
   return Vue.prototype.$axios.get(`select_porcentaje_venta_general/${base}`)
@@ -104,4 +94,14 @@ export function getMovilUser(context, documento){
 // Insert y actualizacion de la tabla det_garantias
 export function insertDetGarantia(context, data){
   return Vue.prototype.$axios.post(`insert_update_det_garantias`, data);
+}
+
+// Guarda o actualiza el encabezado de la garantia
+export function insertUpdateEncGarantia(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_garantia`, data);
+}
+
+// Guarda o actualiza el inventario de garantias
+export function insertUpdateStcok_garantias(context, data){
+  return Vue.prototype.$axios.post(`insert_update_stock_garantias`, data);
 }
