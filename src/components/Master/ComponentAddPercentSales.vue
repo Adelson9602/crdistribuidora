@@ -1,14 +1,10 @@
 <template>
   <div>
-    <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+    <q-form @submit="onSubmit" class="q-gutter-md">
       <div class="row q-gutter-y-md">
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 q-px-sm">
           <q-input
-            @input="
-              val => {
-                new_percents.Pv_Descripcion = val.toUpperCase();
-              }
-            "
+            @input="val => {new_percents.Pv_Descripcion = val.toUpperCase();}"
             v-model="new_percents.Pv_Descripcion"
             hint="Descripcion del porcentaje"
             :rules="[val => !!val || 'Porcentaje es requerido']"
@@ -16,7 +12,7 @@
             counter
           />
         </div>
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 q-px-sm">
           <q-input
             v-model="new_percents.Pv_Prcentaje"
             hint="valor %"
@@ -43,8 +39,6 @@ export default {
   name: "ComponentAddPercentSales",
   data() {
     return {
-      text: null,
-
       new_percents: {
         base: null,
         Pv_Id: null,
@@ -68,42 +62,17 @@ export default {
   methods: {
     ...mapActions("master", ["addPorcentaje"]),
     getData() {
-      this.$q.loading.show({
-        message: "Obteniendo datos, por favor espere..."
-      });
-      setTimeout(async () => {
-        try {
-          // Obtenemos las categorías de los productos
-
-          // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
-          if (this.edit_data) {
-            this.new_percents = {
-              base: null,
-              Pv_Id: this.edit_data.Pv_Id,
-              Pv_Descripcion: this.edit_data.Pv_Descripcion,
-              Pv_Prcentaje: this.edit_data.Pv_Prcentaje,
-              Pv_Estado: this.edit_data.Pv_Estado,
-              Pv_User_control: this.edit_data.Pv_User_control
-            };
-          }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
-        }
-      }, 2000);
+      // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
+      if (this.edit_data) {
+        this.new_percents = {
+          base: null,
+          Pv_Id: this.edit_data.Pv_Id,
+          Pv_Descripcion: this.edit_data.Pv_Descripcion,
+          Pv_Prcentaje: this.edit_data.Pv_Prcentaje,
+          Pv_Estado: this.edit_data.Pv_Estado,
+          Pv_User_control: this.edit_data.Pv_User_control
+        };
+      }
     },
     onSubmit() {
       this.$q.loading.show({
@@ -147,9 +116,8 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000);
+      }, 1000);
     },
-    onReset() {}
   }
 };
 </script>

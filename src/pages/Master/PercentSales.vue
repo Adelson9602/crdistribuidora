@@ -1,56 +1,45 @@
 <template>
   <q-page padding>
     <q-card class="height-card_page">
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-primary"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-      >
-        <q-tab name="percentage" label="Porcentaje" icon="inventory_2" />
-        <q-tab
-          name="create_percentage"
-          :label="!percentage_edit ? 'Agregar %' : 'Editar %'"
-          icon="add_business"
+      <q-card-section>
+        <q-btn color="primary" icon="check" label="OK" @click="dialog_add_percent = true" />
+        <q-dialog v-model="dialog_add_percent" persistent>
+          <q-card style="width: 700px; max-width: 80vw;">
+            <q-bar dark class="bg-primary text-white">
+              <div class="col text-center text-weight-bold">
+                {{ edit_form ? 'Editar porcentaje' : 'Agregar porcentaje' }}
+              </div>
+              <q-btn flat round text-color="white" icon="close" size="8.5px" color="red" v-close-popup/>
+            </q-bar>
+            <q-card-section>
+              <component-add-percent-sales
+                @reload="reload"
+                :edit_data="percentage_edit"
+              />
+            </q-card-section>
+          </q-card>
+        </q-dialog>
+        <component-table
+          class="q-mt-md height-table"
+          proptitle="Porcentaje"
+          :propdata="data"
+          :propcolumns="columns"
+          :propgrid="true"
+          :propflat="true"
+          :propbtns="btns"
+          :propexcel="excel"
+          :propactions="true"
+          @onedit="editPorcentaje"
+          @tostatus="openDialogStatus"
         />
-      </q-tabs>
-
-      <q-separator />
-
-      <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="percentage">
-          <component-table
-            class="q-mt-md height-table"
-            proptitle="Porcentaje"
-            :propdata="data"
-            :propcolumns="columns"
-            :propgrid="true"
-            :propflat="true"
-            :propbtns="btns"
-            :propexcel="excel"
-            :propactions="true"
-            @onedit="editPorcentaje"
-            @tostatus="openDialogStatus"
-          />
-          <!-- Dialogo para activar o inactivar una meta -->
-          <component-dialog-enable
-            :dialog="enable_diable"
-            :options_dialog="options_status"
-            @cancel="enable_diable = false"
-            @changeStatus="changeStatus"
-          />
-        </q-tab-panel>
-
-        <q-tab-panel name="create_percentage">
-          <component-add-percent-sales
-            @reload="reload"
-            :edit_data="percentage_edit"
-          />
-        </q-tab-panel>
-      </q-tab-panels>
+        <!-- Dialogo para activar o inactivar una meta -->
+        <component-dialog-enable
+          :dialog="enable_diable"
+          :options_dialog="options_status"
+          @cancel="enable_diable = false"
+          @changeStatus="changeStatus"
+        />
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
@@ -60,8 +49,6 @@ import ComponentAddPercentSales from "src/components/Master/ComponentAddPercentS
 import componentTable from "components/Generals/ComponentTable";
 import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
 import { mapActions, mapState } from "vuex";
-let categorias = [];
-let ums = [];
 export default {
   name: "Percentage",
   components: {
@@ -179,7 +166,9 @@ export default {
       options_status: {
         title: null,
         msg: null
-      }
+      },
+      dialog_add_percent: false,
+      edit_form: false,
     };
   },
   computed: {
@@ -192,8 +181,8 @@ export default {
     this.getData();
   },
   watch: {
-    tab(value) {
-      if (value == "percentage") {
+    dialog_add_percent(value) {
+      if (!value) {
         this.percentage_edit = null;
       }
     }
@@ -273,10 +262,9 @@ export default {
         }
       }, 2000);
     },
-
     editPorcentaje(row) {
       this.percentage_edit = row;
-      this.tab = "create_percentage";
+      this.dialog_add_percent = true;;
     },
     reload() {
       this.tab = "percentage";
