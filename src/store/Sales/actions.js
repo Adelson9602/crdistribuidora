@@ -55,6 +55,15 @@ export function insertDetVenta(context, data){
 
 // insert_update_stock_inventario => Se reutiliza petición del modulo warehouse
 
+// COTIZACIÓN
+export function insertEncCotizacion(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_cotizacion`, data);
+}
+
+export function insertDetCotizacion(context, data){
+  return Vue.prototype.$axios.post(`insert_update_det_cotizacion`, data);
+}
+
 // Proveedores
 // Obtiene todos los proveedores o clientes
 export function getClientes(){
