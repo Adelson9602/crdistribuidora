@@ -86,6 +86,11 @@ export function getPercentSaleArt(context, data){
   return Vue.prototype.$axios.get(`select_porcentaje_venta_general/${base}`)
 }
 
+// Obtiene el porcentaje de descuento personalizado
+export function getPerSalePersona(context, data){
+  return Vue.prototype.$axios.get(`select_porcentaje_personalizado/${base}`)
+}
+
 // Obtiene las moviles del usuario
 export function getMovilUser(context, documento){
   return Vue.prototype.$axios.get(`select_movil_integrante_user/${base}/${documento}`);

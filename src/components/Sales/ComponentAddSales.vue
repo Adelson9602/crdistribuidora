@@ -180,7 +180,7 @@
             v-model="descuento_art"
             :options="options_des_products"
             hint="Descuento articulo"
-            :rules="[val => !!val || 'Producto es obligatorio']"
+            :rules="[val => !!val || 'Descuento articulo es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
@@ -288,6 +288,8 @@ let all_clients = []; // Contiene todos los proveedores clientes
 let all_comprobante = []; //Contiene todos los tipos de comprobantes
 let all_product = []; //Contiene todos los productos
 let all_medios = []; //Contiene los medios de pago
+let percent_genres = []; //Contiene los procentajes generales
+let percent_persona = []; //Contiene los procentajes personalizados
 import { mapActions, mapState } from 'vuex';
 import dialog from 'components/Generals/ComponentDialogWarning';
 import ComponentAddClient from "components/Sales/ComponentAddClient";
@@ -447,10 +449,10 @@ export default {
           const res_product = await this.getStockMovil(value).then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get productos',
-            data: res_product
-          });
+          // console.log({
+          //   msg: 'Respuesta get productos',
+          //   data: res_product
+          // });
           if(res_product.ok){
             all_product.length = 0;
             res_product.data.forEach( element => {  
@@ -462,6 +464,8 @@ export default {
                 porcentaje_venta: element.porcentaje_venta,
                 precio_compra: element.precio_compra,
                 precio_venta: element.precio_venta,
+                art_porce_general: element.Art_porce_general,
+                pv_id: element.Pv_Id
               });
             })
           } else {
@@ -489,7 +493,26 @@ export default {
     producto_selecte(value){
       if(value){
         this.cant_disponible = value.cantidad;
-        this.descuento_art = this.options_des_products.find( porcentaje => porcentaje.value == value.porcentaje_venta)
+        let resultado = new Promise((resolve, reject) => {
+          if(value.art_porce_general){
+            this.options_des_products.length = 0;
+            this.options_des_products = percent_genres;
+          } else {
+            let porcentaje_productos = percent_persona.filter( porcentaje => porcentaje.Art_Id == value.value);
+            this.options_des_products.length = 0;
+            porcentaje_productos.forEach(element => {
+              this.options_des_products.push({
+                label: element.Pv_Descripcion,
+                value: element.Pv_Prcentaje,
+                pv_id: element.Pv_Id
+              })
+            })
+          }
+          resolve(this.options_des_products);
+        });
+        resultado.then( opciones => {
+          this.descuento_art = opciones.find( porcentaje => porcentaje.pv_id == value.pv_id);
+        })
       }
     }
   },
@@ -517,7 +540,8 @@ export default {
       'insertDetVenta',
       'insertUpdateEncGarantia',
       'insertDetGarantia',
-      'insertUpdateStockGarantia'
+      'insertUpdateStockGarantia',
+      'getPerSalePersona'
     ]),
     getData(){
       this.$q.loading.show({
@@ -639,14 +663,31 @@ export default {
           //   data: res_por_prod
           // });
           if(res_por_prod.ok){
-            this.options_des_products.length = 0;
+            percent_genres.length = 0;
             res_por_prod.data.forEach( element => {  
               if(element.Pv_Estado == 1){
-                this.options_des_products.push({
+                percent_genres.push({
                   label: element.Pv_Descripcion,
                   value: element.Pv_Prcentaje,
+                  pv_id: element.Pv_Id
                 });
               }
+            })
+          } else {
+            throw new Error(res_por_prod.message);
+          }
+
+          const res_por_perso = await this.getPerSalePersona().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get procentaje personalizado descuento productos',
+          //   data: res_por_perso
+          // });
+          if(res_por_perso.ok){
+            percent_persona.length = 0;
+            res_por_perso.data.forEach( element => {  
+              percent_persona.push(element);
             })
           } else {
             throw new Error(res_por_prod.message);
