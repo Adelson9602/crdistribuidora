@@ -1,53 +1,42 @@
 <template>
   <q-page padding>
     <q-card class="height-card_page">
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-primary"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-      >
-        <q-tab name="charges" label="Cargos" icon="inventory_2" />
-        <q-tab
-          name="create_charges"
-          :label="!charges_edit ? 'Agregar Cargos' : 'Editar Cargos'"
-          icon="add_business"
+      <q-card-section>
+        <q-btn color="primary" icon="add" label="Agregar cargo" @click="dialog_add_cargo = true" />
+        <q-dialog v-model="dialog_add_cargo" persistent>
+          <q-card style="width: 700px; max-width: 80vw;">
+            <q-bar dark class="bg-primary text-white">
+              <div class="col text-center text-weight-bold">
+                {{ edit_form ? 'Editar cargo' : 'Agregar cargo'}}
+              </div>
+              <q-btn text-color="white" flat round icon="close" size="8.5px" color="green" v-close-popup/>
+            </q-bar>
+            <q-card-section>
+              <component-add-charges @reload="reload" :edit_data="charges_edit" />
+            </q-card-section>
+          </q-card>
+        </q-dialog>
+        <component-table
+          class="q-mt-md height-table"
+          proptitle="Cargos"
+          :propdata="data"
+          :propcolumns="columns"
+          :propgrid="true"
+          :propflat="true"
+          :propbtns="btns"
+          :propexcel="excel"
+          :propactions="true"
+          @onedit="editCargos"
+          @tostatus="openDialogStatus"
         />
-      </q-tabs>
-
-      <q-separator />
-
-      <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="charges">
-          <component-table
-            class="q-mt-md height-table"
-            proptitle="Cargos"
-            :propdata="data"
-            :propcolumns="columns"
-            :propgrid="true"
-            :propflat="true"
-            :propbtns="btns"
-            :propexcel="excel"
-            :propactions="true"
-            @onedit="editCargos"
-            @tostatus="openDialogStatus"
-          />
-          <!-- Dialogo para activar o inactivar una meta -->
-          <component-dialog-enable
-            :dialog="enable_diable"
-            :options_dialog="options_status"
-            @cancel="enable_diable = false"
-            @changeStatus="changeStatus"
-          />
-        </q-tab-panel>
-
-        <q-tab-panel name="create_charges">
-          <component-add-charges @reload="reload" :edit_data="charges_edit" />
-        </q-tab-panel>
-      </q-tab-panels>
+        <!-- Dialogo para activar o inactivar una meta -->
+        <component-dialog-enable
+          :dialog="enable_diable"
+          :options_dialog="options_status"
+          @cancel="enable_diable = false"
+          @changeStatus="changeStatus"
+        />
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
@@ -166,7 +155,9 @@ export default {
       options_status: {
         title: null,
         msg: null
-      }
+      },
+      dialog_add_cargo: false,
+      edit_form: false,
     };
   },
   computed: {
@@ -179,9 +170,10 @@ export default {
     this.getData();
   },
   watch: {
-    tab(value) {
-      if (value == "charges") {
-        this.charges_edit = null;
+    dialog_add_cargo(value) {
+      if (!value) {
+        this.edit_form = false;
+        this.charges_edit = false;
       }
     }
   },
@@ -259,10 +251,10 @@ export default {
 
     editCargos(row) {
       this.charges_edit = row;
-      this.tab = "create_charges";
+      this.dialog_add_cargo = true;
+      this.edit_form = true;
     },
     reload() {
-      this.tab = "charges";
       this.edit_form = false;
       setTimeout(() => {
         this.getData();

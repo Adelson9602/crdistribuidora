@@ -2,24 +2,17 @@
   <div>
     <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
       <div class="row q-gutter-y-md">
-        <div class="col-xs-12 col-md-6 q-px-sm">
+        <div class="col-xs-12 q-px-sm">
           <q-input
-            @input="
-              val => {
-                new_cargos.Car_Descripcion = val.toUpperCase();
-              }
-            "
+            @input="val => {new_cargos.Car_Descripcion = val.toUpperCase()}"
             v-model="new_cargos.Car_Descripcion"
             hint="Descripcion del cargo"
-            :rules="[val => !!val || 'cargo es requerido']"
+            :rules="[val => !!val || 'Cargo es requerido']"
             maxlength="250"
             counter
           />
         </div>
-     
-      </div>
-      <div class="row justify-end q-mt-0">
-        <div class="q-gutter-x-md">
+        <div class="row col-xs-12 justify-end">
           <q-btn label="Guardar" type="submit" color="green" />
         </div>
       </div>
@@ -58,41 +51,16 @@ export default {
   methods: {
     ...mapActions("master", ["addCargos"]),
     getData() {
-      this.$q.loading.show({
-        message: "Obteniendo datos, por favor espere..."
-      });
-      setTimeout(async () => {
-        try {
-          // Obtenemos las categorías de los productos
-
-          // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
-          if (this.edit_data) {
-            this.new_cargos = {
-              base: null,
-              Car_Id: this.edit_data.Car_Id,
-              Car_Descripcion: this.edit_data.Car_Descripcion,
-              Car_Estado: this.edit_data.Car_Estado,
-              Car_User_control: this.edit_data.Car_User_control
-            };
-          }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
-        }
-      }, 2000);
+      // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
+      if (this.edit_data) {
+        this.new_cargos = {
+          base: null,
+          Car_Id: this.edit_data.Car_Id,
+          Car_Descripcion: this.edit_data.Car_Descripcion,
+          Car_Estado: this.edit_data.Car_Estado,
+          Car_User_control: this.edit_data.Car_User_control
+        };
+      }
     },
     onSubmit() {
       this.$q.loading.show({
@@ -136,7 +104,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000);
+      }, 1000);
     },
     onReset() {}
   }
