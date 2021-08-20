@@ -66,8 +66,8 @@ export function getWaraniesOutput(){
 }
 
 // Obtiene el stock para garantias
-export function getStockGarantias(){
-  return Vue.prototype.$axios.get(`select_stock_garantias_single/${base}/1`)
+export function getStockGarantias(context, id_movil){
+  return Vue.prototype.$axios.get(`select_stock_garantias_single/${base}/${id_movil}`);
 }
 
 // Obtiene el personal que autoriza salida
