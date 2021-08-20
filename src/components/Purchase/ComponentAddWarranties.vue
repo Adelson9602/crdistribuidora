@@ -352,6 +352,9 @@ export default {
       "getStockMovil",
       "updateInventarioMovil"
     ]),
+    ...mapActions("sales", [
+      "insertUpdateStockGarantia",
+    ]),
     getData(){
       this.$q.loading.show({
         message: 'Obteniendo proveedores, por favor espere...'
@@ -438,51 +441,54 @@ export default {
       });
       setTimeout(async() => {
         try {
-          if(this.tipo_salida == 1 || this.tipo_salida == 3){
-            this.enc_salida.Esp_User_control = this.data_user.Per_Num_documento,
-            this.enc_salida.base = process.env.__BASE__;
-            const res_enc = await this.insertEncSalidaProv(this.enc_salida).then( res => {
-              return res.data;
-            });
-            console.log({
-              msg: 'Respuesta insert enc salida',
-              data: res_enc
-            });
-            if(res_enc.ok){
-              let promesas = [];
-              this.data_product.forEach(product => {
-                product.Esp_Id = res_enc.data.insertId;
-                promesas.push(this.insertDetSalidaProv(product).then( res => {
-                  res.data.msg = 'Respuesta insert det traslado';
-                  return res.data;
-                }))
+          this.enc_salida.Esp_User_control = this.data_user.Per_Num_documento,
+          this.enc_salida.base = process.env.__BASE__;
+          const res_enc = await this.insertEncSalidaProv(this.enc_salida).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta insert enc salida',
+            data: res_enc
+          });
+          if(res_enc.ok){
+            let promesas = [];
+            this.data_product.forEach(product => {
+              product.Esp_Id = res_enc.data.insertId;
+              promesas.push(this.insertDetSalidaProv(product).then( res => {
+                res.data.msg = 'Respuesta insert det traslado';
+                return res.data;
+              }))
+              if(this.tipo_salida == 1 || this.tipo_salida == 3){
                 promesas.push(this.updateInventarioMovil(product).then( res => {
                   res.data.msg = 'Respuesta update inventario';
                   return res.data
                 }))
-              });
-              Promise.all(promesas).then( data => {
-                data.forEach( res => {
-                  console.log({
-                    msg: res.msg,
-                    data: res
-                  });
-                  if(!res.data.affectedRows){
-                    throw new Error('No pudimos realizar el traslado')
-                  }
-                })
+              } else {
+                promesas.push(this.insertUpdateStockGarantia(product).then( res => {
+                  res.data.msg = 'Respuesta update inventario garantial';
+                  return res.data
+                }))
+              }
+            });
+            Promise.all(promesas).then( data => {
+              data.forEach( res => {
+                console.log({
+                  msg: res.msg,
+                  data: res
+                });
+                if(!res.data.affectedRows){
+                  throw new Error('No pudimos realizar el traslado')
+                }
               })
-            } else {
-              throw new Error(res_enc.message)
-            }
-            this.$q.notify({
-              message: 'Salida realizada',
-              type: 'positive'
             })
-            this.$emit('reload')
           } else {
-            
+            throw new Error(res_enc.message)
           }
+          this.$q.notify({
+            message: 'Salida realizada',
+            type: 'positive'
+          })
+          this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -513,6 +519,7 @@ export default {
         Dsp_Observacion: this.dsp_observacion,
         Mov_Id: 1,
         Si_Cant: this.cantidad,
+        Sg_Cant: this.cantidad,
         simbol: '-'
       };
       // Movil siempre es 1
