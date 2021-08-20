@@ -34,7 +34,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="add_warranties">
-          <component-add-warranties/>
+          <component-add-warranties @reload="reload"/>
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -218,6 +218,10 @@ export default {
     },
     editWarranty(){
 
+    },
+    reload(){
+      this.tab = 'warranties';
+      setTimeout(this.getData(), 200)
     }
   }
 }
