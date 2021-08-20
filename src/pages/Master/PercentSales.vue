@@ -2,7 +2,7 @@
   <q-page padding>
     <q-card class="height-card_page">
       <q-card-section>
-        <q-btn color="primary" icon="check" label="OK" @click="dialog_add_percent = true" />
+        <q-btn color="primary" icon="add" label="Agregar porcentaje" @click="dialog_add_percent = true" />
         <q-dialog v-model="dialog_add_percent" persistent>
           <q-card style="width: 700px; max-width: 80vw;">
             <q-bar dark class="bg-primary text-white">
@@ -184,6 +184,7 @@ export default {
     dialog_add_percent(value) {
       if (!value) {
         this.percentage_edit = null;
+        this.edit_form = false;
       }
     }
   },
@@ -263,6 +264,7 @@ export default {
       }, 2000);
     },
     editPorcentaje(row) {
+      this.edit_form = true;
       this.percentage_edit = row;
       this.dialog_add_percent = true;;
     },
