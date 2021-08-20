@@ -1,127 +1,102 @@
 <template>
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-primary"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-      >
-        <q-tab
-          name="warranties"
-          label="Garantías"
-          icon="check_circle_outline"
-        />
-        <q-tab name="add_warranties" label="Agregar garantía" icon="add_task" />
-      </q-tabs>
-
-      <q-separator />
-
-      <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="warranties">
-          <component-table
-            proptitle="Garantías"
-            :propgrid="true"
-            :propflat="true"
-            :propdata="data"
-            :propexcel="excel"
-            :propcolumns="columns"
-            :propactions="true"
-            :propbtns="btns"
-            @ondetails="detailsEntry"
-          >
-            <template>
-              <q-select
-                v-model="filter_pendientes"
-                :options="options_state"
-                hint="Estados Garantias"
-                map-options
-                emit-value
-              />
-            </template>
-          </component-table>
-          <!-- Dialogo del detalle del traslado -->
-          <q-dialog
-            v-model="dailog_details"
-            persistent
-            transition-show="flip-down"
-            transition-hide="flip-up"
-            full-width
-          >
-            <q-card>
-              <q-form @submit="updateTraslado">
-                <q-bar>
-                  <div class="text-center">
-                    <q-icon name="description" size="sm" color="primary" />
-                    Detalle del traslado
-                  </div>
-                  <q-space />
-                  <q-btn dense flat icon="close" v-close-popup />
-                </q-bar>
-                <q-card-section class="row">
-                  <div
-                    class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
-                    v-for="(value, index) in encabezado_entrada"
-                    :key="index"
-                  >
-                    <!-- Items para entregados -->
-                    <q-field :hint="index" stack-label dense>
-                      <template v-slot:control>
-                        <div
-                          class="self-center full-width no-outline"
-                          tabindex="0"
-                        >
-                          {{ value }}
-                        </div>
-                      </template>
-                    </q-field>
-                  </div> </q-card-section
+      <q-card-section>
+        <component-table
+          proptitle="Garantías"
+          :propgrid="true"
+          :propflat="true"
+          :propdata="data"
+          :propexcel="excel"
+          :propcolumns="columns"
+          :propactions="true"
+          :propbtns="btns"
+          @ondetails="detailsEntry"
+        >
+          <template>
+            <q-select
+              v-model="filter_pendientes"
+              :options="options_state"
+              hint="Estados Garantias"
+              map-options
+              emit-value
+            />
+          </template>
+        </component-table>
+        <!-- Dialogo del detalle del traslado -->
+        <q-dialog
+          v-model="dailog_details"
+          persistent
+          transition-show="flip-down"
+          transition-hide="flip-up"
+          full-width
+        >
+          <q-card>
+            <q-form @submit="updateTraslado">
+              <q-bar>
+                <div class="text-center">
+                  <q-icon name="description" size="sm" color="primary" />
+                  Detalle del traslado
+                </div>
+                <q-space />
+                <q-btn dense flat icon="close" v-close-popup />
+              </q-bar>
+              <q-card-section class="row">
+                <div
+                  class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                  v-for="(value, index) in encabezado_entrada"
+                  :key="index"
                 >
-
-               
-                <q-card-section>
-                  <q-table
-                    title="Productos "
-                    :data="data_details"
-                    row-key="name"
-                    flat
-                    :pagination="initial_pagination"
-                    style="height: 50vh"
-                  >
-                    <template v-slot:header="props">
-                      <q-tr :props="props">
-                        <q-th
-                          v-for="col in props.cols"
-                          :key="col.name"
-                          :props="props"
-                          style="text-align: center !important"
-                        >
-                          {{ col.label }}
-                        </q-th>
-                      </q-tr>
+                  <!-- Items para entregados -->
+                  <q-field :hint="index" stack-label dense>
+                    <template v-slot:control>
+                      <div
+                        class="self-center full-width no-outline"
+                        tabindex="0"
+                      >
+                        {{ value }}
+                      </div>
                     </template>
-                    <template v-slot:body-cell="props">
-                      <q-td
+                  </q-field>
+                </div> </q-card-section
+              >
+
+              
+              <q-card-section>
+                <q-table
+                  title="Productos "
+                  :data="data_details"
+                  row-key="name"
+                  flat
+                  :pagination="initial_pagination"
+                  style="height: 50vh"
+                >
+                  <template v-slot:header="props">
+                    <q-tr :props="props">
+                      <q-th
+                        v-for="col in props.cols"
+                        :key="col.name"
                         :props="props"
                         style="text-align: center !important"
                       >
-                        {{ props.value }}
-                      </q-td>
-                    </template>
-                  </q-table>
-                </q-card-section>
-              </q-form>
-            </q-card>
-          </q-dialog>
-        </q-tab-panel>
-
-        <q-tab-panel name="add_warranties">
-          <component-add-sales-warranties />
-        </q-tab-panel>
-      </q-tab-panels>
+                        {{ col.label }}
+                      </q-th>
+                    </q-tr>
+                  </template>
+                  <template v-slot:body-cell="props">
+                    <q-td
+                      :props="props"
+                      style="text-align: center !important"
+                    >
+                      {{ props.value }}
+                    </q-td>
+                  </template>
+                </q-table>
+              </q-card-section>
+            </q-form>
+          </q-card>
+        </q-dialog>
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
@@ -129,12 +104,10 @@
 <script>
 import { mapActions } from "vuex";
 import ComponentTable from "components/Generals/ComponentTable";
-// import ComponentAddSalesWarranties from "components/Sales/ComponentAddSalesWarranties";
 export default {
   name: "SaleswithoutBalance",
   components: {
     ComponentTable,
-    // ComponentAddSalesWarranties
   },
   data() {
     return {
