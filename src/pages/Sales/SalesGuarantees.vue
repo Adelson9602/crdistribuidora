@@ -15,7 +15,7 @@
           label="Garantías"
           icon="check_circle_outline"
         />
-        <!-- <q-tab name="add_warranties" label="Agregar garantía" icon="add_task" /> -->
+        <q-tab name="add_warranties" label="Agregar garantía" icon="add_task" />
       </q-tabs>
 
       <q-separator />
@@ -33,19 +33,14 @@
             :propbtns="btns"
             @ondetails="detailsEntry"
           >
-            <template v-slot:toggle>
-              <div class="row q-gutter-y-md">
-                <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
-                  <q-select
-                    dense
-                    v-model="filter_pendientes"
-                    :options="options_state"
-                    hint="Estados Garantias"
-                    map-options
-                    emit-value
-                  />
-                </div>
-              </div>
+            <template>
+              <q-select
+                v-model="filter_pendientes"
+                :options="options_state"
+                hint="Estados Garantias"
+                map-options
+                emit-value
+              />
             </template>
           </component-table>
           <!-- Dialogo del detalle del traslado -->
