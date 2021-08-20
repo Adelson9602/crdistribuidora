@@ -260,10 +260,10 @@ export default {
                   return res.data;
                 }
               );
-              console.log({
-                msg: 'Repeusta get artículos',
-                data: res_stock_mv,
-              });
+              // console.log({
+              //   msg: 'Repeusta get artículos',
+              //   data: res_stock_mv,
+              // });
               if (res_stock_mv.ok) {
                 if (res_stock_mv.result) {
                   all_productos.length = 0;
@@ -289,10 +289,10 @@ export default {
               const res_stock_garantia = await this.getStockGarantias(1).then( res => {
                 return res.data;
               });
-              console.log({
-                msg: 'Respuesta get stock garantías',
-                data: res_stock_garantia
-              });
+              // console.log({
+              //   msg: 'Respuesta get stock garantías',
+              //   data: res_stock_garantia
+              // });
               if(res_stock_garantia.ok){
                 if(res_stock_garantia.result){
                   all_productos.length = 0;
@@ -364,10 +364,10 @@ export default {
           const res_provider = await this.getProviders().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get proveedor',
-            data: res_provider
-          });
+          // console.log({
+          //   msg: 'Respuesta get proveedor',
+          //   data: res_provider
+          // });
           if(res_provider.ok){
             if(res_provider.result){
               all_providers.length = 0 ;
@@ -392,10 +392,10 @@ export default {
           const res_autorized = await this.getPersonAuthorized().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get personas autorizadas',
-            data: res_autorized
-          });
+          // console.log({
+          //   msg: 'Respuesta get personas autorizadas',
+          //   data: res_autorized
+          // });
           if(res_autorized.ok){
             if(res_autorized.result){
               all_person.length = 0 ;
@@ -446,10 +446,10 @@ export default {
           const res_enc = await this.insertEncSalidaProv(this.enc_salida).then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta insert enc salida',
-            data: res_enc
-          });
+          // console.log({
+          //   msg: 'Respuesta insert enc salida',
+          //   data: res_enc
+          // });
           if(res_enc.ok){
             let promesas = [];
             this.data_product.forEach(product => {
@@ -472,10 +472,10 @@ export default {
             });
             Promise.all(promesas).then( data => {
               data.forEach( res => {
-                console.log({
-                  msg: res.msg,
-                  data: res
-                });
+                // console.log({
+                //   msg: res.msg,
+                //   data: res
+                // });
                 if(!res.data.affectedRows){
                   throw new Error('No pudimos realizar el traslado')
                 }
