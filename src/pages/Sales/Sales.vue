@@ -796,6 +796,7 @@ export default {
                   Per_Nombre: sale.Per_Nombre,
                   Per_Num_documento: sale.Per_Num_documento,
                   Estado: venta.name_estado,
+                  Id: venta.Ev_Id,
                   name_mp: sale.name_mp,
                   name_qautorizqa: sale.name_qautorizqa,
                   status: sale.Ev_Estado,
