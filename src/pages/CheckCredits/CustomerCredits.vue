@@ -306,69 +306,69 @@ export default {
           field: "Estado"
         }
       ],
-       excel: {
+      excel: {
         columns: [
-        {
-          label: "NIT",
-          field: "CP_Nit"
-        },
-        {
-          label: "Cliente",
-          field: "CP_Razon_social"
-        },
-        {
-          label: "Ev_Estado",
-          field: "Ev_Estado"
-        },
-        {
-          label: "Fecha venta",
-          field: "Ev_Fecha_venta"
-        },
-        {
-          label: "Total venta",
-          field: "Ev_Total_venta"
-        },
-        {
-          label: "Días crédito",
-          field: "Ev_dias_credito"
-        },
-        {
-          label: "Nombre movil",
-          field: "Mov_Descripcion"
-        },
-        {
-          label: "Vendedor",
-          field: "Per_Nombre"
-        },
-        {
-          label: "Documento vendedor",
-          field: "Per_Num_documento"
-        },
-        {
-          label: "Días crédito",
-          field: "dcredito"
-        },
-        {
-          label: "Días más",
-          field: "dias_mas"
-        },
-        {
-          label: "Pagos por confirmar",
-          field: "conf_pago"
-        },
-        {
-          label: "Total abonos",
-          field: "tota_abonos"
-        },
-        {
-          label: "Estado",
-          field: "Estado"
-        }
-      ],
+          {
+            label: "NIT",
+            field: "CP_Nit"
+          },
+          {
+            label: "Cliente",
+            field: "CP_Razon_social"
+          },
+          {
+            label: "Ev_Estado",
+            field: "Ev_Estado"
+          },
+          {
+            label: "Fecha venta",
+            field: "Ev_Fecha_venta"
+          },
+          {
+            label: "Total venta",
+            field: "Ev_Total_venta"
+          },
+          {
+            label: "Días crédito",
+            field: "Ev_dias_credito"
+          },
+          {
+            label: "Nombre movil",
+            field: "Mov_Descripcion"
+          },
+          {
+            label: "Vendedor",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Documento vendedor",
+            field: "Per_Num_documento"
+          },
+          {
+            label: "Días crédito",
+            field: "dcredito"
+          },
+          {
+            label: "Días más",
+            field: "dias_mas"
+          },
+          {
+            label: "Pagos por confirmar",
+            field: "conf_pago"
+          },
+          {
+            label: "Total abonos",
+            field: "tota_abonos"
+          },
+          {
+            label: "Estado",
+            field: "Estado"
+          }
+        ],
         data: [],
         title: "Creditos Clientes"
       },
-        btns: {
+      btns: {
         range_date: false,
         btn_export_pdf: false,
         export_excel: true
@@ -682,6 +682,7 @@ export default {
                     ? "Tiene pagos por confirmar"
                     : "No tiene pagos por confirmar", //0 sin pagos por confirmar y 1 es con pagos por confirmar
                   status_credito: credit.status_credito, // Validación si el crédito debe o no, 1 saldo y 0 sin saldo
+                  Id: credit.Ev_Id,
                   tota_abonos: credit.tota_abonos,
                   status: credit.Ev_Estado,
                   Estado: credit.name_estado, //Estado de la venta
@@ -712,6 +713,7 @@ export default {
                     ? "Tiene pagos por confirmar"
                     : "No tiene pagos por confirmar", //0 sin pagos por confirmar y 1 es con pagos por confirmar
                   status_credito: credit.status_credito, // Validación si el crédito debe o no, 1 saldo y 0 sin saldo
+                  Id: credit.Ev_Id,
                   tota_abonos: credit.tota_abonos,
                   status: credit.Ev_Estado,
                   Estado: credit.name_estado, //Estado de la venta
@@ -729,7 +731,7 @@ export default {
           } else {
             throw new Error(res_credits.message);
           }
-           this.excel.data = this.data;
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -902,7 +904,6 @@ export default {
       }, 1000);
     },
     confimPayment(row) {
-      console.log(row);
       this.$q
         .dialog({
           title: "Verificación de identidad",
