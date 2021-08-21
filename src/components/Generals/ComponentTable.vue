@@ -50,15 +50,10 @@
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 row" v-if="buscador.input">
-          <div class="col-xs-12 col-md-8">
-            <q-input v-model="id_search" type="text" :hint="buscador.label" />
-          </div>
-          <div class="col-xs-12 col-md-4 row q-px-sm">
-            <q-btn label="Buscar" type="submit" icon="search" color="primary" class="self-center"/>
-          </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm">
+          <slot name="input_one"></slot>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm">
           <slot></slot>
         </div>
       </div>
@@ -355,10 +350,6 @@ export default {
           font_size: 7,
         }
       },
-      buscador: {
-        input: false,
-        label: ''
-      }
     };
   },
   props: [
@@ -392,7 +383,6 @@ export default {
     this.btns = this.propbtns ? this.propbtns : this.btns;
     this.excel = this.propexcel ? this.propexcel : this.excel;
     this.initial_pagination = this.proppagination =! undefined ? this.proppagination : this.initial_pagination;
-    this.buscador = this.propbuscador ? this.propbuscador : this.buscador;
 
     if (this.modeTable == false) {
       this.mode = this.modeTable;
