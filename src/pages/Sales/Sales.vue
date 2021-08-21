@@ -591,6 +591,7 @@ export default {
                   Per_Num_documento: venta.Per_Num_documento,
                   Estado: venta.name_estado,
                   status: venta.Ev_Estado,
+                  Id: venta.Ev_Id,
                   title: venta.CP_Razon_social,
                   name_mp: venta.name_mp,
                   name_qautorizqa: venta.name_qautorizqa,
