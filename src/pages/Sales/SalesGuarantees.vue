@@ -13,7 +13,7 @@
           :propbtns="btns"
           @ondetails="detailsEntry"
         >
-          <template>
+          <template v-slot:input_one>
             <q-select
               v-model="filter_pendientes"
               :options="options_state"
