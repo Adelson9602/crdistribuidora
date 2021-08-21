@@ -128,7 +128,7 @@
       <!-- Btns en modo normal -->
       <template v-slot:header="props">
         <q-tr :props="props">
-          <q-th auto-width />
+          <q-th auto-width v-if="actions_card"/>
 
           <q-th
             v-for="col in props.cols"
