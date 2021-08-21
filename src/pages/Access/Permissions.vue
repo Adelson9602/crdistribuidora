@@ -328,6 +328,7 @@ export default {
               active_item: element.active_item,
               Icon: element.Icon,
               type: element.type,
+              Id: element.Id_modulo,
               title: element.label,
               btn_edit: true,
               icon_btn_edit: 'edit',

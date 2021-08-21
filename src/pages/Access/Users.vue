@@ -262,6 +262,7 @@ export default {
                   Usu_Login: persona.Usu_Login,
                   name_estado: persona.name_estado,
                   name_estado_usuario: persona.name_estado_usuario,
+                  Id: persona.Per_Num_documento,
                   img: persona.Per_Imagen
                     ? persona.Per_Imagen
                     : "https://cdn.quasar.dev/img/boy-avatar.png",
