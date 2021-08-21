@@ -34,27 +34,29 @@
             @onedit="editSale"
             @ondetails="detatilSale"
           >
-            <q-select
-              v-model="client_selected"
-              clearable
-              use-input
-              hide-selected
-              fill-input
-              input-debounce="0"
-              hint="Cliente"
-              :options="options_clientes"
-              @filter="filterClientes"
-              emit-value
-              map-options
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    No results
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
+            <template v-slot:input_one>
+              <q-select
+                v-model="client_selected"
+                clearable
+                use-input
+                hide-selected
+                fill-input
+                input-debounce="0"
+                hint="Cliente"
+                :options="options_clientes"
+                @filter="filterClientes"
+                emit-value
+                map-options
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      No results
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </template>
           </component-table>
           <!-- Dialogo para ver el detalle de la venta -->
           <q-dialog v-model="dialog_detail" persistent full-width>
