@@ -92,7 +92,7 @@
       :title="title"
       :data="data"
       :columns="columns"
-      row-key="name"
+      row-key="Id"
       :filter="filter"
       :grid="grid"
       :pagination="initial_pagination"
@@ -142,7 +142,7 @@
 
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td auto-width>
+          <q-td auto-width v-if="actions_card">
             <q-toggle v-model="props.expand" checked-icon="add" unchecked-icon="remove" />
           </q-td>
 
@@ -154,23 +154,48 @@
             {{ col.value }}
           </q-td>
         </q-tr>
-        <q-tr v-show="props.expand" :props="props">
+        <q-tr v-show="props.expand" :props="props" v-if="actions_card">
           <q-td colspan="100%" class="q-gutter-x-md">
-            <q-btn color="red" icon="print" round size="sm">
-              <q-tooltip>
-                Imprimir
-              </q-tooltip>
-            </q-btn>
-            <q-btn color="green" icon="paid" round size="sm">
-              <q-tooltip>
-                Recibir pago
-              </q-tooltip>
-            </q-btn>
-            <q-btn color="primary" icon="check" round size="sm">
-              <q-tooltip>
-                Confirmar pago
-              </q-tooltip>
-            </q-btn>
+            <q-btn
+              :color="
+                props.row.status == 1 ? 'red' : 'green'
+              "
+              round
+              push
+              padding="5px"
+              :icon="props.row.icon_btn_status"
+              @click="status(props.row)"
+              v-if="props.row.btn_status"
+            />
+            <q-btn
+              color="green"
+              round
+              push
+              padding="5px"
+              :icon="props.row.icon_btn_details"
+              @click="details(props.row)"
+              v-if="props.row.btn_details"
+            />
+
+            <q-btn
+              color="info"
+              round
+              push
+              padding="5px"
+              :icon="props.row.icon_btn_edit"
+              @click="edit(props.row)"
+              v-if="props.row.btn_edit"
+            />
+
+            <q-btn
+              color="red"
+              round
+              push
+              padding="5px"
+              icon="picture_as_pdf"
+              @click="generatePdf(props.row)"
+              v-if="props.row.btn_pdf"
+            />
           </q-td>
         </q-tr>
       </template>
