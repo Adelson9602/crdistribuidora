@@ -39,42 +39,36 @@
             @getrangedata="searchEntryRange"
             :propbuscador="buscador"
           >
-            <q-form @submit="searchEntry">
-                 <div class="row q-gutter-y-md">
-              <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
-              <q-input
-                v-model="id_entry"
-                type="text"
-                hint="Número ingreso"
-                :rules="[val => !!val || 'Número de ingreso es requerido']"
+            <template v-slot:input_one>
+              <q-form @submit="searchEntry">
+                <div class="row">
+                  <div class="col-xs-10">
+                    <q-input
+                      v-model="id_entry"
+                      type="text"
+                      hint="Número ingreso"
+                      :rules="[val => !!val || 'Número de ingreso es requerido']"
+                    />
+                  </div>
+                  <div class="col-xs-2 self-center">
+                    <q-btn
+                      type="submit"
+                      icon="search"
+                      color="primary"
+                      class="self-center"
+                    />
+                  </div>
+                </div>
+              </q-form>
+            </template>
+            <template>
+              <q-select
+                v-model="filter_pendientes"
+                :options="options_state"
+                hint="Estados Movimiento"
+                map-options
+                emit-value
               />
-               </div>
-              <div class="col-xs-12 col-md-3 col-lg-2 q-px-md row">
-                <q-btn
-                  label="Buscar"
-                  type="submit"
-                  icon="search"
-                  color="primary"
-                  class="self-center"
-                />
-              </div>
-            </div>
-            </q-form>
-            <template v-slot:toggle>
-               <div class="row q-gutter-y-md">
-               <div class="col-xs-12 col-md-3 col-lg-3 q-px-md">
-               <q-select
-                        dense
-                        v-model="filter_pendientes"
-                        :options="options_state"
-                        hint="Estados Movimiento"
-                        map-options
-                        emit-value
-                      
-                      />
-               </div>
-               </div>
-              <!-- <q-toggle v-model="filter_pendientes" label="Ver Pentientes" /> -->
             </template>
           </component-table>
 
