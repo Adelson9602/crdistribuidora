@@ -163,19 +163,17 @@ export default {
       });
       setTimeout(async () => {
         try {
-          const resrequestGetSalestoList = await this.requestGetSalestoList(
-            data
-          ).then((res) => {
+          const res_sales = await this.requestGetSalestoList(data).then((res) => {
             return res.data;
           });
           console.log({
             msg: "Respuesta get grupo picking por rango de fecha",
-            data: resrequestGetSalestoList,
+            data: res_sales,
           });
           this.data.length = 0;
-          if (resrequestGetSalestoList.ok) {
-            if (resrequestGetSalestoList.result) {
-              resrequestGetSalestoList.forEach((element) => {
+          if (res_sales.ok) {
+            if (res_sales.result) {
+              res_sales.data.forEach((element) => {
                 this.data.push({
                   Art_Id: element.Art_Id,
                   Art_Nombre: element.Art_Nombre,
@@ -194,28 +192,24 @@ export default {
               });
             } else {
               this.$q.notify({
-                message: resrequestGetSalestoList.message,
+                message: res_sales.message,
                 type: "warning",
               });
             }
           } else {
-           
-            this.data.length = 0;
-            throw resrequestGetSalestoListDetail.message;
+            throw res_sales.message;
           }
-          const resrequestGetSalestoListDetail = await this.requestGetSalestoListDetail(
-            data
-          ).then((res) => {
+          const res_det_sales = await this.requestGetSalestoListDetail(data).then((res) => {
             return res.data;
           });
           console.log({
             msg: "Respuesta detalle picking por rango de fecha",
-            data: resrequestGetSalestoListDetail,
+            data: res_det_sales,
           });
           this.datadetail.length = 0;
-          if (resrequestGetSalestoListDetail.ok) {
-            if (resrequestGetSalestoListDetail.result) {
-              resrequestGetSalestoListDetail.forEach((element) => {
+          if (res_det_sales.ok) {
+            if (res_det_sales.result) {
+              res_det_sales.data.forEach((element) => {
                 this.datadetail.push({
                   Art_Id: element.Art_Id,
                   Art_Nombre: element.Art_Nombre,
@@ -238,13 +232,12 @@ export default {
               });
             } else {
               this.$q.notify({
-                message: resrequestGetSalestoListDetail.message,
+                message: res_det_sales.message,
                 type: "warning",
               });
             }
           } else {
-            this.data.length = 0;
-            throw resrequestGetSalestoListDetail.message;
+            throw res_det_sales.message;
           }
         } catch (e) {
           console.log(e);
