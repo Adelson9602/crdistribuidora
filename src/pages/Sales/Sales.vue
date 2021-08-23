@@ -75,14 +75,18 @@
                 />
               </q-bar>
               <q-card-section>
-                <q-tabs
-                  v-model="tab_detail"
-                  align="justify"
-                  narrow-indicator
-                >
+                <q-tabs v-model="tab_detail" align="justify" narrow-indicator>
                   <q-tab class="text-purple" name="detalle" label="Detalle" />
-                  <q-tab class="text-orange" name="nota_credito" label="Nota crédito" />
-                  <q-tab class="text-teal" name="nota_debito" label="Nota débito" />
+                  <q-tab
+                    class="text-orange"
+                    name="nota_credito"
+                    label="Nota crédito"
+                  />
+                  <q-tab
+                    class="text-teal"
+                    name="nota_debito"
+                    label="Nota débito"
+                  />
                 </q-tabs>
 
                 <q-tab-panels
@@ -193,8 +197,8 @@
 import ComponentAddSales from "components/Sales/ComponentAddSales";
 import componentTable from "components/Generals/ComponentTable";
 import ComponentAddNoteDebit from "components/Sales/ComponentAddNoteDebit";
-import ComponentAddNoteCredit from 'src/components/Sales/ComponentAddNoteCredit';
-import { mapActions } from 'vuex';
+import ComponentAddNoteCredit from "src/components/Sales/ComponentAddNoteCredit";
+import { mapActions } from "vuex";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 let all_clients = []; //Contiene todos los clientes
@@ -209,7 +213,7 @@ export default {
   data() {
     return {
       tab: "sales",
-        tab_detail: 'detalle',
+      tab_detail: "detalle",
       columns: [
         {
           name: "Ev_Id",
@@ -843,7 +847,6 @@ export default {
       }, 2000);
     },
     generatePdf(row) {
-      console.log(row);
       setTimeout(async () => {
         try {
           this.data_products.length = 0;
@@ -903,6 +906,25 @@ export default {
 
         var doc = new jsPDF("p", "mm", "a4");
 
+        function addWaterMark(doc) {
+          var totalPages = doc.internal.getNumberOfPages();
+
+          for (i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            //doc.addImage(imgData, 'PNG', 40, 40, 75, 75);
+            doc.setFontSize(38);
+            doc.setTextColor(175);
+            doc.text(
+              50,
+              doc.internal.pageSize.height - 130,
+              "CR DISTRIBUIDORA",
+              null,
+              45
+            );
+          }
+
+          return doc;
+        }
         doc.autoTable({
           body: this.data_products,
           columns: [
@@ -923,6 +945,7 @@ export default {
             overflowColumns: "linebreak"
           }
         });
+
         const pageCount = doc.internal.getNumberOfPages();
 
         for (var i = 1; i <= pageCount; i++) {
@@ -994,10 +1017,14 @@ export default {
           doc.roundedRect(150, 254, 50, 30, 5.5, 5.5, "S");
           doc.text(177, 258, "Totales");
           doc.line(175, 254, 175, 284, "S");
-          doc.text(152, 263, "Subtotal");
+          doc.text(152, 263, "Subtotal"); //Ev_Impuesto, Ev_Subtotal, Ev_Des_total_art, Ev_Descuentog, Ev_Des_gen_venta, Ev_Total_venta,
+          doc.text(177, 263, "$ " + row.Ev_Subtotal);
           doc.text(152, 268, "Descuento");
+          doc.text(177, 268, "$ " + row.Ev_Des_gen_venta);
           doc.text(152, 273, "igv %");
+          doc.text(177, 273, "" + row.Ev_Descuentog);
           doc.text(152, 278, "Total a pagar");
+          doc.text(177, 278, "$ " + row.Ev_Total_venta);
           doc.setPage(i);
           //Print Page 1 of 4 for example
           doc.text(
@@ -1009,6 +1036,7 @@ export default {
             "right"
           );
         }
+        doc = addWaterMark(doc);
         doc.save("Venta N° " + row.Ev_Id + ".pdf");
       }, 1000);
     },
