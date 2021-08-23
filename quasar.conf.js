@@ -52,7 +52,7 @@ module.exports = function (/* ctx */) {
       vueRouterMode: 'history', // available values: 'hash', 'history'
       env:{
         __ENV__: 'dev',
-        __VERSION__: '2.21.8.23',
+        __VERSION__: 'v2.21.8.23',
         __URLAPI__: `http://apis.crdistribuidora.com/pcr/`,
         __BASE__: 'crdistribuidora_newpruebas',
         __KEY__: '82f2ceed4c503896c8a291e560bd4325',
