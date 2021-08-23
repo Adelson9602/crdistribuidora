@@ -144,6 +144,13 @@
             </template>
           </q-select>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
+          <q-field hint="Precio compra anterior" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">$ {{ new Intl.NumberFormat().format(precio_old)}}</div>
+            </template>
+          </q-field>
+        </div>
         <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-input
             v-model="precio_compra"
@@ -204,8 +211,8 @@
         </q-table>
       </div>
     </div>
-    <q-page-sticky position="bottom-right" :offset="[18,18]" expand>
-      <q-btn color="primary" icon="check" label="OK" @click="onSubmit" />
+    <q-page-sticky position="bottom-right" :offset="[18,18]" expand v-if="data_products.length > 0">
+      <q-btn color="primary" icon="save" label="Guardar" @click="onSubmit" />
     </q-page-sticky>
   </div>
 </template>
@@ -280,12 +287,22 @@ export default {
       producto_selecte: null,
       precio_compra: null,
       cantidad_compra: null,
+      precio_old: null
     }
   },
   computed: {
     ...mapState('auth', ['user_logged']),
     data_user(){
       return this.user_logged;
+    }
+  },
+  watch: {
+    producto_selecte(value){
+      if(value){
+        this.precio_old = value.precio_old
+      } else {
+        this.precio_old = null
+      }
     }
   },
   created(){
@@ -342,10 +359,10 @@ export default {
           const res_compro = await this.getTiposComprobante().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get tipo de comprobante',
-            data: res_compro
-          });
+          // console.log({
+          //   msg: 'Respuesta get tipo de comprobante',
+          //   data: res_compro
+          // });
           if(res_compro.ok){
             if(res_compro.result){
               all_comprobante.length = 0;
@@ -391,10 +408,10 @@ export default {
           const res_product = await this.getAllArticles().then( res => {
             return res.data;
           });
-          // console.log({
-          //   msg: 'Respuesta get productos',
-          //   data: res_product
-          // });
+          console.log({
+            msg: 'Respuesta get productos',
+            data: res_product
+          });
           if(res_product.ok){
             all_product.length = 0;
             res_product.data.forEach( element => {  
@@ -402,7 +419,8 @@ export default {
                 all_product.push({
                   label: element.Art_Nombre,
                   value: element.Art_Id,
-                  codigo: element.Art_Codigo_inv
+                  codigo: element.Art_Codigo_inv,
+                  precio_old: element.Av_Precio_venta
                 });
               }
             })
@@ -532,8 +550,27 @@ export default {
           type: 'warning'
         })
       } else {
-        this.data_products.push(product_add);
-        this.onReset();
+        this.precio_compra = Number(this.precio_compra)
+        if(this.precio_old != this.precio_compra){
+          this.$q.dialog({
+            component: dialog,
+            parent: this,
+            title: 'Diferencia de precios',
+            msg: `Atención! Hemos encontrado diferencia de precios en el producto a ingresar, este es el precio anterior ${new Intl.NumberFormat().format(this.precio_old)}, precio nuevo ${new Intl.NumberFormat().format(this.precio_compra)}, ¿Desea reemplazar el precio anterior?`,
+          }).onOk(() => {
+            product_add.Dei_Precio_compra = this.precio_compra;
+            this.data_products.push(product_add);
+            this.onReset();
+          }).onCancel(() => {
+            console.log('CANCELo')
+            product_add.Dei_Precio_compra = this.producto_selecte.precio_old;
+            this.data_products.push(product_add);
+            this.onReset();
+          })
+        } else {
+          this.data_products.push(product_add);
+          this.onReset();
+        }
       }
     },
     delteProduct(row){
