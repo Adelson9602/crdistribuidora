@@ -9,134 +9,137 @@
       content-class="bg-grey-1"
       :breakpoint="1024"
     >
-        <div class="header-sidebar shadow-4 row justify-between" elevated>
-          <img src="../statics/logo_menu.png" alt="logo de CR Distribuidora" class="img-logo">
+      <div class="header-sidebar shadow-4" elevated>
+        <img src="../statics/logo_menu.png" alt="logo de CR Distribuidora" class="img-logo">
+        <div class="version">
+          {{version}}
         </div>
-        <q-scroll-area class="bg-transparent" style="height: calc(100% - 60px); ">
-          <q-item class="sidebar__user">
-          <router-link to="/access/profile" class="no-decoration">
-            <q-item-section clickable v-ripple side>
-              <q-avatar size="50px">
-                <img src='https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png' />
-                <!-- <img :src="data_user.Foto ? data_user.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
-              </q-avatar>
-            </q-item-section>
-          </router-link>
-          <router-link to="/access/profile" class="no-decoration">
-            <q-item-section>
-              <q-item-label class="sidebar__user-name"
-                >
-                {{data_user.Per_Nombre}}
-                </q-item-label
-              >
-              <q-item-label caption class="sidebar__text-rol">
-                {{data_user.Rol_Descripcion}}
-              </q-item-label>
-            </q-item-section>
-          </router-link>
-          <q-item-section side style="overflow: hidden;">
-            <q-btn dense round flat icon="notifications" class="notificaciones__icon">
-              <q-badge color="red" rounded floating transparent v-if="count_notifications > 0"> 
-                {{count_notifications}} 
-              </q-badge>
-              <q-menu anchor="top right" self="top left" :offset="[30, 0]" class="no-scroll" style="overflow: hidden;"> 
-                <q-list style="max-width: 300px; min-width: 300px; overflow: hidden;" class="no-scroll">
-                  <q-item class="notificaciones__title">
-                    <q-item-label caption>Notificaciones</q-item-label>
-                    <router-link to="/notificaciones">
-                      <q-item-label class="notificaciones__link" caption>Ver todas</q-item-label>
-                    </router-link>
-                  </q-item>
-
-                  <q-separator />
-                  <div v-if="notifications.length > 0" class="notifications__content">
-                    <div v-for="(notification, index) in notifications" :key="index">
-                      <q-item clickable @click="editEstadoNotification(notification)">
-                        <q-item-section>
-                          <q-item-label>{{notification.nt_titulo}}</q-item-label>
-                          <q-item-label caption lines="2"
-                            >{{notification.nt_descripcion}}</q-item-label
-                          >
-                        </q-item-section>
-
-                        <q-item-section side top>
-                         <q-item-label v-if="notification.dias > 0" caption>hace {{notification.dias}} dia<span v-if="notification.dias > 1">s</span></q-item-label>
-
-                          <q-item-label v-if="notification.horas < 24 && notification.horas > 0" caption>hace {{notification.horas}} horas</q-item-label>
-
-                          <q-item-label v-if="notification.minutos < 59 && notification.minutos > 0" caption>hace {{notification.minutos}} minuto<span v-if="notification.minutos > 1">s</span></q-item-label>
-
-                          <q-item-label v-if="notification.minutos <= 0" caption>hace un momento</q-item-label>
-                          <q-icon
-                            name="circle"
-                            color="blue"
-                            size="10px"
-                            style="margin-top: 10px"
-                            v-if="notification.nt_estado == 1"
-                          />
-                        </q-item-section>
-                      </q-item>
-                      <q-separator spaced inset />
-                    </div>
-                  </div>
-                  <div v-else class="notifications__content">
-                    <div>
-                      <q-item clickable>
-                        <q-item-section>
-                          <q-item-label>Sin notificaciones</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-separator spaced inset />
-                    </div>
-                  </div>
-                </q-list>
-              </q-menu>
-            </q-btn>
+      </div>
+      <q-scroll-area class="bg-transparent" style="height: calc(100% - 60px); ">
+        <q-item class="sidebar__user">
+        <router-link to="/access/profile" class="no-decoration">
+          <q-item-section clickable v-ripple side>
+            <q-avatar size="50px">
+              <img src='https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png' />
+              <!-- <img :src="data_user.Foto ? data_user.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
+            </q-avatar>
           </q-item-section>
-        </q-item>
-        <!-- <hr class="sidebar-separator" /> -->
-          <q-item-label
-            header
-            class="text-grey-8 sidebar__title-navegation"
-          >
-            <b>Navegación</b>
-          </q-item-label>
-          <q-list class="bg-transparent" v-for="(menu, index) in menu" :key="index">
-            <q-expansion-item
-               group="somegroup"
-              :content-inset-level="0.3"
-              expand-separator
-              :icon="menu.icon"
-              :label="menu.label"
-              v-if="menu.expanded && menu.visible"
-            >
-              <q-item
-                :to="`/${item.route}`"
-                clickable
-                v-ripple
-                v-for="(item, index) in menu.items"
-                :key="index"
+        </router-link>
+        <router-link to="/access/profile" class="no-decoration">
+          <q-item-section>
+            <q-item-label class="sidebar__user-name"
               >
-                <q-item-section avatar>
-                  <q-icon name="arrow_right" />
-                </q-item-section>
-                <q-item-section>{{item.label}}</q-item-section>
-              </q-item>
-            </q-expansion-item>
-            <q-item v-if="!menu.expanded" clickable v-ripple :to="menu.route">
+              {{data_user.Per_Nombre}}
+              </q-item-label
+            >
+            <q-item-label caption class="sidebar__text-rol">
+              {{data_user.Rol_Descripcion}}
+            </q-item-label>
+          </q-item-section>
+        </router-link>
+        <q-item-section side style="overflow: hidden;">
+          <q-btn dense round flat icon="notifications" class="notificaciones__icon">
+            <q-badge color="red" rounded floating transparent v-if="count_notifications > 0"> 
+              {{count_notifications}} 
+            </q-badge>
+            <q-menu anchor="top right" self="top left" :offset="[30, 0]" class="no-scroll" style="overflow: hidden;"> 
+              <q-list style="max-width: 300px; min-width: 300px; overflow: hidden;" class="no-scroll">
+                <q-item class="notificaciones__title">
+                  <q-item-label caption>Notificaciones</q-item-label>
+                  <router-link to="/notificaciones">
+                    <q-item-label class="notificaciones__link" caption>Ver todas</q-item-label>
+                  </router-link>
+                </q-item>
+
+                <q-separator />
+                <div v-if="notifications.length > 0" class="notifications__content">
+                  <div v-for="(notification, index) in notifications" :key="index">
+                    <q-item clickable @click="editEstadoNotification(notification)">
+                      <q-item-section>
+                        <q-item-label>{{notification.nt_titulo}}</q-item-label>
+                        <q-item-label caption lines="2"
+                          >{{notification.nt_descripcion}}</q-item-label
+                        >
+                      </q-item-section>
+
+                      <q-item-section side top>
+                        <q-item-label v-if="notification.dias > 0" caption>hace {{notification.dias}} dia<span v-if="notification.dias > 1">s</span></q-item-label>
+
+                        <q-item-label v-if="notification.horas < 24 && notification.horas > 0" caption>hace {{notification.horas}} horas</q-item-label>
+
+                        <q-item-label v-if="notification.minutos < 59 && notification.minutos > 0" caption>hace {{notification.minutos}} minuto<span v-if="notification.minutos > 1">s</span></q-item-label>
+
+                        <q-item-label v-if="notification.minutos <= 0" caption>hace un momento</q-item-label>
+                        <q-icon
+                          name="circle"
+                          color="blue"
+                          size="10px"
+                          style="margin-top: 10px"
+                          v-if="notification.nt_estado == 1"
+                        />
+                      </q-item-section>
+                    </q-item>
+                    <q-separator spaced inset />
+                  </div>
+                </div>
+                <div v-else class="notifications__content">
+                  <div>
+                    <q-item clickable>
+                      <q-item-section>
+                        <q-item-label>Sin notificaciones</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-separator spaced inset />
+                  </div>
+                </div>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </q-item-section>
+      </q-item>
+      <!-- <hr class="sidebar-separator" /> -->
+        <q-item-label
+          header
+          class="text-grey-8 sidebar__title-navegation"
+        >
+          <b>Navegación</b>
+        </q-item-label>
+        <q-list class="bg-transparent" v-for="(menu, index) in menu" :key="index">
+          <q-expansion-item
+              group="somegroup"
+            :content-inset-level="0.3"
+            expand-separator
+            :icon="menu.icon"
+            :label="menu.label"
+            v-if="menu.expanded && menu.visible"
+          >
+            <q-item
+              :to="`/${item.route}`"
+              clickable
+              v-ripple
+              v-for="(item, index) in menu.items"
+              :key="index"
+            >
               <q-item-section avatar>
-                <q-icon :name="menu.icon" />
+                <q-icon name="arrow_right" />
               </q-item-section>
-              <q-item-section>{{menu.label}}</q-item-section>
+              <q-item-section>{{item.label}}</q-item-section>
             </q-item>
-          </q-list>
-          <q-item clickable v-ripple @click="logout">
+          </q-expansion-item>
+          <q-item v-if="!menu.expanded" clickable v-ripple :to="menu.route">
             <q-item-section avatar>
-              <q-icon color="red" name="power_settings_new" />
+              <q-icon :name="menu.icon" />
             </q-item-section>
-            <q-item-section>Cerrar Sesión</q-item-section>
+            <q-item-section>{{menu.label}}</q-item-section>
           </q-item>
-        </q-scroll-area>
+        </q-list>
+        <q-item clickable v-ripple @click="logout">
+          <q-item-section avatar>
+            <q-icon color="red" name="power_settings_new" />
+          </q-item-section>
+          <q-item-section>Cerrar Sesión</q-item-section>
+        </q-item>
+      </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
