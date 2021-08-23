@@ -74,50 +74,109 @@
                   v-close-popup
                 />
               </q-bar>
-              <q-card-section class="row">
-                <div
-                  class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
-                  v-for="(value, index) in encebezado_venta"
-                  :key="index"
+              <q-card-section>
+                <q-tabs
+                  v-model="tab_detail"
+                  align="justify"
+                  narrow-indicator
                 >
-                  <!-- Items para entregados -->
-                  <q-field :hint="index" stack-label dense>
-                    <template v-slot:control>
+                  <q-tab class="text-purple" name="detalle" label="Detalle" />
+                  <q-tab class="text-orange" name="nota_credito" label="Nota crédito" />
+                  <q-tab class="text-teal" name="nota_debito" label="Nota débito" />
+                </q-tabs>
+
+                <q-tab-panels
+                  v-model="tab_detail"
+                  animated
+                  transition-prev="scale"
+                  transition-next="scale"
+                >
+                  <q-tab-panel name="detalle">
+                    <!-- Encabezado -->
+                    <div class="row">
                       <div
-                        class="self-center full-width no-outline"
-                        tabindex="0"
+                        class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                        v-for="(value, index) in encebezado_venta"
+                        :key="index"
                       >
-                        {{ value }}
+                        <!-- Items para entregados -->
+                        <q-field :hint="index" stack-label dense>
+                          <template v-slot:control>
+                            <div
+                              class="self-center full-width no-outline"
+                              tabindex="0"
+                            >
+                              {{ value }}
+                            </div>
+                          </template>
+                        </q-field>
                       </div>
-                    </template>
-                  </q-field>
-                </div>
+                    </div>
+                    <!-- Detalle -->
+                    <div class="row">
+                      <div class="col-xs-12 col-md-6 q-px-sm">
+                        <q-table
+                          flat
+                          title="Productos vendidos"
+                          :data="data_products"
+                          :columns="columns_products"
+                          row-key="name"
+                          class="alto_tabla"
+                        />
+                      </div>
+                      <div class="col-xs-12 col-md-6 q-px-sm">
+                        <q-table
+                          flat
+                          title="Productos en garantía"
+                          :data="data_garantias"
+                          :columns="columns_products"
+                          row-key="name"
+                          class="alto_tabla"
+                        />
+                      </div>
+                    </div>
+                  </q-tab-panel>
+
+                  <q-tab-panel name="nota_credito" style="height: 83vh">
+                    <q-layout container>
+                      <q-page-container>
+                        <q-page class="bg-white">
+                          <div class="row q-mt-md">
+                            <component-add-note-credit
+                              :prop_encabezado="encabezado_selected"
+                              :prop_product="data_products"
+                              class="col-xs-12"
+                            />
+                          </div>
+                        </q-page>
+                      </q-page-container>
+                    </q-layout>
+                  </q-tab-panel>
+
+                  <q-tab-panel name="nota_debito">
+                    <!-- Encabezado -->
+                    <div class="row">
+                      <div
+                        class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                        v-for="(value, index) in encebezado_venta"
+                        :key="index"
+                      >
+                        <!-- Items para entregados -->
+                        <q-field :hint="index" stack-label dense>
+                          <template v-slot:control>
+                            <div
+                              class="self-center full-width no-outline"
+                              tabindex="0"
+                            >
+                              {{ value }}
+                            </div>
+                          </template>
+                        </q-field>
+                      </div>
+                    </div>
+                  </q-tab-panel>
+                </q-tab-panels>
               </q-card-section>
-              <q-card-section class="row">
-                <div class="col-xs-12 col-md-6 q-px-sm">
-                  <q-table
-                    flat
-                    title="Productos vendidos"
-                    :data="data_products"
-                    :columns="columns_products"
-                    row-key="name"
-                    class="alto_tabla"
-                  />
-                </div>
-                <div class="col-xs-12 col-md-6 q-px-sm">
-                  <q-table
-                    flat
-                    title="Productos en garantía"
-                    :data="data_garantias"
-                    :columns="columns_products"
-                    row-key="name"
-                    class="alto_tabla"
-                  />
-                </div>
-              </q-card-section>
-              <q-card-actions align="right">
-                <q-btn flat label="Ok" color="primary" v-close-popup />
-              </q-card-actions>
             </q-card>
           </q-dialog>
         </q-tab-panel>
@@ -133,7 +192,9 @@
 <script>
 import ComponentAddSales from "components/Sales/ComponentAddSales";
 import componentTable from "components/Generals/ComponentTable";
-import { mapActions } from "vuex";
+import ComponentAddNoteDebit from "components/Sales/ComponentAddNoteDebit";
+import ComponentAddNoteCredit from 'src/components/Sales/ComponentAddNoteCredit';
+import { mapActions } from 'vuex';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 let all_clients = []; //Contiene todos los clientes
@@ -141,11 +202,14 @@ export default {
   name: "DeparturesGuarantees",
   components: {
     ComponentAddSales,
-    componentTable
+    componentTable,
+    ComponentAddNoteDebit,
+    ComponentAddNoteCredit
   },
   data() {
     return {
       tab: "sales",
+        tab_detail: 'detalle',
       columns: [
         {
           name: "Ev_Id",
@@ -685,6 +749,7 @@ export default {
       });
       setTimeout(async () => {
         try {
+          this.encabezado_selected = row;
           this.encebezado_venta = {
             "Venta N°": row.Ev_Id,
             NIT: row.CP_Nit,
