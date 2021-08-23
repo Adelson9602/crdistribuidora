@@ -408,10 +408,10 @@ export default {
           const res_product = await this.getAllArticles().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get productos',
-            data: res_product
-          });
+          // console.log({
+          //   msg: 'Respuesta get productos',
+          //   data: res_product
+          // });
           if(res_product.ok){
             all_product.length = 0;
             res_product.data.forEach( element => {  
@@ -562,7 +562,6 @@ export default {
             this.data_products.push(product_add);
             this.onReset();
           }).onCancel(() => {
-            console.log('CANCELo')
             product_add.Dei_Precio_compra = this.producto_selecte.precio_old;
             this.data_products.push(product_add);
             this.onReset();
