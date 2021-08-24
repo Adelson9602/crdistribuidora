@@ -134,6 +134,7 @@
                     <q-layout container>
                       <q-page-container>
                         <q-page class="bg-white">
+                          <!-- Encabezado -->
                           <div class="row q-mt-md">
                             <component-add-note-credit
                               :prop_encabezado="encabezado_selected"

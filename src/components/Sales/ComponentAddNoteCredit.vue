@@ -1,5 +1,23 @@
 <template>
   <div>
+    <div class="row">
+      <div
+        class="col-xs-12 col-sm-6 col-md-2 col-lg-2 q-px-sm"
+        v-for="(value, index) in encebezado_venta"
+        :key="index"
+      >
+        <q-field :hint="index" stack-label dense>
+          <template v-slot:control>
+            <div
+              class="self-center full-width no-outline"
+              tabindex="0"
+            >
+              {{ value }}
+            </div>
+          </template>
+        </q-field>
+      </div>
+    </div>
     <q-form
       @submit="addProduct"
       class="q-gutter-md"
@@ -30,14 +48,6 @@
           </q-select>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
-          <q-select
-            v-model="descuento_art"
-            :options="options_des_products"
-            hint="Descuento articulo"
-            :rules="[val => !!val || 'Descuento articulo es obligatorio']"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-field hint="Cantidad vendida" stack-label>
             <template v-slot:control>
               <div class="self-center full-width no-outline" tabindex="0">{{cant_vendida}}</div>
@@ -45,9 +55,16 @@
           </q-field>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
+          <q-field hint="Precio vendido" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">{{precio_vendido}}</div>
+            </template>
+          </q-field>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-input
             v-model="cantidad"
-            hint="Cantidad"
+            hint="Nueva cantidad"
             mask="############"
             :rules="[val => !!val || 'Cantidad es obligatorio',
               val => val != 0 || 'La cantida no puede ser 0'
@@ -59,23 +76,52 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-6">
+        <div class="col-xs-12">
           <q-table
-            title="Productos vendidos"
+            title="Productos"
             :data="data_products_sales"
             :columns="columns_products"
             flat
             class="alto_tabla"
           />
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-6">
-          <q-table
-            title="Productos modificados"
-            :data="data_products_sales"
-            :columns="columns_products"
-            flat
-            class="alto_tabla"
-          />
+      </div>
+      <div class="row q-gutter-y-md">
+        <div class="col-xs-6 col-sm-4 col-md-4 q-px-sm">
+          <q-field hint="Subtotal" stack-label dense>
+            <template v-slot:control>
+              <div
+                class="self-center full-width no-outline"
+                tabindex="0"
+              >
+                {{enc_nota_credito.Ev_Subtotal}}
+              </div>
+            </template>
+          </q-field>
+        </div>
+        <div class="col-xs-6 col-sm-4 col-md-4 q-px-sm">
+          <q-field hint="Descuento total artículos" stack-label dense>
+            <template v-slot:control>
+              <div
+                class="self-center full-width no-outline"
+                tabindex="0"
+              >
+                {{enc_nota_credito.Ev_Des_total_art}}
+              </div>
+            </template>
+          </q-field>
+        </div>
+        <div class="col-xs-6 col-sm-4 col-md-4 q-px-sm">
+          <q-field hint="Total" stack-label dense>
+            <template v-slot:control>
+              <div
+                class="self-center full-width no-outline"
+                tabindex="0"
+              >
+                {{enc_nota_credito.Ev_Total_venta}}
+              </div>
+            </template>
+          </q-field>
         </div>
       </div>
     </q-form>
@@ -86,63 +132,78 @@
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex';
 let all_product = []; //Contiene todos los productos vendidos
+let percent_genres = []; //Contiene los procentajes generales
 export default {
   name: 'ComponentNoteCredit',
   data () {
     return {
-      encabezado: null,
+      encebezado_venta: null,
       producto_selecte: null,
       options_products: all_product,
-      descuento_art: null,
-      options_des_products: null,
       cant_vendida: null,
+      precio_vendido: null,
       cantidad: null,
       data_products_sales: [],
       columns_products: [
         {
           name: 'Art_Id',
           align: 'center',
-          label: 'ID Artículo',
+          label: 'ID Producto',
           sortable: true,
-          field: 'Art_Id',
+          field: 'Art_Id'
         },
         {
-          name: 'Art_Descripcion',
+          name: 'codigo',
           align: 'center',
-          label: 'Descripción articulo',
+          label: 'Código',
           sortable: true,
-          field: 'Art_Descripcion',
+          field: 'codigo'
         },
         {
-          name: 'Dv_Precio_compra',
+          name: 'producto',
           align: 'center',
-          label: 'Precio de compra',
+          label: 'Producto',
           sortable: true,
-          field: 'Dv_Precio_compra',
+          field: 'producto'
+        },
+        {
+          name: 'Dv_Cant',
+          align: 'center',
+          label: 'Cantidad',
+          sortable: true,
+          field: 'Dv_Cant'
         },
         {
           name: 'Dv_precio_venta',
           align: 'center',
-          label: 'Precio de venta',
+          label: 'Precio venta',
           sortable: true,
-          field: 'Dv_precio_venta',
-        },
-        {
-          name: 'Dv_valor_descuento',
-          align: 'center',
-          label: 'Valor descuento',
-          sortable: true,
-          field: 'Dv_valor_descuento',
-        },
-        {
-          name: 'categoria',
-          align: 'center',
-          label: 'Categoría producto',
-          sortable: true,
-          field: 'categoria',
+          field: 'Dv_precio_venta'
         },
       ],
+      enc_nota_credito: {
+        base: null,
+        Ev_Id: null,
+        CP_Nit: null,
+        Per_Num_documento: null,
+        Mov_Id: null,
+        Mp_Id: null,
+        Tc_Id: null,
+        Ev_dias_credito: null,
+        Ev_Impuesto: null,
+        Ev_Subtotal: null,
+        Ev_Des_total_art: null,
+        Ev_Descuentog: null,
+        Ev_Des_gen_venta: null,
+        Ev_Total_venta: null,
+        Ev_Estado: null,
+        Ev_conf_pago: null,
+        Ev_Entregado: null,
+        Ev_Fecha_venta: null,
+        Ev_Usuario_control: null,
+      }
     }
   },
   props: [
@@ -152,10 +213,39 @@ export default {
   created(){
     this.getData();
   },
+  watch: {
+    producto_selecte(value){
+      if(value){
+        this.cant_vendida = value.cantidad;
+        this.precio_vendido = new Intl.NumberFormat().format(value.precio_venta);
+        console.log(value)
+        console.log(this.precio_vendido)
+      }
+    }
+  },
   methods: {
+    ...mapActions('sales', [
+      'getPercentSaleArt',
+    ]),
     getData(){
-      this.encabezado = this.prop_encabezado;
-      this.data_products_sales = this.prop_product; //Mostramos los productos vendidos en la tabla
+      // Se asigna datos para el frontend
+      this.encebezado_venta = {
+        'NIT': this.prop_encabezado.CP_Nit,
+        'Impuesto': this.prop_encabezado.Ev_Impuesto,
+        'Días de crédito': this.prop_encabezado.Ev_dias_credito,
+        'Nombre vendedor': this.prop_encabezado.Per_Nombre,
+        'Documento vendedor': this.prop_encabezado.Per_Num_documento,
+        'Autoriza garantía': this.prop_encabezado.name_qautorizqa,
+        'Quién autoriza': this.prop_encabezado.Eg_Quien_autoriza,
+        'Observación': this.prop_encabezado.Eg_Observacion,
+        'Fecha venta': this.prop_encabezado.Ev_Fecha_venta,
+        Estado: this.prop_encabezado.Estado,
+      }
+
+      // Se asigna datos para el encabezadoq que se guarda en base de datos
+      this.enc_nota_credito = this.prop_encabezado;
+
+      all_product.length = 0;
       this.prop_product.forEach(element => {
         all_product.push({
           label: element.Art_Descripcion,
@@ -165,13 +255,59 @@ export default {
           porcentaje_venta: element.Dv_valor_descuento,
           precio_compra: element.Dv_Precio_compra,
           precio_venta: element.Dv_precio_venta,
-          pv_id: element.Pv_Id,
           Ev_Id: element.Ev_Id
         })
       });
+      // this.$q.loading.show({
+      //   message: 'Obteniendo datos del servidor, por favor espere...'
+      // });
+      // setTimeout(async() => {
+      //   try {
+      //   } catch (e) {
+      //     console.log(e);
+      //     if (e.message === "Network Error") {
+      //       e = e.message;
+      //     }
+      //     if (e.message === "Request failed with status code 404") {
+      //       e = "URL de solicitud no existe, err 404";
+      //     } else if (e.message) {
+      //       e = e.message;
+      //     }
+      //     this.$q.notify({
+      //       message: e,
+      //       type: "negative",
+      //     });
+      //   } finally {
+      //     this.$q.loading.hide();
+      //   }
+      // }, 2000)
     },
     addProduct(){
-
+      let product_add = {
+        base: process.env.__BASE__,
+        Ev_Id: this.producto_selecte.Ev_Id,
+        codigo: this.producto_selecte.codigo,
+        producto: this.producto_selecte.label,
+        Art_Id: this.producto_selecte.value,
+        Dv_Cant: this.cantidad,
+        Dv_Precio_compra: this.producto_selecte.precio_compra,
+        Dv_precio_venta: this.producto_selecte.precio_venta,
+        Dv_valor_descuento: this.producto_selecte.porcentaje_venta,
+        porcentaje_venta: this.producto_selecte.porcentaje_venta,
+        subtotal_product: null,
+        // Propiedade para actualizar el stock
+        Mov_Id: this.movil_selecte,
+        Si_Cant: this.cantidad + this.cantidad_garantia,
+        simbol: '-',
+      }
+      if( this.cantidad > this.producto_selecte.cantidad ){
+        this.$q.notify({
+          message: 'la cantidad es mayor a la vendida',
+          type: 'warning'
+        })
+      } else {
+        this.data_products_sales.push(product_add)
+      }
     },
     // Buscador para el select medio de pago
     filterProducts(val, update, abort){
