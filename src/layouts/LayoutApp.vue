@@ -201,6 +201,10 @@
           </q-item-section>
           <q-item-section>Cerrar Sesión</q-item-section>
         </q-item>
+        <q-item>
+          mensaje
+          {{messageStr}}
+        </q-item>
       </q-scroll-area>
     </q-drawer>
 
@@ -241,6 +245,7 @@ export default {
       leftDrawerOpen: false,
       notifications: [],
       count_notifications: null,
+      messageStr: null,
     };
   },
   mounted() {
@@ -248,9 +253,9 @@ export default {
     window.addEventListener("online", () => {
       this.setIsOnline(true);
     }),
-      window.addEventListener("offline", () => {
-        this.setIsOnline(false);
-      });
+    window.addEventListener("offline", () => {
+      this.setIsOnline(false);
+    });
     this.getNotificaciones();
     this.menu = [
       {
@@ -439,6 +444,12 @@ export default {
       } finally {
         this.$q.loading.hide();
       }
+    },
+    onIdle() {
+      this.messageStr = 'ZZZ'
+    },
+    onActive() {
+      this.messageStr = 'Hello'
     },
     reloadNotifications() {
       this.notifications = [];
