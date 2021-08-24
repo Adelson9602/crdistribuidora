@@ -8,134 +8,21 @@
     >
       <!-- Encabezado -->
       <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="enc_venta.Tc_Id"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            hint="Tipo comprobante"
-            :options="options_comprobante"
-            @filter="filterComprobante"
-            :rules="[val => !!val || 'Tipo comprobante es obligatorio']"
-            emit-value
-            map-options
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey">
-                  Sin resultados
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="cliente_selected"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            hint="Cliente"
-            :options="options_clientes"
-            @filter="filterClients"
-            ref="select_client"
-            :error="validation"
-            error-message="Seleccione un cliente"
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey">
-                  Sin resultados
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-field hint="Tipo documento" stack-label>
+        <div
+          class="col-xs-12 col-sm-6 col-md-2 col-lg-2 q-px-sm"
+          v-for="(value, index) in encebezado_venta"
+          :key="index"
+        >
+          <q-field :hint="index" stack-label dense>
             <template v-slot:control>
-              <div class="self-center full-width no-outline" tabindex="0">{{tipo_documento}}</div>
+              <div
+                class="self-center full-width no-outline"
+                tabindex="0"
+              >
+                {{ value }}
+              </div>
             </template>
           </q-field>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-field hint="Número documento" stack-label>
-            <template v-slot:control>
-              <div class="self-center full-width no-outline" tabindex="0">{{numero_documento}}</div>
-            </template>
-          </q-field>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="enc_venta.Mp_Id"
-            :options="options_me_pago"
-            hint="Forma de pago"
-            :rules="[val => !!val || 'Forma de pago es obligatorio']"
-            map-options
-            emit-value
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="enc_venta.Mp_Id == 2">
-          <q-input
-            v-model="enc_venta.Ev_dias_credito"
-            mask="#######"
-            hint="Días de credito"
-            :rules="[val => !!val || 'Días de credito es obligatorio']"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-input
-            v-model="enc_venta.Ev_Impuesto"
-            type="text"
-            hint="Impuesto"
-            :rules="[val => !!val || 'Impuesto es obligatorio']"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="enc_venta.Ev_Descuentog"
-            :options="options_pre_venta"
-            hint="Precio de venta"
-            :rules="[validatePrecio]"
-            map-options
-            emit-value
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-select
-            v-model="movil_selecte"
-            :options="options_moviles"
-            hint="Movil"
-            :rules="[val => !!val || 'Movil es requerido']"
-            map-options
-            emit-value
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
-          <q-input hint="Fecha venta" v-model="enc_venta.Ev_Fecha_venta" :rules="[val => !!val || 'Ingrese fecha de venta']">
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date v-model="enc_venta.Ev_Fecha_venta" mask="YYYY-MM-DD">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-9 q-px-sm">
-          <q-input
-            v-model="ecn_garantia.Eg_Observacion"
-            hint="Observación para productos con garantía"
-          />
         </div>
       </div>
       <!-- Productos -->
@@ -200,7 +87,7 @@
       <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
     </q-form>
     <q-table
-      title="Productos a vender"
+      title="Productos a agregar"
       :data="data_sales"
       :columns="columns_sales"
       row-key="name"
@@ -412,6 +299,8 @@ export default {
       },
       tipo_accion: true, //Determina que acción va a realizar el usuario, si es cotización o venta
       validation: false, //Valida el cliente seleccionado
+      encebezado_venta: null,
+      enc_nota_debito: null,
     }
   },
   computed: {
@@ -438,10 +327,10 @@ export default {
           const res_product = await this.getStockMovil(value).then( res => {
             return res.data;
           });
-          // console.log({
-          //   msg: 'Respuesta get productos',
-          //   data: res_product
-          // });
+          console.log({
+            msg: 'Respuesta get productos',
+            data: res_product
+          });
           if(res_product.ok){
             all_product.length = 0;
             res_product.data.forEach( element => {  
@@ -515,6 +404,10 @@ export default {
       }
     }
   },
+  props: [
+    'prop_encabezado',
+    'prop_product'
+  ],
   created(){
     let timeStamp = Date.now()
     date_now = date.formatDate(timeStamp, 'YYYY-MM-DD')
@@ -534,6 +427,7 @@ export default {
       'getPercentSaleArt',
       'insertUpdateStockGarantia',
       'getPerSalePersona',
+      'getDetailSales'
     ]),
     getData(){
       this.$q.loading.show({
@@ -541,6 +435,24 @@ export default {
       });
       setTimeout(async()=> {
         try {
+          // Se asigna datos para el frontend
+          this.encebezado_venta = {
+            'NIT': this.prop_encabezado.CP_Nit,
+            'Impuesto': this.prop_encabezado.Ev_Impuesto,
+            'Días de crédito': this.prop_encabezado.Ev_dias_credito,
+            'Nombre vendedor': this.prop_encabezado.Per_Nombre,
+            'Documento vendedor': this.prop_encabezado.Per_Num_documento,
+            'Autoriza garantía': this.prop_encabezado.name_qautorizqa,
+            'Quién autoriza': this.prop_encabezado.Eg_Quien_autoriza,
+            'Observación': this.prop_encabezado.Eg_Observacion,
+            'Fecha venta': this.prop_encabezado.Ev_Fecha_venta,
+            Estado: this.prop_encabezado.Estado,
+          }
+          
+          // Se asigna datos para el encabezadoq que se guarda en base de datos
+          this.enc_nota_debito = this.prop_encabezado;
+          this.movil_selecte = this.enc_nota_debito.Mov_Id;
+
           const res_por_prod = await this.getPercentSaleArt().then( res => {
             return res.data;
           });
@@ -577,6 +489,59 @@ export default {
             })
           } else {
             throw new Error(res_por_prod.message);
+          }
+
+          const res_deta = await this.getDetailSales(this.prop_encabezado.Ev_Id).then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta get detalle venta",
+            data: res_deta
+          });
+          if (res_deta.ok) {
+            if (res_deta.result) {
+              this.data_sales.length = 0;
+              // Art_Codigo_inv: "CR- 11"
+              // Art_Descripcion: "GAFAS DE PROTECCION LENTE CLARO CONVENCIONAL MGP03"
+              // Art_Id: 11
+              // Dv_Cant: 1
+              // Dv_Precio_compra: 2376
+              // Dv_precio_venta: 3801.6
+              // Dv_valor_descuento: 40
+              // Ev_Id: 5599
+              // categoria: "GAFA"
+
+              // Ev_Id: null,
+              // base: process.env.__BASE__,
+              // codigo: this.producto_selecte.codigo,
+              // producto: this.producto_selecte.label,
+              // Art_Id: this.producto_selecte.value,
+              // Dv_Cant: this.cantidad,
+              // Dv_Precio_compra: this.producto_selecte.precio_compra,
+              // Dv_precio_venta: this.producto_selecte.precio_venta,
+              // Dv_valor_descuento: this.descuento_art.value,
+              // porcentaje_venta: this.producto_selecte.porcentaje_venta,
+              // subtotal_product: null,
+              // des_articulo: this.descuento_art.label,
+              // // Propiedade para actualizar el stock
+              // Mov_Id: this.movil_selecte,
+              // Si_Cant: this.cantidad + this.cantidad_garantia,
+              // simbol: '-',
+              res_deta.data.forEach(product => {
+                product.producto = product.Art_Descripcion;
+                product.codigo = product.Art_Codigo_inv;
+                // let descuento = percent_genres.find( porcentaje => porcentaje.value == product.Dv_valor_descuento )
+                // product.des_articulo = descuento.label;
+                this.data_sales.push(product);
+              });
+            } else {
+              this.$q.notify({
+                message: "Sin resultados",
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_deta.message);
           }
         } catch (e) {
           console.log(e);
