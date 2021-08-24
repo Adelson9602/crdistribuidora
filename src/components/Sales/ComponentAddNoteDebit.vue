@@ -525,27 +525,15 @@ export default {
     // Insert update stock con simbolo -
     ...mapActions('shopping', [
       'getProviders',
-      'getTpDoc',
     ]),
     ...mapActions('warehouse', [
       'updateInventarioMovil',
       'getStockMovil'
     ]),
-    ...mapActions('master', [
-      'getTiposComprobante',
-      'getMedioPago'
-    ]),
     ...mapActions('sales', [
       'getPercentSaleArt',
-      'getMovilUser',
-      'insertEncVenta',
-      'insertDetVenta',
-      'insertUpdateEncGarantia',
-      'insertDetGarantia',
       'insertUpdateStockGarantia',
       'getPerSalePersona',
-      'insertEncCotizacion',
-      'insertDetCotizacion'
     ]),
     getData(){
       this.$q.loading.show({
@@ -553,112 +541,6 @@ export default {
       });
       setTimeout(async()=> {
         try {
-          const res_provider = await this.getProviders().then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get proveedor',
-          //   data: res_provider
-          // });
-          if(res_provider.ok){
-            if(res_provider.result){
-              all_clients.length = 0;
-              res_provider.data.forEach( element => {
-                if(element.Tp_Id == 1 && element.CP_Razon_social){
-                  all_clients.push({
-                    label: element.CP_Razon_social,
-                    value: element.CP_Nit,
-                    tip_doc: element.Tp_Desc_corta
-                  })
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: 'Sin resultados',
-                type: 'warning'
-              });
-            }
-          } else {
-            throw new Error(res_provider.message);
-          }
-
-          const res_compro = await this.getTiposComprobante().then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get tipo de comprobante',
-          //   data: res_compro
-          // });
-          if(res_compro.ok){
-            if(res_compro.result){
-              all_comprobante.length = 0;
-              res_compro.data.forEach(element => {
-                if(element.Tc_Estado == 1){
-                  all_comprobante.push({
-                    label: element.Tc_Descripcion,
-                    value: element.Tc_Id
-                  });
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: 'Sin resultados',
-                type: 'warning'
-              });
-            }
-          } else {
-            throw new Error(res_compro.message);
-          }
-
-          const res_medio = await this.getMedioPago().then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get medio pago',
-          //   data: res_medio
-          // });
-          if(res_medio.ok){
-            all_medios.length = 0;
-            res_medio.data.forEach( element => {
-              if(element.Mp_Estado == 1){
-                all_medios.push({
-                  label: element.Mp_Descripcion,
-                  value: element.Mp_Id
-                });
-              }
-            })
-          } else {
-            throw new Error(res_medio.message);
-          }
-
-          const res_mov = await this.getMovilUser(this.data_user.Per_Num_documento).then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   message: 'Respuesta get moviles usuario',
-          //   data: res_mov
-          // });
-          if(res_mov.ok){
-            if(res_mov.result){
-              this.options_moviles.length = 0;
-              res_mov.data.forEach( element => {
-                if(element.Estado == 1){
-                  this.options_moviles.push({
-                    label: element.Mov_Descripcion,
-                    value: element.Mov_Id,
-                  })
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: 'Sin resultados',
-                type: 'warning'
-              })
-            }
-          } else {
-            throw new Error(res_mov.message);
-          }
-
           const res_por_prod = await this.getPercentSaleArt().then( res => {
             return res.data;
           });
@@ -721,140 +603,17 @@ export default {
       });
       setTimeout(async() => {
         try {
-          // this.tipo_accion = true, se realiza venta, caso contrario es cotización
-          if(this.tipo_accion){
-            this.enc_venta.Per_Num_documento = this.data_user.Per_Num_documento;
-            this.enc_venta.Ev_Estado = this.enc_venta.Mp_Id;
-            this.enc_venta.Ev_Entregado = this.enc_venta.Tc_Id == 2 ? 0 : 1;
-            this.enc_venta.Ev_conf_pago = this.enc_venta.Mp_Id == 1 ? 1 : 0;
-            this.enc_venta.Ev_Subtotal = this.subtotal_venta;
-            this.enc_venta.Ev_Des_total_art = this.Ev_Des_total_art;
-            this.enc_venta.Ev_Des_gen_venta = (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100)
-            this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
-            this.enc_venta.Mov_Id = this.movil_selecte;
-            this.enc_venta.Ev_Usuario_control = this.data_user.Per_Num_documento;
-            this.enc_venta.base = process.env.__BASE__;
-            const res_enc = await this.insertEncVenta(this.enc_venta).then( res => {
-              return res.data;
-            });
-            console.log({
-              msg: 'Respuesta insert enc venta',
-              data: res_enc
-            });
-            let promesas = [];
-            this.data_sales.forEach( product => {
-              product.Ev_Id = res_enc.data.insertId;
-              promesas.push(this.insertDetVenta(product).then( res => {
-                res.data.msg = 'Respuesta insert det venta';
-                return res.data;
-              }));
-              promesas.push(this.updateInventarioMovil(product).then( res => {
-                res.data.msg = 'Respuesta update inventario movil';
-                return res.data;
-              }))
-            });
-            if(this.cantidad_garantia){
-              this.ecn_garantia = {
-                base: process.env.__BASE__,
-                Eg_Id: null,
-                Eg_Quien_autoriza: 0,
-                Ev_Id: res_enc.data.insertId,
-                Eg_Observacion: null,
-                Eg_estado: 0,
-                Eg_User_control: this.data_user.Per_Num_documento,
-              }
-              const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
-                return res.data;
-              });
-              console.log({
-                msg: 'Respuesta insert enc garantia',
-                data: res_gara
-              });
-              if(!res_gara.data.affectedRows){
-                throw new Error(res_gara.message)
-              }
-              this.data_sales.forEach( product => {
-                product.Eg_Id = res_gara.data.insertId;
-                product.Dg_Cant = this.cantidad_garantia;
-                promesas.push(this.insertDetGarantia(product).then( res => {
-                  res.data.msg = 'Respuesta insert det garantía';
-                  return res.data;
-                }))
-                product.Sg_Cant = this.cantidad_garantia;
-                product.simbol = '+';
-                promesas.push(this.insertUpdateStockGarantia(product).then( res => {
-                  res.data.msg = 'Respuesta update stock garantía';
-                  return res.data;
-                }))
-              })
-            }
-            Promise.all(promesas).then( data => {
-              data.forEach( res => {
-                console.log(res)
-                if(!res.data.affectedRows){
-                  throw new Error(res.message);
-                }
-              })
-            })
-            this.$q.notify({
-              message: 'Venta realizada',
-              type: 'positive'
-            });
-          } else {
-            if(this.cliente_selected.value == 0){
-              this.$refs.select_client.focus();
-              this.validation = true;
-            } else {
-              let enc_cotizacion = {
-                base: process.env.__BASE__,
-                Ec_Id: null,
-                CP_Nit: this.cliente_selected.value,
-                Per_Num_documento: this.data_user.Per_Num_documento,
-                Mov_Id: this.movil_selecte,
-                Mp_Id: this.enc_venta.Mp_Id,
-                Tc_Id: 1,
-                Ec_vigencia: date_now,
-                Ec_Impuesto: this.enc_venta.Ev_Impuesto,
-                Ec_Subtotal: this.subtotal_venta,
-                Ec_Des_total_art: this.Ev_Des_total_art,
-                Ec_Descuentog: this.enc_venta.Ev_Descuentog,
-                Ec_Des_gen_venta: (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100),
-                Ec_Total_venta: this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta,
-                Ec_Estado: 1,
-                Ec_Usuario_control: this.data_user.Per_Num_documento,
-              }
-              const res_enc = await this.insertEncCotizacion(enc_cotizacion).then( res => {
-                return res.data;
-              });
-              console.log({
-                msg: 'Respuesta insert encabezado cotización',
-                data: res_enc
-              })
-              if(res_enc.ok){
-                let promesas = [];
-                this.data_sales.forEach( product => {
-                  product.Ec_Id = res_enc.data.insertId;
-                  promesas.push(this.insertDetCotizacion(product).then( res => {
-                    res.data.msg = 'Respuesta insert detalle cotización'
-                    return res.data;
-                  }))
-                });
-                Promise.all(promesas).then( data => {
-                  data.forEach( res => {
-                    console.log({
-                      msg: 'Respueta insert det cotización',
-                      data: res
-                    })
-                    if(!res.data.affectedRows){
-                      throw new Error(res.message);
-                    }
-                  })
-                })
-              } else {
-                throw new Error(res_enc.message)
-              }
-            }
-          }
+          this.enc_venta.Per_Num_documento = this.data_user.Per_Num_documento;
+          this.enc_venta.Ev_Estado = this.enc_venta.Mp_Id;
+          this.enc_venta.Ev_Entregado = this.enc_venta.Tc_Id == 2 ? 0 : 1;
+          this.enc_venta.Ev_conf_pago = this.enc_venta.Mp_Id == 1 ? 1 : 0;
+          this.enc_venta.Ev_Subtotal = this.subtotal_venta;
+          this.enc_venta.Ev_Des_total_art = this.Ev_Des_total_art;
+          this.enc_venta.Ev_Des_gen_venta = (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100)
+          this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+          this.enc_venta.Mov_Id = this.movil_selecte;
+          this.enc_venta.Ev_Usuario_control = this.data_user.Per_Num_documento;
+          this.enc_venta.base = process.env.__BASE__;
           this.$emit('reload')
         } catch (e) {
           console.log(e);

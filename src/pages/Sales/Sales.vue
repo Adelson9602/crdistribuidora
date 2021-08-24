@@ -159,7 +159,10 @@
                   </q-tab-panel>
 
                   <q-tab-panel name="nota_debito">
-                    <component-add-note-debit />
+                    <component-add-note-debit
+                      :prop_encabezado="encabezado_selected"
+                      :prop_product="data_products"
+                    />
                   </q-tab-panel>
                 </q-tab-panels>
               </q-card-section>
