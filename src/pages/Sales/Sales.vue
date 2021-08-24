@@ -60,7 +60,7 @@
             </template>
           </component-table>
           <!-- Dialogo para ver el detalle de la venta -->
-          <q-dialog v-model="dialog_detail" persistent full-width>
+          <q-dialog v-model="dialog_detail" persistent full-height full-width>
             <q-card>
               <q-bar dark class="bg-primary text-white">
                 <div class="col text-center text-weight-bold">
