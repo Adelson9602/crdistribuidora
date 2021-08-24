@@ -21,6 +21,7 @@
     <q-form
       @submit="addProduct"
       class="q-gutter-md"
+      ref="form_sales"
     >
       <!-- Productos -->
       <div class="row">
@@ -62,13 +63,12 @@
           </q-field>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
+          <!-- val => val != 0 || 'La cantida no puede ser 0' -->
           <q-input
             v-model="cantidad"
             hint="Nueva cantidad"
             mask="############"
-            :rules="[val => !!val || 'Cantidad es obligatorio',
-              val => val != 0 || 'La cantida no puede ser 0'
-            ]"
+            :rules="[val => !!val || 'Cantidad es obligatorio']"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
@@ -94,7 +94,7 @@
                 class="self-center full-width no-outline"
                 tabindex="0"
               >
-                {{enc_nota_credito.Ev_Subtotal}}
+                $ {{new Intl.NumberFormat().format(Ev_Subtotal)}}
               </div>
             </template>
           </q-field>
@@ -106,7 +106,7 @@
                 class="self-center full-width no-outline"
                 tabindex="0"
               >
-                {{enc_nota_credito.Ev_Des_total_art}}
+                $ {{new Intl.NumberFormat().format(Ev_Des_total_art)}}
               </div>
             </template>
           </q-field>
@@ -118,7 +118,7 @@
                 class="self-center full-width no-outline"
                 tabindex="0"
               >
-                {{enc_nota_credito.Ev_Total_venta}}
+                $ {{new Intl.NumberFormat().format(total_venta)}}
               </div>
             </template>
           </q-field>
@@ -145,6 +145,11 @@ export default {
       cant_vendida: null,
       precio_vendido: null,
       cantidad: null,
+      subtotal_venta: null,
+      total_venta: null,
+      Ev_Subtotal: null,
+      Ev_Des_total_art: null,
+      Ev_Des_gen_venta: null,
       data_products_sales: [],
       columns_products: [
         {
@@ -182,6 +187,13 @@ export default {
           sortable: true,
           field: 'Dv_precio_venta'
         },
+        {
+          name: 'subtotal_product',
+          align: 'center',
+          label: 'Subtotal',
+          sortable: true,
+          field: 'subtotal_product'
+        },
       ],
       enc_nota_credito: {
         base: null,
@@ -218,8 +230,6 @@ export default {
       if(value){
         this.cant_vendida = value.cantidad;
         this.precio_vendido = new Intl.NumberFormat().format(value.precio_venta);
-        console.log(value)
-        console.log(this.precio_vendido)
       }
     }
   },
@@ -244,6 +254,9 @@ export default {
 
       // Se asigna datos para el encabezadoq que se guarda en base de datos
       this.enc_nota_credito = this.prop_encabezado;
+      this.Ev_Subtotal = this.enc_nota_credito.Ev_Subtotal;
+      this.Ev_Des_total_art = this.enc_nota_credito.Ev_Des_total_art;
+      this.total_venta = this.enc_nota_credito.Ev_Total_venta;
 
       all_product.length = 0;
       this.prop_product.forEach(element => {
@@ -258,29 +271,6 @@ export default {
           Ev_Id: element.Ev_Id
         })
       });
-      // this.$q.loading.show({
-      //   message: 'Obteniendo datos del servidor, por favor espere...'
-      // });
-      // setTimeout(async() => {
-      //   try {
-      //   } catch (e) {
-      //     console.log(e);
-      //     if (e.message === "Network Error") {
-      //       e = e.message;
-      //     }
-      //     if (e.message === "Request failed with status code 404") {
-      //       e = "URL de solicitud no existe, err 404";
-      //     } else if (e.message) {
-      //       e = e.message;
-      //     }
-      //     this.$q.notify({
-      //       message: e,
-      //       type: "negative",
-      //     });
-      //   } finally {
-      //     this.$q.loading.hide();
-      //   }
-      // }, 2000)
     },
     addProduct(){
       let product_add = {
@@ -306,8 +296,41 @@ export default {
           type: 'warning'
         })
       } else {
+        // subtotal_product = precio_compra + (porcentaje_venta * precio_compra / 100) *
+
+        // Ev_Subtotal => venta_total sin ningun descuento ***
+        // Ev_Des_total_art => Suma total de lo que se desconto por cada articulo, cliente aa ... *
+        // Ev_Total_venta => Ev_Subtotal - Ev_Des_total_art - Ev_Des_gen_venta *
+        // Ev_Descuentog => porcentaje descuento de la factura final (10% ...)
+        // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
+        // diferencia entre precio venta y subtotal
+
+        if(this.cantidad > 0){
+          product_add.subtotal_product = product_add.Dv_Precio_compra + (product_add.porcentaje_venta * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
+        } else {
+          product_add.subtotal_product = 0;
+        }
+        this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
+
+        this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
+        
+        this.Ev_Subtotal = this.subtotal_venta;
+
+        this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_nota_credito.Ev_Descuentog / 100 );
+
+        this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+
         this.data_products_sales.push(product_add)
+        this.onReset();
       }
+    },
+    onReset(){
+      this.producto_selecte = null;
+      this.cantidad = null;
+      this.cant_vendida = null;
+      setTimeout(() => {
+        this.$refs.form_sales.resetValidation();
+      }, 300)
     },
     // Buscador para el select medio de pago
     filterProducts(val, update, abort){
