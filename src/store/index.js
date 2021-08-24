@@ -9,6 +9,7 @@ import shopping from './Shopping';
 import notifications from './Notifications';
 import movements from './Movements';
 import credits from './Credits';
+import desktop from './Desktop';
 
 import createPersistedState from 'vuex-persistedstate';
 
@@ -34,7 +35,8 @@ export default function (/* { ssrContext } */) {
       shopping,
       notifications,
       movements,
-      credits
+      credits,
+      desktop
     },
     plugins: [createPersistedState()],
     // enable strict mode (adds overhead!)
