@@ -3,110 +3,172 @@
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
-      :width="270" 
+      :width="270"
       elevated
       bordered
       content-class="bg-grey-1"
       :breakpoint="1024"
     >
       <div class="header-sidebar shadow-4" elevated>
-        <img src="../statics/logo_menu.png" alt="logo de CR Distribuidora" class="img-logo">
+        <img
+          src="../statics/logo_menu.png"
+          alt="logo de CR Distribuidora"
+          class="img-logo"
+        />
         <div class="version">
-          {{version}}
+          {{ version }}
         </div>
       </div>
-      <q-scroll-area class="bg-transparent" style="height: calc(100% - 60px); ">
+      <q-scroll-area class="bg-transparent" style="height: calc(100% - 60px)">
         <q-item class="sidebar__user">
-        <router-link to="/access/profile" class="no-decoration">
-          <q-item-section clickable v-ripple side>
-            <q-avatar size="50px">
-              <img src='https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png' />
-              <!-- <img :src="data_user.Foto ? data_user.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
-            </q-avatar>
-          </q-item-section>
-        </router-link>
-        <router-link to="/access/profile" class="no-decoration">
-          <q-item-section>
-            <q-item-label class="sidebar__user-name"
-              >
-              {{data_user.Per_Nombre}}
-              </q-item-label
+          <router-link to="/access/profile" class="no-decoration">
+            <q-item-section clickable v-ripple side>
+              <q-avatar size="50px">
+                <img
+                  src="https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png"
+                />
+                <!-- <img :src="data_user.Foto ? data_user.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
+              </q-avatar>
+            </q-item-section>
+          </router-link>
+          <router-link to="/access/profile" class="no-decoration">
+            <q-item-section>
+              <q-item-label class="sidebar__user-name">
+                {{ data_user.Per_Nombre }}
+              </q-item-label>
+              <q-item-label caption class="sidebar__text-rol">
+                {{ data_user.Rol_Descripcion }}
+              </q-item-label>
+            </q-item-section>
+          </router-link>
+          <q-item-section side style="overflow: hidden">
+            <q-btn
+              dense
+              round
+              flat
+              icon="notifications"
+              class="notificaciones__icon"
             >
-            <q-item-label caption class="sidebar__text-rol">
-              {{data_user.Rol_Descripcion}}
-            </q-item-label>
+              <q-badge
+                color="red"
+                rounded
+                floating
+                transparent
+                v-if="count_notifications > 0"
+              >
+                {{ count_notifications }}
+              </q-badge>
+              <q-menu
+                anchor="top right"
+                self="top left"
+                :offset="[30, 0]"
+                class="no-scroll"
+                style="overflow: hidden"
+              >
+                <q-list
+                  style="max-width: 300px; min-width: 300px; overflow: hidden"
+                  class="no-scroll"
+                >
+                  <q-item class="notificaciones__title">
+                    <q-item-label caption>Notificaciones</q-item-label>
+                    <router-link to="/notificaciones">
+                      <q-item-label class="notificaciones__link" caption
+                        >Ver todas</q-item-label
+                      >
+                    </router-link>
+                  </q-item>
+
+                  <q-separator />
+                  <div
+                    v-if="notifications.length > 0"
+                    class="notifications__content"
+                  >
+                    <div
+                      v-for="(notification, index) in notifications"
+                      :key="index"
+                    >
+                      <q-item
+                        clickable
+                        @click="editEstadoNotification(notification)"
+                      >
+                        <q-item-section>
+                          <q-item-label>{{
+                            notification.nt_titulo
+                          }}</q-item-label>
+                          <q-item-label caption lines="2">{{
+                            notification.nt_descripcion
+                          }}</q-item-label>
+                        </q-item-section>
+
+                        <q-item-section side top>
+                          <q-item-label v-if="notification.dias > 0" caption
+                            >hace {{ notification.dias }} dia<span
+                              v-if="notification.dias > 1"
+                              >s</span
+                            ></q-item-label
+                          >
+
+                          <q-item-label
+                            v-if="
+                              notification.horas < 24 && notification.horas > 0
+                            "
+                            caption
+                            >hace {{ notification.horas }} horas</q-item-label
+                          >
+
+                          <q-item-label
+                            v-if="
+                              notification.minutos < 59 &&
+                              notification.minutos > 0
+                            "
+                            caption
+                            >hace {{ notification.minutos }} minuto<span
+                              v-if="notification.minutos > 1"
+                              >s</span
+                            ></q-item-label
+                          >
+
+                          <q-item-label v-if="notification.minutos <= 0" caption
+                            >hace un momento</q-item-label
+                          >
+                          <q-icon
+                            name="circle"
+                            color="blue"
+                            size="10px"
+                            style="margin-top: 10px"
+                            v-if="notification.nt_estado == 1"
+                          />
+                        </q-item-section>
+                      </q-item>
+                      <q-separator spaced inset />
+                    </div>
+                  </div>
+                  <div v-else class="notifications__content">
+                    <div>
+                      <q-item clickable>
+                        <q-item-section>
+                          <q-item-label>Sin notificaciones</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                      <q-separator spaced inset />
+                    </div>
+                  </div>
+                </q-list>
+              </q-menu>
+            </q-btn>
           </q-item-section>
-        </router-link>
-        <q-item-section side style="overflow: hidden;">
-          <q-btn dense round flat icon="notifications" class="notificaciones__icon">
-            <q-badge color="red" rounded floating transparent v-if="count_notifications > 0"> 
-              {{count_notifications}} 
-            </q-badge>
-            <q-menu anchor="top right" self="top left" :offset="[30, 0]" class="no-scroll" style="overflow: hidden;"> 
-              <q-list style="max-width: 300px; min-width: 300px; overflow: hidden;" class="no-scroll">
-                <q-item class="notificaciones__title">
-                  <q-item-label caption>Notificaciones</q-item-label>
-                  <router-link to="/notificaciones">
-                    <q-item-label class="notificaciones__link" caption>Ver todas</q-item-label>
-                  </router-link>
-                </q-item>
-
-                <q-separator />
-                <div v-if="notifications.length > 0" class="notifications__content">
-                  <div v-for="(notification, index) in notifications" :key="index">
-                    <q-item clickable @click="editEstadoNotification(notification)">
-                      <q-item-section>
-                        <q-item-label>{{notification.nt_titulo}}</q-item-label>
-                        <q-item-label caption lines="2"
-                          >{{notification.nt_descripcion}}</q-item-label
-                        >
-                      </q-item-section>
-
-                      <q-item-section side top>
-                        <q-item-label v-if="notification.dias > 0" caption>hace {{notification.dias}} dia<span v-if="notification.dias > 1">s</span></q-item-label>
-
-                        <q-item-label v-if="notification.horas < 24 && notification.horas > 0" caption>hace {{notification.horas}} horas</q-item-label>
-
-                        <q-item-label v-if="notification.minutos < 59 && notification.minutos > 0" caption>hace {{notification.minutos}} minuto<span v-if="notification.minutos > 1">s</span></q-item-label>
-
-                        <q-item-label v-if="notification.minutos <= 0" caption>hace un momento</q-item-label>
-                        <q-icon
-                          name="circle"
-                          color="blue"
-                          size="10px"
-                          style="margin-top: 10px"
-                          v-if="notification.nt_estado == 1"
-                        />
-                      </q-item-section>
-                    </q-item>
-                    <q-separator spaced inset />
-                  </div>
-                </div>
-                <div v-else class="notifications__content">
-                  <div>
-                    <q-item clickable>
-                      <q-item-section>
-                        <q-item-label>Sin notificaciones</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-separator spaced inset />
-                  </div>
-                </div>
-              </q-list>
-            </q-menu>
-          </q-btn>
-        </q-item-section>
-      </q-item>
-      <!-- <hr class="sidebar-separator" /> -->
-        <q-item-label
-          header
-          class="text-grey-8 sidebar__title-navegation"
-        >
+        </q-item>
+        <!-- <hr class="sidebar-separator" /> -->
+        <q-item-label header class="text-grey-8 sidebar__title-navegation">
           <b>Navegación</b>
         </q-item-label>
-        <q-list class="bg-transparent" v-for="(menu, index) in menu" :key="index">
+        <q-list
+          class="bg-transparent"
+          v-for="(menu, index) in menu"
+          :key="index"
+        >
           <q-expansion-item
-              group="somegroup"
+            group="somegroup"
             :content-inset-level="0.3"
             expand-separator
             :icon="menu.icon"
@@ -123,14 +185,14 @@
               <q-item-section avatar>
                 <q-icon name="arrow_right" />
               </q-item-section>
-              <q-item-section>{{item.label}}</q-item-section>
+              <q-item-section>{{ item.label }}</q-item-section>
             </q-item>
           </q-expansion-item>
           <q-item v-if="!menu.expanded" clickable v-ripple :to="menu.route">
             <q-item-section avatar>
               <q-icon :name="menu.icon" />
             </q-item-section>
-            <q-item-section>{{menu.label}}</q-item-section>
+            <q-item-section>{{ menu.label }}</q-item-section>
           </q-item>
         </q-list>
         <q-item clickable v-ripple @click="logout">
@@ -165,7 +227,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 
 export default {
   // name: 'LayoutName',
-name: 'MainLayout',
+  name: "MainLayout",
   data() {
     return {
       base: process.env.__BASE__,
@@ -181,121 +243,135 @@ name: 'MainLayout',
       count_notifications: null,
     };
   },
-  mounted(){
+  mounted() {
     this.version = process.env.__VERSION__;
-    window.addEventListener('online', () => {
-      this.setIsOnline(true)
+    window.addEventListener("online", () => {
+      this.setIsOnline(true);
     }),
-    window.addEventListener('offline', () => {
-      this.setIsOnline(false)
-    });
+      window.addEventListener("offline", () => {
+        this.setIsOnline(false);
+      });
     this.getNotificaciones();
     this.menu = [
       {
-        label: 'Escritorio',
-        icon: 'dashboard',
+        label: "Escritorio",
+        icon: "dashboard",
         visible: true,
         expanded: false,
-        route: '/desktop'
+        route: "/desktop",
       },
       {
-        label: 'Acceso',
-        icon: 'desktop_windows',
+        label: "Acceso",
+        icon: "desktop_windows",
         visible: true,
         expanded: true,
-        route: '/access/goals',
+        route: "/access/goals",
         items: [
-          {label: 'Metas', route: 'access/goals'},
-          {label: 'Permisos', route: 'access/permissions'},
-          {label: 'Usuarios', route: 'access/users'},
-        ]
+          { label: "Metas", route: "access/goals" },
+          { label: "Permisos", route: "access/permissions" },
+          { label: "Usuarios", route: "access/users" },
+        ],
       },
       {
-        label: 'Almacen',
-        icon: 'mdi-warehouse',
+        label: "Almacen",
+        icon: "mdi-warehouse",
         visible: true,
         expanded: true,
-        route: '/warehouse/articles',
+        route: "/warehouse/articles",
         items: [
-          { label: "Artículos", route: "warehouse/articles" }, 
+          { label: "Artículos", route: "warehouse/articles" },
           { label: "Categorías", route: "warehouse/categories" },
-          { label: "Traslado de bodega", route: "warehouse/warehouse_transfer" },
+          {
+            label: "Traslado de bodega",
+            route: "warehouse/warehouse_transfer",
+          },
           { label: "Inventario", route: "warehouse/inventory" },
-        ]
+        ],
       },
       {
-        label: 'Maestras',
-        icon: 'mdi-puzzle-plus',
+        label: "Maestras",
+        icon: "mdi-puzzle-plus",
         visible: true,
         expanded: true,
-        route: '/master/percentage',
+        route: "/master/percentage",
         items: [
-     
           { label: "% de ventas", route: "master/percentsales" },
-            { label: "Cargos", route: "master/charges" },
-        
-        ]
+          { label: "Cargos", route: "master/charges" },
+        ],
       },
       {
-        label: 'Compras',
-        icon: 'shopping_bag',
+        label: "Compras",
+        icon: "shopping_bag",
         visible: true,
         expanded: true,
         items: [
           { label: "Ingresos", route: "purchases/income" },
           { label: "Proveedores", route: "purchases/providers" },
-          { label: "Salidas garantias", route: "purchases/departures_guarantees" },
-        ]
+          {
+            label: "Salidas garantias",
+            route: "purchases/departures_guarantees",
+          },
+        ],
       },
       {
-        label: 'Ventas',
-        icon: 'sell',
+        label: "Ventas",
+        icon: "sell",
         visible: true,
-        expanded:true,
-        route: '/sales/sales',
+        expanded: true,
+        route: "/sales/sales",
         items: [
           { label: "Ventas", route: "sales/sales" },
           { label: "Garantias de ventas", route: "sales/sales_guarantees" },
           { label: "Clientes", route: "sales/customers" },
           { label: "Consulta stock", route: "sales/stock_inquiry" },
-        ]
+        ],
       },
       {
-        label: 'Movimientos',
-        icon: 'mdi-transfer',
+        label: "Movimientos",
+        icon: "mdi-transfer",
         visible: true,
         expanded: true,
         items: [
           { label: "Consulta Vendedor", route: "movements/consult_seller" },
           { label: "Consulta Utilidad", route: "movements/consult_utility" },
           { label: "Ventas para alistar", route: "movements/sales_to_list" },
-        ]
+        ],
       },
       {
-        label: 'Créditos',
-        icon: 'mdi-cash-multiple',
+        label: "Créditos",
+        icon: "mdi-cash-multiple",
         visible: true,
         expanded: true,
         items: [
-          { label: "Créditos Cliente", route: "check_credits/customer_credits" },
-          { label: "Créditos Proveedor", route: "check_credits/provider_credits" },
-        ]
+          {
+            label: "Créditos Cliente",
+            route: "check_credits/customer_credits",
+          },
+          {
+            label: "Créditos Proveedor",
+            route: "check_credits/provider_credits",
+          },
+        ],
       },
-    ]
-    
+    ];
   },
   computed: {
     ...mapState("auth", ["user_logged"]),
     data_user() {
       return this.user_logged;
-    }
+    },
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged"]),
     ...mapMutations("app", ["setIsOnline"]),
-    ...mapActions("notifications", ["GetNotifications", "PostInsertNotification"]),
-    async getNotificaciones(){
-      const resGetNotifications = await this.GetNotifications(this.data_user.Per_Num_documento).then((res) => {
+    ...mapActions("notifications", [
+      "GetNotifications",
+      "PostInsertNotification",
+    ]),
+    async getNotificaciones() {
+      const resGetNotifications = await this.GetNotifications(
+        this.data_user.Per_Num_documento
+      ).then((res) => {
         return res.data.data;
       });
       console.log({
@@ -312,18 +388,18 @@ name: 'MainLayout',
           nt_fecha_control: element.nt_fecha_control,
           dias: element.dias,
           horas: element.horas,
-          minutos: element.minutos, 
+          minutos: element.minutos,
           nt_estado: element.nt_estado,
         });
         // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
-        if(element.nt_estado == 1){
-          this.count_notifications += 1
+        if (element.nt_estado == 1) {
+          this.count_notifications += 1;
         }
       });
     },
-    async editEstadoNotification(notification){
-      try{
-        if(notification.nt_estado == 1){
+    async editEstadoNotification(notification) {
+      try {
+        if (notification.nt_estado == 1) {
           let dataPostInsertNotification = {
             nt_id: notification.nt_id,
             nt_titulo: notification.nt_titulo,
@@ -331,21 +407,23 @@ name: 'MainLayout',
             nt_usuario_notificado: notification.nt_usuario_notificado,
             nt_estado: 0,
             nt_usuario_control: notification.nt_usuario_control,
-            base: this.base, 
+            base: this.base,
           };
-          const resPostInsertNotification = await this.PostInsertNotification(dataPostInsertNotification).then((res) => {
+          const resPostInsertNotification = await this.PostInsertNotification(
+            dataPostInsertNotification
+          ).then((res) => {
             return res.data;
           });
           console.log({
             msg: "Edit estado de notificación",
             data: resPostInsertNotification,
           });
-          if(resPostInsertNotification.data.affectedRows > 0){
+          if (resPostInsertNotification.data.affectedRows > 0) {
             this.onResetNotifs();
             this.getNotificaciones();
           }
         }
-      }catch (e) {
+      } catch (e) {
         console.log(e);
         if (e.message === "Error de conexión") {
           e = e.message;
@@ -362,12 +440,12 @@ name: 'MainLayout',
         this.$q.loading.hide();
       }
     },
-    reloadNotifications(){
+    reloadNotifications() {
       this.notifications = [];
       this.count_notifications = null;
       this.getNotificaciones();
     },
-    onResetNotifs(){
+    onResetNotifs() {
       this.notifications = [];
       this.count_notifications = null;
     },
@@ -381,22 +459,22 @@ name: 'MainLayout',
         this.$q.loading.hide();
       }, 1000);
     },
-    deleteCache(){
+    deleteCache() {
       this.$q.loading.show({
         message: "Borrando datos, por favor espere...",
       });
-      setTimeout(()=> {
+      setTimeout(() => {
         // caches.delete('Qinspecting-Inmutable');
-        caches.delete('Qinspecting-Dinamico');
+        caches.delete("Qinspecting-Dinamico");
         localStorage.clear();
         this.dialog_delete_cache = false;
         this.$q.notify({
-          message: 'Datos borrados',
-          type: 'positive'
-        })
+          message: "Datos borrados",
+          type: "positive",
+        });
         this.$q.loading.hide();
         location.reload();
-      }, 2000)
+      }, 2000);
     },
   },
 };
@@ -415,7 +493,7 @@ name: 'MainLayout',
   background: linear-gradient(90deg, rgba(249,167,38) 0%, rgba(249,167,38) 0%, rgba(249,167,38) 30%, rgba(249,167,38) 53%, rgba(249,167,38) 90%, rgba(249,167,38) 100%);
   color: #fff;
 } */
-.separator{
+.separator {
   margin: 10px 20px;
 }
 
@@ -436,7 +514,7 @@ name: 'MainLayout',
   padding: 10px 0;
 }
 
-.sidebar__title-navegation{
+.sidebar__title-navegation {
   padding: 10px 16px 0;
 }
 
@@ -467,7 +545,15 @@ name: 'MainLayout',
 .sidebar__user {
   border-radius: 5px;
   margin: 10px 10px 7px 10px;
-  background: linear-gradient(90deg, rgba(249,167,38) 0%, rgba(249,167,38) 0%, rgba(249,167,38) 30%, rgba(249,167,38) 53%, rgba(249,227,38) 100%, rgba(249,227,38) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(249, 167, 38) 0%,
+    rgba(249, 167, 38) 0%,
+    rgba(249, 167, 38) 30%,
+    rgba(249, 167, 38) 53%,
+    rgba(249, 227, 38) 100%,
+    rgba(249, 227, 38) 100%
+  );
   color: #fff;
 }
 
@@ -477,8 +563,8 @@ name: 'MainLayout',
   text-transform: uppercase;
 }
 
-.sidebar__text-rol{
-  color: #FFF;
+.sidebar__text-rol {
+  color: #fff;
   text-transform: capitalize;
 }
 
@@ -493,13 +579,13 @@ name: 'MainLayout',
 .notificaciones {
   min-height: min-content;
 }
-.notificaciones__icon{
+.notificaciones__icon {
   border: none;
   color: #fff;
 }
 
 /* Notifications */
-.notificaciones__title{
+.notificaciones__title {
   position: absolute;
   top: 0;
   left: 0;
@@ -508,26 +594,26 @@ name: 'MainLayout',
   width: 100%;
 }
 
-.notifications__content{
+.notifications__content {
   margin-top: 30px;
 }
 
-.notificaciones__link{
+.notificaciones__link {
   float: right;
   text-decoration: underline;
   font-weight: bold;
 }
 
-.q-position-engine::-webkit-scrollbar{
-    width:10px;
-    background:#fff
+.q-position-engine::-webkit-scrollbar {
+  width: 10px;
+  background: #fff;
 }
-.q-position-engine::-webkit-scrollbar-thumb{
-    background:#C5C5C5;
-    border-left:.1px solid #fff;
-    border-right:.1px solid #fff;
+.q-position-engine::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-left: 0.1px solid #fff;
+  border-right: 0.1px solid #fff;
 }
-.btn-menu{
+.btn-menu {
   height: 50px;
 }
 </style>
