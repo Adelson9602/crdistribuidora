@@ -118,7 +118,7 @@
     <!-- CHARTS -->
     <div class="row q-gutter-y-md">
       <div class="col-xs-12 col-sm-6 col-md-8 q-px-md">
-        <apexchart type="line" height="350" :options="options_line" :series="data_line" />
+        <apexchart type="line" height="350" :options="options_line" :series="data_line" v-if="render_chart"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4 q-px-md">
         <apexchart type="area" height="350" :options="options_area" :series="data_area" />
@@ -134,7 +134,10 @@
 </template>
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
+import { date } from 'quasar'
 import VueApexCharts from 'vue-apexcharts';
+let cat_prod_more_sales = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']; //Categorias de productos mas vendidos
+let cat_daily_sales = ['19/08/2021', '18/08/2021', '17/08/2021'];
 export default {
   components: {
     apexchart: VueApexCharts
@@ -143,7 +146,7 @@ export default {
     return {
       data_line: [{
         name: 'Sales',
-        data: [4, 3, 10, 9, 29, 19, 22, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5]
+        data: [{ x: '05/06/2014', y: 54 }, { x: '05/08/2014', y: 17 } , { x: '05/28/2014', y: 26 }]
       }],
       options_line: {
         chart: {
@@ -158,14 +161,23 @@ export default {
           curve: 'smooth'
         },
         xaxis: {
-          type: 'datetime',
-          categories: ['1/11/2000', '2/11/2000', '3/11/2000', '4/11/2000', '5/11/2000', '6/11/2000', '7/11/2000', '8/11/2000', '9/11/2000', '10/11/2000', '11/11/2000', '12/11/2000', '1/11/2001', '2/11/2001', '3/11/2001','4/11/2001' ,'5/11/2001' ,'6/11/2001'],
+          type: 'category',
+          categories: [
+            'Apples',
+            'Oranges',
+            'Strawberries',
+            'Pineapples',
+            'Mangoes',
+            'Bananas',
+            'Blackberries',
+            'Pears',
+            'Watermelons',
+            'Quararibea cordata (Chupa Chupa)',
+            'Pomegranates',
+            'Tangerines',
+            'Papayas'
+          ],
           tickAmount: 10,
-          labels: {
-            formatter: function(value, timestamp, opts) {
-              return opts.dateFormatter(new Date(timestamp), 'dd MMM')
-            }
-          }
         },
         title: {
           text: 'Forecast',
@@ -222,13 +234,13 @@ export default {
       },
       data_bar: [
         {
-          name: 'Net Profit',
-          data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+          name: 'Bombillos',
+          data: [44]
         }, {
-          name: 'Revenue',
-          data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+          name: 'Duchas',
+          data: [76]
         }, {
-          name: 'Free Cash Flow',
+          name: 'Guantes',
           data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
         }
       ],
@@ -253,11 +265,11 @@ export default {
           colors: ['transparent']
         },
         xaxis: {
-          categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+          categories: cat_prod_more_sales,
         },
         yaxis: {
           title: {
-            text: '$ (thousands)'
+            text: '$ (Productos más vendidos)'
           }
         },
         fill: {
@@ -266,19 +278,105 @@ export default {
         tooltip: {
           y: {
             formatter: function (val) {
-              return "$ " + val + " thousands"
+              return "$ " + val + " vendidos"
             }
           }
         }
       },
+      render_chart: false,
     };
   },
   computed: {
   },
   created() {
+    this.getData();
   },
   methods: {
-    
+    ...mapActions('desktop', [
+      'chartProductMoreSales',
+      'chartDailySales'
+    ]),
+    getData(){
+      this.$q.loading.show({
+        message: 'Obteniendo datos del servidor, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          const res_pro_sales = await this.chartProductMoreSales().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get gráfica productos mas vendidos',
+            data: res_pro_sales
+          });
+          if(res_pro_sales.ok){
+            if(res_pro_sales.result){
+              cat_prod_more_sales.length = 0;
+              // this.data_bar.length = 0;
+              res_pro_sales.data.forEach( product => {
+                // this.data_bar.push({
+                //   name: product.Art_Nombre,
+                //   data: [product.cant]
+                // })
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_pro_sales.message)
+          }
+
+          const res_dai_sale = await this.chartDailySales().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get gráfica ventas diarias',
+            data: res_dai_sale
+          });
+          if(res_dai_sale.ok){
+            if(res_dai_sale.result){
+              cat_daily_sales.length = 0;
+              this.data_line[0].length = 0;
+              res_dai_sale.data.forEach( venta => {
+                let fecha = new Date(venta.Ev_Fecha_venta);
+                let fecha_formated = date.formatDate(fecha, 'DD/MM/YYYY');
+                console.log(fecha_formated)
+                cat_daily_sales.push(fecha_formated)
+                this.data_line[0].data.push(venta.cant)
+              });
+              console.log(this.data_line)
+              this.render_chart = true;
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_dai_sale.message)
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
+    }
   }
 };
 </script>
