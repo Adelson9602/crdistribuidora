@@ -7,18 +7,13 @@
 </template>
 
 <script>
-
 export default {
-  name: 'MainLayout',
+  name: "MainLayout",
 
-  components: {
-    
+  components: {},
+
+  data() {
+    return {};
   },
-
-  data () {
-    return {
-      
-    }
-  }
-}
+};
 </script>
