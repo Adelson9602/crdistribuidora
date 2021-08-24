@@ -159,26 +159,7 @@
                   </q-tab-panel>
 
                   <q-tab-panel name="nota_debito">
-                    <!-- Encabezado -->
-                    <div class="row">
-                      <div
-                        class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
-                        v-for="(value, index) in encebezado_venta"
-                        :key="index"
-                      >
-                        <!-- Items para entregados -->
-                        <q-field :hint="index" stack-label dense>
-                          <template v-slot:control>
-                            <div
-                              class="self-center full-width no-outline"
-                              tabindex="0"
-                            >
-                              {{ value }}
-                            </div>
-                          </template>
-                        </q-field>
-                      </div>
-                    </div>
+                    <component-add-note-debit />
                   </q-tab-panel>
                 </q-tab-panels>
               </q-card-section>
