@@ -13,8 +13,8 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat color="primary" label="Cancelar" @click="onCancelClick" />
-        <q-btn color="green" label="Continuar" @click="onOKClick" />
+        <q-btn flat color="primary" label="No" @click="onCancelClick" />
+        <q-btn color="green" label="Si" @click="onOKClick" />
       </q-card-actions>
     </q-card>
   </q-dialog>
