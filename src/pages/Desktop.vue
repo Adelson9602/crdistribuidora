@@ -137,7 +137,8 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import { date } from 'quasar'
 import VueApexCharts from 'vue-apexcharts';
 let cat_prod_more_sales = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']; //Categorias de productos mas vendidos
-let cat_daily_sales = ['19/08/2021', '18/08/2021', '17/08/2021'];
+let cat_daily_sales = []; //
+let data_daily_sales = [];
 export default {
   components: {
     apexchart: VueApexCharts
@@ -145,8 +146,8 @@ export default {
   data() {
     return {
       data_line: [{
-        name: 'Sales',
-        data: [{ x: '05/06/2014', y: 54 }, { x: '05/08/2014', y: 17 } , { x: '05/28/2014', y: 26 }]
+        name: 'Ventas díarias',
+        data: data_daily_sales
       }],
       options_line: {
         chart: {
@@ -162,25 +163,11 @@ export default {
         },
         xaxis: {
           type: 'category',
-          categories: [
-            'Apples',
-            'Oranges',
-            'Strawberries',
-            'Pineapples',
-            'Mangoes',
-            'Bananas',
-            'Blackberries',
-            'Pears',
-            'Watermelons',
-            'Quararibea cordata (Chupa Chupa)',
-            'Pomegranates',
-            'Tangerines',
-            'Papayas'
-          ],
+          categories: cat_daily_sales,
           tickAmount: 10,
         },
         title: {
-          text: 'Forecast',
+          text: 'Ventas diaria',
           align: 'left',
           style: {
             fontSize: "16px",
@@ -200,8 +187,8 @@ export default {
           },
         },
         yaxis: {
-          min: -10,
-          max: 40
+          min: 0,
+          max: 10000000
         }
       },
       data_area: [{
@@ -311,7 +298,7 @@ export default {
           });
           if(res_pro_sales.ok){
             if(res_pro_sales.result){
-              cat_prod_more_sales.length = 0;
+              // cat_prod_more_sales.length = 0;
               // this.data_bar.length = 0;
               res_pro_sales.data.forEach( product => {
                 // this.data_bar.push({
@@ -338,16 +325,15 @@ export default {
           });
           if(res_dai_sale.ok){
             if(res_dai_sale.result){
-              cat_daily_sales.length = 0;
-              this.data_line[0].length = 0;
+              // cat_daily_sales.length = 0;
+              // new Intl.NumberFormat().format()
+              data_daily_sales.length = 0;
               res_dai_sale.data.forEach( venta => {
                 let fecha = new Date(venta.Ev_Fecha_venta);
-                let fecha_formated = date.formatDate(fecha, 'DD/MM/YYYY');
-                console.log(fecha_formated)
+                let fecha_formated = date.formatDate(fecha, 'DD MMM');
                 cat_daily_sales.push(fecha_formated)
-                this.data_line[0].data.push(venta.cant)
+                data_daily_sales.push(venta.cant)
               });
-              console.log(this.data_line)
               this.render_chart = true;
             } else {
               this.$q.notify({
