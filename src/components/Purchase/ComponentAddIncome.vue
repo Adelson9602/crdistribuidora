@@ -151,7 +151,7 @@
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-input
             v-model="precio_compra"
             mask="#########"
@@ -159,7 +159,7 @@
             :rules="[val => !!val || 'Precio es requerido', val => val > 0 || 'La cantidad no puede ser 0']"
           />
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
           <q-input
             v-model="cantidad_compra"
             mask="#########"
