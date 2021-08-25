@@ -186,10 +186,10 @@ export default {
             stops: [0, 100, 100, 100]
           },
         },
-        yaxis: {
-          min: 0,
-          max: 10000000
-        }
+        // yaxis: {
+        //   min: 0,
+        //   max: 10000000
+        // }
       },
       data_area: [{
         name: 'series1',
