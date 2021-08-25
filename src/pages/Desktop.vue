@@ -325,14 +325,13 @@ export default {
           });
           if(res_dai_sale.ok){
             if(res_dai_sale.result){
-              // cat_daily_sales.length = 0;
-              // new Intl.NumberFormat().format()
+              cat_daily_sales.length = 0;
               data_daily_sales.length = 0;
               res_dai_sale.data.forEach( venta => {
                 let fecha = new Date(venta.Ev_Fecha_venta);
                 let fecha_formated = date.formatDate(fecha, 'DD MMM');
                 cat_daily_sales.push(fecha_formated)
-                data_daily_sales.push(venta.cant)
+                data_daily_sales.push(new Intl.NumberFormat().format(venta.cant))
               });
               this.render_chart = true;
             } else {
