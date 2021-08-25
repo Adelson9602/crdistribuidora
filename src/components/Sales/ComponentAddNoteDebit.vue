@@ -338,6 +338,9 @@ export default {
       validation: false, //Valida el cliente seleccionado
       encebezado_venta: null,
       enc_nota_debito: null,
+      //conserva el valor anterior del total 
+      old_Ev_Subtotal: null,
+      old_Ev_Des_total_art: null
     }
   },
   computed: {
@@ -439,7 +442,22 @@ export default {
           label: 'COTIZACIÓN'
         }
       }
-    }
+    },
+    // Permite conservar el valor anterior cuando se hace el calculo de precios
+    Ev_Subtotal(value, old_value){
+      this.old_Ev_Subtotal = old_value;
+    },
+    Ev_Des_total_art(value, old_value){
+      this.old_Ev_Des_total_art = old_value;
+    },
+    total_venta(value, old_value){
+      if(this.total_venta < this.enc_nota_debito.Ev_Total_venta){
+        this.Ev_Subtotal = this.old_Ev_Subtotal;
+        this.subtotal_venta = this.old_Ev_Subtotal;
+        this.Ev_Des_total_art = this.old_Ev_Des_total_art;
+        this.total_venta = old_value;
+      }
+    },
   },
   props: [
     'prop_encabezado',
@@ -489,6 +507,7 @@ export default {
           // Se asigna datos para el encabezadoq que se guarda en base de datos
           this.enc_nota_debito = this.prop_encabezado;
           this.Ev_Subtotal = this.enc_nota_debito.Ev_Subtotal;
+          this.subtotal_venta = this.enc_nota_debito.Ev_Subtotal;
           this.Ev_Des_total_art = this.enc_nota_debito.Ev_Des_total_art;
           this.total_venta = this.enc_nota_debito.Ev_Total_venta;
 
@@ -645,7 +664,6 @@ export default {
           })
         } else {
           let product_sold = this.data_sales_product.find( product => product.codigo == product_add.codigo );
-          console.log(product_sold)
           if(product_sold){
             if(this.cantidad >= product_sold.Dv_Cant){
               // subtotal_product = precio_compra + (porcentaje_venta * precio_compra / 100) *
