@@ -86,42 +86,55 @@
       </div>
       <q-btn label="Submit" type="submit" color="primary" class="hide-btn_submit"/>
     </q-form>
-    <q-table
-      title="Productos a agregar"
-      :data="data_sales"
-      :columns="columns_sales"
-      row-key="name"
-      flat
-      class="height"
-    >
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th auto-width />
-          <q-th
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-          >
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>
+    <div class="row">
+      <div class="col-xs-12 col-md-6 q-px-sm">
+        <q-table
+          title="Productos vendidos"
+          :data="data_sales_product"
+          :columns="columns_sales_product"
+          flat
+          class="height"
+        />
+      </div>
+      <div class="col-xs-12 col-md-6 q-px-sm">
+        <q-table
+          title="Productos a agregar"
+          :data="data_sales"
+          :columns="columns_sales"
+          row-key="name"
+          flat
+          class="height"
+        >
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
 
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td auto-width>
-            <q-btn icon="delete" size="sm" color="negative" round dense @click="delteProduct(props.row)" />
-          </q-td>
-          <q-td
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-          >
-            {{ col.name != 'Dv_precio_venta' && col.name != 'subtotal_product' ? col.value : new Intl.NumberFormat().format(col.value)}}
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td auto-width>
+                <q-btn icon="delete" size="sm" color="negative" round dense @click="delteProduct(props.row)" />
+              </q-td>
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.name != 'Dv_precio_venta' && col.name != 'subtotal_product' ? col.value : new Intl.NumberFormat().format(col.value)}}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+      </div>
+    </div>
     <div class="row">
       <div class="col-xs-12 col-sm-6 q-pa-sm">
         <q-field label="Subtotal" stack-label>
@@ -234,13 +247,6 @@ export default {
       data_sales: [], //Productos a vender
       columns_sales: [
         {
-          name: 'Art_Id',
-          align: 'center',
-          label: 'ID Producto',
-          sortable: true,
-          field: 'Art_Id'
-        },
-        {
           name: 'codigo',
           align: 'center',
           label: 'Código',
@@ -283,6 +289,37 @@ export default {
           field: 'subtotal_product'
         },
       ], //Columnas para la tabla productos a vender
+      data_sales_product: [],
+      columns_sales_product: [
+        {
+          name: 'codigo',
+          align: 'center',
+          label: 'Código',
+          sortable: true,
+          field: 'codigo'
+        },
+        {
+          name: 'producto',
+          align: 'center',
+          label: 'Producto',
+          sortable: true,
+          field: 'producto'
+        },
+        {
+          name: 'Dv_Cant',
+          align: 'center',
+          label: 'Cantidad vendida',
+          sortable: true,
+          field: 'Dv_Cant'
+        },
+        {
+          name: 'Dv_precio_venta',
+          align: 'center',
+          label: 'Precio venta',
+          sortable: true,
+          field: 'Dv_precio_venta'
+        },
+      ],
       dialog_create_user: false,
       Ev_Des_total_art: null,
       Ev_Subtotal: null,
@@ -451,7 +488,6 @@ export default {
           
           // Se asigna datos para el encabezadoq que se guarda en base de datos
           this.enc_nota_debito = this.prop_encabezado;
-          this.movil_selecte = this.enc_nota_debito.Mov_Id;
 
           const res_por_prod = await this.getPercentSaleArt().then( res => {
             return res.data;
@@ -500,40 +536,13 @@ export default {
           });
           if (res_deta.ok) {
             if (res_deta.result) {
-              this.data_sales.length = 0;
-              // Art_Codigo_inv: "CR- 11"
-              // Art_Descripcion: "GAFAS DE PROTECCION LENTE CLARO CONVENCIONAL MGP03"
-              // Art_Id: 11
-              // Dv_Cant: 1
-              // Dv_Precio_compra: 2376
-              // Dv_precio_venta: 3801.6
-              // Dv_valor_descuento: 40
-              // Ev_Id: 5599
-              // categoria: "GAFA"
-
-              // Ev_Id: null,
-              // base: process.env.__BASE__,
-              // codigo: this.producto_selecte.codigo,
-              // producto: this.producto_selecte.label,
-              // Art_Id: this.producto_selecte.value,
-              // Dv_Cant: this.cantidad,
-              // Dv_Precio_compra: this.producto_selecte.precio_compra,
-              // Dv_precio_venta: this.producto_selecte.precio_venta,
-              // Dv_valor_descuento: this.descuento_art.value,
-              // porcentaje_venta: this.producto_selecte.porcentaje_venta,
-              // subtotal_product: null,
-              // des_articulo: this.descuento_art.label,
-              // // Propiedade para actualizar el stock
-              // Mov_Id: this.movil_selecte,
-              // Si_Cant: this.cantidad + this.cantidad_garantia,
-              // simbol: '-',
+              this.data_sales_product.length = 0;
               res_deta.data.forEach(product => {
                 product.producto = product.Art_Descripcion;
                 product.codigo = product.Art_Codigo_inv;
-                // let descuento = percent_genres.find( porcentaje => porcentaje.value == product.Dv_valor_descuento )
-                // product.des_articulo = descuento.label;
-                this.data_sales.push(product);
+                this.data_sales_product.push(product);
               });
+              this.movil_selecte = this.enc_nota_debito.Mov_Id;
             } else {
               this.$q.notify({
                 message: "Sin resultados",
