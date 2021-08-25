@@ -488,6 +488,9 @@ export default {
           
           // Se asigna datos para el encabezadoq que se guarda en base de datos
           this.enc_nota_debito = this.prop_encabezado;
+          this.Ev_Subtotal = this.enc_nota_debito.Ev_Subtotal;
+          this.Ev_Des_total_art = this.enc_nota_debito.Ev_Des_total_art;
+          this.total_venta = this.enc_nota_debito.Ev_Total_venta;
 
           const res_por_prod = await this.getPercentSaleArt().then( res => {
             return res.data;
@@ -641,31 +644,37 @@ export default {
             type: 'warning'
           })
         } else {
-          // subtotal_product = precio_compra + (porcentaje_venta * precio_compra / 100) *
-
-          // Ev_Subtotal => venta_total sin ningun descuento ***
-          // Ev_Des_total_art => Suma total de lo que se desconto por cada articulo, cliente aa ... *
-          // Ev_Total_venta => Ev_Subtotal - Ev_Des_total_art - Ev_Des_gen_venta *
-          // Ev_Descuentog => porcentaje descuento de la factura final (10% ...)
-          // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
-          // diferencia entre precio venta y subtotal
-
-
-          product_add.subtotal_product = product_add.Dv_Precio_compra + (this.descuento_art.value * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
-          this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
-
-          this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
-          this.Ev_Subtotal = this.subtotal_venta;
-
-          this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
-
-          this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
-
-          this.data_sales.push(product_add);
-          this.onReset();
-          setTimeout(() => {
-            this.$refs.form_sales.resetValidation();
-          }, 300)
+          let product_sold = this.data_sales_product.find( product => product.codigo == product_add.codigo );
+          console.log(product_sold)
+          if(product_sold){
+            if(this.cantidad >= product_sold.Dv_Cant){
+              // subtotal_product = precio_compra + (porcentaje_venta * precio_compra / 100) *
+              // Ev_Subtotal => venta_total sin ningun descuento ***
+              // Ev_Des_total_art => Suma total de lo que se desconto por cada articulo, cliente aa ... *
+              // Ev_Total_venta => Ev_Subtotal - Ev_Des_total_art - Ev_Des_gen_venta *
+              // Ev_Descuentog => porcentaje descuento de la factura final (10% ...)
+              // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
+              // diferencia entre precio venta y subtotal
+    
+              product_add.subtotal_product = product_add.Dv_Precio_compra + (this.descuento_art.value * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
+              this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
+    
+              this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
+              this.Ev_Subtotal = this.subtotal_venta;
+    
+              this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
+    
+              this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+    
+              this.data_sales.push(product_add);
+              this.onReset();
+            } else {
+              this.$q.notify({
+                message: 'La cantidad no puede ser inferior a la vendida anteriormente',
+                type: 'warning'
+              })
+            }
+          }
         }
       }
     },
@@ -745,6 +754,9 @@ export default {
       this.cantidad = null;
       this.cant_disponible = null;
       this.cantidad_garantia = null;
+      setTimeout(() => {
+        this.$refs.form_sales.resetValidation();
+      }, 300)
     },
     // Buscador para el select medio de pago
     filterProducts(val, update, abort){
