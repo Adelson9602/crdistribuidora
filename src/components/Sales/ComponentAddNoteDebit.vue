@@ -223,7 +223,7 @@ export default {
       movil_selecte: null,
       total_venta: null,
       subtotal_venta: null,
-      enc_venta: {
+      enc_nota_debito: {
         base: null,
         Ev_Id: null,
         Tc_Id: null,
@@ -337,10 +337,9 @@ export default {
       tipo_accion: true, //Determina que acción va a realizar el usuario, si es cotización o venta
       validation: false, //Valida el cliente seleccionado
       encebezado_venta: null,
-      enc_nota_debito: null,
-      //conserva el valor anterior del total 
-      old_Ev_Subtotal: null,
-      old_Ev_Des_total_art: null
+      Ev_Subtotal: null,
+      Ev_Des_total_art: null,
+      total_venta: null,
     }
   },
   computed: {
@@ -354,7 +353,7 @@ export default {
       if(value){
         this.numero_documento = value.value;
         this.tipo_documento = value.tip_doc;
-        this.enc_venta.CP_Nit = value.value;
+        this.enc_nota_debito.CP_Nit = value.value;
         this.validation = false;
       }
     },
@@ -466,7 +465,7 @@ export default {
   created(){
     let timeStamp = Date.now()
     date_now = date.formatDate(timeStamp, 'YYYY-MM-DD')
-    this.enc_venta.Ev_Fecha_venta = date_now;
+    this.enc_nota_debito.Ev_Fecha_venta = date_now;
     this.getData();
   },
   methods: {
@@ -482,7 +481,9 @@ export default {
       'getPercentSaleArt',
       'insertUpdateStockGarantia',
       'getPerSalePersona',
-      'getDetailSales'
+      'getDetailSales',
+      'insertEncNotaDebito',
+      'insertDetNotaDebito',
     ]),
     getData(){
       this.$q.loading.show({
@@ -599,17 +600,39 @@ export default {
       });
       setTimeout(async() => {
         try {
-          this.enc_venta.Per_Num_documento = this.data_user.Per_Num_documento;
-          this.enc_venta.Ev_Estado = this.enc_venta.Mp_Id;
-          this.enc_venta.Ev_Entregado = this.enc_venta.Tc_Id == 2 ? 0 : 1;
-          this.enc_venta.Ev_conf_pago = this.enc_venta.Mp_Id == 1 ? 1 : 0;
-          this.enc_venta.Ev_Subtotal = this.subtotal_venta;
-          this.enc_venta.Ev_Des_total_art = this.Ev_Des_total_art;
-          this.enc_venta.Ev_Des_gen_venta = (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100)
-          this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
-          this.enc_venta.Mov_Id = this.movil_selecte;
-          this.enc_venta.Ev_Usuario_control = this.data_user.Per_Num_documento;
-          this.enc_venta.base = process.env.__BASE__;
+          this.enc_nota_debito.Per_Num_documento = this.data_user.Per_Num_documento;
+          this.enc_nota_debito.Ev_Estado = this.enc_nota_debito.Mp_Id;
+          this.enc_nota_debito.Ev_Entregado = this.enc_nota_debito.Tc_Id == 2 ? 0 : 1;
+          this.enc_nota_debito.Ev_conf_pago = this.enc_nota_debito.Mp_Id == 1 ? 1 : 0;
+          this.enc_nota_debito.Ev_Subtotal = this.subtotal_venta;
+          this.enc_nota_debito.Ev_Des_total_art = this.Ev_Des_total_art;
+          this.enc_nota_debito.Ev_Des_gen_venta = (this.enc_nota_debito.Ev_Subtotal - this.enc_nota_debito.Ev_Des_total_art) * (this.enc_nota_debito.Ev_Descuentog / 100)
+          this.enc_nota_debito.Ev_Total_venta = this.enc_nota_debito.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+          this.enc_nota_debito.Mov_Id = this.movil_selecte;
+          this.enc_nota_debito.Ev_Usuario_control = this.data_user.Per_Num_documento;
+          this.enc_nota_debito.base = process.env.__BASE__;
+
+          const res_enc_debito = await this.enc_nota_debito(this.enc_nota_debito).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg:  'Respuesta insert encabezado nota debito',
+            data: res_enc_debito
+          });
+          if(res_enc_debito.ok){
+            let promesas = [];
+            this.data_sales.forEach( product => {
+              promesas.push(this.insertDetNotaDebito(product).then( res => {
+                res.data.msg = 'Respuesta insert detalle nota credito'
+                return res.data
+              }).catch( e => {
+                throw new Error('Error al guardar el detalle de la nota crédito')
+              }))
+            })
+          } else {
+            throw new Error(res_enc_debito.message);
+          }
+
           this.$emit('reload')
         } catch (e) {
           console.log(e);
@@ -680,7 +703,7 @@ export default {
               this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
               this.Ev_Subtotal = this.subtotal_venta;
     
-              this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
+              this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_nota_debito.Ev_Descuentog / 100 );
     
               this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
     

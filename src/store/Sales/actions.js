@@ -119,3 +119,14 @@ export function insertUpdateEncGarantia(context, data){
 export function insertUpdateStockGarantia(context, data){
   return Vue.prototype.$axios.post(`insert_update_stock_garantias`, data);
 }
+
+// NOTA DÉBITO
+// Inserta el encabezado de la nota debito
+export function insertEncNotaDebito(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_venta_nota_debito`, data);
+}
+
+// Inserta el detalle de la nota debito
+export function insertDetNotaDebito(context, data){
+  return Vue.prototype.$axios.post(`insert_update_det_venta_nota_debito`, data);
+}
