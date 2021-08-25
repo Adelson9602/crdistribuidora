@@ -146,7 +146,7 @@ export default {
     return {
       data_line: [{
         name: 'Sales',
-        data: [{ x: '05/06/2014', y: 54 }, { x: '05/08/2014', y: 17 } , { x: '05/28/2014', y: 26 }]
+        data: [4, 3, 10, 9, 29, 19, 22, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5]
       }],
       options_line: {
         chart: {
@@ -161,23 +161,14 @@ export default {
           curve: 'smooth'
         },
         xaxis: {
-          type: 'category',
-          categories: [
-            'Apples',
-            'Oranges',
-            'Strawberries',
-            'Pineapples',
-            'Mangoes',
-            'Bananas',
-            'Blackberries',
-            'Pears',
-            'Watermelons',
-            'Quararibea cordata (Chupa Chupa)',
-            'Pomegranates',
-            'Tangerines',
-            'Papayas'
-          ],
+          type: 'datetime',
+          categories: ['1/11/2000', '2/11/2000', '3/11/2000', '4/11/2000', '5/11/2000', '6/11/2000', '7/11/2000', '8/11/2000', '9/11/2000', '10/11/2000', '11/11/2000', '12/11/2000', '1/11/2001', '2/11/2001', '3/11/2001','4/11/2001' ,'5/11/2001' ,'6/11/2001'],
           tickAmount: 10,
+          labels: {
+            formatter: function(value, timestamp, opts) {
+              return opts.dateFormatter(new Date(timestamp), 'dd MMM')
+            }
+          }
         },
         title: {
           text: 'Forecast',
@@ -311,7 +302,7 @@ export default {
           });
           if(res_pro_sales.ok){
             if(res_pro_sales.result){
-              cat_prod_more_sales.length = 0;
+              // cat_prod_more_sales.length = 0;
               // this.data_bar.length = 0;
               res_pro_sales.data.forEach( product => {
                 // this.data_bar.push({
@@ -338,17 +329,17 @@ export default {
           });
           if(res_dai_sale.ok){
             if(res_dai_sale.result){
-              cat_daily_sales.length = 0;
-              this.data_line[0].length = 0;
-              res_dai_sale.data.forEach( venta => {
-                let fecha = new Date(venta.Ev_Fecha_venta);
-                let fecha_formated = date.formatDate(fecha, 'DD/MM/YYYY');
-                console.log(fecha_formated)
-                cat_daily_sales.push(fecha_formated)
-                this.data_line[0].data.push(venta.cant)
-              });
-              console.log(this.data_line)
-              this.render_chart = true;
+              // cat_daily_sales.length = 0;
+              // this.data_line[0].length = 0;
+              // res_dai_sale.data.forEach( venta => {
+              //   let fecha = new Date(venta.Ev_Fecha_venta);
+              //   let fecha_formated = date.formatDate(fecha, 'DD/MM/YYYY');
+              //   console.log(fecha_formated)
+              //   cat_daily_sales.push(fecha_formated)
+              //   this.data_line[0].data.push(venta.cant)
+              // });
+              // console.log(this.data_line)
+              // this.render_chart = true;
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
