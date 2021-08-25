@@ -165,11 +165,6 @@ export default {
           type: 'category',
           categories: cat_daily_sales,
           tickAmount: 10,
-          labels: {
-            formatter: function(value, timestamp, opts) {
-              return opts.dateFormatter(new Date(timestamp), 'dd MMM')
-            }
-          }
         },
         title: {
           text: 'Ventas diaria',
