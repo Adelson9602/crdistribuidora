@@ -137,7 +137,8 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import { date } from 'quasar'
 import VueApexCharts from 'vue-apexcharts';
 let cat_prod_more_sales = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']; //Categorias de productos mas vendidos
-let cat_daily_sales = ['19/08/2021', '18/08/2021', '17/08/2021'];
+let cat_daily_sales = []; //
+let data_daily_sales = [];
 export default {
   components: {
     apexchart: VueApexCharts
@@ -145,8 +146,8 @@ export default {
   data() {
     return {
       data_line: [{
-        name: 'Sales',
-        data: [4, 3, 10, 9, 29, 19, 22, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5]
+        name: 'Ventas díarias',
+        data: data_daily_sales
       }],
       options_line: {
         chart: {
@@ -161,8 +162,8 @@ export default {
           curve: 'smooth'
         },
         xaxis: {
-          type: 'datetime',
-          categories: ['1/11/2000', '2/11/2000', '3/11/2000', '4/11/2000', '5/11/2000', '6/11/2000', '7/11/2000', '8/11/2000', '9/11/2000', '10/11/2000', '11/11/2000', '12/11/2000', '1/11/2001', '2/11/2001', '3/11/2001','4/11/2001' ,'5/11/2001' ,'6/11/2001'],
+          type: 'category',
+          categories: cat_daily_sales,
           tickAmount: 10,
           labels: {
             formatter: function(value, timestamp, opts) {
@@ -171,7 +172,7 @@ export default {
           }
         },
         title: {
-          text: 'Forecast',
+          text: 'Ventas diaria',
           align: 'left',
           style: {
             fontSize: "16px",
@@ -190,10 +191,10 @@ export default {
             stops: [0, 100, 100, 100]
           },
         },
-        yaxis: {
-          min: -10,
-          max: 40
-        }
+        // yaxis: {
+        //   min: 0,
+        //   max: 10000000
+        // }
       },
       data_area: [{
         name: 'series1',
@@ -329,17 +330,15 @@ export default {
           });
           if(res_dai_sale.ok){
             if(res_dai_sale.result){
-              // cat_daily_sales.length = 0;
-              // this.data_line[0].length = 0;
-              // res_dai_sale.data.forEach( venta => {
-              //   let fecha = new Date(venta.Ev_Fecha_venta);
-              //   let fecha_formated = date.formatDate(fecha, 'DD/MM/YYYY');
-              //   console.log(fecha_formated)
-              //   cat_daily_sales.push(fecha_formated)
-              //   this.data_line[0].data.push(venta.cant)
-              // });
-              // console.log(this.data_line)
-              // this.render_chart = true;
+              cat_daily_sales.length = 0;
+              data_daily_sales.length = 0;
+              res_dai_sale.data.forEach( venta => {
+                let fecha = new Date(venta.Ev_Fecha_venta);
+                let fecha_formated = date.formatDate(fecha, 'DD MMM');
+                cat_daily_sales.push(fecha_formated)
+                data_daily_sales.push(new Intl.NumberFormat().format(venta.cant))
+              });
+              this.render_chart = true;
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
