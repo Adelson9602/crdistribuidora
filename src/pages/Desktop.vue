@@ -121,13 +121,13 @@
         <apexchart type="line" height="350" :options="options_line" :series="data_line" v-if="render_chart"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4 q-px-md">
-        <apexchart type="area" height="350" :options="options_area" :series="data_area" />
+        <apexchart type="radialBar" height="390" :options="options_radial" :series="data_radial_bar" />
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 q-px-md">
         <apexchart type="bar" height="350" :options="options_bar" :series="data_bar" />
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 q-px-md">
-        <apexchart type="bar" height="350" :options="options_line" :series="data_line" />
+        <apexchart type="bar" height="350" :options="options_line_hoz" :series="data_line_hoz" v-if="render_chart"/>
       </div>
     </div>
   </div>
@@ -137,16 +137,21 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import { date } from 'quasar'
 import VueApexCharts from 'vue-apexcharts';
 let cat_prod_more_sales = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']; //Categorias de productos mas vendidos
-let cat_daily_sales = []; //
-let data_daily_sales = [];
+let cat_val_stock = []; //Categorías valor del stock
+let data_val_stock = []; //Data para valor stock
+let cat_daily_sales = []; //Categorías de ventas diarias
+let data_daily_sales = []; //Cantidad de ventas diarias
+let data_best_client = []; //datos de los mejores clientes
+let cat_best_clients = []; //Categorias para los mejores clientes
 export default {
   components: {
     apexchart: VueApexCharts
   },
   data() {
     return {
+      render_chart: false,
       data_line: [{
-        name: 'Ventas díarias',
+        name: 'Valor facturado',
         data: data_daily_sales
       }],
       options_line: {
@@ -167,7 +172,7 @@ export default {
           tickAmount: 10,
         },
         title: {
-          text: 'Ventas diaria',
+          text: 'Ventas diarias',
           align: 'left',
           style: {
             fontSize: "16px",
@@ -191,46 +196,74 @@ export default {
         //   max: 10000000
         // }
       },
-      data_area: [{
-        name: 'series1',
-        data: [31, 40, 28, 51, 42, 109, 100]
-      }, {
-        name: 'series2',
-        data: [11, 32, 45, 32, 34, 52, 41]
-      }],
-      options_area: {
+      data_radial_bar: data_val_stock,
+      options_radial: {
         chart: {
-          height: 350,
-          type: 'area'
+          height: 390,
+          type: 'radialBar',
         },
-        dataLabels: {
-          enabled: false
+        plotOptions: {
+          radialBar: {
+            offsetY: 0,
+            startAngle: 0,
+            endAngle: 270,
+            hollow: {
+              margin: 5,
+              size: '30%',
+              background: 'transparent',
+              image: undefined,
+            },
+            dataLabels: {
+              name: {
+                show: false,
+              },
+              value: {
+                show: false,
+              }
+            }
+          }
         },
-        stroke: {
-          curve: 'smooth'
-        },
-        xaxis: {
-          type: 'datetime',
-          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-        },
-        tooltip: {
-          x: {
-            format: 'dd/MM/yy HH:mm'
+        colors: ['#1ab7ea', '#0084ff', '#39539E', '#0077B5'],
+        labels: cat_val_stock,
+        legend: {
+          show: true,
+          floating: true,
+          fontSize: '16px',
+          position: 'left',
+          offsetX: 60,
+          offsetY: 15,
+          labels: {
+            useSeriesColors: true,
           },
+          markers: {
+            size: 0
+          },
+          formatter: function(seriesName, opts) {
+            return seriesName + ":  $" + opts.w.globals.series[opts.seriesIndex]
+          },
+          itemMargin: {
+            vertical: 3
+          }
         },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            legend: {
+              show: false
+            }
+          }
+        }]
       },
-      data_bar: [
-        {
-          name: 'Bombillos',
-          data: [44]
-        }, {
-          name: 'Duchas',
-          data: [76]
-        }, {
-          name: 'Guantes',
-          data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
-        }
-      ],
+      data_bar: [{
+        name: 'Bombillos',
+        data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+      }, {
+        name: 'Lamparas',
+        data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+      }, {
+        name: 'Lavaplatos',
+        data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+      }],
       options_bar: {
         chart: {
           type: 'bar',
@@ -252,11 +285,11 @@ export default {
           colors: ['transparent']
         },
         xaxis: {
-          categories: cat_prod_more_sales,
+          categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
         },
         yaxis: {
           title: {
-            text: '$ (Productos más vendidos)'
+            text: '$ (thousands)'
           }
         },
         fill: {
@@ -265,12 +298,87 @@ export default {
         tooltip: {
           y: {
             formatter: function (val) {
-              return "$ " + val + " vendidos"
+              return "$ " + val + " thousands"
             }
           }
         }
       },
-      render_chart: false,
+      data_line_hoz: [{
+        name: 'Valor facturado',
+        data: data_best_client
+      }],
+      options_line_hoz: {
+        annotations: {
+          points: [{
+            x: 'Bananas',
+            seriesIndex: 0,
+            label: {
+              borderColor: '#775DD0',
+              offsetY: 0,
+              style: {
+                color: '#fff',
+                background: '#775DD0',
+              },
+              text: 'Bananas are good',
+            }
+          }]
+        },
+        chart: {
+          height: 350,
+          type: 'bar',
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 10,
+            columnWidth: '50%',
+            horizontal: true,
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          width: 2
+        },
+        grid: {
+          row: {
+            colors: ['#fff', '#f2f2f2']
+          }
+        },
+        title: {
+          text: 'Mejores clientes',
+          align: 'left',
+          style: {
+            fontSize: "16px",
+            color: '#666'
+          }
+        },
+        xaxis: {
+          labels: {
+            rotate: -45
+          },
+          categories: cat_best_clients,
+          tickPlacement: 'on'
+        },
+        yaxis: {
+          title: {
+            text: '$ Valor facturado',
+          },
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'light',
+            type: "horizontal",
+            shadeIntensity: 0.25,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 0.85,
+            opacityTo: 0.85,
+            stops: [50, 0, 100]
+          },
+        }
+      },
     };
   },
   computed: {
@@ -281,7 +389,9 @@ export default {
   methods: {
     ...mapActions('desktop', [
       'chartProductMoreSales',
-      'chartDailySales'
+      'chartDailySales',
+      'chartBestClients',
+      'chartPriceStock'
     ]),
     getData(){
       this.$q.loading.show({
@@ -333,7 +443,6 @@ export default {
                 cat_daily_sales.push(fecha_formated)
                 data_daily_sales.push(new Intl.NumberFormat().format(venta.cant))
               });
-              this.render_chart = true;
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
@@ -343,6 +452,61 @@ export default {
           } else {
             throw new Error(res_dai_sale.message)
           }
+
+          const res_best_client = await this.chartBestClients().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get gráfica mejores clientes',
+            data: res_best_client
+          });
+          if(res_best_client.ok){
+            if(res_best_client.result){
+              cat_best_clients.length = 0;
+              data_best_client.length = 0;
+              res_best_client.data.forEach( venta => {
+                if(venta.CP_Razon_social){
+                  let valor = new Intl.NumberFormat().format(venta.cant);
+                  data_best_client.push(parseFloat(valor))
+                  cat_best_clients.push(venta.CP_Razon_social)
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_best_client.message)
+          }
+
+          const res_price_stock = await this.chartPriceStock().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get gráfica valor stock movil',
+            data: res_price_stock
+          });
+          if(res_price_stock.ok){
+            if(res_price_stock.result){
+              cat_val_stock.length = 0;
+              data_val_stock.length = 0;
+              res_price_stock.data.forEach( movil => {
+                let valor = new Intl.NumberFormat().format(movil.valor);
+                cat_val_stock.push(movil.Mov_Descripcion)
+                data_val_stock.push(valor)
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_price_stock.message)
+          }
+          this.render_chart = true;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
