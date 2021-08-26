@@ -136,7 +136,7 @@
 import { mapActions, mapMutations, mapState } from "vuex";
 import { date } from 'quasar'
 import VueApexCharts from 'vue-apexcharts';
-let cat_prod_more_sales = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']; //Categorias de productos mas vendidos
+let cat_prod_more_sales = []; //Categorias de productos mas vendidos
 let cat_val_stock = []; //Categorías valor del stock
 let data_val_stock = []; //Data para valor stock
 let cat_daily_sales = []; //Categorías de ventas diarias
@@ -298,7 +298,7 @@ export default {
         tooltip: {
           y: {
             formatter: function (val) {
-              return "$ " + val + " thousands"
+              return val + " vendidas"
             }
           }
         }
@@ -408,14 +408,37 @@ export default {
           });
           if(res_pro_sales.ok){
             if(res_pro_sales.result){
-              // cat_prod_more_sales.length = 0;
-              // this.data_bar.length = 0;
-              res_pro_sales.data.forEach( product => {
-                // this.data_bar.push({
-                //   name: product.Art_Nombre,
-                //   data: [product.cant]
-                // })
-              });
+              cat_prod_more_sales.length = 0;
+              this.data_bar.length = 0;
+              let objcategorias = {}
+              //Recorremos el arreglo para agrupar los productos de acuerdo a su categoría
+              res_pro_sales.data.forEach( categorias => {
+                categorias.forEach( product => {
+                  //Si la categoría no existe en objcategorias entonces
+                  //la creamos e inicializamos el arreglo de productos. 
+                  if( !objcategorias.hasOwnProperty(product.Cat_Nombre)){
+                    objcategorias[product.Cat_Nombre] = {
+                      categoria: product.Cat_Nombre,
+                      productos: []
+                    }
+                  }
+                  // Agregamos los datos de productos. 
+                  objcategorias[product.Cat_Nombre].productos.push({
+                    nombre: product.Art_Nombre,
+                    cantidad: product.cant
+                  })
+                  // objcategorias[product.Cat_Nombre].productos.push(product.cant)
+                })
+              })
+              // Recorremos el objeto para asignar los datos
+              for (const key in objcategorias) {
+                const element = objcategorias[key];
+                element.productos.forEach(product => {
+                  console.log(product)
+                  // this.data_bar.push(product.cantidad)
+                  cat_prod_more_sales.push(product.nombre)
+                })
+              }
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
