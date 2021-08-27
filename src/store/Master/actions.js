@@ -59,6 +59,7 @@ export function addCargos(contex, data) {
 }
 
 // MOVILES
+
 // Crea la movil
 export function insertMovil(context, data){
     return Vue.prototype.$axios.post(`insert_update_movil`, data);
