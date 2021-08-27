@@ -63,12 +63,13 @@
           </q-field>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
-          <!-- val => val != 0 || 'La cantida no puede ser 0' -->
           <q-input
             v-model="cantidad"
             hint="Nueva cantidad"
             mask="############"
-            :rules="[val => !!val || 'Cantidad es obligatorio']"
+            :rules="[val => !!val || 'Cantidad es obligatorio',
+              val => val != 0 || 'La cantida no puede ser 0'
+            ]"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
@@ -125,8 +126,8 @@
         </div>
       </div>
     </q-form>
-    <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn color="green" icon="save" label="Guardar" />
+    <q-page-sticky position="bottom-right" :offset="[18, 18]" v-if="data_products_sales.length > 0">
+      <q-btn color="green" icon="save" label="Guardar" @click="onSumit"/>
     </q-page-sticky>
   </div>
 </template>
@@ -134,7 +135,6 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 let all_product = []; //Contiene todos los productos vendidos
-let percent_genres = []; //Contiene los procentajes generales
 export default {
   name: 'ComponentNoteCredit',
   data () {
@@ -222,6 +222,12 @@ export default {
     'prop_encabezado',
     'prop_product'
   ],
+  computed: {
+    ...mapState('auth', ['user_logged']),
+    data_user(){
+      return this.user_logged;
+    }
+  },
   created(){
     this.getData();
   },
@@ -236,6 +242,11 @@ export default {
   methods: {
     ...mapActions('sales', [
       'getPercentSaleArt',
+      'insertEncNotaCredito',
+      'insertDetNotaCredito'
+    ]),
+    ...mapActions('warehouse', [
+      'updateInventarioMovil',
     ]),
     getData(){
       // Se asigna datos para el frontend
@@ -257,6 +268,7 @@ export default {
       this.Ev_Subtotal = this.enc_nota_credito.Ev_Subtotal;
       this.Ev_Des_total_art = this.enc_nota_credito.Ev_Des_total_art;
       this.total_venta = this.enc_nota_credito.Ev_Total_venta;
+      console.log(this.enc_nota_credito)
 
       all_product.length = 0;
       this.prop_product.forEach(element => {
@@ -272,6 +284,117 @@ export default {
         })
       });
     },
+    onSumit(){
+      this.$q.loading.show({
+        message: 'Guardando nota, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          this.enc_nota_credito.Per_Num_documento = this.data_user.Per_Num_documento;
+          this.enc_nota_credito.Ev_Estado = this.enc_nota_credito.Mp_Id;
+          this.enc_nota_credito.Ev_Entregado = this.enc_nota_credito.Tc_Id;
+          this.enc_nota_credito.Ev_conf_pago = this.enc_nota_credito.Mp_Id;
+          this.enc_nota_credito.Ev_Subtotal = this.subtotal_venta;
+          this.enc_nota_credito.Ev_Des_total_art = this.Ev_Des_total_art;
+          this.enc_nota_credito.Ev_Des_gen_venta = (this.enc_nota_credito.Ev_Subtotal - this.enc_nota_credito.Ev_Des_total_art) * (this.enc_nota_credito.Ev_Descuentog / 100)
+          this.enc_nota_credito.Ev_Total_venta = this.enc_nota_credito.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+          this.enc_nota_credito.Ev_Usuario_control = this.data_user.Per_Num_documento;
+          this.enc_nota_credito.base = process.env.__BASE__;
+
+          const res_enc_credito = await this.insertEncNotaCredito(this.enc_nota_credito).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg:  'Respuesta insert encabezado nota credito',
+            data: res_enc_credito
+          });
+          if(res_enc_credito.ok){
+            let promesas = [];
+            this.data_products_sales.forEach( product => {
+              product.Ev_nc_Id = res_enc_credito.data.insertId;
+              promesas.push(this.insertDetNotaCredito(product).then( res => {
+                res.data.msg = 'Respuesta insert detalle nota debito'
+                return res.data
+              }).catch( e => {
+                throw new Error('Error al guardar el detalle de la nota crédito')
+              }))
+              promesas.push(this.updateInventarioMovil(product).then( res => {
+                res.data.msg = 'Respuesta update inventario movil';
+                return res.data;
+              }).catch( e => {
+                throw new Error('Error al actualizar el inventario')
+              }))
+            })
+            // if(this.cantidad_garantia){
+            //   this.ecn_garantia = {
+            //     base: process.env.__BASE__,
+            //     Eg_Id: null,
+            //     Eg_Quien_autoriza: 0,
+            //     Ev_Id: res_enc.data.insertId,
+            //     Eg_Observacion: null,
+            //     Eg_estado: 0,
+            //     Eg_User_control: this.data_user.Per_Num_documento,
+            //   }
+            //   const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
+            //     return res.data;
+            //   });
+            //   console.log({
+            //     msg: 'Respuesta insert enc garantia',
+            //     data: res_gara
+            //   });
+            //   if(!res_gara.data.affectedRows){
+            //     throw new Error(res_gara.message)
+            //   }
+            //   this.data_products_sales.forEach( product => {
+            //     product.Eg_Id = res_gara.data.insertId;
+            //     product.Dg_Cant = this.cantidad_garantia;
+            //     promesas.push(this.insertDetGarantia(product).then( res => {
+            //       res.data.msg = 'Respuesta insert det garantía';
+            //       return res.data;
+            //     }))
+            //     product.Sg_Cant = this.cantidad_garantia;
+            //     product.simbol = '+';
+            //     promesas.push(this.insertUpdateStockGarantia(product).then( res => {
+            //       res.data.msg = 'Respuesta update stock garantía';
+            //       return res.data;
+            //     }))
+            //   })
+            // }
+            Promise.all(promesas).then( data => {
+              data.forEach( res => {
+                console.log(res)
+                if(!res.data.affectedRows){
+                  throw new Error(res.message);
+                }
+              })
+            })
+            this.$q.notify({
+              message: 'Venta realizada',
+              type: 'positive'
+            });
+            this.$emit('reload')
+          } else {
+            throw new Error(res_enc_credito.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
+    },
     addProduct(){
       let product_add = {
         base: process.env.__BASE__,
@@ -286,10 +409,11 @@ export default {
         porcentaje_venta: this.producto_selecte.porcentaje_venta,
         subtotal_product: null,
         // Propiedade para actualizar el stock
-        Mov_Id: this.movil_selecte,
-        Si_Cant: this.cantidad + this.cantidad_garantia,
-        simbol: '-',
+        Mov_Id: this.enc_nota_credito.Mov_Id,
+        Si_Cant: this.cantidad,
+        simbol: '+',
       }
+      // + this.cantidad_garantia //Pentiente validar si en nota credito tambien puede devolver productos en garantía
       if( this.cantidad > this.producto_selecte.cantidad ){
         this.$q.notify({
           message: 'la cantidad es mayor a la vendida',

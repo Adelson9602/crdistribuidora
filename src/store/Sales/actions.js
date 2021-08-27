@@ -130,3 +130,14 @@ export function insertEncNotaDebito(context, data){
 export function insertDetNotaDebito(context, data){
   return Vue.prototype.$axios.post(`insert_update_det_venta_nota_debito`, data);
 }
+
+// NOTA CRÉDITO
+// Inserta el encabezado de la nota crédito
+export function insertEncNotaCredito(context, data){
+  return Vue.prototype.$axios.post(`insert_update_enc_venta_nota_credito`, data);
+}
+
+// Inserta el detalle de la nota crédito
+export function insertDetNotaCredito(context, data){
+  return Vue.prototype.$axios.post(`insert_update_det_venta_nota_credito`, data);
+}
