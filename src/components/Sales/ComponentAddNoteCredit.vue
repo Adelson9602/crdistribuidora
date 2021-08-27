@@ -305,11 +305,7 @@ export default {
         // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
         // diferencia entre precio venta y subtotal
 
-        if(this.cantidad > 0){
-          product_add.subtotal_product = product_add.Dv_Precio_compra + (product_add.porcentaje_venta * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
-        } else {
-          product_add.subtotal_product = 0;
-        }
+        product_add.subtotal_product = product_add.Dv_Precio_compra + (product_add.porcentaje_venta * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
         this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
 
         this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
