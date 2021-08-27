@@ -619,7 +619,7 @@ export default {
             return res.data;
           });
           console.log({
-            msg:  'Respuesta insert encabezado nota debito',
+            msg:  'Respuesta insert encabezado nota débito',
             data: res_enc_debito
           });
           if(res_enc_debito.ok){
@@ -627,10 +627,10 @@ export default {
             this.data_sales.forEach( product => {
               product.Ev_nd_Id = res_enc_debito.data.insertId;
               promesas.push(this.insertDetNotaDebito(product).then( res => {
-                res.data.msg = 'Respuesta insert detalle nota credito'
+                res.data.msg = 'Respuesta insert detalle nota débito'
                 return res.data
               }).catch( e => {
-                throw new Error('Error al guardar el detalle de la nota crédito')
+                throw new Error('Error al guardar el detalle de la nota débito')
               }))
               promesas.push(this.updateInventarioMovil(product).then( res => {
                 res.data.msg = 'Respuesta update inventario movil';
