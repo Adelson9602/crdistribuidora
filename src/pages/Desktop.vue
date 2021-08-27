@@ -36,13 +36,13 @@
             <q-list>
               <q-item>
                 <q-item-section>
-                  <q-item-label>Total Leads</q-item-label>
-                  <q-item-label class="number_card">35,588</q-item-label>
+                  <q-item-label>Total notas créditos</q-item-label>
+                  <q-item-label class="number_card">$ {{total_not_credito}}</q-item-label>
                   <q-item-label>
                     <q-icon
                       name="info"
                       color="positive"
-                    /> Last Month
+                    /> Del día
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -50,7 +50,7 @@
                     size="60px"
                     class="bg-danger-gradient"
                     text-color="white"
-                    icon="mdi-rocket-launch"
+                    icon="receipt_long"
                   />
                 </q-item-section>
               </q-item>
@@ -64,13 +64,13 @@
             <q-list>
               <q-item>
                 <q-item-section>
-                  <q-item-label>Total Profit</q-item-label>
-                  <q-item-label class="number_card">35,588</q-item-label>
+                  <q-item-label>Total ventas</q-item-label>
+                  <q-item-label class="number_card">$ {{total_ventas}}</q-item-label>
                   <q-item-label>
                     <q-icon
                       name="info"
                       color="positive"
-                    /> Last Month
+                    /> Del día
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -92,13 +92,13 @@
             <q-list>
               <q-item>
                 <q-item-section>
-                  <q-item-label>Total Cost</q-item-label>
-                  <q-item-label class="number_card">35,588</q-item-label>
+                  <q-item-label>Total notas débito</q-item-label>
+                  <q-item-label class="number_card">$ {{total_not_debito}}</q-item-label>
                   <q-item-label>
                     <q-icon
                       name="info"
                       color="positive"
-                    /> Last Month
+                    /> Del día
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -379,6 +379,9 @@ export default {
           },
         }
       },
+      total_ventas: 0,
+      total_not_credito: 0,
+      total_not_debito: 0,
     };
   },
   computed: {
@@ -391,7 +394,10 @@ export default {
       'chartProductMoreSales',
       'chartDailySales',
       'chartBestClients',
-      'chartPriceStock'
+      'chartPriceStock',
+      'getTotalNotasCre',
+      'getTotalVentas',
+      'getTotalNotasDeb',
     ]),
     getData(){
       this.$q.loading.show({
@@ -434,7 +440,7 @@ export default {
               for (const key in objcategorias) {
                 const element = objcategorias[key];
                 element.productos.forEach(product => {
-                  console.log(product)
+                  // console.log(product)
                   // this.data_bar.push(product.cantidad)
                   cat_prod_more_sales.push(product.nombre)
                 })
@@ -529,6 +535,46 @@ export default {
           } else {
             throw new Error(res_price_stock.message)
           }
+
+          const res_no_cred = await this.getTotalNotasCre().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Repuesta get total notas creditos',
+            data: res_no_cred
+          });
+          if(res_no_cred.ok){
+            this.total_not_credito = new Intl.NumberFormat().format(res_no_cred.data.cant)
+          } else {
+            throw new Error(res_no_cred.message);
+          }
+
+          const res_sale = await this.getTotalVentas().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Repuesta get total ventas diarias',
+            data: res_sale
+          });
+          if(res_sale.ok){
+            this.total_ventas = new Intl.NumberFormat().format(res_sale.data.total)
+          } else {
+            throw new Error(res_sale.message);
+          }
+
+          const res_no_deb = await this.getTotalNotasDeb().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Repuesta get total notas debitos',
+            data: res_no_deb
+          });
+          if(res_no_deb.ok){
+            this.total_not_debito = new Intl.NumberFormat().format(res_no_deb.data.cant);
+          } else {
+            throw new Error(res_no_deb.message);
+          }
+
           this.render_chart = true;
         } catch (e) {
           console.log(e);

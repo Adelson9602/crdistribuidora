@@ -21,3 +21,18 @@ export function chartBestClients(){
 export function chartPriceStock(){
     return Vue.prototype.$axios.get(`select_graf_valor_movil/${base}`)
 }
+
+// Obteiene todas las notas creditos realizadas
+export function getTotalNotasCre(contex, data){
+    return Vue.prototype.$axios.get(`select_notas_credito_today/${base}`);
+}
+
+// Obtiene el total de ventas realizadas
+export function getTotalVentas(contex, data){
+    return Vue.prototype.$axios.get(`select_sales_today/${base}`);
+}
+
+// Obtiene todas las notas debitos relizadas
+export function getTotalNotasDeb(contex, data){
+    return Vue.prototype.$axios.get(`select_notas_debito_today/${base}`);
+}
