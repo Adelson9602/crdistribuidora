@@ -49,10 +49,9 @@ const routes = [
         component: () => import('layouts/LayoutApp'),
         meta: {requiresAuth: true} ,
         children: [
-          
           { path: 'percentsales', component: () => import('pages/Master/PercentSales'), meta: {requiresAuth: true} },
           { path: 'charges', component: () => import('pages/Master/Charges'), meta: {requiresAuth: true} },
-      
+          { path: 'mobiles', component: () => import('pages/Master/Moviles'), meta: {requiresAuth: true} },
         ],
       },
       {

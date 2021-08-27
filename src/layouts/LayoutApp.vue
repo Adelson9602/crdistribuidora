@@ -302,6 +302,7 @@ export default {
         items: [
           { label: "% de ventas", route: "master/percentsales" },
           { label: "Cargos", route: "master/charges" },
+          { label: "Moviles", route: "master/mobiles" },
         ],
       },
       {
