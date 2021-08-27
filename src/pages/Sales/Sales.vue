@@ -160,6 +160,7 @@
 
                   <q-tab-panel name="nota_debito">
                     <component-add-note-debit
+                      @reload="reload"
                       :prop_encabezado="encabezado_selected"
                       :prop_product="data_products"
                     />
@@ -1207,6 +1208,7 @@ export default {
       this.category_edit = row;
     },
     reload() {
+      this.dialog_detail = false;
       this.tab = "sales";
       setTimeout(() => {
         this.getData();
