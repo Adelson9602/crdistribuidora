@@ -465,7 +465,7 @@ export default {
         {
           name: "Dv_valor_descuento",
           align: "center",
-          label: "Valor descuento",
+          label: "Porcentaje descuento",
           sortable: true,
           field: "Dv_valor_descuento"
         },
