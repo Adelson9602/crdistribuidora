@@ -625,6 +625,7 @@ export default {
           if(res_enc_debito.ok){
             let promesas = [];
             this.data_sales.forEach( product => {
+              product.Ev_nd_Id = res_enc_debito.data.insertId;
               promesas.push(this.insertDetNotaDebito(product).then( res => {
                 res.data.msg = 'Respuesta insert detalle nota credito'
                 return res.data
@@ -673,11 +674,22 @@ export default {
                 }))
               })
             }
+            Promise.all(promesas).then( data => {
+              data.forEach( res => {
+                console.log(res)
+                if(!res.data.affectedRows){
+                  throw new Error(res.message);
+                }
+              })
+            })
+            this.$q.notify({
+              message: 'Venta realizada',
+              type: 'positive'
+            });
+            this.$emit('reload')
           } else {
             throw new Error(res_enc_debito.message);
           }
-
-          this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
