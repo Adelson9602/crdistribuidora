@@ -605,8 +605,8 @@ export default {
         try {
           this.enc_nota_debito.Per_Num_documento = this.data_user.Per_Num_documento;
           this.enc_nota_debito.Ev_Estado = this.enc_nota_debito.Mp_Id;
-          this.enc_nota_debito.Ev_Entregado = this.enc_nota_debito.Tc_Id == 2 ? 0 : 1;
-          this.enc_nota_debito.Ev_conf_pago = this.enc_nota_debito.Mp_Id == 1 ? 1 : 0;
+          this.enc_nota_debito.Ev_Entregado = this.enc_nota_debito.Tc_Id;
+          this.enc_nota_debito.Ev_conf_pago = this.enc_nota_debito.Mp_Id;
           this.enc_nota_debito.Ev_Subtotal = this.subtotal_venta;
           this.enc_nota_debito.Ev_Des_total_art = this.Ev_Des_total_art;
           this.enc_nota_debito.Ev_Des_gen_venta = (this.enc_nota_debito.Ev_Subtotal - this.enc_nota_debito.Ev_Des_total_art) * (this.enc_nota_debito.Ev_Descuentog / 100)
