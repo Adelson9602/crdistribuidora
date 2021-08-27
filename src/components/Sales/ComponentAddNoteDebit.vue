@@ -479,6 +479,8 @@ export default {
     ]),
     ...mapActions('sales', [
       'getPercentSaleArt',
+      'insertUpdateEncGarantia',
+      'insertDetGarantia',
       'insertUpdateStockGarantia',
       'getPerSalePersona',
       'getDetailSales',
@@ -507,6 +509,7 @@ export default {
           
           // Se asigna datos para el encabezadoq que se guarda en base de datos
           this.enc_nota_debito = this.prop_encabezado;
+          console.log(this.enc_nota_debito)
           this.Ev_Subtotal = this.enc_nota_debito.Ev_Subtotal;
           this.subtotal_venta = this.enc_nota_debito.Ev_Subtotal;
           this.Ev_Des_total_art = this.enc_nota_debito.Ev_Des_total_art;
@@ -612,7 +615,7 @@ export default {
           this.enc_nota_debito.Ev_Usuario_control = this.data_user.Per_Num_documento;
           this.enc_nota_debito.base = process.env.__BASE__;
 
-          const res_enc_debito = await this.enc_nota_debito(this.enc_nota_debito).then( res => {
+          const res_enc_debito = await this.insertEncNotaDebito(this.enc_nota_debito).then( res => {
             return res.data;
           });
           console.log({
@@ -628,7 +631,48 @@ export default {
               }).catch( e => {
                 throw new Error('Error al guardar el detalle de la nota crédito')
               }))
+              promesas.push(this.updateInventarioMovil(product).then( res => {
+                res.data.msg = 'Respuesta update inventario movil';
+                return res.data;
+              }).catch( e => {
+                throw new Error('Error al actualizar el inventario')
+              }))
             })
+            if(this.cantidad_garantia){
+              this.ecn_garantia = {
+                base: process.env.__BASE__,
+                Eg_Id: null,
+                Eg_Quien_autoriza: 0,
+                Ev_Id: res_enc.data.insertId,
+                Eg_Observacion: null,
+                Eg_estado: 0,
+                Eg_User_control: this.data_user.Per_Num_documento,
+              }
+              const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
+                return res.data;
+              });
+              console.log({
+                msg: 'Respuesta insert enc garantia',
+                data: res_gara
+              });
+              if(!res_gara.data.affectedRows){
+                throw new Error(res_gara.message)
+              }
+              this.data_sales.forEach( product => {
+                product.Eg_Id = res_gara.data.insertId;
+                product.Dg_Cant = this.cantidad_garantia;
+                promesas.push(this.insertDetGarantia(product).then( res => {
+                  res.data.msg = 'Respuesta insert det garantía';
+                  return res.data;
+                }))
+                product.Sg_Cant = this.cantidad_garantia;
+                product.simbol = '+';
+                promesas.push(this.insertUpdateStockGarantia(product).then( res => {
+                  res.data.msg = 'Respuesta update stock garantía';
+                  return res.data;
+                }))
+              })
+            }
           } else {
             throw new Error(res_enc_debito.message);
           }
@@ -686,36 +730,34 @@ export default {
             type: 'warning'
           })
         } else {
-          let product_sold = this.data_sales_product.find( product => product.codigo == product_add.codigo );
-          if(product_sold){
-            if(this.cantidad >= product_sold.Dv_Cant){
-              // subtotal_product = precio_compra + (porcentaje_venta * precio_compra / 100) *
-              // Ev_Subtotal => venta_total sin ningun descuento ***
-              // Ev_Des_total_art => Suma total de lo que se desconto por cada articulo, cliente aa ... *
-              // Ev_Total_venta => Ev_Subtotal - Ev_Des_total_art - Ev_Des_gen_venta *
-              // Ev_Descuentog => porcentaje descuento de la factura final (10% ...)
-              // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
-              // diferencia entre precio venta y subtotal
-    
-              product_add.subtotal_product = product_add.Dv_Precio_compra + (this.descuento_art.value * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
-              this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
-    
-              this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
-              this.Ev_Subtotal = this.subtotal_venta;
-    
-              this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_nota_debito.Ev_Descuentog / 100 );
-    
-              this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
-    
-              this.data_sales.push(product_add);
-              this.onReset();
-            } else {
-              this.$q.notify({
-                message: 'La cantidad no puede ser inferior a la vendida anteriormente',
-                type: 'warning'
-              })
-            }
+          let product_sold = this.data_sales_product.find( product => product.codigo == product_add.codigo );          
+          if(product_sold && product_sold.validacion > 0 ){
+            this.$q.notify({
+              message: 'La cantidad no puede ser inferior a la vendida anteriormente',
+              type: 'warning'
+            });
+            return;
           }
+          // subtotal_product = precio_compra + (porcentaje_venta * precio_compra / 100) *
+          // Ev_Subtotal => venta_total sin ningun descuento ***
+          // Ev_Des_total_art => Suma total de lo que se desconto por cada articulo, cliente aa ... *
+          // Ev_Total_venta => Ev_Subtotal - Ev_Des_total_art - Ev_Des_gen_venta *
+          // Ev_Descuentog => porcentaje descuento de la factura final (10% ...)
+          // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
+          // diferencia entre precio venta y subtotal
+
+          product_add.subtotal_product = product_add.Dv_Precio_compra + (this.descuento_art.value * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
+          this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
+
+          this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
+          this.Ev_Subtotal = this.subtotal_venta;
+
+          this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_nota_debito.Ev_Descuentog / 100 );
+
+          this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+
+          this.data_sales.push(product_add);
+          this.onReset();
         }
       }
     },
