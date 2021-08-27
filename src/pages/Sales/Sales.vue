@@ -805,7 +805,7 @@ export default {
               });
             } else {
               this.$q.notify({
-                message: "Sin resultados",
+                message: "Venta sin productos de garantía",
                 type: "warning"
               });
             }
