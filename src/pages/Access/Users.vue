@@ -307,6 +307,7 @@ export default {
       this.tab = "users";
       this.renderComponent = false;
       this.edit_form = false;
+      this.label = "Crear usuario";
       // Se hace el reload, para ello se debe eliminar el componente componenTable antes de hacer las peticiones y luego rendereizarlo de nuevo
       setTimeout(() => {
         this.getData();
