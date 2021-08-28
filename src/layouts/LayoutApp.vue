@@ -202,7 +202,6 @@
           <q-item-section>Cerrar Sesión</q-item-section>
         </q-item>
         <q-item>
-          mensaje
           {{messageStr}}
         </q-item>
       </q-scroll-area>
