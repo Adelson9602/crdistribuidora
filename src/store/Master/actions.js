@@ -59,6 +59,10 @@ export function addCargos(contex, data) {
 }
 
 // MOVILES
+// Lista todas las moviles
+export function getAllMoviles(){
+    return Vue.prototype.$axios.get(`select_movil_general/${base}`)
+}
 
 // Crea la movil
 export function insertMovil(context, data){
