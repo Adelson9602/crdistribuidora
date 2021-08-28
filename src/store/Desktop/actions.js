@@ -36,3 +36,8 @@ export function getTotalVentas(contex, data){
 export function getTotalNotasDeb(contex, data){
     return Vue.prototype.$axios.get(`select_notas_debito_today/${base}`);
 }
+
+// Obtiene los creditos pendiente
+export function getTotalCredPen(contex, data){
+    return Vue.prototype.$axios.get(`elect_card_total_credit_pdte/${base}`);
+}

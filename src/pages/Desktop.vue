@@ -398,6 +398,7 @@ export default {
       'getTotalNotasCre',
       'getTotalVentas',
       'getTotalNotasDeb',
+      'getTotalCredPen'
     ]),
     getData(){
       this.$q.loading.show({
@@ -575,7 +576,18 @@ export default {
             throw new Error(res_no_deb.message);
           }
 
-          this.render_chart = true;
+          const res_cre_pd = await this.getTotalCredPen().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Repuesta get total creditos pendientes',
+            data: res_cre_pd
+          });
+          if(res_cre_pd.ok){
+            this.total_not_debito = new Intl.NumberFormat().format(res_cre_pd.data.cant);
+          } else {
+            throw new Error(res_cre_pd.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
