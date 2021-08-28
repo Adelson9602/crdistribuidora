@@ -8,13 +8,13 @@
             <q-list>
               <q-item>
                 <q-item-section>
-                  <q-item-label>Total Sales</q-item-label>
-                  <q-item-label class="number_card">34,251</q-item-label>
+                  <q-item-label>Total créditos pendientes</q-item-label>
+                  <q-item-label class="number_card">$ {{total_cred_pend}}</q-item-label>
                   <q-item-label>
                     <q-icon
                       name="info"
                       color="positive"
-                    /> Last Month
+                    /> Al día de hoy
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -118,7 +118,7 @@
     <!-- CHARTS -->
     <div class="row q-gutter-y-md">
       <div class="col-xs-12 col-sm-6 col-md-8 q-px-md">
-        <apexchart type="line" height="350" :options="options_line" :series="data_line" v-if="render_chart"/>
+        <apexchart type="line" height="350" :options="options_line" :series="data_line"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4 q-px-md">
         <apexchart type="radialBar" height="390" :options="options_radial" :series="data_radial_bar" />
@@ -127,7 +127,7 @@
         <apexchart type="bar" height="350" :options="options_bar" :series="data_bar" />
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 q-px-md">
-        <apexchart type="bar" height="350" :options="options_line_hoz" :series="data_line_hoz" v-if="render_chart"/>
+        <apexchart type="bar" height="350" :options="options_line_hoz" :series="data_line_hoz"/>
       </div>
     </div>
   </div>
@@ -382,6 +382,7 @@ export default {
       total_ventas: 0,
       total_not_credito: 0,
       total_not_debito: 0,
+      total_cred_pend: 0,
     };
   },
   computed: {
@@ -415,7 +416,7 @@ export default {
           });
           if(res_pro_sales.ok){
             if(res_pro_sales.result){
-              cat_prod_more_sales.length = 0;
+              // cat_prod_more_sales.length = 0;
               this.data_bar.length = 0;
               let objcategorias = {}
               //Recorremos el arreglo para agrupar los productos de acuerdo a su categoría
@@ -443,7 +444,7 @@ export default {
                 element.productos.forEach(product => {
                   // console.log(product)
                   // this.data_bar.push(product.cantidad)
-                  cat_prod_more_sales.push(product.nombre)
+                  // cat_prod_more_sales.push(product.nombre)
                 })
               }
             } else {
@@ -459,10 +460,10 @@ export default {
           const res_dai_sale = await this.chartDailySales().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get gráfica ventas diarias',
-            data: res_dai_sale
-          });
+          // console.log({
+          //   msg: 'Respuesta get gráfica ventas diarias',
+          //   data: res_dai_sale
+          // });
           if(res_dai_sale.ok){
             if(res_dai_sale.result){
               cat_daily_sales.length = 0;
@@ -486,10 +487,10 @@ export default {
           const res_best_client = await this.chartBestClients().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get gráfica mejores clientes',
-            data: res_best_client
-          });
+          // console.log({
+          //   msg: 'Respuesta get gráfica mejores clientes',
+          //   data: res_best_client
+          // });
           if(res_best_client.ok){
             if(res_best_client.result){
               cat_best_clients.length = 0;
@@ -514,10 +515,10 @@ export default {
           const res_price_stock = await this.chartPriceStock().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get gráfica valor stock movil',
-            data: res_price_stock
-          });
+          // console.log({
+          //   msg: 'Respuesta get gráfica valor stock movil',
+          //   data: res_price_stock
+          // });
           if(res_price_stock.ok){
             if(res_price_stock.result){
               cat_val_stock.length = 0;
@@ -540,10 +541,10 @@ export default {
           const res_no_cred = await this.getTotalNotasCre().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Repuesta get total notas creditos',
-            data: res_no_cred
-          });
+          // console.log({
+          //   msg: 'Repuesta get total notas creditos',
+          //   data: res_no_cred
+          // });
           if(res_no_cred.ok){
             this.total_not_credito = new Intl.NumberFormat().format(res_no_cred.data.cant)
           } else {
@@ -553,10 +554,10 @@ export default {
           const res_sale = await this.getTotalVentas().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Repuesta get total ventas diarias',
-            data: res_sale
-          });
+          // console.log({
+          //   msg: 'Repuesta get total ventas diarias',
+          //   data: res_sale
+          // });
           if(res_sale.ok){
             this.total_ventas = new Intl.NumberFormat().format(res_sale.data.total)
           } else {
@@ -566,10 +567,10 @@ export default {
           const res_no_deb = await this.getTotalNotasDeb().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Repuesta get total notas debitos',
-            data: res_no_deb
-          });
+          // console.log({
+          //   msg: 'Repuesta get total notas debitos',
+          //   data: res_no_deb
+          // });
           if(res_no_deb.ok){
             this.total_not_debito = new Intl.NumberFormat().format(res_no_deb.data.cant);
           } else {
@@ -579,12 +580,12 @@ export default {
           const res_cre_pd = await this.getTotalCredPen().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Repuesta get total creditos pendientes',
-            data: res_cre_pd
-          });
+          // console.log({
+          //   msg: 'Repuesta get total creditos pendientes',
+          //   data: res_cre_pd
+          // });
           if(res_cre_pd.ok){
-            this.total_not_debito = new Intl.NumberFormat().format(res_cre_pd.data.cant);
+            this.total_cred_pend = new Intl.NumberFormat().format(res_cre_pd.data.CANT);
           } else {
             throw new Error(res_cre_pd.message);
           }
