@@ -330,6 +330,7 @@ export default {
           { label: "Garantias de ventas", route: "sales/sales_guarantees" },
           { label: "Clientes", route: "sales/customers" },
           { label: "Consulta stock", route: "sales/stock_inquiry" },
+          { label: "Notas crédito y débito", route: "sales/notes" },
         ],
       },
       {
