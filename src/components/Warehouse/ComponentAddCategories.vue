@@ -44,7 +44,7 @@
                 type="text"
                 hint="Prefijo categoría"
                 :rules="[val => !!val || 'Prefijo es obligatorio']"
-                maxlength="4"
+                maxlength="5"
                 counter
                 @input="val => { category.Cat_precodigo = val.toUpperCase()}"
               />
