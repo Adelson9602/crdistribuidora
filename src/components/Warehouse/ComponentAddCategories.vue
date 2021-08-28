@@ -42,8 +42,10 @@
               <q-input
                 v-model="category.Cat_precodigo"
                 type="text"
-                hint="Precódigo categoría"
-                :rules="[val => !!val || 'Precódigo es obligatorio']"
+                hint="Prefijo categoría"
+                :rules="[val => !!val || 'Prefijo es obligatorio']"
+                maxlength="4"
+                counter
                 @input="val => { category.Cat_precodigo = val.toUpperCase()}"
               />
             </div>
