@@ -107,6 +107,14 @@ export default {
       edit_form: false,
     }
   },
+  watch: {
+    dialog_add_movil(value) {
+      if (!value) {
+        this.edit_form = false;
+        this.movil_edit = false;
+      }
+    }
+  },
   computed: {
     ...mapState("auth", ["user_logged"]),
     data_user() {
@@ -184,8 +192,10 @@ export default {
         }
       }, 1000)
     },
-    editMovil(){
-
+    editMovil(row){
+      this.movil_edit = row;
+      this.dialog_add_movil = true;
+      this.edit_form = true;
     },
     openDialogStatus(row){
       this.movil_edit = {
@@ -252,9 +262,14 @@ export default {
         }
       }, 2000);
     },
-    reload(){
-
-    }
+    reload() {
+      this.edit_form = false;
+      this.dialog_add_movil = false;
+      this.movil_edit = null;
+      setTimeout(() => {
+        this.getData();
+      }, 500);
+    },
   }
 }
 </script>

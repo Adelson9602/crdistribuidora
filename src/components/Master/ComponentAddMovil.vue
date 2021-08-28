@@ -4,6 +4,7 @@
       @submit="addPerson"
       ref="form_movil"
       class="q-gutter-y-md"
+      autocomplete="off"
     >
       <div class="row q-gutter-y-md">
         <div class="col-xs-12 col-sm-6 q-px-sm">
@@ -68,7 +69,42 @@
         :columns="columns_integrantes"
         flat
         style="height: 350px;"
-      />
+      >
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th auto-width />
+            <q-th
+              v-for="col in props.cols"
+              :key="col.name"
+              :props="props"
+            >
+              {{ col.label }}
+            </q-th>
+          </q-tr>
+        </template>
+
+        <template v-slot:body="props">
+          <q-tr :props="props">
+            <q-td auto-width>
+              <q-btn
+                :icon="props.row.agregado ? 'power_settings_new' : 'delete'"
+                size="sm"
+                :color="props.row.Estado == 1 && props.row.agregado ? 'green' : 'negative'"
+                round
+                dense
+                @click="deltePerson(props.row)"
+              />
+            </q-td>
+            <q-td
+              v-for="col in props.cols"
+              :key="col.name"
+              :props="props"
+            >
+              {{col.value}}
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
       <div class="row justify-end" v-if="data_integrantes.length > 0">
         <q-btn icon="save" label="Guardar" @click="onSubmit" color="green"/>
       </div>
@@ -79,6 +115,7 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 let all_persons = []; //Contiene todos los usuarios
+import dialog from 'components/Generals/ComponentDialogWarning';
 export default {
   name: 'ComponentAddMovil',
   data () {
@@ -114,6 +151,12 @@ export default {
           label: 'Documento',
           field: 'Per_Num_documento'
         },
+        {
+          name: 'name_estado',
+          align: 'center',
+          label: 'Estado',
+          field: 'name_estado'
+        },
       ],
       options_person: all_persons,
       person_selected: null,
@@ -146,7 +189,8 @@ export default {
     ]),
     ...mapActions('master', [
       'insertMovil',
-      'insertIntegranteMovil'
+      'insertIntegranteMovil',
+      'getMembersMovil'
     ]),
     getData() {
       this.$q.loading.show({
@@ -157,10 +201,10 @@ export default {
           const res_persons = await this.getPersons().then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get personal",
-            data: res_persons
-          });
+          // console.log({
+          //   msg: "Respuesta get personal",
+          //   data: res_persons
+          // });
           if (res_persons.ok) {
             if (res_persons.result) {
               all_persons.length = 0;
@@ -180,6 +224,37 @@ export default {
             }
           } else {
             throw new Error(res_persons.message);
+          }
+
+          if(this.edit_data){
+            this.movil = this.edit_data;
+            const res_integrantes = await this.getMembersMovil(this.edit_data.Mov_Id).then( res =>{
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Respuesta integrantes de la movil',
+            //   data: res_integrantes
+            // });
+            if (res_integrantes.ok) {
+              if (res_integrantes.result) {
+                this.data_integrantes.length = 0;
+                res_integrantes.data.forEach(persona => {
+                  let persona_added = all_persons.find( user => user.value == persona.Per_Num_documento )
+                  persona.base = process.env.__BASE__;
+                  persona.Nombre_persona = persona_added.label;
+                  persona.agregado = true;
+                  persona.name_estado = persona.Estado == 1 ? 'ACTIVO' : 'INACTIVO';
+                  this.data_integrantes.push(persona)
+                });
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultado',
+                  type: "warning"
+                });
+              }
+            } else {
+              throw new Error(res_integrantes.message);
+            }
           }
         } catch (e) {
           console.log(e);
@@ -211,10 +286,10 @@ export default {
           const res_mov = await this.insertMovil(this.movil).then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta insert update movil",
-            data: res_mov
-          });
+          // console.log({
+          //   msg: "Respuesta insert update movil",
+          //   data: res_mov
+          // });
           if (res_mov.ok) {
             let promesas = [];
             this.data_integrantes.forEach( pesona => {
@@ -225,6 +300,11 @@ export default {
             });
             Promise.all(promesas).then( res => {
               console.log(res)
+              this.$emit('reload');
+              this.$q.notify({
+                message: 'Guardado',
+                type: 'positive'
+              })
             })
           } else {
             throw new Error(res_mov.message);
@@ -257,6 +337,8 @@ export default {
         Per_Num_documento: this.person_selected.value,
         integrante_ppl: this.tipo_person_selecte, // 0 Si es auxiliar, 1 si es el principal
         Estado: 1,
+        name_estado: 'SIN ASOCIAR',
+        agregado: false, //Asignamos el valor en falso porque aun no esta asociado a la movil
         Movp_User_control: this.data_user.Per_Num_documento,
       }
       let person_added = this.data_integrantes.find( person => person.Per_Num_documento == this.person_selected.value)
@@ -269,6 +351,62 @@ export default {
         this.data_integrantes.push(add_integrante);
         this.onReset();
       }
+    },
+    // Borra productos de la tabla productos a vender
+    deltePerson(row){
+      console.log(row)
+      this.$q.dialog({
+        component: dialog,
+        parent: this,
+        title: `${row.agregado && row.Estado == 1 ? 'Inactivar integrante' : row.agregado && row.Estado == 0 ? 'Activar integrante' :'Eliminar persona'}`,
+        msg: `Este usuario ya está ${row.agregado ? 'asociado a la móvil' : 'agregado a la tabla' }, vas a ${row.agregado && row.Estado == 1 ? 'inactivar' : row.agregado && row.Estado == 0 ? 'activar' : 'eliminar'} un integrante agregado a la ${row.agregado ? 'móvil' : 'tabla'}, ¿Seguro que desea continuar?`,
+      }).onOk( async () => {
+        if(this.edit_data){
+          this.$q.loading.show({
+            message: 'Actualizando estado del integrante, por favor espere...'
+          })
+          setTimeout(async() => {
+            try {
+              row.Estado = row.Estado == 1 ? 0 : 1;
+              const res_update = await this.insertIntegranteMovil(row).then( res => {
+                return res.data
+              });
+              // console.log({
+              //   res: 'Respuesta update estado integrante',
+              //   data: res_update
+              // })
+              if(res_update.ok){
+                this.$q.notify({
+                  message: 'Estado actualizado',
+                  type: 'positive'
+                })
+                setTimeout(this.getData, 500);
+              } else {
+                throw new Error(res_update.message)
+              }
+            } catch (e) {
+              console.log(e);
+              if (e.message === "Network Error") {
+                e = e.message;
+              }
+              if (e.message === "Request failed with status code 404") {
+                e = "URL de solicitud no existe, err 404";
+              } else if (e.message) {
+                e = e.message;
+              }
+              this.$q.notify({
+                message: e,
+                type: "negative"
+              });
+            } finally {
+              this.$q.loading.hide();
+            }
+          }, 1000)
+        } else {
+          let index = this.data_integrantes.indexOf(row)
+          this.data_integrantes.splice(index, 1)
+        }
+      })
     },
     // Buscador
     searchUser(val, update, abort){
