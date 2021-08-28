@@ -95,15 +95,6 @@
                     </q-field>
                   </div>
                 </div>
-                <!-- Detalle -->
-                <q-table
-                  flat
-                  title="Productos vendidos"
-                  :data="data_products"
-                  :columns="columns_products"
-                  row-key="name"
-                  class="alto_tabla"
-                />
               </q-card-section>
             </q-card>
           </q-dialog>
@@ -371,6 +362,7 @@ export default {
       encabezado_selected: null,
       encebezado_venta: null,
       data_products: [],
+      data_notas_credit: [],
       columns_products: [
         {
           name: "Art_Id",
@@ -514,7 +506,8 @@ export default {
       "getSalesClient",
       "getDetailSales",
       "getDetailsGuarantess",
-      'getEncNotaCredSingle'
+      'getEncNotaCredSingle',
+      'getDetNotaCredSingle'
     ]),
     ...mapActions("shopping", ["getProviders"]),
     getData() {
@@ -635,24 +628,6 @@ export default {
       setTimeout(async () => {
         try {
           this.encabezado_selected = row;
-          this.encebezado_venta = {
-            "Venta N°": row.Ev_Id,
-            NIT: row.CP_Nit,
-            "Descuento general venta": row.Ev_Des_gen_venta,
-            "Descuento total articulos": row.Ev_Des_total_art,
-            Impuesto: row.Ev_Impuesto,
-            Subtotal: row.Ev_Subtotal,
-            "Total venta": row.Ev_Total_venta,
-            "Días de crédito": row.Ev_dias_credito,
-            Descripción: row.Mov_Descripcion,
-            "Nombre vendedor": row.Per_Nombre,
-            "Documento vendedor": row.Per_Num_documento,
-            "Autoriza garantía": row.name_qautorizqa,
-            "Quién autoriza": row.Eg_Quien_autoriza,
-            Observación: row.Eg_Observacion,
-            "Fecha venta": row.Ev_Fecha_venta,
-            Estado: row.Estado
-          };
           const res_enc = await this.getEncNotaCredSingle(row.Ev_Id).then( res => {
             return res.data;
           })
@@ -660,7 +635,41 @@ export default {
             msg: 'Respuesta encabezado nota credito',
             data: res_enc
           })
-          this.data_products.length = 0;
+          this.data_notas_credit.length = 0;
+          if(res_enc.ok){
+            let promesas = [];
+            res_enc.data.forEach( nota => {
+              // console.log(nota)
+              let enc_nota = {
+                "Venta N°": nota.Ev_Id,
+                NIT: nota.CP_Nit,
+                "Descuento general venta": nota.Ev_Des_gen_venta,
+                "Descuento total articulos": nota.Ev_Des_total_art,
+                Impuesto: nota.Ev_Impuesto,
+                Subtotal: nota.Ev_Subtotal,
+                "Total venta": nota.Ev_Total_venta,
+                "Días de crédito": nota.Ev_dias_credito,
+                Descripción: nota.Mov_Descripcion,
+                "Nombre vendedor": nota.Per_Nombre,
+                "Documento vendedor": nota.Per_Num_documento,
+                "Autoriza garantía": nota.name_qautorizqa,
+                "Quién autoriza": nota.Eg_Quien_autoriza,
+                Observación: nota.Eg_Observacion,
+                "Fecha venta": nota.Ev_Fecha_venta,
+                Estado: nota.Estado
+              }
+              promesas.push(this.getDetNotaCredSingle(row.Ev_Id).then( res => {
+                res.data.id = nota.Ev_nc_Id,
+                res.data.encabezado = enc_nota;
+                return res.data;
+              }))
+            })
+            Promise.all(promesas).then( data => {
+              console.log(data)
+            })
+          } else {
+            throw new Error(res_enc.message)
+          }
           
           this.dialog_detail = true;
         } catch (e) {
