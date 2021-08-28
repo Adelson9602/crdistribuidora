@@ -10,8 +10,8 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="sales" label="Notas crédito" icon="monetization_on" />
-        <q-tab name="add_sales" label="Notas débito" icon="shopping_cart" />
+        <q-tab name="sales" label="Notas crédito" icon="note_add" />
+        <q-tab name="add_sales" label="Notas débito" icon="description" />
       </q-tabs>
 
       <q-separator />
@@ -34,7 +34,31 @@
             @onedit="editSale"
             @ondetails="detatilSale"
             @onpdf="generatePdf"
-          />
+          >
+            <template v-slot:input_one>
+              <q-select
+                v-model="client_selected"
+                clearable
+                use-input
+                hide-selected
+                fill-input
+                input-debounce="0"
+                hint="Cliente"
+                :options="options_clientes"
+                @filter="filterClientes"
+                emit-value
+                map-options
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      No results
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </template>
+          </component-table>
           <!-- Dialogo para ver el detalle de la venta -->
           <q-dialog v-model="dialog_detail" persistent full-height full-width>
             <q-card>
@@ -72,28 +96,14 @@
                   </div>
                 </div>
                 <!-- Detalle -->
-                <div class="row">
-                  <div class="col-xs-12 col-md-6 q-px-sm">
-                    <q-table
-                      flat
-                      title="Productos vendidos"
-                      :data="data_products"
-                      :columns="columns_products"
-                      row-key="name"
-                      class="alto_tabla"
-                    />
-                  </div>
-                  <div class="col-xs-12 col-md-6 q-px-sm">
-                    <q-table
-                      flat
-                      title="Productos en garantía"
-                      :data="data_garantias"
-                      :columns="columns_products"
-                      row-key="name"
-                      class="alto_tabla"
-                    />
-                  </div>
-                </div>
+                <q-table
+                  flat
+                  title="Productos vendidos"
+                  :data="data_products"
+                  :columns="columns_products"
+                  row-key="name"
+                  class="alto_tabla"
+                />
               </q-card-section>
             </q-card>
           </q-dialog>
@@ -128,9 +138,198 @@ export default {
     return {
       tab: "sales",
       tab_detail: "detalle",
-      columns: [],
+      columns: [
+        {
+          name: "Ev_Id",
+          align: "center",
+          label: "Venta N°",
+          sortable: true,
+          field: "Ev_Id"
+        },
+        {
+          name: "CP_Nit",
+          align: "center",
+          label: "NIT",
+          sortable: true,
+          field: "CP_Nit"
+        },
+        {
+          name: "Ev_Des_gen_venta",
+          align: "center",
+          label: "Descuento general venta",
+          sortable: true,
+          field: "Ev_Des_gen_venta"
+        },
+        {
+          name: "Ev_Des_total_art",
+          align: "center",
+          label: "Descuento total artículo",
+          sortable: true,
+          field: "Ev_Des_total_art"
+        },
+        {
+          name: "Ev_Impuesto",
+          align: "center",
+          label: "Impuesto",
+          sortable: true,
+          field: "Ev_Impuesto"
+        },
+        {
+          name: "Ev_Subtotal",
+          align: "center",
+          label: "Subtotal",
+          sortable: true,
+          field: "Ev_Subtotal"
+        },
+        {
+          name: "Ev_Total_venta",
+          align: "center",
+          label: "Venta total",
+          sortable: true,
+          field: "Ev_Total_venta"
+        },
+        {
+          name: "Ev_dias_credito",
+          align: "center",
+          label: "Días crédito",
+          sortable: true,
+          field: "Ev_dias_credito"
+        },
+        {
+          name: "Mov_Descripcion",
+          align: "center",
+          label: "Nombre movil",
+          sortable: true,
+          field: "Mov_Descripcion"
+        },
+        {
+          name: "Per_Nombre",
+          align: "center",
+          label: "Nombre vendedor",
+          sortable: true,
+          field: "Per_Nombre"
+        },
+        {
+          name: "Per_Num_documento",
+          align: "center",
+          label: "Documento vendedor",
+          sortable: true,
+          field: "Per_Num_documento"
+        },
+        {
+          name: "name_qautorizqa",
+          align: "center",
+          label: "Autoriza garantía",
+          sortable: true,
+          field: "name_qautorizqa"
+        },
+        {
+          name: "Eg_Quien_autoriza",
+          align: "center",
+          label: "Documento autoriza garantía",
+          sortable: true,
+          field: "Eg_Quien_autoriza"
+        },
+        {
+          name: "Eg_Observacion",
+          align: "center",
+          label: "Observación",
+          sortable: true,
+          field: "Eg_Observacion"
+        },
+        {
+          name: "Eg_Fecha_control",
+          align: "center",
+          label: "Fecha garantía",
+          sortable: true,
+          field: "Eg_Fecha_control"
+        },
+        {
+          name: "Ev_Fecha_venta",
+          align: "center",
+          label: "Fecha venta",
+          sortable: true,
+          field: "Ev_Fecha_venta"
+        },
+        {
+          name: "Estado",
+          align: "center",
+          label: "Estado",
+          sortable: true,
+          field: "Estado"
+        }
+      ],
       excel: {
-        columns: [],
+        columns: [
+          {
+            label: "Venta N°",
+            field: "Ev_Id"
+          },
+          {
+            label: "NIT",
+            field: "CP_Nit"
+          },
+          {
+            label: "Descuento general venta",
+            field: "Ev_Des_gen_venta"
+          },
+          {
+            label: "Descuento total artículo",
+            field: "Ev_Des_total_art"
+          },
+          {
+            label: "Impuesto",
+            field: "Ev_Impuesto"
+          },
+          {
+            label: "Subtotal",
+            field: "Ev_Subtotal"
+          },
+          {
+            label: "Venta total",
+            field: "Ev_Total_venta"
+          },
+          {
+            label: "Días crédito",
+            field: "Ev_dias_credito"
+          },
+          {
+            label: "Nombre movil",
+            field: "Mov_Descripcion"
+          },
+          {
+            label: "Nombre vendedor",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Documento vendedor",
+            field: "Per_Num_documento"
+          },
+          {
+            label: "Autoriza garantía",
+            field: "name_qautorizqa"
+          },
+          {
+            label: "Documento autoriza garantía",
+            field: "Eg_Quien_autoriza"
+          },
+          {
+            label: "Observación",
+            field: "Eg_Observacion"
+          },
+          {
+            label: "Fecha garantía",
+            field: "Eg_Fecha_control"
+          },
+          {
+            label: "Fecha venta",
+            field: "Ev_Fecha_venta"
+          },
+          {
+            label: "Estado",
+            field: "Estado"
+          }
+        ],
         data: [],
         title: "Ventas"
       },
@@ -172,9 +371,50 @@ export default {
       encabezado_selected: null,
       encebezado_venta: null,
       data_products: [],
-      columns_products: [],
-      columns_garantia: [],
-      data_garantias: []
+      columns_products: [
+        {
+          name: "Art_Id",
+          align: "center",
+          label: "ID Artículo",
+          sortable: true,
+          field: "Art_Id"
+        },
+        {
+          name: "Art_Descripcion",
+          align: "center",
+          label: "Descripción articulo",
+          sortable: true,
+          field: "Art_Descripcion"
+        },
+        {
+          name: "Dv_Precio_compra",
+          align: "center",
+          label: "Precio de compra",
+          sortable: true,
+          field: "Dv_Precio_compra"
+        },
+        {
+          name: "Dv_precio_venta",
+          align: "center",
+          label: "Precio de venta",
+          sortable: true,
+          field: "Dv_precio_venta"
+        },
+        {
+          name: "Dv_valor_descuento",
+          align: "center",
+          label: "Porcentaje descuento",
+          sortable: true,
+          field: "Dv_valor_descuento"
+        },
+        {
+          name: "categoria",
+          align: "center",
+          label: "Categoría producto",
+          sortable: true,
+          field: "categoria"
+        }
+      ],
     };
   },
   created() {
@@ -191,10 +431,10 @@ export default {
             const res_client = await this.getSalesClient(value).then(res => {
               return res.data;
             });
-            console.log({
-              msg: "Respuesta get ventas al cliente",
-              data: res_client
-            });
+            // console.log({
+            //   msg: "Respuesta get ventas al cliente",
+            //   data: res_client
+            // });
             if (res_client.ok) {
               if (res_client.result) {
                 this.data.length = 0;
@@ -267,8 +507,14 @@ export default {
   },
   methods: {
     ...mapActions("sales", [
-      "getEncNotaDebitoGeneral",
+      "getSearchSales",
+      "getSalesRange",
+      "getSales",
+      "getSales",
+      "getSalesClient",
       "getDetailSales",
+      "getDetailsGuarantess",
+      'getEncNotaCredSingle'
     ]),
     ...mapActions("shopping", ["getProviders"]),
     getData() {
@@ -277,30 +523,53 @@ export default {
       });
       setTimeout(async () => {
         try {
-          
-          const res_sales = await this.getEncNotaDebitoGeneral().then(res => {
+          const res_sales = await this.getSales().then(res => {
             return res.data;
           });
           console.log({
-            msg: "Respuesta get notas debito",
+            msg: "Respuesta get ventas",
             data: res_sales
           });
           if (res_sales.ok) {
             this.data.length = 0;
             if (res_sales.result) {
               res_sales.data.forEach(venta => {
-                // this.data.push({
-                //   title: venta.CP_Razon_social,
-                //   name_mp: venta.name_mp,
-                //   name_qautorizqa: venta.name_qautorizqa,
-                //   // btn_edit: true,
-                //   // btn_status: true,
-                //   btn_details: true,
-                //   btn_pdf: true,
-                //   // icon_btn_edit: "mdi-pencil",
-                //   // icon_btn_status: "power_settings_new",
-                //   icon_btn_details: "mdi-eye-settings"
-                // });
+                this.data.push({
+                  CP_Nit: venta.CP_Nit,
+                  CP_Razon_social: venta.CP_Razon_social,
+                  Ev_Des_gen_venta: venta.Ev_Des_gen_venta,
+                  Ev_Des_total_art: venta.Ev_Des_total_art,
+                  Ev_Descuentog: venta.Ev_Descuentog,
+                  Ev_Entregado: venta.Ev_Entregado,
+                  Ev_Estado: venta.Ev_Estado,
+                  Ev_Fecha_control: venta.Ev_Fecha_control,
+                  Ev_Fecha_venta: venta.Ev_Fecha_venta,
+                  Ev_Id: venta.Ev_Id,
+                  Ev_Impuesto: venta.Ev_Impuesto,
+                  Ev_Subtotal: venta.Ev_Subtotal,
+                  Ev_Total_venta: venta.Ev_Total_venta,
+                  Ev_conf_pago: venta.Ev_conf_pago,
+                  Ev_dias_credito: venta.Ev_dias_credito,
+                  Mov_Descripcion: venta.Mov_Descripcion,
+                  Mov_Id: venta.Mov_Id,
+                  Mp_Id: venta.Mp_Id,
+                  Tc_Id: venta.Tc_Id,
+                  Per_Nombre: venta.Per_Nombre,
+                  Per_Num_documento: venta.Per_Num_documento,
+                  Estado: venta.name_estado,
+                  status: venta.Ev_Estado,
+                  Id: venta.Ev_Id,
+                  title: venta.CP_Razon_social,
+                  name_mp: venta.name_mp,
+                  name_qautorizqa: venta.name_qautorizqa,
+                  // btn_edit: true,
+                  // btn_status: true,
+                  btn_details: true,
+                  btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                  icon_btn_details: "mdi-eye-settings"
+                });
               });
             } else {
               this.$q.notify({
@@ -311,6 +580,35 @@ export default {
           } else {
             throw new Error(res_sales.message);
           }
+
+          const res_provider = await this.getProviders().then(res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: "Respuesta get clientes",
+          //   data: res_provider
+          // });
+          if (res_provider.ok) {
+            if (res_provider.result) {
+              all_clients.length = 0;
+              res_provider.data.forEach(cliente => {
+                if (cliente.name_tp == "CLIENTE" && cliente.CP_Razon_social) {
+                  all_clients.push({
+                    label: cliente.CP_Razon_social,
+                    value: cliente.CP_Nit
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_provider.message,
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_provider.message);
+          }
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -355,60 +653,15 @@ export default {
             "Fecha venta": row.Ev_Fecha_venta,
             Estado: row.Estado
           };
-          this.data_products.length = 0;
-          const res_deta = await this.getDetailSales(row.Ev_Id).then(res => {
+          const res_enc = await this.getEncNotaCredSingle(row.Ev_Id).then( res => {
             return res.data;
-          });
+          })
           console.log({
-            msg: "Respuesta get detalle venta",
-            data: res_deta
-          });
-          if (res_deta.ok) {
-            if (res_deta.result) {
-              res_deta.data.forEach(product => {
-                this.data_products.push(product);
-              });
-            } else {
-              this.$q.notify({
-                message: "Sin resultados",
-                type: "warning"
-              });
-            }
-          } else {
-            throw new Error(res_deta.message);
-          }
-
-          this.data_garantias.length = 0;
-          const res_wara = await this.getDetailsGuarantess(row.Ev_Id).then(
-            res => {
-              return res.data;
-            }
-          );
-          console.log({
-            msg: "Respuesta get detalle garantia venta",
-            data: res_wara
-          });
-          if (res_wara.ok) {
-            if (res_wara.result) {
-              res_wara.data.forEach(producto => {
-                producto.Estado =
-                  producto.Eg_estado == 0
-                    ? "Pendiente por devolver"
-                    : producto.Eg_estado == 1
-                    ? "Devuelto"
-                    : "Descontado";
-                this.data_garantias.push(producto);
-              });
-            } else {
-              this.$q.notify({
-                message: "Venta sin productos de garantía",
-                type: "warning"
-              });
-            }
-          } else {
-            throw new Error(res_wara.message);
-          }
-
+            msg: 'Respuesta encabezado nota credito',
+            data: res_enc
+          })
+          this.data_products.length = 0;
+          
           this.dialog_detail = true;
         } catch (e) {
           console.log(e);
