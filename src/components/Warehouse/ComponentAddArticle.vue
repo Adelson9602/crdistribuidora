@@ -449,6 +449,8 @@ export default {
               //   throw new Error('Erorr al guardar artículo');
               // }
             })
+          }).catch( e => {
+            throw new Error(e)
           })
           this.$q.notify({
             message: 'Guardado',
