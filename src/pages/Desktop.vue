@@ -2,19 +2,19 @@
   <div class="q-pa-md" id="chart">
     <!-- CARDS -->
     <div class="row q-pt-sm content-card">
-      <div class="q-pa-md col-xs-12 col-sm-6 col-md-3">
+      <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
           <q-card-section>
             <q-list>
               <q-item>
                 <q-item-section>
-                  <q-item-label>Total créditos pendientes</q-item-label>
+                  <q-item-label>Total créditos</q-item-label>
                   <q-item-label class="number_card">$ {{total_cred_pend}}</q-item-label>
                   <q-item-label>
                     <q-icon
                       name="info"
                       color="positive"
-                    /> Al día de hoy
+                    /> Pendientes
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -30,7 +30,7 @@
           </q-card-section>
         </q-card>
       </div>
-      <div class="q-pa-md col-xs-12 col-sm-6 col-md-3">
+      <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
           <q-card-section>
             <q-list>
@@ -58,7 +58,7 @@
           </q-card-section>
         </q-card>
       </div>
-      <div class="q-pa-md col-xs-12 col-sm-6 col-md-3">
+      <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
           <q-card-section>
             <q-list>
@@ -86,7 +86,7 @@
           </q-card-section>
         </q-card>
       </div>
-      <div class="q-pa-md col-xs-12 col-sm-6 col-md-3">
+      <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
           <q-card-section>
             <q-list>
@@ -444,7 +444,7 @@ export default {
                 element.productos.forEach(product => {
                   // console.log(product)
                   // this.data_bar.push(product.cantidad)
-                  // cat_prod_more_sales.push(product.nombre)
+                  // cat_prod_more_sales.push(product.nombre)ñgi
                 })
               }
             } else {
