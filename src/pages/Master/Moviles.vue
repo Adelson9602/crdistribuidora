@@ -29,12 +29,12 @@
           @tostatus="openDialogStatus"
         />
         <!-- Dialogo para activar o inactivar una meta -->
-        <!-- <component-dialog-enable
+        <component-dialog-enable
           :dialog="enable_diable"
           :options_dialog="options_status"
           @cancel="enable_diable = false"
           @changeStatus="changeStatus"
-        /> -->
+        />
       </q-card-section>
     </q-card>
   </q-page>
@@ -44,7 +44,7 @@
 import componentTable from "components/Generals/ComponentTable";
 import componentDialogEnable from "components/Generals/ComponentDialogEnable";
 import componentAddMovil from "components/Master/ComponentAddMovil";
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 export default {
   name: 'PageMoviles',
   components: {
@@ -107,12 +107,19 @@ export default {
       edit_form: false,
     }
   },
+  computed: {
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
+  },
   created(){
     this.getData();
   },
   methods: {
     ...mapActions('master', [
-      'getAllMoviles'
+      'getAllMoviles',
+      'insertMovil'
     ]),
     getData(){
       this.$q.loading.show({
@@ -180,8 +187,70 @@ export default {
     editMovil(){
 
     },
-    openDialogStatus(){
-
+    openDialogStatus(row){
+      this.movil_edit = {
+        base: process.env.__BASE__,
+        Mov_Id: row.Mov_Id,
+        Mov_Descripcion: row.Mov_Descripcion,
+        Mov_Estado: row.Mov_Estado == 1 ? 0 : 1,
+        Mov_User_control: this.data_user.Per_Num_documento
+      };
+      this.options_status.title = row.Mov_Estado == 1 ? "Desactivar móvil" : "Activar móvil";
+      this.options_status.msg = row.Mov_Estado == 1
+          ? "Está desactivando la móvil, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivarlo?"
+          : "Está activando la móvil, por lo que estará disponible para su uso en el sistema, ¿está seguro que desea activarlo?";
+      this.enable_diable = true;
+    },
+    changeStatus() {
+      this.$q.loading.show({
+        message: "Estamos cambiando el estado del Cargos, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          const res_mov = await this.insertMovil(this.movil_edit).then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta insert update movil",
+            data: res_mov
+          });
+          if (res_mov.ok) {
+            if (res_mov.data.affectedRows) {
+              this.$q.notify({
+                message: "Estado actualizado",
+                type: "positive"
+              });
+              setTimeout(() => {
+                this.enable_diable = false;
+                this.getData();
+              }, 500);
+            } else {
+              this.$q.notify({
+                message: "No se actualizó el estado",
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_mov.message)
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 2000);
     },
     reload(){
 
