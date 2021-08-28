@@ -445,9 +445,9 @@ export default {
                 msg: res.msg,
                 data: res
               });
-              if(!res.ok || !res.saved){
-                throw new Error('Erorr al guardar artículo');
-              }
+              // if(!res.ok || !res.saved){
+              //   throw new Error('Erorr al guardar artículo');
+              // }
             })
           })
           this.$q.notify({
