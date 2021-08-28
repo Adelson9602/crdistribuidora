@@ -121,6 +121,25 @@ export function insertUpdateStockGarantia(context, data){
 }
 
 // NOTA DÉBITO
+// Obtiene todos los encabezados de la nota debito
+export function getEncNotaDebitoGeneral(context, data){
+  return Vue.prototype.$axios.post(`elect_enc_venta_nota_debito_general_Ev_Id/${base}`);
+}
+
+// Obtiene el encabezado de una nota débito
+export function getEncNotaDebitoSingle(context, id_venta){
+  return Vue.prototype.$axios.post(`select_enc_venta_nota_credito_general_Ev_Id/${base}/${id_venta}`);
+}
+
+export function getEncNotaCredGeneral(context, data){
+  return Vue.prototype.$axios.post(`elect_enc_venta_nota_debito_general_Ev_Id/${base}`);
+}
+
+// Obtiene el encabezado de una nota débito
+export function getEncNotaCredSingle(context, id_venta){
+  return Vue.prototype.$axios.post(`select_det_venta_nota_credito_single_Ev_Id/${base}/${id_venta}`);
+}
+
 // Inserta el encabezado de la nota debito
 export function insertEncNotaDebito(context, data){
   return Vue.prototype.$axios.post(`insert_update_enc_venta_nota_debito`, data);
