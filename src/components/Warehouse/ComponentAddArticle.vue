@@ -36,7 +36,7 @@
             counter
           />
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-select
             v-model="art_cat"
             clearable
@@ -57,7 +57,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-select
             v-model="art_um"
             clearable
@@ -78,7 +78,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-select
             v-model="new_article.Art_Estado"
             :options="options_state"
@@ -87,7 +87,7 @@
             map-options
           />
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-input
             @input="val => { new_article.Art_ubicacion = val.toUpperCase()}"
             v-model="new_article.Art_ubicacion"
@@ -96,14 +96,25 @@
             counter
           />
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-file
             v-model="img_articulo"
             hint="Imagen artículo"
             counter
-          />
+          >
+            <template v-slot:prepend>
+              <q-icon name="cloud_upload" @click.stop />
+            </template>
+            <template v-slot:append>
+              <q-icon name="close" @click.stop="img_articulo = null" class="cursor-pointer" />
+            </template>
+
+            <template v-slot:hint>
+              Field hint
+            </template>
+          </q-file>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
           <q-input
             v-model="new_article.Art_Stockminimo"
             hint="Stock mínimo"
@@ -189,7 +200,8 @@ export default {
         Art_ubicacion:null,
         Art_Imagen: null,
         Art_Estado: null,
-        Art_User_control: null
+        Art_User_control: null,
+        Art_porce_general: 1
       },
       art_cat: null,
       art_um: null,
@@ -250,6 +262,17 @@ export default {
         },
       ],
       data_articles: [],
+      tipo_seleccionado: null,
+      options_tipos_por: [
+        {
+          label: 'Porcentaje general',
+          value:  1
+        },
+        {
+          label: 'Porcentaje personalizado',
+          value:  0
+        },
+      ]
     }
   },
   props: [
@@ -461,6 +484,7 @@ export default {
         Art_Nombre: this.new_article.Art_Nombre,
         Art_Descripcion: this.new_article.Art_Descripcion,
         Art_Stockminimo: this.new_article.Art_Stockminimo,
+        Art_porce_general: 1,
         Um_Id: this.art_um.value,
         art_um: this.art_um.label,
         Art_ubicacion:this.new_article.Art_ubicacion,
