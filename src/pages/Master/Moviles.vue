@@ -2,17 +2,17 @@
   <q-page padding>
     <q-card class="height-card_page">
       <q-card-section>
-        <q-btn color="primary" icon="add" label="Agregar móvil" @click="dialog_add_cargo = true" />
+        <q-btn color="primary" icon="add" label="Agregar móvil" @click="dialog_add_movil = true" />
         <q-dialog v-model="dialog_add_movil" persistent>
           <q-card style="width: 700px; max-width: 80vw;">
             <q-bar dark class="bg-primary text-white">
               <div class="col text-center text-weight-bold">
-                {{ edit_form ? 'Editar cargo' : 'Agregar cargo'}}
+                {{ edit_form ? 'Editar móvil' : 'Agregar móvil'}}
               </div>
               <q-btn text-color="white" flat round icon="close" size="8.5px" color="green" v-close-popup/>
             </q-bar>
             <q-card-section>
-              <!-- <component-add-charges @reload="reload" :edit_data="charges_edit" /> -->
+              <component-add-movil @reload="reload" :edit_data="movil_edit" />
             </q-card-section>
           </q-card>
         </q-dialog>
@@ -43,12 +43,14 @@
 <script>
 import componentTable from "components/Generals/ComponentTable";
 import componentDialogEnable from "components/Generals/ComponentDialogEnable";
+import componentAddMovil from "components/Master/ComponentAddMovil";
 import { mapActions } from 'vuex';
 export default {
   name: 'PageMoviles',
   components: {
     componentTable,
     componentDialogEnable,
+    componentAddMovil
   },
   data(){
     return {
@@ -95,7 +97,7 @@ export default {
         btn_export_pdf: false,
         export_excel: false
       },
-      charges_edit: null,
+      movil_edit: null,
       enable_diable: false,
       options_status: {
         title: null,
@@ -179,6 +181,9 @@ export default {
 
     },
     openDialogStatus(){
+
+    },
+    reload(){
 
     }
   }
