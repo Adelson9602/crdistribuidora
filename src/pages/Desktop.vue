@@ -4,9 +4,9 @@
     <div class="row q-pt-sm content-card">
       <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
-          <q-card-section>
+          <q-card-section style="padding-left: 14px; padding-right: 14px;">
             <q-list>
-              <q-item>
+              <q-item class="q-pa-none">
                 <q-item-section>
                   <q-item-label>Total créditos</q-item-label>
                   <q-item-label class="number_card">$ {{total_cred_pend}}</q-item-label>
@@ -17,7 +17,7 @@
                     /> Pendientes
                   </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section side style="padding-left: 0 !important;">
                   <q-avatar
                     size="60px"
                     class="bg-primary-gradient"
@@ -32,9 +32,9 @@
       </div>
       <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
-          <q-card-section>
+          <q-card-section style="padding-left: 14px; padding-right: 14px;">
             <q-list>
-              <q-item>
+              <q-item class="q-pa-none">
                 <q-item-section>
                   <q-item-label>Total notas créditos</q-item-label>
                   <q-item-label class="number_card">$ {{total_not_credito}}</q-item-label>
@@ -45,7 +45,7 @@
                     /> Del día
                   </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section side style="padding-left: 0 !important;">
                   <q-avatar
                     size="60px"
                     class="bg-danger-gradient"
@@ -60,9 +60,9 @@
       </div>
       <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
-          <q-card-section>
+          <q-card-section style="padding-left: 14px; padding-right: 14px;">
             <q-list>
-              <q-item>
+              <q-item class="q-pa-none">
                 <q-item-section>
                   <q-item-label>Total ventas</q-item-label>
                   <q-item-label class="number_card">$ {{total_ventas}}</q-item-label>
@@ -73,7 +73,7 @@
                     /> Del día
                   </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section side style="padding-left: 0 !important;">
                   <q-avatar
                     size="60px"
                     class="bg-secondary-gradient"
@@ -88,9 +88,9 @@
       </div>
       <div class="q-pa-sm col-xs-12 col-sm-6 col-md-3">
         <q-card class="my-card">
-          <q-card-section>
+          <q-card-section style="padding-left: 14px; padding-right: 14px;">
             <q-list>
-              <q-item>
+              <q-item class="q-pa-none">
                 <q-item-section>
                   <q-item-label>Total notas débito</q-item-label>
                   <q-item-label class="number_card">$ {{total_not_debito}}</q-item-label>
@@ -101,7 +101,7 @@
                     /> Del día
                   </q-item-label>
                 </q-item-section>
-                <q-item-section side>
+                <q-item-section side style="padding-left: 0 !important;">
                   <q-avatar
                     size="60px"
                     class="bg-success-gradient"
