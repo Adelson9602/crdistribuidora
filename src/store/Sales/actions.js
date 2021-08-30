@@ -123,7 +123,11 @@ export function insertUpdateStockGarantia(context, data){
 // NOTA DÉBITO
 // Obtiene el encabezado de una nota débito
 export function getEncNotaDebitoSingle(context, id_venta){
-  return Vue.prototype.$axios.post(`select_enc_venta_nota_debito_general_Ev_Id/${base}/${id_venta}`);
+  return Vue.prototype.$axios.get(`select_enc_venta_nota_debito_general_Ev_Id/${base}/${id_venta}`);
+}
+
+export function getDetNotaDebitoSingle(context, id_venta){
+  return Vue.prototype.$axios.get(`select_det_venta_nota_debito_single_Ev_Id/${base}/${id_venta}`);
 }
 
 // Inserta el encabezado de la nota debito

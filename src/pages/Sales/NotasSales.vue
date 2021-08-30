@@ -1,115 +1,175 @@
 <template>
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-primary"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
+      <component-table
+        class="q-mt-md"
+        proptitle="Ventas"
+        :propdata="data"
+        :propcolumns="columns"
+        :propgrid="true"
+        :propflat="true"
+        :propexcel="excel"
+        :proppdf="optionpdf"
+        :propbtns="btns"
+        :proppagination="initial_pagination"
+        :propactions="true"
+        @range="getSalesByRange"
+        @ondetails="detatilSale"
+        @onpdf="generatePdf"
       >
-        <q-tab name="sales" label="Notas crédito" icon="note_add" />
-        <q-tab name="add_sales" label="Notas débito" icon="description" />
-      </q-tabs>
-
-      <q-separator />
-
-      <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="sales">
-          <component-table
-            class="q-mt-md"
-            proptitle="Ventas"
-            :propdata="data"
-            :propcolumns="columns"
-            :propgrid="true"
-            :propflat="true"
-            :propexcel="excel"
-            :proppdf="optionpdf"
-            :propbtns="btns"
-            :proppagination="initial_pagination"
-            :propactions="true"
-            @range="getSalesByRange"
-            @onedit="editSale"
-            @ondetails="detatilSale"
-            @onpdf="generatePdf"
+        <template v-slot:input_one>
+          <q-select
+            v-model="client_selected"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            hint="Cliente"
+            :options="options_clientes"
+            @filter="filterClientes"
+            emit-value
+            map-options
           >
-            <template v-slot:input_one>
-              <q-select
-                v-model="client_selected"
-                clearable
-                use-input
-                hide-selected
-                fill-input
-                input-debounce="0"
-                hint="Cliente"
-                :options="options_clientes"
-                @filter="filterClientes"
-                emit-value
-                map-options
-              >
-                <template v-slot:no-option>
-                  <q-item>
-                    <q-item-section class="text-grey">
-                      No results
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  No results
+                </q-item-section>
+              </q-item>
             </template>
-          </component-table>
-          <!-- Dialogo para ver el detalle de la venta -->
-          <q-dialog v-model="dialog_detail" persistent full-height full-width>
-            <q-card>
-              <q-bar dark class="bg-primary text-white">
-                <div class="col text-center text-weight-bold">
-                  Detalle de la venta
-                </div>
-                <q-btn
-                  text-color="white"
-                  icon="close"
-                  round
-                  flat
-                  v-close-popup
-                />
-              </q-bar>
-              <q-card-section>
-                <!-- Encabezado -->
-                <div class="row">
-                  <div
-                    class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
-                    v-for="(value, index) in encebezado_venta"
+          </q-select>
+        </template>
+      </component-table>
+      <!-- Dialogo para ver el detalle de la venta -->
+      <q-dialog v-model="dialog_detail" persistent full-height full-width>
+        <q-card>
+          <q-bar dark class="bg-primary text-white">
+            <div class="col text-center text-weight-bold">
+              Detalle de la venta
+            </div>
+            <q-btn
+              text-color="white"
+              icon="close"
+              round
+              flat
+              v-close-popup
+            />
+          </q-bar>
+          <q-card-section>
+            <q-tabs
+                v-model="tab_detail"
+                class="text-grey"
+                active-color="primary"
+                indicator-color="primary"
+                align="justify"
+                narrow-indicator
+            >
+              <q-tab class="text-purple" name="notas_credito" icon="mail" label="Notas crédito" />
+              <q-tab class="text-orange" name="notas_debito" icon="alarm" label="Notas débito" />
+            </q-tabs>
+            
+            <q-tab-panels
+              v-model="tab_detail"
+              animated
+            >
+              <q-tab-panel name="notas_credito">
+                <q-list bordered separator>
+                  <q-expansion-item
+                    expand-separator
+                    icon="fiber_manual_record"
+                    :label="`Nota crédito No. ${data.encabezado['Nota crédito N°']}`"
+                    :caption="`${data.encabezado['Fecha generada']}`"
+                    v-for="(data, index) in detail_nota_credito"
                     :key="index"
                   >
-                    <!-- Items para entregados -->
-                    <q-field :hint="index" stack-label dense>
-                      <template v-slot:control>
-                        <div
-                          class="self-center full-width no-outline"
-                          tabindex="0"
-                        >
-                          {{ value }}
+                    <q-card>
+                      <q-card-section>
+                        <!-- Encabezado -->
+                        <div class="row">
+                          <div
+                            class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                            v-for="(value, index) in data.encabezado"
+                            :key="index"
+                          >
+                            <!-- Items para entregados -->
+                            <q-field :hint="index" stack-label dense>
+                              <template v-slot:control>
+                                <div
+                                  class="self-center full-width no-outline"
+                                  tabindex="0"
+                                >
+                                  {{ value }}
+                                </div>
+                              </template>
+                            </q-field>
+                          </div>
                         </div>
-                      </template>
-                    </q-field>
-                  </div>
-                </div>
-              </q-card-section>
-            </q-card>
-          </q-dialog>
-        </q-tab-panel>
-
-        <q-tab-panel name="add_sales">
-          <component-add-sales @reload="reload" />
-        </q-tab-panel>
-      </q-tab-panels>
+                        <q-table
+                          title="Productos"
+                          :data="data.detalle"
+                          :columns="columns_products"
+                          flat
+                          class="q-mt-md"
+                        />
+                      </q-card-section>
+                    </q-card>
+                  </q-expansion-item>
+                </q-list>
+              </q-tab-panel>
+              <q-tab-panel name="notas_debito">
+                <q-list bordered separator>
+                  <q-expansion-item
+                    expand-separator
+                    icon="fiber_manual_record"
+                    :label="`Nota débito No. ${data.encabezado['Nota débito N°']}`"
+                    :caption="`${data.encabezado['Fecha generada']}`"
+                    v-for="(data, index) in detail_nota_debito"
+                    :key="index"
+                  >
+                    <q-card>
+                      <q-card-section>
+                        <!-- Encabezado -->
+                        <div class="row">
+                          <div
+                            class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                            v-for="(value, index) in data.encabezado"
+                            :key="index"
+                          >
+                            <!-- Items para entregados -->
+                            <q-field :hint="index" stack-label dense>
+                              <template v-slot:control>
+                                <div
+                                  class="self-center full-width no-outline"
+                                  tabindex="0"
+                                >
+                                  {{ value }}
+                                </div>
+                              </template>
+                            </q-field>
+                          </div>
+                        </div>
+                        <q-table
+                          title="Productos"
+                          :data="data.detalle"
+                          :columns="columns_products"
+                          flat
+                          class="q-mt-md"
+                        />
+                      </q-card-section>
+                    </q-card>
+                  </q-expansion-item>
+                </q-list>
+              </q-tab-panel>
+            </q-tab-panels>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
     </q-card>
   </q-page>
 </template>
 
 <script>
-import ComponentAddSales from "components/Sales/ComponentAddSales";
 import componentTable from "components/Generals/ComponentTable";
 import ComponentAddNoteDebit from "components/Sales/ComponentAddNoteDebit";
 import ComponentAddNoteCredit from "src/components/Sales/ComponentAddNoteCredit";
@@ -120,209 +180,207 @@ let all_clients = []; //Contiene todos los clientes
 export default {
   name: "DeparturesGuarantees",
   components: {
-    ComponentAddSales,
     componentTable,
     ComponentAddNoteDebit,
-    ComponentAddNoteCredit
+    ComponentAddNoteCredit,
   },
   data() {
     return {
-      tab: "sales",
-      tab_detail: "detalle",
+      tab_detail: "notas_credito",
       columns: [
         {
           name: "Ev_Id",
           align: "center",
           label: "Venta N°",
           sortable: true,
-          field: "Ev_Id"
+          field: "Ev_Id",
         },
         {
           name: "CP_Nit",
           align: "center",
           label: "NIT",
           sortable: true,
-          field: "CP_Nit"
+          field: "CP_Nit",
         },
         {
           name: "Ev_Des_gen_venta",
           align: "center",
           label: "Descuento general venta",
           sortable: true,
-          field: "Ev_Des_gen_venta"
+          field: "Ev_Des_gen_venta",
         },
         {
           name: "Ev_Des_total_art",
           align: "center",
           label: "Descuento total artículo",
           sortable: true,
-          field: "Ev_Des_total_art"
+          field: "Ev_Des_total_art",
         },
         {
           name: "Ev_Impuesto",
           align: "center",
           label: "Impuesto",
           sortable: true,
-          field: "Ev_Impuesto"
+          field: "Ev_Impuesto",
         },
         {
           name: "Ev_Subtotal",
           align: "center",
           label: "Subtotal",
           sortable: true,
-          field: "Ev_Subtotal"
+          field: "Ev_Subtotal",
         },
         {
           name: "Ev_Total_venta",
           align: "center",
           label: "Venta total",
           sortable: true,
-          field: "Ev_Total_venta"
+          field: "Ev_Total_venta",
         },
         {
           name: "Ev_dias_credito",
           align: "center",
           label: "Días crédito",
           sortable: true,
-          field: "Ev_dias_credito"
+          field: "Ev_dias_credito",
         },
         {
           name: "Mov_Descripcion",
           align: "center",
           label: "Nombre movil",
           sortable: true,
-          field: "Mov_Descripcion"
+          field: "Mov_Descripcion",
         },
         {
           name: "Per_Nombre",
           align: "center",
           label: "Nombre vendedor",
           sortable: true,
-          field: "Per_Nombre"
+          field: "Per_Nombre",
         },
         {
           name: "Per_Num_documento",
           align: "center",
           label: "Documento vendedor",
           sortable: true,
-          field: "Per_Num_documento"
+          field: "Per_Num_documento",
         },
         {
           name: "name_qautorizqa",
           align: "center",
           label: "Autoriza garantía",
           sortable: true,
-          field: "name_qautorizqa"
+          field: "name_qautorizqa",
         },
         {
           name: "Eg_Quien_autoriza",
           align: "center",
           label: "Documento autoriza garantía",
           sortable: true,
-          field: "Eg_Quien_autoriza"
+          field: "Eg_Quien_autoriza",
         },
         {
           name: "Eg_Observacion",
           align: "center",
           label: "Observación",
           sortable: true,
-          field: "Eg_Observacion"
+          field: "Eg_Observacion",
         },
         {
           name: "Eg_Fecha_control",
           align: "center",
           label: "Fecha garantía",
           sortable: true,
-          field: "Eg_Fecha_control"
+          field: "Eg_Fecha_control",
         },
         {
           name: "Ev_Fecha_venta",
           align: "center",
           label: "Fecha venta",
           sortable: true,
-          field: "Ev_Fecha_venta"
+          field: "Ev_Fecha_venta",
         },
         {
           name: "Estado",
           align: "center",
           label: "Estado",
           sortable: true,
-          field: "Estado"
-        }
+          field: "Estado",
+        },
       ],
       excel: {
         columns: [
           {
             label: "Venta N°",
-            field: "Ev_Id"
+            field: "Ev_Id",
           },
           {
             label: "NIT",
-            field: "CP_Nit"
+            field: "CP_Nit",
           },
           {
             label: "Descuento general venta",
-            field: "Ev_Des_gen_venta"
+            field: "Ev_Des_gen_venta",
           },
           {
             label: "Descuento total artículo",
-            field: "Ev_Des_total_art"
+            field: "Ev_Des_total_art",
           },
           {
             label: "Impuesto",
-            field: "Ev_Impuesto"
+            field: "Ev_Impuesto",
           },
           {
             label: "Subtotal",
-            field: "Ev_Subtotal"
+            field: "Ev_Subtotal",
           },
           {
             label: "Venta total",
-            field: "Ev_Total_venta"
+            field: "Ev_Total_venta",
           },
           {
             label: "Días crédito",
-            field: "Ev_dias_credito"
+            field: "Ev_dias_credito",
           },
           {
             label: "Nombre movil",
-            field: "Mov_Descripcion"
+            field: "Mov_Descripcion",
           },
           {
             label: "Nombre vendedor",
-            field: "Per_Nombre"
+            field: "Per_Nombre",
           },
           {
             label: "Documento vendedor",
-            field: "Per_Num_documento"
+            field: "Per_Num_documento",
           },
           {
             label: "Autoriza garantía",
-            field: "name_qautorizqa"
+            field: "name_qautorizqa",
           },
           {
             label: "Documento autoriza garantía",
-            field: "Eg_Quien_autoriza"
+            field: "Eg_Quien_autoriza",
           },
           {
             label: "Observación",
-            field: "Eg_Observacion"
+            field: "Eg_Observacion",
           },
           {
             label: "Fecha garantía",
-            field: "Eg_Fecha_control"
+            field: "Eg_Fecha_control",
           },
           {
             label: "Fecha venta",
-            field: "Ev_Fecha_venta"
+            field: "Ev_Fecha_venta",
           },
           {
             label: "Estado",
-            field: "Estado"
-          }
+            field: "Estado",
+          },
         ],
         data: [],
-        title: "Ventas"
+        title: "Ventas",
       },
       data: [],
       optionpdf: {
@@ -333,27 +391,27 @@ export default {
           { header: "Mov_Descripcion", datakey: "Mov_Descripcion" },
           { header: "Mov_Id", datakey: "Mov_Id" },
           { header: "Si_Cant", datakey: "Si_Cant" },
-          { header: "id", datakey: "id" }
+          { header: "id", datakey: "id" },
         ],
         data: [],
         orientation: "l", // l => landscape, p => portrait
         title: {
           title: "Inventario actual",
           potitionx: 300,
-          potitiony: 30
+          potitiony: 30,
         },
         styles: {
-          font_size: 7
-        }
+          font_size: 7,
+        },
       },
       btns: {
         range_date: true,
         btn_export_pdf: false,
-        export_excel: true
+        export_excel: true,
       },
       initial_pagination: {
         page: 1,
-        rowsPerPage: 9
+        rowsPerPage: 9,
       },
       id_sale: null,
       options_clientes: all_clients,
@@ -369,44 +427,46 @@ export default {
           align: "center",
           label: "ID Artículo",
           sortable: true,
-          field: "Art_Id"
+          field: "Art_Id",
         },
         {
-          name: "Art_Descripcion",
+          name: "Art_Nombre",
           align: "center",
           label: "Descripción articulo",
           sortable: true,
-          field: "Art_Descripcion"
+          field: "Art_Nombre",
         },
         {
           name: "Dv_Precio_compra",
           align: "center",
           label: "Precio de compra",
           sortable: true,
-          field: "Dv_Precio_compra"
+          field: "Dv_Precio_compra",
         },
         {
           name: "Dv_precio_venta",
           align: "center",
           label: "Precio de venta",
           sortable: true,
-          field: "Dv_precio_venta"
+          field: "Dv_precio_venta",
         },
         {
           name: "Dv_valor_descuento",
           align: "center",
           label: "Porcentaje descuento",
           sortable: true,
-          field: "Dv_valor_descuento"
+          field: "Dv_valor_descuento",
         },
         {
           name: "categoria",
           align: "center",
           label: "Categoría producto",
           sortable: true,
-          field: "categoria"
-        }
+          field: "categoria",
+        },
       ],
+      detail_nota_credito: null,
+      detail_nota_debito: null,
     };
   },
   created() {
@@ -416,11 +476,11 @@ export default {
     client_selected(value) {
       if (value) {
         this.$q.loading.show({
-          message: "Obteniendo ventas del cliente, por favor espere..."
+          message: "Obteniendo ventas del cliente, por favor espere...",
         });
         setTimeout(async () => {
           try {
-            const res_client = await this.getSalesClient(value).then(res => {
+            const res_client = await this.getSalesClient(value).then((res) => {
               return res.data;
             });
             // console.log({
@@ -430,7 +490,7 @@ export default {
             if (res_client.ok) {
               if (res_client.result) {
                 this.data.length = 0;
-                res_client.data.forEach(venta => {
+                res_client.data.forEach((venta) => {
                   this.data.push({
                     CP_Nit: venta.CP_Nit,
                     CP_Razon_social: venta.CP_Razon_social,
@@ -463,13 +523,13 @@ export default {
                     // btn_pdf: true,
                     // icon_btn_edit: "mdi-pencil",
                     // icon_btn_status: "power_settings_new",
-                    icon_btn_details: "mdi-eye-settings"
+                    icon_btn_details: "mdi-eye-settings",
                   });
                 });
               } else {
                 this.$q.notify({
                   message: "Sin resultados",
-                  type: "warning"
+                  type: "warning",
                 });
               }
             } else {
@@ -488,14 +548,14 @@ export default {
             }
             this.$q.notify({
               message: e,
-              type: "negative"
+              type: "negative",
             });
           } finally {
             this.$q.loading.hide();
           }
         }, 2000);
       }
-    }
+    },
   },
   methods: {
     ...mapActions("sales", [
@@ -506,27 +566,29 @@ export default {
       "getSalesClient",
       "getDetailSales",
       "getDetailsGuarantess",
-      'getEncNotaCredSingle',
-      'getDetNotaCredSingle'
+      "getEncNotaCredSingle",
+      "getDetNotaCredSingle",
+      "getEncNotaDebitoSingle",
+      "getDetNotaDebitoSingle"
     ]),
     ...mapActions("shopping", ["getProviders"]),
     getData() {
       this.$q.loading.show({
-        message: "Obteniendo datos, por favor espere..."
+        message: "Obteniendo datos, por favor espere...",
       });
       setTimeout(async () => {
         try {
-          const res_sales = await this.getSales().then(res => {
+          const res_sales = await this.getSales().then((res) => {
             return res.data;
           });
           console.log({
             msg: "Respuesta get ventas",
-            data: res_sales
+            data: res_sales,
           });
           if (res_sales.ok) {
             this.data.length = 0;
             if (res_sales.result) {
-              res_sales.data.forEach(venta => {
+              res_sales.data.forEach((venta) => {
                 this.data.push({
                   CP_Nit: venta.CP_Nit,
                   CP_Razon_social: venta.CP_Razon_social,
@@ -561,20 +623,20 @@ export default {
                   btn_pdf: true,
                   // icon_btn_edit: "mdi-pencil",
                   // icon_btn_status: "power_settings_new",
-                  icon_btn_details: "mdi-eye-settings"
+                  icon_btn_details: "mdi-eye-settings",
                 });
               });
             } else {
               this.$q.notify({
                 message: "Sin resultados",
-                type: "warning"
+                type: "warning",
               });
             }
           } else {
             throw new Error(res_sales.message);
           }
 
-          const res_provider = await this.getProviders().then(res => {
+          const res_provider = await this.getProviders().then((res) => {
             return res.data;
           });
           // console.log({
@@ -584,18 +646,18 @@ export default {
           if (res_provider.ok) {
             if (res_provider.result) {
               all_clients.length = 0;
-              res_provider.data.forEach(cliente => {
+              res_provider.data.forEach((cliente) => {
                 if (cliente.name_tp == "CLIENTE" && cliente.CP_Razon_social) {
                   all_clients.push({
                     label: cliente.CP_Razon_social,
-                    value: cliente.CP_Nit
+                    value: cliente.CP_Nit,
                   });
                 }
               });
             } else {
               this.$q.notify({
                 message: res_provider.message,
-                type: "warning"
+                type: "warning",
               });
             }
           } else {
@@ -614,7 +676,7 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative"
+            type: "negative",
           });
         } finally {
           this.$q.loading.hide();
@@ -623,26 +685,30 @@ export default {
     },
     detatilSale(row) {
       this.$q.loading.show({
-        message: "Obteniendo detalle de la venta, por favor espere.."
+        message: "Obteniendo detalle de la venta, por favor espere..",
       });
       setTimeout(async () => {
         try {
           this.encabezado_selected = row;
-          const res_enc = await this.getEncNotaCredSingle(row.Ev_Id).then( res => {
-            return res.data;
-          })
-          console.log({
-            msg: 'Respuesta encabezado nota credito',
-            data: res_enc
-          })
+          const res_enc = await this.getEncNotaCredSingle(row.Ev_Id).then(
+            (res) => {
+              return res.data;
+            }
+          );
+          // console.log({
+          //   msg: "Respuesta encabezado nota credito",
+          //   data: res_enc,
+          // });
           this.data_notas_credit.length = 0;
-          if(res_enc.ok){
+          if (res_enc.ok) {
             let promesas = [];
-            res_enc.data.forEach( nota => {
+            res_enc.data.forEach((nota) => {
               // console.log(nota)
               let enc_nota = {
+                "Nota crédito N°": nota.Ev_nc_Id, 
                 "Venta N°": nota.Ev_Id,
                 NIT: nota.CP_Nit,
+                'Razón social': nota.CP_Razon_social,
                 "Descuento general venta": nota.Ev_Des_gen_venta,
                 "Descuento total articulos": nota.Ev_Des_total_art,
                 Impuesto: nota.Ev_Impuesto,
@@ -656,21 +722,83 @@ export default {
                 "Quién autoriza": nota.Eg_Quien_autoriza,
                 Observación: nota.Eg_Observacion,
                 "Fecha venta": nota.Ev_Fecha_venta,
-                Estado: nota.Estado
-              }
-              promesas.push(this.getDetNotaCredSingle(row.Ev_Id).then( res => {
-                res.data.id = nota.Ev_nc_Id,
+                "Fecha generada": nota.Ev_Fecha_control,
+                Estado: nota.Estado,
+              };
+              promesas.push(
+                this.getDetNotaCredSingle(row.Ev_Id).then((res) => {
+                  res.data.id = nota.Ev_nc_Id;
+                  res.data.encabezado = enc_nota;
+                  return res.data;
+                })
+              );
+            });
+            Promise.all(promesas).then((data) => {
+              let temp_obj = []
+              data.forEach( element => {
+                temp_obj.push({
+                  detalle: element.data,
+                  encabezado: element.encabezado,
+                })
+              })
+              this.detail_nota_credito = temp_obj;
+            });
+          } else {
+            throw new Error(res_enc.message);
+          }
+
+          const res_enc_deb = await this.getEncNotaDebitoSingle(row.Ev_Id).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta encabezado nota débito',
+          //   data: res_enc_deb
+          // });
+          if(res_enc_deb.ok){
+            let promesas = [];
+            res_enc_deb.data.forEach(nota => {
+              // console.log(nota)
+              let enc_nota = {
+                "Nota débito N°": nota.Ev_nd_Id, 
+                "Venta N°": nota.Ev_Id,
+                NIT: nota.CP_Nit,
+                'Razón social': nota.CP_Razon_social,
+                "Descuento general venta": nota.Ev_Des_gen_venta,
+                "Descuento total articulos": nota.Ev_Des_total_art,
+                Impuesto: nota.Ev_Impuesto,
+                Subtotal: nota.Ev_Subtotal,
+                "Total venta": nota.Ev_Total_venta,
+                "Días de crédito": nota.Ev_dias_credito,
+                Descripción: nota.Mov_Descripcion,
+                "Nombre vendedor": nota.Per_Nombre,
+                "Documento vendedor": nota.Per_Num_documento,
+                "Autoriza garantía": nota.name_qautorizqa,
+                "Quién autoriza": nota.Eg_Quien_autoriza,
+                Observación: nota.Eg_Observacion,
+                "Fecha venta": nota.Ev_Fecha_venta,
+                "Fecha generada": nota.Ev_Fecha_control,
+                Estado: nota.Estado,
+              };
+              promesas.push(this.getDetNotaDebitoSingle().then( res => {
                 res.data.encabezado = enc_nota;
+                res.data.id = nota.Ev_nd_Id;
                 return res.data;
               }))
             })
             Promise.all(promesas).then( data => {
-              console.log(data)
+              let temp_obj = []
+              data.forEach( element => {
+                temp_obj.push({
+                  detalle: element.data,
+                  encabezado: element.encabezado,
+                })
+              })
+              this.detail_nota_debito = temp_obj;
             })
           } else {
-            throw new Error(res_enc.message)
+            throw new Error(res_enc_deb.message)
           }
-          
+
           this.dialog_detail = true;
         } catch (e) {
           console.log(e);
@@ -684,7 +812,7 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative"
+            type: "negative",
           });
         } finally {
           this.$q.loading.hide();
@@ -695,12 +823,12 @@ export default {
       setTimeout(async () => {
         try {
           this.data_products.length = 0;
-          const res_deta = await this.getDetailSales(row.Ev_Id).then(res => {
+          const res_deta = await this.getDetailSales(row.Ev_Id).then((res) => {
             return res.data;
           });
           console.log({
             msg: "Respuesta get detalle venta pdf",
-            data: res_deta
+            data: res_deta,
           });
           if (res_deta.ok) {
             if (res_deta.result) {
@@ -715,13 +843,13 @@ export default {
                   Dv_precio_venta: product.Dv_precio_venta,
                   Dv_valor_descuento: product.Dv_valor_descuento,
                   subtotal: product.Dv_valor_descuento * product.Dv_Cant,
-                  categoria: product.categoria
+                  categoria: product.categoria,
                 });
               });
             } else {
               this.$q.notify({
                 message: "Sin resultados",
-                type: "warning"
+                type: "warning",
               });
             }
           } else {
@@ -738,7 +866,7 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative"
+            type: "negative",
           });
         }
 
@@ -779,7 +907,7 @@ export default {
             { header: "Cant", dataKey: "Dv_Cant" },
             { header: "Valor und", dataKey: "Dv_precio_venta" },
             { header: "Descuento", dataKey: "Dv_valor_descuento" },
-            { header: "subtotal", dataKey: "subtotal" }
+            { header: "subtotal", dataKey: "subtotal" },
           ],
           margin: { top: 64, right: 10, left: 10, bottom: 50 },
           styles: {
@@ -787,8 +915,8 @@ export default {
             fontSize: 7,
             lineWidth: 1,
             lineColor: [150, 152, 154],
-            overflowColumns: "linebreak"
-          }
+            overflowColumns: "linebreak",
+          },
         });
 
         const pageCount = doc.internal.getNumberOfPages();
@@ -887,21 +1015,21 @@ export default {
     },
     getSalesByRange(date) {
       this.$q.loading.show({
-        message: "Obteniendo ventas, por favor espere..."
+        message: "Obteniendo ventas, por favor espere...",
       });
       setTimeout(async () => {
         try {
-          const res_sales = await this.getSalesRange(date).then(res => {
+          const res_sales = await this.getSalesRange(date).then((res) => {
             return res.data;
           });
           console.log({
             msg: "Respuesta get ventas por rango",
-            data: res_sales
+            data: res_sales,
           });
           if (res_sales.ok) {
             if (res_sales.result) {
               this.data.length = 0;
-              res_sales.data.forEach(cat => {
+              res_sales.data.forEach((cat) => {
                 this.data.push({
                   CP_Nit: sale.CP_Nit,
                   contacto: sale.contacto,
@@ -942,13 +1070,13 @@ export default {
                   icon_btn_details: "visibility",
                   btn_details: true,
                   btn_pdf: true,
-                  icon_btn_edit: "edit"
+                  icon_btn_edit: "edit",
                 });
               });
             } else {
               this.$q.notify({
                 message: res_sales.message,
-                type: "warning"
+                type: "warning",
               });
             }
           } else {
@@ -967,7 +1095,7 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative"
+            type: "negative",
           });
         } finally {
           this.$q.loading.hide();
@@ -976,23 +1104,23 @@ export default {
     },
     searchSale() {
       this.$q.loading.show({
-        message: "Buscando venta, por favor espere..."
+        message: "Buscando venta, por favor espere...",
       });
       setTimeout(async () => {
         try {
           const res_sales = await this.getSearchSales(this.id_sale).then(
-            res => {
+            (res) => {
               return res.data;
             }
           );
           console.log({
             msg: "Respuesta get venta",
-            data: res_sales
+            data: res_sales,
           });
           if (res_sales.ok) {
             if (res_sales.result) {
               this.data.length = 0;
-              res_sales.data.forEach(cat => {
+              res_sales.data.forEach((cat) => {
                 this.data.push({
                   CP_Nit: sale.CP_Nit,
                   contacto: sale.contacto,
@@ -1031,13 +1159,13 @@ export default {
                   btn_edit: true,
                   icon_btn_details: "visibility",
                   btn_details: true,
-                  icon_btn_edit: "edit"
+                  icon_btn_edit: "edit",
                 });
               });
             } else {
               this.$q.notify({
                 message: res_sales.message,
-                type: "warning"
+                type: "warning",
               });
             }
           } else {
@@ -1055,15 +1183,12 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative"
+            type: "negative",
           });
         } finally {
           this.$q.loading.hide();
         }
       }, 2000);
-    },
-    editSale(row) {
-      this.category_edit = row;
     },
     reload() {
       this.dialog_detail = false;
@@ -1083,16 +1208,13 @@ export default {
             } else {
               const needle = val.toLowerCase();
               this.options_clientes = all_clients.filter(
-                v =>
+                (v) =>
                   v.label.toLowerCase().indexOf(needle) > -1 ||
-                  v.value
-                    .toString()
-                    .toLowerCase()
-                    .indexOf(needle) > -1
+                  v.value.toString().toLowerCase().indexOf(needle) > -1
               );
             }
           },
-          ref => {
+          (ref) => {
             if (val !== "" && ref.options.length > 0) {
               ref.setOptionIndex(-1); // reset optionIndex in case there is something selected
               ref.moveOptionSelection(1, true); // focus the first selectable option and do not update the input-value
@@ -1100,8 +1222,8 @@ export default {
           }
         );
       }, 300);
-    }
-  }
+    },
+  },
 };
 </script>
 
