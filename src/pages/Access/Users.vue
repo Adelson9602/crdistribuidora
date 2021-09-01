@@ -12,7 +12,7 @@
         narrow-indicator
       >
         <q-tab name="users" label="Usuarios" />
-        <q-tab name="formUser" :label="label" />
+        <q-tab name="formUser" :label="edit_form ? 'Editar usuario' : 'Crear usuario'" />
       </q-tabs>
 
       <q-separator />
@@ -170,7 +170,6 @@ export default {
         data: [],
         title: "Usuarios"
       },
-      label: "Crear Usuario",
       tabForm: false,
       dataUser: {},
       icon: false,
@@ -216,6 +215,13 @@ export default {
     ...mapState("auth", ["user_logged"]),
     data_user() {
       return this.user_logged;
+    }
+  },
+  watch: {
+    tab(value){
+      if(value == 'users'){
+        this.edit_form = false;
+      }
     }
   },
   methods: {
@@ -307,7 +313,6 @@ export default {
       this.tab = "users";
       this.renderComponent = false;
       this.edit_form = false;
-      this.label = "Crear usuario";
       // Se hace el reload, para ello se debe eliminar el componente componenTable antes de hacer las peticiones y luego rendereizarlo de nuevo
       setTimeout(() => {
         this.getData();
@@ -317,7 +322,6 @@ export default {
       this.user_edit = row;
       this.tab = "formUser";
       this.edit_form = true;
-      this.label = "Editar usuario";
     },
     setStatus(row) {
       this.$q
