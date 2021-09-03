@@ -162,14 +162,24 @@
           </div>
         </div>
         <!-- Tabla de las ventas realizadas -->
-        <q-table
-          class="q-mt-md height-table"
-          title="Ventas realizadas"
-          :data="data"
-          :columns="columns"
-          row-key="name"
-          flat
-        />
+        <div class="row height-table justify-center">
+          <div class="col-xs-12">
+            <q-table
+              class="q-mt-md height-table"
+              title="Ventas realizadas"
+              :data="data"
+              :columns="columns"
+              row-key="name"
+              flat
+              v-if="render_table"
+            />
+          </div>
+          <q-spinner-facebook
+            color="primary"
+            size="2em"
+            v-if="!render_table"
+          />
+        </div>
       </q-card-section>
     </q-card>
   </q-page>
@@ -286,7 +296,8 @@ export default {
         commission: 0,
         total_sales: 0,
         percent_commission: 0,
-      }
+      },
+      render_table: true,
     };
   },
   created(){
@@ -305,6 +316,7 @@ export default {
         this.$q.loading.show({
           message: 'Obteniendo datos, por favor espere....'
         })
+        this.render_table = false;
         setTimeout(async() => {
           try {
             let params = {
@@ -340,10 +352,10 @@ export default {
             const res_deta = await this.getCommissionSellerDet(params).then( res => {
               return res.data;
             });
-            // console.log({
-            //   msg: 'Repuesta detalle comision vendedor',
-            //   data: res_deta
-            // })
+            console.log({
+              msg: 'Repuesta detalle comision vendedor',
+              data: res_deta
+            })
             this.data.length = 0;
             if(res_deta.ok){
               if(res_deta.result){
@@ -369,7 +381,9 @@ export default {
                     Ev_Fecha_control: venta.Ev_Fecha_control,
                   })
                 })
+                this.render_table = true;
               } else {
+                this.render_table = true;
                 this.$q.notify({
                   message: 'Sin resultados',
                   type: 'warning'
