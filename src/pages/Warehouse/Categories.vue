@@ -13,7 +13,15 @@
           row-key="name"
           class="height-table q-mt-md"
           :pagination="initial_pagination"
+          :filter="filter"
         >
+          <template v-slot:top-right>
+            <q-input borderless dense debounce="300" v-model="filter" placeholder="Buscar" filled>
+              <template v-slot:append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </template>
           <template v-slot:header="props">
             <q-tr :props="props">
               <q-th auto-width />
@@ -56,10 +64,10 @@ export default {
   name: 'Categories',
   components: {
     ComponentAddCategories,
-
   },
   data(){
     return {
+      filter: null,
       columns: [
         {
           name: 'Cat_precodigo',
