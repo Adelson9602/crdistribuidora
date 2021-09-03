@@ -419,7 +419,7 @@ export default {
       },
       btns: {
         range_date: true,
-        btn_export_pdf: false,
+        btn_export_pdf: true,
         export_excel: true
       },
       initial_pagination: {
