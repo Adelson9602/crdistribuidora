@@ -112,6 +112,7 @@
             v-model="enc_venta.Ev_Impuesto"
             type="text"
             hint="Impuesto"
+            mask="####"
             :rules="[val => !!val || 'Impuesto es obligatorio']"
           />
         </div>
@@ -119,7 +120,7 @@
           <q-select
             v-model="enc_venta.Ev_Descuentog"
             :options="options_pre_venta"
-            hint="Precio de venta"
+            hint="Descuento"
             :rules="[validatePrecio]"
             map-options
             emit-value
