@@ -17,7 +17,7 @@
           </q-card>
         </q-dialog>
         <component-table
-          class="q-mt-md height-table"
+          class="q-mt-md"
           proptitle="Cargos"
           :propdata="data"
           :propcolumns="columns"
@@ -248,13 +248,13 @@ export default {
         }
       }, 2000);
     },
-
     editCargos(row) {
       this.charges_edit = row;
       this.dialog_add_cargo = true;
       this.edit_form = true;
     },
     reload() {
+      this.dialog_add_cargo = false;
       this.edit_form = false;
       setTimeout(() => {
         this.getData();
