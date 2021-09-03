@@ -2,7 +2,7 @@
   <div>
     <q-form @submit="onSubmit" autocomplete="off">
       <div class="row">
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_cliente.CP_Razon_social"
             type="text"
@@ -11,7 +11,7 @@
             @input= "val=>{new_cliente.CP_Razon_social = val.toUpperCase()}"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="new_cliente.Td_Id"
             :options="options_documento"
@@ -21,7 +21,7 @@
             map-options
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_cliente.CP_Nit"
             type="text"
@@ -32,7 +32,7 @@
             @input= "val=>{new_cliente.CP_Nit = val.toUpperCase()}"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm" v-if="new_cliente.Td_Id == 2">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="new_cliente.Td_Id == 2">
           <q-input
             v-model="new_cliente.CP_Digito_verificacion"
             type="text"
@@ -42,7 +42,7 @@
             @input= "val=>{new_cliente.CP_Digito_verificacion = val.toUpperCase()}"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_cliente.CP_Direccion"
             type="text"
@@ -52,7 +52,7 @@
             @input= "val=>{new_cliente.CP_Direccion = val.toUpperCase()}"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_cliente.CP_Telefono"
             type="text"
@@ -61,7 +61,7 @@
             :rules="[val => !!val || 'Teléfono es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_cliente.CP_Email"
             type="email"
@@ -69,7 +69,7 @@
             @input= "val=>{new_cliente.CP_Email = val.toUpperCase()}"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="departamento_selecte"
             clearable
@@ -91,7 +91,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="new_cliente.Ciu_Id"
             clearable
@@ -115,7 +115,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_cliente.CP_Urlweb"
             type="text"
