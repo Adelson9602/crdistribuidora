@@ -313,7 +313,7 @@ export default {
           { label: "Ingresos", route: "purchases/income" },
           { label: "Proveedores", route: "purchases/providers" },
           {
-            label: "Salidas garantias",
+            label: "Salida inventario",
             route: "purchases/departures_guarantees",
           },
         ],
