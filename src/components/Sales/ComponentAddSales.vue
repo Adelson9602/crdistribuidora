@@ -996,7 +996,8 @@ export default {
                   if(element.Tp_Id == 1 && element.CP_Razon_social){
                     all_clients.push({
                       label: element.CP_Razon_social,
-                      value: element.CP_Nit
+                      value: element.CP_Nit,
+                      tip_doc: element.Tp_Desc_corta
                     })
                   }
                 });
