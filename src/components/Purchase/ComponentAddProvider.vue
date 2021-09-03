@@ -2,7 +2,7 @@
   <div>
     <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
       <div class="row">
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Razon_social"
             type="text"
@@ -10,8 +10,7 @@
             :rules="[val => !!val || 'Razon social es obligatorio']"
           />
         </div>
-
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="new_proveedor.Td_Id"
             :options="options_documento"
@@ -22,7 +21,7 @@
           />
          
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Nit"
             type="text"
@@ -32,7 +31,7 @@
             :disable="this.edit_data ? true : false"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Digito_verificacion"
             type="text"
@@ -41,7 +40,7 @@
             :rules="[val => !!val || 'Digito verificacion es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Direccion"
             type="text"
@@ -51,7 +50,7 @@
            
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Telefono"
             type="text"
@@ -60,7 +59,7 @@
             :rules="[val => !!val || 'Teléfono es obligatorio']"
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Email"
             type="email"
@@ -68,7 +67,7 @@
            
           />
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="departamento_selecte"
             clearable
@@ -91,7 +90,7 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="new_proveedor.Ciu_Id"
             :options="options_ciudades"
@@ -102,7 +101,7 @@
           />
          
         </div>
-        <div class="col-xs-12 col-md-3 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="new_proveedor.CP_Urlweb"
             type="text"
@@ -113,14 +112,15 @@
         </div>
       </div>
       <div>
-        <q-btn label="Submit" type="submit" color="primary" />
         <q-btn v-if="!this.edit_data"
-          label="Reset"
+          label="Restablecer"
           type="reset"
           color="primary"
           flat
+          icon="restore"
           class="q-ml-sm"
         />
+        <q-btn label="Guardar" icon="save" type="submit" color="green" />
       </div>
     </q-form>
   </div>
@@ -359,27 +359,27 @@ export default {
       }, 2000);
     },
     onReset() {
-      (this.departamento_selecte = null),
-        (this.new_proveedor = {
-          base: null,
-          Dcp_Id: null,
-          Dcp_Contacto: null,
-          Dcp_Telefono: null,
-          Dcp_Estado: null,
-          Ciu_Id: null,
-          CP_Nit: null,
-          CP_Razon_social: null,
-          CP_Digito_verificacion: null,
-          Td_Id: null,
-          Tp_Id: 0,
-          CP_Direccion: null,
-          CP_Email: null,
-          CP_Urlweb: null,
-          CP_Telefono: null,
-          Ciu_Id: null,
-          CP_Estado: null,
-          CP_User_control: null
-        });
+      this.departamento_selecte = null;
+      this.new_proveedor = {
+        base: null,
+        Dcp_Id: null,
+        Dcp_Contacto: null,
+        Dcp_Telefono: null,
+        Dcp_Estado: null,
+        Ciu_Id: null,
+        CP_Nit: null,
+        CP_Razon_social: null,
+        CP_Digito_verificacion: null,
+        Td_Id: null,
+        Tp_Id: 0,
+        CP_Direccion: null,
+        CP_Email: null,
+        CP_Urlweb: null,
+        CP_Telefono: null,
+        Ciu_Id: null,
+        CP_Estado: null,
+        CP_User_control: null
+      }
     },
     // Buscador para el select departamento
     filterDepartamento(val, update, abort) {
