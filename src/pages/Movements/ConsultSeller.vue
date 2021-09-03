@@ -344,9 +344,9 @@ export default {
             //   msg: 'Repuesta detalle comision vendedor',
             //   data: res_deta
             // })
+            this.data.length = 0;
             if(res_deta.ok){
               if(res_deta.result){
-                this.data.length = 0;
                 res_deta.data.forEach( venta => {
                   this.data.push({
                     Ev_Id: venta.Ev_Id,
