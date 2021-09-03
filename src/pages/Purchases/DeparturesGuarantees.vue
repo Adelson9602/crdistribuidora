@@ -10,8 +10,8 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="warranties" label="Garantías" icon="task_alt"/>
-        <q-tab name="add_warranties" label="Agregar Garantía" icon="add_task"/>
+        <q-tab name="warranties" label="Salidas" icon="task_alt"/>
+        <q-tab name="add_warranties" label="Agregar salida" icon="add_task"/>
       </q-tabs>
 
       <q-separator />
@@ -20,7 +20,7 @@
         <q-tab-panel name="warranties">
           <component-table
               class="q-mt-md"
-              proptitle="Garantías"
+              proptitle="Salidas"
               :propdata="data"
               :propcolumns="columns"
               :propgrid="true"
