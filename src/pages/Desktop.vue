@@ -137,12 +137,14 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import { date } from 'quasar'
 import VueApexCharts from 'vue-apexcharts';
 let cat_prod_more_sales = []; //Categorias de productos mas vendidos
+let data_pro_sales = []; //Data para productos mas vendidos
 let cat_val_stock = []; //Categorías valor del stock
 let data_val_stock = []; //Data para valor stock
 let cat_daily_sales = []; //Categorías de ventas diarias
 let data_daily_sales = []; //Cantidad de ventas diarias
 let data_best_client = []; //datos de los mejores clientes
 let cat_best_clients = []; //Categorias para los mejores clientes
+let colors = ['#F44336', '#E91E63', '#9C27B0','#F0C31F'];
 export default {
   components: {
     apexchart: VueApexCharts
@@ -223,17 +225,17 @@ export default {
             }
           }
         },
-        colors: ['#1ab7ea', '#0084ff', '#39539E', '#0077B5'],
+        colors: colors,
         labels: cat_val_stock,
         legend: {
           show: true,
           floating: true,
           fontSize: '16px',
           position: 'left',
-          offsetX: 60,
+          offsetX: 0,
           offsetY: 15,
           labels: {
-            useSeriesColors: true,
+            useSeriesColors: false,
           },
           markers: {
             size: 0
@@ -255,51 +257,58 @@ export default {
         }]
       },
       data_bar: [{
-        name: 'Bombillos',
-        data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
-      }, {
-        name: 'Lamparas',
-        data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
-      }, {
-        name: 'Lavaplatos',
-        data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+         name: 'Cantidad vendida',
+        data: data_pro_sales,
       }],
       options_bar: {
         chart: {
+          height: 350,
           type: 'bar',
-          height: 350
         },
         plotOptions: {
           bar: {
-            horizontal: false,
-            columnWidth: '55%',
-            endingShape: 'rounded'
-          },
+            columnWidth: '45%',
+            distributed: true,
+          }
         },
         dataLabels: {
           enabled: false
         },
-        stroke: {
-          show: true,
-          width: 2,
-          colors: ['transparent']
+        legend: {
+          show: false,
+          position: 'bottom'
         },
         xaxis: {
-          categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+          type: 'category',
+          labels: {
+            show: false,
+          }
         },
         yaxis: {
           title: {
-            text: '$ (thousands)'
+            text: 'Cantidad vendida',
+          },
+        },
+        title: {
+          text: 'Productos más vendidos',
+          align: 'left',
+          style: {
+            fontSize: "16px",
+            color: '#666'
           }
         },
         fill: {
-          opacity: 1
-        },
-        tooltip: {
-          y: {
-            formatter: function (val) {
-              return val + " vendidas"
-            }
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            type: "horizontal",
+            shadeIntensity: 0.5,
+            gradientToColors: undefined, // optional, if not defined - uses the shades of same color in series
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 50, 100],
+            colorStops: []
           }
         }
       },
@@ -416,8 +425,8 @@ export default {
           });
           if(res_pro_sales.ok){
             if(res_pro_sales.result){
-              // cat_prod_more_sales.length = 0;
-              this.data_bar.length = 0;
+              cat_prod_more_sales.length = 0;
+              data_pro_sales.length = 0;
               let objcategorias = {}
               //Recorremos el arreglo para agrupar los productos de acuerdo a su categoría
               res_pro_sales.data.forEach( categorias => {
@@ -442,9 +451,11 @@ export default {
               for (const key in objcategorias) {
                 const element = objcategorias[key];
                 element.productos.forEach(product => {
-                  // console.log(product)
-                  // this.data_bar.push(product.cantidad)
-                  // cat_prod_more_sales.push(product.nombre)ñgi
+                  data_pro_sales.push({
+                    x: product.nombre,
+                    y: product.cantidad
+                  })
+                  cat_prod_more_sales.push(product.nombre)
                 })
               }
             } else {
