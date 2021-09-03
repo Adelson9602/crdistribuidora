@@ -353,7 +353,7 @@ export default {
       btns: {
         //Activa los btns de la tabla general
         range_date: true,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       }
     };

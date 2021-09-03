@@ -145,7 +145,7 @@ export default {
       datadetail: [],
       btns: {
         range_date: true,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       }
     };

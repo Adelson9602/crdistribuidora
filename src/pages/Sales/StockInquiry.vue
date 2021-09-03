@@ -153,7 +153,7 @@ export default {
       data: [],
       btns: {
         range_date: false,
-        btn_export_pdf: true,
+        btn_export_pdf: false,
         export_excel: true
       }
     };
