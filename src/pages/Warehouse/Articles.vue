@@ -13,8 +13,7 @@
         <q-tab name="articles" label="Articulos" icon="inventory_2" />
         <q-tab
           name="create_article"
-          :label="!article_edit ? 'Agregar articulo' : 'Editar articulo'" 
-  
+          :label="!article_edit ? 'Agregar articulo' : 'Editar articulo'"
           icon="add_business"
         />
       </q-tabs>
@@ -31,18 +30,20 @@
             :propgrid="true"
             :propflat="true"
             :propexcel="excel"
-             :propbtns="btns"
+            :propbtns="btns"
             :propactions="true"
             @getrangedata="getArticleRang"
             @onedit="editArticle"
             @tostatus="openDialogStatus"
-           v-if="rendercomponent"
-      >
-       <template v-slot:toggle>
-           
-            <q-toggle v-model="filter_pendientes" label="Articulos pendientes" />
-          </template>
-      </component-table>
+            v-if="rendercomponent"
+          >
+            <template v-slot:toggle>
+              <q-toggle
+                v-model="filter_pendientes"
+                label="Articulos pendientes"
+              />
+            </template>
+          </component-table>
           <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable
             :dialog="enable_diable"
@@ -53,7 +54,7 @@
         </q-tab-panel>
 
         <q-tab-panel name="create_article">
-          <component-add-article @reload="reload" :edit_data="article_edit"/>
+          <component-add-article @reload="reload" :edit_data="article_edit" />
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -138,7 +139,7 @@ export default {
           field: "Cat_Nombre",
           sortable: true,
         },
-         {
+        {
           name: "Art_ubicacion",
           required: true,
           label: "Ubicacion",
@@ -179,121 +180,98 @@ export default {
           sortable: true,
         },
       ],
-        excel: {
+      excel: {
         columns: [
-        {
-          
-          label: "Id ",
-          field: "Id",
-          
-        },
-        {
-          
-          label: "Codigo",
-          field: "Art_Codigo_inv",
-          
-        },
-        {
-          
-          label: "Nombre articulo",
-          field: "Art_Nombre",
-          
-        },
-        {
-          
-          label: "Descripcion articulo",
-          field: "Art_Descripcion",
-          
-        },
-        {
-          
-          label: "UNDM",
-          field: "Prefijo",
-          
-        },
-        {
-          
-          label: "Stock min articulo",
-          field: "Art_Stockminimo",
-          
-        },
-        {
-          
-          label: "Categoria",
-          field: "Cat_Nombre",
-          
-        },
-         {
-          
-          label: "Ubicacion",
-          field: "Art_ubicacion",
-          
-        },
-        {
-          
-          label: "Estado",
-          field: "name_estado",
-          
-        },
-        {
-          
-          label: "User Control",
-          field: "Art_User_control",
-          
-        },
-        {
-          
-          label: "Nombre Control",
-          field: "Per_Nombre",
-          
-        },
-        {
-          
-          label: "Fecha Control",
-          field: "Art_Fecha_control",
-          
-        },
-      ],
+          {
+            label: "Id ",
+            field: "Id",
+          },
+          {
+            label: "Codigo",
+            field: "Art_Codigo_inv",
+          },
+          {
+            label: "Nombre articulo",
+            field: "Art_Nombre",
+          },
+          {
+            label: "Descripcion articulo",
+            field: "Art_Descripcion",
+          },
+          {
+            label: "UNDM",
+            field: "Prefijo",
+          },
+          {
+            label: "Stock min articulo",
+            field: "Art_Stockminimo",
+          },
+          {
+            label: "Categoria",
+            field: "Cat_Nombre",
+          },
+          {
+            label: "Ubicacion",
+            field: "Art_ubicacion",
+          },
+          {
+            label: "Estado",
+            field: "name_estado",
+          },
+          {
+            label: "User Control",
+            field: "Art_User_control",
+          },
+          {
+            label: "Nombre Control",
+            field: "Per_Nombre",
+          },
+          {
+            label: "Fecha Control",
+            field: "Art_Fecha_control",
+          },
+        ],
         data: [],
-        title: "Articulos"
+        title: "Articulos",
       },
       data: [],
-      datageneral:[],
+      datageneral: [],
       rendercomponent: true,
-      filter_pendientes:false,
+      filter_pendientes: false,
       article_edit: null,
       enable_diable: false,
       options_status: {
         title: null,
-        msg: null
+        msg: null,
       },
-       btns: {
+      btns: {
         range_date: false,
         btn_export_pdf: false,
-        export_excel: true
+        export_excel: true,
       },
     };
   },
   computed: {
-    ...mapState('auth', ['user_logged']),
-    data_user(){
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
       return this.user_logged;
-    }
+    },
   },
   created() {
     this.getData();
   },
   watch: {
-    tab(value){
-      if(value == "articles"){
+    tab(value) {
+      if (value == "articles") {
         this.article_edit = null;
       }
     },
-     filter_pendientes(value) {
-   
+    filter_pendientes(value) {
       if (value) {
-       this.rendercomponent = false;
-        let dataselect = this.datageneral.filter(credit => credit.Art_Estado == 0);
+        this.rendercomponent = false;
+        let dataselect = this.datageneral.filter(
+          (credit) => credit.Art_Estado == 0
+        );
         this.data.length = 0;
 
         setTimeout(() => {
@@ -313,20 +291,16 @@ export default {
       "addArticle",
       "getCategoriasAlmacen",
     ]),
-    ...mapActions('master', [
-      'getAllUm'
-    ]),
+    ...mapActions("master", ["getAllUm"]),
     getData() {
       this.$q.loading.show({
         message: "Obteniendo articulos existentes, por favor espere...",
       });
       setTimeout(async () => {
         try {
-          const resgetDataArticles = await this.getAllArticles().then(
-            (res) => {
-              return res.data;
-            }
-          );
+          const resgetDataArticles = await this.getAllArticles().then((res) => {
+            return res.data;
+          });
           // console.log({
           //   msg: 'Repeusta get artículos',
           //   data: resgetDataArticles,
@@ -334,7 +308,7 @@ export default {
           if (resgetDataArticles.ok) {
             if (resgetDataArticles.result) {
               this.data.length = 0;
-              this.datageneral.length=0;
+              this.datageneral.length = 0;
               resgetDataArticles.data.forEach((element) => {
                 this.data.push({
                   Id: element.Id,
@@ -345,13 +319,15 @@ export default {
                   Prefijo: element.Prefijo,
                   Art_Stockminimo: element.Art_Stockminimo,
                   Cat_Nombre: element.Cat_Nombre,
-                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",  
+                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
                   Art_Estado: element.Art_Estado,
                   Art_User_control: element.Art_User_control,
                   Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
                   Art_ubicacion: element.Art_ubicacion,
-                  img: element.Art_Imagen ? element.Art_Imagen: "Image/No-Image-Icon.png",
+                  img: element.Art_Imagen
+                    ? element.Art_Imagen
+                    : "Image/No-Image-Icon.png",
                   title: element.Art_Nombre,
                   Estado: element.Art_Estado,
                   status: element.Art_Estado,
@@ -363,7 +339,7 @@ export default {
                   icon_btn_status: "power_settings_new",
                   // icon_btn_details: "mdi-eye-settings",
                 });
-                 this.datageneral.push({
+                this.datageneral.push({
                   Id: element.Id,
                   Art_Id: element.Art_Id,
                   Art_Codigo_inv: element.Art_Codigo_inv,
@@ -372,13 +348,15 @@ export default {
                   Prefijo: element.Prefijo,
                   Art_Stockminimo: element.Art_Stockminimo,
                   Cat_Nombre: element.Cat_Nombre,
-                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",  
+                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
                   Art_Estado: element.Art_Estado,
                   Art_User_control: element.Art_User_control,
                   Per_Nombre: element.Per_Nombre,
                   Art_Fecha_control: element.Art_Fecha_control,
                   Art_ubicacion: element.Art_ubicacion,
-                  img: element.Art_Imagen ? element.Art_Imagen: "Image/No-Image-Icon.png",
+                  img: element.Art_Imagen
+                    ? element.Art_Imagen
+                    : "Image/No-Image-Icon.png",
                   title: element.Art_Nombre,
                   Estado: element.Art_Estado,
                   status: element.Art_Estado,
@@ -403,28 +381,30 @@ export default {
           }
 
           // Obtenemos las categorías de los productos
-          const res_categorias = await this.getCategoriasAlmacen().then( res => {
-            return res.data;
-          });
+          const res_categorias = await this.getCategoriasAlmacen().then(
+            (res) => {
+              return res.data;
+            }
+          );
           // console.log({
           //   msg: 'Respuesta get categorias articulos',
           //   data: res_categorias
           // });
-          if(res_categorias.ok){
-            if(res_categorias.result){
+          if (res_categorias.ok) {
+            if (res_categorias.result) {
               categorias.length = 0;
-              res_categorias.data.forEach(element => {
-                if(element.Cat_Estado == 1){
+              res_categorias.data.forEach((element) => {
+                if (element.Cat_Estado == 1) {
                   categorias.push({
                     value: element.Cat_Id,
                     label: element.Cat_Nombre,
-                  })
+                  });
                 }
               });
             } else {
               this.$q.notify({
                 message: res_categorias.message,
-                type: 'warning'
+                type: "warning",
               });
             }
           } else {
@@ -432,35 +412,35 @@ export default {
           }
 
           // Obtenemos las unidades de medidadas
-          const res_um = await this.getAllUm().then( res => {
+          const res_um = await this.getAllUm().then((res) => {
             return res.data;
           });
           // console.log({
           //   msg: 'Respuesta get unidades de medida',
           //   data: res_um
           // });
-          if(res_um.ok){
-            if(res_um.result){
+          if (res_um.ok) {
+            if (res_um.result) {
               ums.length = 0;
-              res_um.data.forEach(element => {
-                if(element.Um_Estado == 1){
+              res_um.data.forEach((element) => {
+                if (element.Um_Estado == 1) {
                   ums.push({
                     value: element.Um_Id,
                     label: element.Um_Unidad,
-                    prefijo: element.Prefijo
-                  })
+                    prefijo: element.Prefijo,
+                  });
                 }
               });
             } else {
               this.$q.notify({
                 message: res_um.message,
-                type: 'warning'
+                type: "warning",
               });
             }
           } else {
             throw new Error(res_um.message);
           }
-          this.excel.data=this.data
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -509,13 +489,16 @@ export default {
                   Prefijo: element.Prefijo,
                   Art_Stockminimo: element.Art_Stockminimo,
                   Cat_Nombre: element.Cat_Nombre,
-                  Art_Estado: element.Art_Estado == 1 ? "ACTIVO" : "INHABILITADO",
+                  Art_Estado:
+                    element.Art_Estado == 1 ? "ACTIVO" : "INHABILITADO",
                   Art_User_control: element.Art_User_control,
                   Per_Nombre: element.Per_Nombre,
                   Art_ubicacion: element.Art_ubicacion,
                   Art_Fecha_control: element.Art_Fecha_control,
                   status: element.Art_Estado,
-                  img: element.Art_Imagen ? element.Art_Imagen: "Image/No-Image-Icon.png",
+                  img: element.Art_Imagen
+                    ? element.Art_Imagen
+                    : "Image/No-Image-Icon.png",
                   btn_edit: true,
                   btn_status: true,
                   // btn_details: true,
@@ -535,7 +518,7 @@ export default {
             this.data.length = 0;
             throw resrequestgetDataArticlesRange.message;
           }
-           this.excel.data=this.data
+          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -555,22 +538,27 @@ export default {
         }
       }, 2000);
     },
-    editArticle(row){
+    editArticle(row) {
       this.article_edit = row;
       this.tab = "create_article";
     },
     reload() {
       this.tab = "articles";
       this.edit_form = false;
-      setTimeout( ()=> {
+      setTimeout(() => {
         this.getData();
-      }, 500)
+      }, 500);
     },
-    openDialogStatus(row){
+    openDialogStatus(row) {
       // Buscamos la categoria del producto asignada
-      let categoria = categorias.find( categoria => categoria.label.toLowerCase() == row.Cat_Nombre.toLowerCase());
+      let categoria = categorias.find(
+        (categoria) =>
+          categoria.label.toLowerCase() == row.Cat_Nombre.toLowerCase()
+      );
       // Buscamos la unidad de medida asiganada
-      let um = ums.find( um => um.prefijo.toLowerCase() == row.Prefijo.toLowerCase())
+      let um = ums.find(
+        (um) => um.prefijo.toLowerCase() == row.Prefijo.toLowerCase()
+      );
       this.article_edit = {
         base: null,
         Art_Id: row.Art_Id,
@@ -583,41 +571,48 @@ export default {
         Um_Id: um.value,
         Art_Imagen: row.Art_Imagen,
         Art_Estado: row.Art_Estado == 1 ? 0 : 1,
-        Art_User_control: this.data_user.Per_Num_documento
-      }
-      this.options_status.title = row.Art_Estado == 1 ? 'Desactivar artículo' : 'Activar artículo';
-      this.options_status.msg = row.Art_Estado == 1 ? 'Está desactivando este artículo, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivar?' : 'Está activando este artículo, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?';
+        Art_User_control: this.data_user.Per_Num_documento,
+      };
+      this.options_status.title =
+        row.Art_Estado == 1 ? "Desactivar artículo" : "Activar artículo";
+      this.options_status.msg =
+        row.Art_Estado == 1
+          ? "Está desactivando este artículo, por lo que ya no estará disponible en el sistema, ¿está serguro que desea desactivar?"
+          : "Está activando este artículo, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
       this.enable_diable = true;
     },
-    changeStatus(){
+    changeStatus() {
       this.$q.loading.show({
-        message: 'Estamos cambiando el estado del artículo, por favor espere...'
+        message:
+          "Estamos cambiando el estado del artículo, por favor espere...",
       });
-      setTimeout( async() => {
+      setTimeout(async () => {
         try {
           this.article_edit.base = process.env.__BASE__;
-          const res_update = await this.addArticle(this.article_edit).then( res => {
-            return res.data;
-          });
+          const res_update = await this.addArticle(this.article_edit).then(
+            (res) => {
+              return res.data;
+            }
+          );
           console.log({
-            msg: 'Respuesta insert update articulo',
-            data: res_update
+            msg: "Respuesta insert update articulo",
+            data: res_update,
           });
-          if(res_update.ok){
-            if(res_update.data.affectedRows){
+          if (res_update.ok) {
+            if (res_update.data.affectedRows) {
               this.$q.notify({
-                message: 'Estado actualizado',
-                type: 'positive'
+                message: "Estado actualizado",
+                type: "positive",
               });
               setTimeout(() => {
                 this.enable_diable = false;
                 this.getData();
-              }, 500)
+              }, 500);
             } else {
               this.$q.notify({
-                message: 'No se actualizó el estado',
-                type: 'warning'
-              })
+                message: "No se actualizó el estado",
+                type: "warning",
+              });
             }
           }
         } catch (e) {
@@ -637,7 +632,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 2000)
+      }, 2000);
     },
   },
 };
