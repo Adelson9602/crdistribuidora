@@ -299,9 +299,9 @@ export default {
   watch: {
     producto_selecte(value){
       if(value){
-        this.precio_old = value.precio_old
+        this.precio_old = value.precio_old ? value.precio_old : 0;
       } else {
-        this.precio_old = null
+        this.precio_old = 0
       }
     }
   },
@@ -551,7 +551,7 @@ export default {
         })
       } else {
         this.precio_compra = Number(this.precio_compra)
-        if(this.precio_old != this.precio_compra){
+        if(this.precio_old != this.precio_compra && this.precio_old != 0){
           this.$q.dialog({
             component: dialog,
             parent: this,
@@ -589,7 +589,7 @@ export default {
       this.cantidad_compra = null;
       setTimeout(()=> {
         this.$refs.form_entry.resetValidation();
-        this.$refs.select_products.focus();
+        // this.$refs.select_products.focus();
       }, 300)
     },
     // Buscador para el select proveedor
