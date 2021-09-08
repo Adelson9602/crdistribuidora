@@ -110,10 +110,12 @@
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="enc_venta.Ev_Impuesto"
-            type="text"
+            mask="#.##"
+            fill-mask="0"
             hint="Impuesto"
-            mask="####"
-            :rules="[val => !!val || 'Impuesto es obligatorio']"
+            input-class="text-right"
+            :rules="[validateImpuesto]"
+            @input="val => enc_venta.Ev_Impuesto = Number(val)"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -356,7 +358,7 @@ export default {
         Mov_Id: null,
         Mp_Id: null,
         Ev_dias_credito: 0,
-        Ev_Impuesto: null, // Para iva si lleva iva si no 0
+        Ev_Impuesto: 0, // Para iva si lleva iva si no 0
         Ev_Subtotal: null,
         Ev_Des_total_art: null, //Descuento 
         Ev_Descuentog: 0, //Porcentaje de descuento a la factura final osea 1% 2%
@@ -758,13 +760,14 @@ export default {
             this.enc_venta.Mov_Id = this.movil_selecte;
             this.enc_venta.Ev_Usuario_control = this.data_user.Per_Num_documento;
             this.enc_venta.base = process.env.__BASE__;
+            this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Impuesto > 0 ?  this.enc_venta.Ev_Total_venta * this.enc_venta.Ev_Impuesto : enc_cotizacion.Ev_Total_venta
             const res_enc = await this.insertEncVenta(this.enc_venta).then( res => {
               return res.data;
             });
-            console.log({
-              msg: 'Respuesta insert enc venta',
-              data: res_enc
-            });
+            // console.log({
+            //   msg: 'Respuesta insert enc venta',
+            //   data: res_enc
+            // });
             let promesas = [];
             this.data_sales.forEach( product => {
               product.Ev_Id = res_enc.data.insertId;
@@ -790,10 +793,10 @@ export default {
               const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
                 return res.data;
               });
-              console.log({
-                msg: 'Respuesta insert enc garantia',
-                data: res_gara
-              });
+              // console.log({
+              //   msg: 'Respuesta insert enc garantia',
+              //   data: res_gara
+              // });
               if(!res_gara.data.affectedRows){
                 throw new Error(res_gara.message)
               }
@@ -814,16 +817,12 @@ export default {
             }
             Promise.all(promesas).then( data => {
               data.forEach( res => {
-                console.log(res)
+                // console.log(res)
                 if(!res.data.affectedRows){
                   throw new Error(res.message);
                 }
               })
             })
-            this.$q.notify({
-              message: 'Venta realizada',
-              type: 'positive'
-            });
           } else {
             if(this.cliente_selected.value == 0){
               this.$refs.select_client.focus();
@@ -838,7 +837,7 @@ export default {
                 Mp_Id: this.enc_venta.Mp_Id,
                 Tc_Id: 1,
                 Ec_vigencia: date_now,
-                Ec_Impuesto: this.enc_venta.Ev_Impuesto,
+                Ec_Impuesto: this.enc_venta.Ev_Impuesto > 0 ? this.enc_venta.Ev_Impuesto : 0,
                 Ec_Subtotal: this.subtotal_venta,
                 Ec_Des_total_art: this.Ev_Des_total_art,
                 Ec_Descuentog: this.enc_venta.Ev_Descuentog,
@@ -847,13 +846,14 @@ export default {
                 Ec_Estado: 1,
                 Ec_Usuario_control: this.data_user.Per_Num_documento,
               }
+              enc_cotizacion.Ec_Total_venta = this.enc_venta.Ev_Impuesto > 0 ? enc_cotizacion.Ec_Total_venta * this.enc_venta.Ev_Impuesto : enc_cotizacion.Ec_Total_venta
               const res_enc = await this.insertEncCotizacion(enc_cotizacion).then( res => {
                 return res.data;
               });
-              console.log({
-                msg: 'Respuesta insert encabezado cotización',
-                data: res_enc
-              })
+              // console.log({
+              //   msg: 'Respuesta insert encabezado cotización',
+              //   data: res_enc
+              // })
               if(res_enc.ok){
                 let promesas = [];
                 this.data_sales.forEach( product => {
@@ -865,10 +865,10 @@ export default {
                 });
                 Promise.all(promesas).then( data => {
                   data.forEach( res => {
-                    console.log({
-                      msg: 'Respueta insert det cotización',
-                      data: res
-                    })
+                    // console.log({
+                    //   msg: 'Respueta insert det cotización',
+                    //   data: res
+                    // })
                     if(!res.data.affectedRows){
                       throw new Error(res.message);
                     }
@@ -879,7 +879,11 @@ export default {
               }
             }
           }
-          this.$emit('reload')
+          this.$q.notify({
+            message: 'Guardado',
+            type: 'positive'
+          });
+          // this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -1106,6 +1110,18 @@ export default {
         setTimeout(() => {
           if(!val && val != 0){
             resolve(false || 'Precio es requerido')  
+          }
+          // call
+           resolve(true)
+        }, 300)
+      })
+    },
+    // Valida el campo impuesto
+    validateImpuesto(val){
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if(val == 0){
+            resolve(true)
           }
           // call
            resolve(true)
