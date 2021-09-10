@@ -25,7 +25,7 @@
             <q-item-section clickable v-ripple side>
               <q-avatar size="50px">
                 <img
-                  src="https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png"
+                  :src="data_user.Per_Imagen ? data_user.Per_Imagen: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'"
                 />
                 <!-- <img :src="data_user.Foto ? data_user.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
               </q-avatar>
