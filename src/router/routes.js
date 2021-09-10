@@ -9,9 +9,7 @@ const routes = [
         path: 'desktop', 
         component: () => import('layouts/LayoutApp'),
         children: [
-          // { path: '', component: () => import('pages/index'), meta: {requiresAuth: true} }
           { path: '', component: () => import('pages/desktop'), meta: {requiresAuth: true} }
-     
         ]
       },
       { 
