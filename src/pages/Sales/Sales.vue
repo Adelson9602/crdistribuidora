@@ -11,6 +11,7 @@
         narrow-indicator
       >
         <q-tab name="sales" label="Ventas" icon="monetization_on" />
+        <q-tab name="cotizacion" label="Cotizaciones" icon="shopping_basket" />
         <q-tab name="add_sales" label="Agregar venta" icon="shopping_cart" />
       </q-tabs>
 
@@ -166,6 +167,74 @@
                     />
                   </q-tab-panel>
                 </q-tab-panels>
+              </q-card-section>
+            </q-card>
+          </q-dialog>
+        </q-tab-panel>
+
+        <q-tab-panel name="cotizacion">
+          <component-table
+            class="q-mt-md"
+            proptitle="Cotizaciones"
+            :propdata="data_cotizaciones"
+            :propcolumns="columns_cotizacion"
+            :propgrid="true"
+            :propflat="true"
+            :propexcel="excel"
+            :proppdf="optionpdf"
+            :propbtns="btns"
+            :proppagination="initial_pagination"
+            :propactions="true"
+            @range="getCotizRange"
+            @ondetails="detatilCotizacion"
+            @onpdf="generatePdf"
+          />
+          <!-- Dialogo para ver el detalle de la cotización -->
+          <q-dialog v-model="dialog_detail" persistent full-height full-width>
+            <q-card>
+              <q-bar dark class="bg-primary text-white">
+                <div class="col text-center text-weight-bold">
+                  Detalle de la cotización
+                </div>
+                <q-btn
+                  text-color="white"
+                  icon="close"
+                  round
+                  flat
+                  v-close-popup
+                />
+              </q-bar>
+              <q-card-section>
+                <!-- Encabezado -->
+                <div class="row">
+                  <div
+                    class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                    v-for="(value, index) in encabezado_cotiza"
+                    :key="index"
+                  >
+                    <!-- Items para entregados -->
+                    <q-field :hint="index" stack-label dense>
+                      <template v-slot:control>
+                        <div
+                          class="self-center full-width no-outline"
+                          tabindex="0"
+                        >
+                          {{ value }}
+                        </div>
+                      </template>
+                    </q-field>
+                  </div>
+                  <div class="col-xs-12">
+                    <q-table
+                      flat
+                      title="Productos agregados"
+                      :data="data_det_cotiza"
+                      :columns="column_det_cot"
+                      row-key="name"
+                      class="alto_tabla"
+                    />
+                  </div>
+                </div>
               </q-card-section>
             </q-card>
           </q-dialog>
@@ -521,7 +590,141 @@ export default {
           field: "Estado"
         }
       ],
-      data_garantias: []
+      data_garantias: [],
+      columns_cotizacion: [
+        {
+          name: "Ec_Id",
+          align: "center",
+          label: "Cotización N°",
+          sortable: true,
+          field: "Ec_Id"
+        },
+        {
+          name: "CP_Nit",
+          align: "center",
+          label: "NIT",
+          sortable: true,
+          field: "CP_Nit"
+        },
+        {
+          name: "Ec_Des_gen_venta",
+          align: "center",
+          label: "Descuento general venta",
+          sortable: true,
+          field: "Ec_Des_gen_venta"
+        },
+        {
+          name: "Ec_Des_total_art",
+          align: "center",
+          label: "Descuento total artículo",
+          sortable: true,
+          field: "Ec_Des_total_art"
+        },
+        {
+          name: "Ec_Impuesto",
+          align: "center",
+          label: "Impuesto",
+          sortable: true,
+          field: "Ec_Impuesto"
+        },
+        {
+          name: "Ec_Subtotal",
+          align: "center",
+          label: "Subtotal",
+          sortable: true,
+          field: "Ec_Subtotal"
+        },
+        {
+          name: "Ec_Total_venta",
+          align: "center",
+          label: "Venta total",
+          sortable: true,
+          field: "Ec_Total_venta"
+        },
+        {
+          name: "Ec_dias_credito",
+          align: "center",
+          label: "Días crédito",
+          sortable: true,
+          field: "Ec_dias_credito"
+        },
+        {
+          name: "Mov_Descripcion",
+          align: "center",
+          label: "Nombre movil",
+          sortable: true,
+          field: "Mov_Descripcion"
+        },
+        {
+          name: "Per_Nombre",
+          align: "center",
+          label: "Nombre vendedor",
+          sortable: true,
+          field: "Per_Nombre"
+        },
+        {
+          name: "Per_Num_documento",
+          align: "center",
+          label: "Documento vendedor",
+          sortable: true,
+          field: "Per_Num_documento"
+        },
+        {
+          name: "Estado",
+          align: "center",
+          label: "Estado",
+          sortable: true,
+          field: "Estado"
+        }
+      ],
+      data_cotizaciones: [],
+      column_det_cot: [
+        {
+          name: 'Art_Id',
+          align: 'center',
+          label: 'ID Artículo',
+          sortable: true,
+          field: 'Art_Id'
+        },
+        {
+          name: 'Art_Nombre',
+          align: 'center',
+          label: 'Nombre producto',
+          sortable: true,
+          field: 'Art_Nombre'
+        },
+        {
+          name: 'Dc_Cant',
+          align: 'center',
+          label: 'Cantidad',
+          sortable: true,
+          field: 'Dc_Cant'
+        },
+        {
+          name: 'Dc_Precio_compra',
+          align: 'center',
+          label: 'Precio de compra',
+          sortable: true,
+          field: 'Dc_Precio_compra'
+        },
+        {
+          name: 'Dc_precio_venta',
+          align: 'center',
+          label: 'Precio de venta',
+          sortable: true,
+          field: 'Dc_precio_venta'
+        },
+        {
+          name: 'Dc_valor_descuento',
+          align: 'center',
+          label: 'Valor descuento',
+          sortable: true,
+          field: 'Dc_valor_descuento'
+        },
+      ],
+      data_det_cotiza: [],
+      encabezado_cotiza: null,
+      encabezado_cotiza_selecte: null,
     };
   },
   created() {
@@ -620,7 +823,9 @@ export default {
       "getSales",
       "getSalesClient",
       "getDetailSales",
-      "getDetailsGuarantess"
+      "getDetailsGuarantess",
+      "getCotizaciones",
+      "getDetCotizacion"
     ]),
     ...mapActions("shopping", ["getProviders"]),
     getData() {
@@ -632,12 +837,12 @@ export default {
           const res_sales = await this.getSales().then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get ventas",
-            data: res_sales
-          });
+          // console.log({
+          //   msg: "Respuesta get ventas",
+          //   data: res_sales
+          // });
+          this.data.length = 0;
           if (res_sales.ok) {
-            this.data.length = 0;
             if (res_sales.result) {
               res_sales.data.forEach(venta => {
                 this.data.push({
@@ -690,13 +895,13 @@ export default {
           const res_provider = await this.getProviders().then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get clientes",
-            data: res_provider
-          });
+          // console.log({
+          //   msg: "Respuesta get clientes",
+          //   data: res_provider
+          // });
+          all_clients.length = 0;
           if (res_provider.ok) {
             if (res_provider.result) {
-              all_clients.length = 0;
               res_provider.data.forEach(cliente => {
                 if (cliente.name_tp == "CLIENTE" && cliente.CP_Razon_social) {
                   all_clients.push({
@@ -713,6 +918,61 @@ export default {
             }
           } else {
             throw new Error(res_provider.message);
+          }
+
+          const res_cotizacion = await this.getCotizaciones().then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta get cotizaciones",
+            data: res_cotizacion
+          });
+          this.data_cotizaciones.length = 0;
+          if (res_cotizacion.ok) {
+            if (res_cotizacion.result) {
+              res_cotizacion.data.forEach( cotizacion => {
+                this.data_cotizaciones.push({
+                  CP_Nit: cotizacion.CP_Nit,
+                  Ec_Des_gen_venta: cotizacion.Ec_Des_gen_venta,
+                  Ec_Des_total_art: cotizacion.Ec_Des_total_art,
+                  Ec_Descuentog: cotizacion.Ec_Descuentog,
+                  Ec_Fecha_control: cotizacion.Ec_Fecha_control,
+                  Ec_Id: cotizacion.Ec_Id,
+                  Ec_Impuesto: cotizacion.Ec_Impuesto,
+                  Ec_Subtotal: cotizacion.Ec_Subtotal,
+                  Ec_Total_venta: cotizacion.Ec_Total_venta,
+                  Ec_Usuario_control: cotizacion.Ec_Usuario_control,
+                  Ec_vigencia: cotizacion.Ec_vigencia,
+                  Mov_Descripcion: cotizacion.Mov_Descripcion,
+                  Mov_Id: cotizacion.Mov_Id,
+                  Mp_Descripcion: cotizacion.Mp_Descripcion,
+                  Mp_Id: cotizacion.Mp_Id,
+                  Per_Nombre: cotizacion.Per_Nombre,
+                  Per_Num_documento: cotizacion.Per_Num_documento,
+                  Tc_Descripcion: cotizacion.Tc_Descripcion,
+                  Tc_Id: cotizacion.Tc_Id,
+                  Id: cotizacion.Ec_Id,
+                  Ec_Estado: cotizacion.Ec_Estado,
+                  Estado: cotizacion.Ec_Estado == 1 ? 'Aceptado' : 'Pendiente',
+                  status: cotizacion.Ec_Estado,
+                  title: `Cotización No. ${cotizacion.Ec_Id}`,
+                  // btn_edit: true,
+                  // btn_status: true,
+                  btn_details: true,
+                  btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                  icon_btn_details: "mdi-eye-settings"
+                });
+              });
+            } else {
+              this.$q.notify({
+                message: res_cotizacion.message,
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_cotizacion.message);
           }
           this.excel.data = this.data;
         } catch (e) {
@@ -1206,6 +1466,82 @@ export default {
     },
     editSale(row) {
       this.category_edit = row;
+    },
+    getCotizRange(){
+
+    },
+    detatilCotizacion(row){
+      this.$q.loading.show({
+        message: 'Obteniendo detalle de la cotización, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          this.encabezado_cotiza_selecte = row;
+          this.encabezado_cotiza = {
+            "Cotización N°": row.Ec_Id,
+            NIT: row.CP_Nit,
+            "Descuento general venta": row.Ec_Des_gen_venta,
+            "Descuento total articulos": row.Ec_Des_total_art,
+            "Descuento": row.Ec_Descuentog,
+            "Impuesto": row.Ec_Impuesto,
+            "Subtotal venta": row.Ec_Subtotal,
+            "Total venta": row.Ec_Total_venta,
+            "Vigencia": row.Ec_vigencia,
+            "Nombre movil": row.Mov_Descripcion,
+            "Medio pago": row.Mp_Descripcion,
+            "Nombre vendedor": row.Per_Nombre,
+            "Documento vendedor": row.Per_Num_documento,
+            "Tipo comprobante": row.Tc_Descripcion,
+            Estado: row.Ec_Estado == 1 ? 'Aceptado' : 'Pendiente',
+          }
+          const res_det = await this.getDetCotizacion(row.Id).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get detalle cotización',
+          //   data: res_det
+          // })
+          this.data_det_cotiza.length = 0;
+          if(res_det.ok){
+            if(res_det.result){
+              res_det.data.forEach( product => {
+                this.data_det_cotiza.push({
+                  Art_Id: product.Art_Id,
+                  Art_Nombre: product.Art_Nombre,
+                  Dc_Cant: product.Dc_Cant,
+                  Dc_Precio_compra: product.Dc_Precio_compra,
+                  Dc_precio_venta: product.Dc_precio_venta,
+                  Dc_valor_descuento: product.Dc_valor_descuento,
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_det.message)
+          }
+          this.dialog_detail = true;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
     },
     reload() {
       this.dialog_detail = false;

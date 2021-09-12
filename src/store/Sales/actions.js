@@ -160,3 +160,19 @@ export function getEncNotaCredSingle(context, id_venta){
 export function getDetNotaCredSingle(context, id_venta){
   return Vue.prototype.$axios.get(`select_det_venta_nota_credito_single_Ev_Id/${base}/${id_venta}`);
 }
+
+// COTIZACIÓN
+// Obtiene las últimas 50 cotizaciones realizadas
+export function getCotizaciones(){
+  return Vue.prototype.$axios.get(`select_enc_cotizacion_limit/${base}`)
+}
+
+// Obtiene el encabezado de una cotización en especifico
+export function getEncCotizacion(context, id_cotizacion){
+  return Vue.prototype.$axios.get(`select_enc_cotizacion_single/${base}/${id_cotizacion}`)
+}
+
+// Obteiene el detalle de una cotización en especifico
+export function getDetCotizacion(context, id_cotizacion){
+  return Vue.prototype.$axios.get(`select_det_cotizacion_single/${base}/${id_cotizacion}`)
+}
