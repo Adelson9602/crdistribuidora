@@ -1,16 +1,39 @@
 <template>
   <div>
+    <div class="row q-gutter-y-md">
+      <div class="col-xs-12 col-sm-8 col-md-8 q-px-sm">
+        <q-btn color="primary" icon="add" label="Agregar cliente" @click="dialog_create_user = true" />
+        <q-toggle
+          v-model="tipo_accion"
+          color="green"
+          :icon="tipo_accion ? 'shopping_cart' : 'receipt_long'"
+          :label="tipo_accion ? 'Venta' : 'Cotización'"
+        />
+      </div>
+      <q-form @submit="searchCotizacion" class="col-xs-12 col-sm-4 col-md-4 q-px-sm">
+        <q-input
+          bottom-slots
+          v-model="id_cotizacion"
+          label="Buscar No. Cotización"
+          dense
+          error-message="Número de cotización es obligatorio"
+          :error="!isNumberCotiza"
+          mask="#########"
+          :rules="[val => !!val || 'Número de cotización es obligatorio']"
+        >
+          <template v-slot:after>
+            <q-btn round dense flat icon="search" @click="searchCotizacion"/>
+          </template>
+        </q-input>
+        <q-btn color="white" text-color="black" type="submit" label="Buscar" class="hide-btn_submit"/>
+      </q-form>
+    </div>
     <q-form
       @submit="addProduct"
       class="q-gutter-md"
       ref="form_sales"
       autocomplete="off"
     >
-       <div class="q-gutter-sm">
-        <q-btn color="primary" icon="add" label="Agregar cliente" @click="dialog_create_user = true" />
-        <q-radio v-model="tipo_accion" :val="true" label="Venta" color="green" />
-        <q-radio v-model="tipo_accion" :val="false" label="Cotización" color="orange" />
-      </div>
 
       <q-dialog v-model="dialog_create_user" persistent>
         <q-card style="width: 920px; max-width: 90vw;">
@@ -438,6 +461,8 @@ export default {
       },
       tipo_accion: true, //Determina que acción va a realizar el usuario, si es cotización o venta
       validation: false, //Valida el cliente seleccionado
+      id_cotizacion: null, //Id de la cotización a concretar como venta
+      isNumberCotiza: true, //Valida si se ha ingresado un número de cotización
     }
   },
   computed: {
@@ -571,7 +596,9 @@ export default {
       'insertUpdateStockGarantia',
       'getPerSalePersona',
       'insertEncCotizacion',
-      'insertDetCotizacion'
+      'insertDetCotizacion',
+      'getEncCotizacion',
+      'getDetCotizacion'
     ]),
     getData(){
       this.$q.loading.show({
@@ -1042,6 +1069,112 @@ export default {
       this.cant_disponible = null;
       this.cantidad_garantia = null;
     },
+    // Busca una cotización, para concretar la como venta
+    searchCotizacion(){
+      if(this.id_cotizacion){
+        this.isNumberCotiza = true;
+        this.$q.loading.show({
+          message: 'Buscando cotización, por favor espere...'
+        });
+        setTimeout(async() => {
+          try {
+            const res_enc = await this.getEncCotizacion(this.id_cotizacion).then( res => {
+              return res.data;
+            });
+            console.log({
+              message: 'Respuesta get encabezado cotización',
+              data: res_enc
+            });
+            if(res_enc.ok){
+              if(res_enc.result){
+                let encabezado = res_enc.data;
+                // Asignamos los datos al frontend
+                this.movil_selecte = encabezado.Mov_Id;
+                this.cliente_selected = all_clients.find( cliente => cliente.value == encabezado.CP_Nit)
+                this.enc_venta.Tc_Id = encabezado.Tc_Id;
+                this.enc_venta.Mp_Id = encabezado.Mp_Id;
+                this.enc_venta.Ev_Impuesto = encabezado.Ec_Impuesto;
+                this.enc_venta.Ev_Descuentog = encabezado.Ec_Descuentog;
+                this.Ev_Des_total_art = encabezado.Ec_Des_total_art;
+                this.subtotal_venta = encabezado.Ec_Subtotal;
+                this.Ev_Subtotal = encabezado.Ec_Total_venta;
+                this.Ev_Des_gen_venta = encabezado.Ec_Des_gen_venta;
+                this.total_venta = encabezado.Ec_Total_venta;
+
+                // Obtenemos el detalle de la cotización
+                const res_det = await this.getDetCotizacion(this.id_cotizacion).then( res => {
+                  return res.data;
+                });
+                console.log({
+                  msg: 'Respuesta get detalle cotización',
+                  data: res_det
+                })
+
+                this.data_sales.length = 0;
+                if(res_det.ok){
+                  if(res_det.result){
+                    res_det.data.forEach( product => {
+                      let product_add = {
+                        Ev_Id: null,
+                        base: process.env.__BASE__,
+                        codigo: 'PENDIENTE',
+                        producto: product.Art_Nombre,
+                        Art_Id: product.Art_Id,
+                        Dv_Cant: product.Dc_Cant,
+                        Dv_Precio_compra: product.Dc_Precio_compra,
+                        Dv_precio_venta: product.Dc_precio_venta,
+                        Dv_valor_descuento: product.Dc_valor_descuento,
+                        porcentaje_venta: 'PENDIENTE AGREGAR',
+                        subtotal_product: null,
+                        des_articulo: 'PENDIENTE AGREGAR',
+                        // Propiedade para actualizar el stock
+                        Mov_Id: res_enc.data.Mov_Id,
+                        Si_Cant: product.Dc_Cant,
+                        simbol: '-',
+                        // Art_Id: null, -> ya esa declarado
+                      }
+                      this.data_sales.push(product_add)
+                    })
+                  } else {
+                    this.$q.notify({
+                      message: 'Sin resultados',
+                      type: 'warning'
+                    })
+                  }
+                } else {
+                  throw new Error(res_det.message)
+                }
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                })
+              }
+            } else {
+              throw new Error(res_enc.message)
+            }
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative",
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+        }, 1000)
+      } else {
+        this.isNumberCotiza = false;
+      }
+    },
     // Buscador para el select medio de pago
     filterProducts(val, update, abort){
       setTimeout(() => {
@@ -1134,5 +1267,8 @@ export default {
 <style scoped>
 .height{
   height: 350px !important;
+}
+.my-custom-toggle{
+  border: 1px solid #027be3
 }
 </style>
