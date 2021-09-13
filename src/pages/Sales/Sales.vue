@@ -31,7 +31,7 @@
             :propbtns="btns"
             :proppagination="initial_pagination"
             :propactions="true"
-            @range="getSalesByRange"
+            @onrange="getSalesByRange"
             @onedit="editSale"
             @ondetails="detatilSale"
             @onpdf="generatePdf"
@@ -924,10 +924,10 @@ export default {
           const res_cotizacion = await this.getCotizaciones().then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get cotizaciones",
-            data: res_cotizacion
-          });
+          // console.log({
+          //   msg: "Respuesta get cotizaciones",
+          //   data: res_cotizacion
+          // });
           this.data_cotizaciones.length = 0;
           if (res_cotizacion.ok) {
             if (res_cotizacion.result) {
@@ -1304,48 +1304,42 @@ export default {
           if (res_sales.ok) {
             if (res_sales.result) {
               this.data.length = 0;
-              res_sales.data.forEach(cat => {
+              res_sales.data.forEach(venta => {
                 this.data.push({
-                  CP_Nit: sale.CP_Nit,
-                  contacto: sale.contacto,
-                  CP_Email: sale.CP_Email,
-                  CP_Direccion: sale.CP_Direccion,
-                  CP_Razon_social: sale.CP_Razon_social,
-                  Eg_Fecha_control: sale.Eg_Fecha_control,
-                  Eg_Id: sale.Eg_Id,
-                  Eg_Observacion: sale.Eg_Observacion,
-                  Eg_Quien_autoriza: sale.Eg_Quien_autoriza,
-                  Eg_estado: sale.Eg_estado,
-                  Ev_Des_gen_venta: sale.Ev_Des_gen_venta,
-                  Ev_Des_total_art: sale.Ev_Des_total_art,
-                  Ev_Descuentog: sale.Ev_Descuentog,
-                  Ev_Entregado: sale.Ev_Entregado,
-                  Ev_Estado: sale.Ev_Estado,
-                  Ev_Fecha_control: sale.Ev_Fecha_control,
-                  Ev_Fecha_venta: sale.Ev_Fecha_venta,
-                  Ev_Id: sale.Ev_Id,
-                  Ev_Impuesto: sale.Ev_Impuesto,
-                  Ev_Subtotal: sale.Ev_Subtotal,
-                  Ev_Total_venta: sale.Ev_Total_venta,
-                  Ev_Usuario_control: sale.Ev_Usuario_control,
-                  Ev_conf_pago: sale.Ev_conf_pago,
-                  Ev_dias_credito: sale.Ev_dias_credito,
-                  Mov_Descripcion: sale.Mov_Descripcion,
-                  Mov_Id: sale.Mov_Id,
-                  Mp_Id: sale.Mp_Id,
+                  CP_Nit: venta.CP_Nit,
+                  CP_Razon_social: venta.CP_Razon_social,
+                  Ev_Des_gen_venta: venta.Ev_Des_gen_venta,
+                  Ev_Des_total_art: venta.Ev_Des_total_art,
+                  Ev_Descuentog: venta.Ev_Descuentog,
+                  Ev_Entregado: venta.Ev_Entregado,
+                  Ev_Estado: venta.Ev_Estado,
+                  Ev_Fecha_control: venta.Ev_Fecha_control,
+                  Ev_Fecha_venta: venta.Ev_Fecha_venta,
+                  Ev_Id: venta.Ev_Id,
+                  Ev_Impuesto: venta.Ev_Impuesto,
+                  Ev_Subtotal: venta.Ev_Subtotal,
+                  Ev_Total_venta: venta.Ev_Total_venta,
+                  Ev_conf_pago: venta.Ev_conf_pago,
+                  Ev_dias_credito: venta.Ev_dias_credito,
+                  Mov_Descripcion: venta.Mov_Descripcion,
+                  Mov_Id: venta.Mov_Id,
+                  Mp_Id: venta.Mp_Id,
                   Tc_Id: venta.Tc_Id,
-                  Per_Nombre: sale.Per_Nombre,
-                  Per_Num_documento: sale.Per_Num_documento,
+                  Per_Nombre: venta.Per_Nombre,
+                  Per_Num_documento: venta.Per_Num_documento,
                   Estado: venta.name_estado,
+                  status: venta.Ev_Estado,
                   Id: venta.Ev_Id,
-                  name_mp: sale.name_mp,
-                  name_qautorizqa: sale.name_qautorizqa,
-                  status: sale.Ev_Estado,
-                  btn_edit: true,
-                  icon_btn_details: "visibility",
+                  title: venta.CP_Razon_social,
+                  name_mp: venta.name_mp,
+                  name_qautorizqa: venta.name_qautorizqa,
+                  // btn_edit: true,
+                  // btn_status: true,
                   btn_details: true,
                   btn_pdf: true,
-                  icon_btn_edit: "edit"
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                  icon_btn_details: "mdi-eye-settings"
                 });
               });
             } else {
@@ -1475,13 +1469,60 @@ export default {
       });
       setTimeout(async() => {
         try {
-          const res_data = await this.getCotizacionRange(date).then( res => {
+          const res_cotizacion = await this.getCotizacionRange(date).then( res => {
             return res.data;
           });
-          console.log({
-            message: 'Respuesta get cotizaciones por rango',
-            data: res_data
-          })
+          // console.log({
+          //   message: 'Respuesta get cotizaciones por rango',
+          //   data: res_cotizacion
+          // })
+          this.data_cotizaciones.length = 0;
+          if (res_cotizacion.ok) {
+            if (res_cotizacion.result) {
+              res_cotizacion.data.forEach( cotizacion => {
+                this.data_cotizaciones.push({
+                  CP_Nit: cotizacion.CP_Nit,
+                  Ec_Des_gen_venta: cotizacion.Ec_Des_gen_venta,
+                  Ec_Des_total_art: cotizacion.Ec_Des_total_art,
+                  Ec_Descuentog: cotizacion.Ec_Descuentog,
+                  Ec_Fecha_control: cotizacion.Ec_Fecha_control,
+                  Ec_Id: cotizacion.Ec_Id,
+                  Ec_Impuesto: cotizacion.Ec_Impuesto,
+                  Ec_Subtotal: cotizacion.Ec_Subtotal,
+                  Ec_Total_venta: cotizacion.Ec_Total_venta,
+                  Ec_Usuario_control: cotizacion.Ec_Usuario_control,
+                  Ec_vigencia: cotizacion.Ec_vigencia,
+                  Mov_Descripcion: cotizacion.Mov_Descripcion,
+                  Mov_Id: cotizacion.Mov_Id,
+                  Mp_Descripcion: cotizacion.Mp_Descripcion,
+                  Mp_Id: cotizacion.Mp_Id,
+                  Per_Nombre: cotizacion.Per_Nombre,
+                  Per_Num_documento: cotizacion.Per_Num_documento,
+                  Tc_Descripcion: cotizacion.Tc_Descripcion,
+                  Tc_Id: cotizacion.Tc_Id,
+                  Id: cotizacion.Ec_Id,
+                  Ec_Estado: cotizacion.Ec_Estado,
+                  Estado: cotizacion.Ec_Estado == 1 ? 'Aceptado' : 'Pendiente',
+                  status: cotizacion.Ec_Estado,
+                  title: `Cotización No. ${cotizacion.Ec_Id}`,
+                  // btn_edit: true,
+                  // btn_status: true,
+                  btn_details: true,
+                  btn_pdf: true,
+                  // icon_btn_edit: "mdi-pencil",
+                  // icon_btn_status: "power_settings_new",
+                  icon_btn_details: "mdi-eye-settings"
+                });
+              });
+            } else {
+              this.$q.notify({
+                message: res_cotizacion.message,
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_cotizacion.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
