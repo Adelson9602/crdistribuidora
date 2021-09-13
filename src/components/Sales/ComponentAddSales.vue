@@ -990,8 +990,9 @@ export default {
 
           this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
 
-          this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
-          this.total_venta = this.enc_venta.Ev_Impuesto > 0 ? this.total_venta * this.enc_venta.Ev_Impuesto : this.total_venta;
+          this.total_venta =  Math.round(this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta);
+          this.total_venta =  Math.round(this.enc_venta.Ev_Impuesto > 0 ? this.total_venta * this.enc_venta.Ev_Impuesto : this.total_venta);
+          product_add.total_venta = this.total_venta;
 
           this.data_sales.push(product_add);
           this.onReset();
