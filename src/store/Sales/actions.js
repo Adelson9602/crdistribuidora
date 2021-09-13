@@ -176,3 +176,8 @@ export function getEncCotizacion(context, id_cotizacion){
 export function getDetCotizacion(context, id_cotizacion){
   return Vue.prototype.$axios.get(`select_det_cotizacion_single/${base}/${id_cotizacion}`)
 }
+
+// Obtiene cotizaciones en un rango de fecha
+export function getCotizacionRange(context, data){
+  return Vue.prototype.$axios.get(`select_enc_cotizacion_range/${base}/${data.from}/${data.to}`)
+}

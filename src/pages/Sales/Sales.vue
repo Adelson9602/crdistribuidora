@@ -185,7 +185,7 @@
             :propbtns="btns"
             :proppagination="initial_pagination"
             :propactions="true"
-            @range="getCotizRange"
+            @onrange="getCotizRange"
             @ondetails="detatilCotizacion"
             @onpdf="generatePdf"
           />
@@ -825,7 +825,8 @@ export default {
       "getDetailSales",
       "getDetailsGuarantess",
       "getCotizaciones",
-      "getDetCotizacion"
+      "getDetCotizacion",
+      "getCotizacionRange"
     ]),
     ...mapActions("shopping", ["getProviders"]),
     getData() {
@@ -1467,8 +1468,38 @@ export default {
     editSale(row) {
       this.category_edit = row;
     },
-    getCotizRange(){
-
+    getCotizRange(date){
+      console.log('hOLA')
+      this.$q.loading.show({
+        message: 'Obtieniendo cotizaciones en la rango seleccionado, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          const res_data = await this.getCotizacionRange(date).then( res => {
+            return res.data;
+          });
+          console.log({
+            message: 'Respuesta get cotizaciones por rango',
+            data: res_data
+          })
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
     },
     detatilCotizacion(row){
       this.$q.loading.show({
