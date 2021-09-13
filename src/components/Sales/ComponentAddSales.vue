@@ -486,6 +486,8 @@ export default {
       });
       setTimeout( async() => {
         try {
+          this.producto_selecte = null;
+          this.cant_disponible = null;
           const res_product = await this.getStockMovil(value).then( res => {
             return res.data;
           });
@@ -536,7 +538,9 @@ export default {
         let resultado = new Promise((resolve, reject) => {
           if(value.art_porce_general){
             this.options_des_products.length = 0;
-            this.options_des_products = percent_genres;
+            percent_genres.forEach( element => {
+              this.options_des_products.push(element);
+            })
           } else {
             let porcentaje_productos = percent_persona.filter( porcentaje => porcentaje.Art_Id == value.value);
             this.options_des_products.length = 0;
@@ -787,7 +791,7 @@ export default {
             this.enc_venta.Mov_Id = this.movil_selecte;
             this.enc_venta.Ev_Usuario_control = this.data_user.Per_Num_documento;
             this.enc_venta.base = process.env.__BASE__;
-            this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Impuesto > 0 ?  this.enc_venta.Ev_Total_venta * this.enc_venta.Ev_Impuesto : enc_cotizacion.Ev_Total_venta
+            this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Impuesto > 0 ? this.enc_venta.Ev_Total_venta * this.enc_venta.Ev_Impuesto : this.enc_venta.Ev_Total_venta;
             const res_enc = await this.insertEncVenta(this.enc_venta).then( res => {
               return res.data;
             });
@@ -942,7 +946,10 @@ export default {
         Dv_precio_venta: this.producto_selecte.precio_venta,
         Dv_valor_descuento: this.descuento_art.value,
         porcentaje_venta: this.producto_selecte.porcentaje_venta,
-        subtotal_product: null,
+        subtotal_product: null, //Subtotal del producto
+        subtotal_venta: null, //Subtotal sin descuentos al momento de agregar este producto
+        total_venta: null, //Total de la venta al momento de agregar este producto
+        diferencia_descuento: null,
         des_articulo: this.descuento_art.label,
         // Propiedade para actualizar el stock
         Mov_Id: this.movil_selecte,
@@ -973,15 +980,18 @@ export default {
           // diferencia entre precio venta y subtotal
 
 
-          product_add.subtotal_product = product_add.Dv_Precio_compra + (this.descuento_art.value * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
-          this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
+          product_add.subtotal_product = Math.round((product_add.Dv_Precio_compra + (product_add.Dv_Precio_compra * (this.descuento_art.value / 100))) * this.cantidad); //calcula el subtotal por cada articulo
+          this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad - product_add.subtotal_product )); //Calculamos el descuento de cada articulo
+          product_add.diferencia_descuento = this.Ev_Des_total_art;
 
           this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
+          product_add.subtotal_venta = this.subtotal_venta;
           this.Ev_Subtotal = this.subtotal_venta;
 
           this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
 
           this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+          this.total_venta = this.enc_venta.Ev_Impuesto > 0 ? this.total_venta * this.enc_venta.Ev_Impuesto : this.total_venta;
 
           this.data_sales.push(product_add);
           this.onReset();
@@ -1001,8 +1011,9 @@ export default {
       }).onOk(() => {
         let index = this.data_sales.indexOf(row)
         this.data_sales.splice(index, 1)
-        this.Ev_Des_total_art = this.Ev_Des_total_art - (row.subtotal_product * Number(row.Dv_Cant));
-        this.subtotal_venta = this.subtotal_venta - (row.Dv_precio_venta * Number(row.Dv_Cant));
+        this.Ev_Des_total_art = this.Ev_Des_total_art - row.diferencia_descuento;
+        this.subtotal_venta = this.subtotal_venta - row.subtotal_venta;
+        this.total_venta = this.total_venta - row.total_venta;
       })
     },
     // Recarga el select luego de crear un cliente
@@ -1113,6 +1124,7 @@ export default {
                 this.data_sales.length = 0;
                 if(res_det.ok){
                   if(res_det.result){
+                    this.descuento_art.label
                     res_det.data.forEach( product => {
                       let product_add = {
                         Ev_Id: null,
