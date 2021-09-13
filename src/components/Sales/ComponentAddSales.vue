@@ -446,9 +446,9 @@ export default {
         },
       ], //Columnas para la tabla productos a vender
       dialog_create_user: false,
-      Ev_Des_total_art: null,
-      Ev_Subtotal: null,
-      Ev_Des_gen_venta: null,
+      Ev_Des_total_art: 0,
+      Ev_Subtotal: 0,
+      Ev_Des_gen_venta: 0,
       cantidad_garantia: null,
       ecn_garantia: {
         base: null,
@@ -1093,10 +1093,10 @@ export default {
             const res_enc = await this.getEncCotizacion(this.id_cotizacion).then( res => {
               return res.data;
             });
-            console.log({
-              message: 'Respuesta get encabezado cotización',
-              data: res_enc
-            });
+            // console.log({
+            //   message: 'Respuesta get encabezado cotización',
+            //   data: res_enc
+            // });
             if(res_enc.ok){
               if(res_enc.result){
                 let encabezado = res_enc.data;
@@ -1107,45 +1107,63 @@ export default {
                 this.enc_venta.Mp_Id = encabezado.Mp_Id;
                 this.enc_venta.Ev_Impuesto = encabezado.Ec_Impuesto;
                 this.enc_venta.Ev_Descuentog = encabezado.Ec_Descuentog;
-                this.Ev_Des_total_art = encabezado.Ec_Des_total_art;
-                this.subtotal_venta = encabezado.Ec_Subtotal;
-                this.Ev_Subtotal = encabezado.Ec_Total_venta;
-                this.Ev_Des_gen_venta = encabezado.Ec_Des_gen_venta;
-                this.total_venta = encabezado.Ec_Total_venta;
+
+                // this.Ev_Des_total_art = encabezado.Ec_Des_total_art;
+                // this.subtotal_venta = encabezado.Ec_Subtotal;
+                // this.Ev_Subtotal = encabezado.Ec_Total_venta;
+                // this.Ev_Des_gen_venta = encabezado.Ec_Des_gen_venta;
+                // this.total_venta = encabezado.Ec_Total_venta;
 
                 // Obtenemos el detalle de la cotización
                 const res_det = await this.getDetCotizacion(this.id_cotizacion).then( res => {
                   return res.data;
                 });
-                console.log({
-                  msg: 'Respuesta get detalle cotización',
-                  data: res_det
-                })
+                // console.log({
+                //   msg: 'Respuesta get detalle cotización',
+                //   data: res_det
+                // })
 
                 this.data_sales.length = 0;
                 if(res_det.ok){
                   if(res_det.result){
-                    this.descuento_art.label
                     res_det.data.forEach( product => {
                       let product_add = {
                         Ev_Id: null,
                         base: process.env.__BASE__,
-                        codigo: 'PENDIENTE',
+                        codigo: product.cond_inventario,
                         producto: product.Art_Nombre,
                         Art_Id: product.Art_Id,
                         Dv_Cant: product.Dc_Cant,
                         Dv_Precio_compra: product.Dc_Precio_compra,
                         Dv_precio_venta: product.Dc_precio_venta,
                         Dv_valor_descuento: product.Dc_valor_descuento,
-                        porcentaje_venta: 'PENDIENTE AGREGAR',
-                        subtotal_product: null,
-                        des_articulo: 'PENDIENTE AGREGAR',
+                        porcentaje_venta: product.prc_venta,
+                        subtotal_product: null, //Subtotal del producto
+                        subtotal_venta: null, //Subtotal sin descuentos al momento de agregar este producto
+                        total_venta: null, //Total de la venta al momento de agregar este producto
+                        diferencia_descuento: null,
+                        des_articulo: product.name_porcentaje,
                         // Propiedade para actualizar el stock
                         Mov_Id: res_enc.data.Mov_Id,
                         Si_Cant: product.Dc_Cant,
                         simbol: '-',
                         // Art_Id: null, -> ya esa declarado
                       }
+                      product_add.subtotal_product = Math.round((product_add.Dv_Precio_compra + (product_add.Dv_Precio_compra * (product_add.Dv_valor_descuento / 100))) * product_add.Dv_Cant); //calcula el subtotal por cada articulo
+                      this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * product_add.Dv_Cant - product_add.subtotal_product )); //Calculamos el descuento de cada articulo
+                      product_add.diferencia_descuento = this.Ev_Des_total_art;
+
+                      this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * product_add.Dv_Cant)); // se asigna el subtotal de la factura
+                      product_add.subtotal_venta = this.subtotal_venta;
+                      this.Ev_Subtotal = this.subtotal_venta;
+                      console.log(product_add)
+
+                      this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_venta.Ev_Descuentog / 100 );
+
+                      this.total_venta =  Math.round(this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta);
+                      this.total_venta =  Math.round(this.enc_venta.Ev_Impuesto > 0 ? this.total_venta * this.enc_venta.Ev_Impuesto : this.total_venta);
+                      product_add.total_venta = this.total_venta;
+
                       this.data_sales.push(product_add)
                     })
                   } else {
