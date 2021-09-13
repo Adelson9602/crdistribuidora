@@ -36,7 +36,7 @@
             :propactions="true"
             @onedit="editEntry"
             @ondetails="detailsEntry"
-            @getrangedata="searchEntryRange"
+            @onrange="searchEntryRange"
             :propbuscador="buscador"
           >
             <template v-slot:input_one>

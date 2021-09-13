@@ -32,7 +32,7 @@
             :propexcel="excel"
             :propactions="true"
             @ondetails="detailsTransfer"
-            @getrangedata="getRange"
+            @onrange="getRange"
             v-if="rendercomponent"
           >
             <template v-slot:toggle>

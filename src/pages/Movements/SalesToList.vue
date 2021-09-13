@@ -9,7 +9,7 @@
         :propcolumns="columns"
         :propgrid="false"
         :propflat="true"
-        @getrangedata="getSalesRang"
+        @onrange="getSalesRang"
         :propbtns="btns"
       />
 
@@ -21,7 +21,7 @@
         :propcolumns="columnsdetail"
         :propgrid="false"
         :propflat="true"
-        @getrangedata="getSalesRang"
+        @onrange="getSalesRang"
       />
     </q-card>
   </q-page>
