@@ -492,7 +492,7 @@ export default {
           from: this.date_range
         }
       }
-      this.$emit("getrangedata", this.date_range);
+      this.$emit("onrange", this.date_range);
     },
     // Busca en especifico
     search(){
