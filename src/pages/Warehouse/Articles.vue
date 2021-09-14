@@ -219,15 +219,15 @@ export default {
             field: "name_estado",
           },
           {
-            label: "User Control",
+            label: "Documento creador",
             field: "Art_User_control",
           },
           {
-            label: "Nombre Control",
+            label: "Nombre creador",
             field: "Per_Nombre",
           },
           {
-            label: "Fecha Control",
+            label: "Fecha creación",
             field: "Art_Fecha_control",
           },
         ],
