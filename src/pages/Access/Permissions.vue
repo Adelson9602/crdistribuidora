@@ -239,11 +239,11 @@ export default {
           sortable: true
         }, 
         {
-          name: 'icon',
+          name: 'Icon',
           required: true,
-          label: 'Icono',
+          label: 'Nombre ícono',
           align: 'center',
-          field: 'icon',
+          field: 'Icon',
           sortable: true
         },
       ],
@@ -315,10 +315,10 @@ export default {
           const res_modulos = await this.GetModules(this.base).then( res => {
             return res.data;
           })
-          console.log({
-            msg: 'Respuesta get modulos',
-            data: res_modulos
-          })
+          // console.log({
+          //   msg: 'Respuesta get modulos',
+          //   data: res_modulos
+          // })
           this.data.length = 0;
           res_modulos.data.forEach(element => {
             this.data.push({
