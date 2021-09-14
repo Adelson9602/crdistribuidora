@@ -312,7 +312,8 @@ export default {
     ...mapActions('shopping', [
       'insertEncEntry',
       'insertDetEntry',
-      'getProviders'
+      'getProviders',
+      'insertArtVenta'
     ]),
     ...mapActions('warehouse', [
       'updateInventarioMovil',
@@ -459,10 +460,10 @@ export default {
           const res_ingreso = await this.insertEncEntry(this.enc_entrada).then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta insert encabezado entrada',
-            data: res_ingreso
-          })
+          // console.log({
+          //   msg: 'Respuesta insert encabezado entrada',
+          //   data: res_ingreso
+          // })
           if(res_ingreso.ok){
             let insert_produc = [];
             let upd_stock = [];
@@ -470,8 +471,18 @@ export default {
               product.Enc_Id = res_ingreso.data.insertId;
               let save_product = this.insertDetEntry(product).then( res => {
                 return res.data;
+              }).catch( e => {
+                throw new Error(e)
               });
               insert_produc.push(save_product);
+
+              let product_venta = this.insertArtVenta(product).then( res => {
+                return res.data;
+              }).catch( e => {
+                throw new Error(e)
+              });
+              insert_produc.push(product_venta);
+
               let new_art = {
                 base: process.env.__BASE__,
                 Art_Id: product.Art_Id,
@@ -481,6 +492,8 @@ export default {
               }
               let update_stock = this.updateInventarioMovil(new_art).then( res => {
                 return res.data;
+              }).catch( e => {
+                throw new Error(e)
               });
               upd_stock.push(update_stock)
             });
@@ -541,7 +554,10 @@ export default {
         Codigo_art: this.producto_selecte.codigo,
         Descripcion_art: this.producto_selecte.label,
         Dei_Cant: this.cantidad_compra,
-        Dei_Precio_compra: this.precio_compra
+        Dei_Precio_compra: this.precio_compra,
+        Av_Precio_venta: this.precio_compra,
+        Av_Estado: 1,
+        Av_User_control:  this.data_user.Per_Num_documento
       }
       let exits_product = this.data_products.find(product => product.Art_Id == product_add.Art_Id );
       if(exits_product){

@@ -38,6 +38,11 @@ export function insertDetEntry(contex, data){
   return Vue.prototype.$axios.post(`insert_update_det_entrada_inventario`, data);
 }
 
+// Inserta los productos en la tabla articulos venta
+export function insertArtVenta(context, data){
+  return Vue.prototype.$axios.post(`insert_update_articulo_venta`, data);
+}
+
 // Proveedores
 // Obtiene todos los proveedores o clientes
 export function getProviders(){

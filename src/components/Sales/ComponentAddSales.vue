@@ -949,7 +949,7 @@ export default {
         des_articulo: this.descuento_art.label,
         // Propiedade para actualizar el stock
         Mov_Id: this.movil_selecte,
-        Si_Cant: this.cantidad + this.cantidad_garantia,
+        Si_Cant: Number(this.cantidad) + Number(this.cantidad_garantia),
         simbol: '-',
         // Art_Id: null, -> ya esa declarado
       }
