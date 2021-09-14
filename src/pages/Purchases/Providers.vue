@@ -98,18 +98,11 @@ export default {
       tab: "provider",
       columns: [
         {
-          name: "CP_Digito_verificacion",
+          name: "Tp_Desc_corta",
           align: "center",
-          label: "Digito verificación",
+          label: "Tipo documento",
           sortable: true,
-          field: "CP_Digito_verificacion"
-        },
-        {
-          name: "CP_Fecha_control",
-          align: "center",
-          label: "Fecha creación",
-          sortable: true,
-          field: "CP_Fecha_control"
+          field: "Tp_Desc_corta"
         },
         {
           name: "CP_Nit",
@@ -119,9 +112,23 @@ export default {
           field: "CP_Nit"
         },
         {
+          name: "CP_Digito_verificacion",
+          align: "center",
+          label: "Digito verificación",
+          sortable: true,
+          field: "CP_Digito_verificacion"
+        },
+        {
+          name: "name_tp",
+          align: "center",
+          label: "Tipo cliente",
+          sortable: true,
+          field: "name_tp"
+        },
+        {
           name: "CP_Razon_social",
           align: "center",
-          label: "Razon social",
+          label: "Razón social",
           sortable: true,
           field: "CP_Razon_social"
         },
@@ -175,11 +182,11 @@ export default {
           field: "Per_Nombre"
         },
         {
-          name: "Tp_Desc_corta",
+          name: "CP_Fecha_control",
           align: "center",
-          label: "Tipo documento",
+          label: "Fecha creación",
           sortable: true,
-          field: "Tp_Desc_corta"
+          field: "CP_Fecha_control"
         },
         {
           name: "name_estado",
@@ -188,13 +195,6 @@ export default {
           sortable: true,
           field: "name_estado"
         },
-        {
-          name: "name_tp",
-          align: "center",
-          label: "Tipo cliente",
-          sortable: true,
-          field: "name_tp"
-        }
       ],
       excel: {
         columns: [
