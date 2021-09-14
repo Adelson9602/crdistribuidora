@@ -848,11 +848,10 @@ export default {
             }
             Promise.all(promesas).then( data => {
               data.forEach( res => {
-                // console.log(res)
-                if(!res.data.affectedRows){
-                  throw new Error(res.message);
-                }
+                console.log(res)
               })
+            }).catch( e => {
+              throw new Error(e)
             })
           } else {
             if(this.cliente_selected.value == 0){
@@ -896,14 +895,10 @@ export default {
                 });
                 Promise.all(promesas).then( data => {
                   data.forEach( res => {
-                    // console.log({
-                    //   msg: 'Respueta insert det cotización',
-                    //   data: res
-                    // })
-                    if(!res.data.affectedRows){
-                      throw new Error(res.message);
-                    }
+                    console.log(res)
                   })
+                }).catch( e => {
+                  throw new Error(e)
                 })
               } else {
                 throw new Error(res_enc.message)
@@ -914,7 +909,7 @@ export default {
             message: 'Guardado',
             type: 'positive'
           });
-          // this.$emit('reload')
+          this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -995,6 +990,7 @@ export default {
           this.total_venta =  Math.round(this.enc_venta.Ev_Impuesto > 0 ? this.total_venta * this.enc_venta.Ev_Impuesto : this.total_venta);
           product_add.total_venta = this.total_venta;
 
+          // console.log(product_add)
           this.data_sales.push(product_add);
           this.onReset();
           setTimeout(() => {
