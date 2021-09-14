@@ -102,7 +102,7 @@ export default {
         {
           name: "Art_Nombre",
           required: true,
-          label: "Nombre articulo",
+          label: "Nombre artículo",
           align: "center",
           field: "Art_Nombre",
           sortable: true,
@@ -110,7 +110,7 @@ export default {
         {
           name: "Art_Descripcion",
           required: true,
-          label: "Descripcion articulo",
+          label: "Descripción artículo",
           align: "center",
           field: "Art_Descripcion",
           sortable: true,
@@ -126,7 +126,7 @@ export default {
         {
           name: "Art_Stockminimo",
           required: true,
-          label: "Stock min articulo",
+          label: "Stock min artículo",
           align: "center",
           field: "Art_Stockminimo",
           sortable: true,
@@ -142,7 +142,7 @@ export default {
         {
           name: "Art_ubicacion",
           required: true,
-          label: "Ubicacion",
+          label: "Ubicación",
           align: "center",
           field: "Art_ubicacion",
           sortable: true,
@@ -211,7 +211,7 @@ export default {
             field: "Cat_Nombre",
           },
           {
-            label: "Ubicacion",
+            label: "Ubicación",
             field: "Art_ubicacion",
           },
           {
