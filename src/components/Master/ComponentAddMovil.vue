@@ -13,6 +13,7 @@
             type="text"
             hint="Nombre móvil"
             :rules="[val => !!val || 'Nombre móvil es obligatorio']"
+            @input="val => {movil.Mov_Descripcion = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-sm-6 q-px-sm">

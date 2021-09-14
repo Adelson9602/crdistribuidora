@@ -8,6 +8,7 @@
             type="text"
             hint="Razon social"
             :rules="[val => !!val || 'Razon social es obligatorio']"
+            @input="val => {new_proveedor.CP_Razon_social = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -19,7 +20,6 @@
          emit-value
          map-options
           />
-         
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
@@ -47,7 +47,7 @@
             hint="Dirección"
             maxlength="500"
             counter
-           
+            @input="val => {new_proveedor.CP_Direccion = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -64,7 +64,7 @@
             v-model="new_proveedor.CP_Email"
             type="email"
             hint="Email"
-           
+            @input="val => {new_proveedor.CP_Email = val.toUpperCase()}"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -99,7 +99,6 @@
              emit-value
              map-options
           />
-         
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
