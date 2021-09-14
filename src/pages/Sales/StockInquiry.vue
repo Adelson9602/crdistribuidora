@@ -29,7 +29,7 @@ export default {
         {
           name: "Art_Codigo_inv",
           required: true,
-          label: "Codigo",
+          label: "Código",
           align: "center",
           field: "Art_Codigo_inv",
           sortable: true
@@ -37,7 +37,7 @@ export default {
         {
           name: "Cat_Nombre",
           required: true,
-          label: "Categoria",
+          label: "Categoría",
           align: "center",
           field: "Cat_Nombre",
           sortable: true
@@ -45,7 +45,7 @@ export default {
         {
           name: "Art_Nombre",
           required: true,
-          label: "Nombre articulo",
+          label: "Nombre artículo",
           align: "center",
           field: "Art_Nombre",
           sortable: true
@@ -53,7 +53,7 @@ export default {
         {
           name: "Mov_Descripcion",
           required: true,
-          label: "Ubicacion",
+          label: "Ubicación",
           align: "center",
           field: "Mov_Descripcion",
           sortable: true
@@ -69,20 +69,11 @@ export default {
         {
           name: "desc_porcen",
           required: true,
-          label: "descuento",
+          label: "Descuento",
           align: "center",
           field: "desc_porcen",
           sortable: true
         },
-
-        //  {
-        //   name: "Art_ubicacion",
-        //   required: true,
-        //   label: "Ubicacion",
-        //   align: "center",
-        //   field: "Art_ubicacion",
-        //   sortable: true,
-        // },
         {
           name: "porce_venta",
           required: true,
@@ -94,7 +85,7 @@ export default {
         {
           name: "precio_compra",
           required: true,
-          label: "Precio Compra",
+          label: "Precio compra",
           align: "center",
           field: "precio_compra",
           sortable: true
@@ -102,7 +93,7 @@ export default {
         {
           name: "precio_venta",
           required: true,
-          label: "Precio Venta",
+          label: "Precio venta",
           align: "center",
           field: "precio_venta",
           sortable: true
@@ -111,19 +102,19 @@ export default {
       excel: {
         columns: [
           {
-            label: "Codigo",
+            label: "Código",
             field: "Art_Codigo_inv"
           },
           {
-            label: "Categoria",
+            label: "Categoría",
             field: "Cat_Nombre"
           },
           {
-            label: "Nombre articulo",
+            label: "Nombre artículo",
             field: "Art_Nombre"
           },
           {
-            label: "Ubicacion",
+            label: "Ubicación",
             field: "Mov_Descripcion"
           },
           {
@@ -131,7 +122,7 @@ export default {
             field: "Si_Cant"
           },
           {
-            label: "descuento",
+            label: "Descuento",
             field: "desc_porcen"
           },
           {
@@ -139,11 +130,11 @@ export default {
             field: "porce_venta"
           },
           {
-            label: "Precio Compra",
+            label: "Precio compra",
             field: "precio_compra"
           },
           {
-            label: "Precio Venta",
+            label: "Precio venta",
             field: "precio_venta"
           }
         ],
@@ -194,7 +185,8 @@ export default {
                   Mov_Id: element.Mov_Id,
                   Mov_Descripcion: element.Mov_Descripcion,
                   Si_Cant: element.Si_Cant,
-                  desc_porcen: element.desc_porcen,
+                  desc_porcen: element.desc_porcen ? "% " + element.desc_porcen
+                    : "% 0",
                   porce_venta: element.porce_venta
                     ? "% " + element.porce_venta
                     : "% 0",
