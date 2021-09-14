@@ -173,7 +173,7 @@
             expand-separator
             :icon="menu.icon"
             :label="menu.label"
-            v-if="menu.expanded && menu.visible"
+            v-if="menu.expanded"
           >
             <q-item
               :to="`/${item.route}`"
@@ -267,9 +267,8 @@ export default {
       {
         label: "Acceso",
         icon: "desktop_windows",
-        visible: true,
         expanded: true,
-        route: "/access/goals",
+        route: null,
         items: [
           { label: "Metas", route: "access/goals" },
           { label: "Permisos", route: "access/permissions" },
@@ -279,9 +278,8 @@ export default {
       {
         label: "Almacen",
         icon: "mdi-warehouse",
-        visible: true,
         expanded: true,
-        route: "/warehouse/articles",
+        route: null,
         items: [
           { label: "Artículos", route: "warehouse/articles" },
           { label: "Categorías", route: "warehouse/categories" },
@@ -295,9 +293,8 @@ export default {
       {
         label: "Maestras",
         icon: "mdi-puzzle-plus",
-        visible: true,
         expanded: true,
-        route: "/master/percentage",
+        route: null,
         items: [
           { label: "% de ventas", route: "master/percentsales" },
           { label: "Cargos", route: "master/charges" },
@@ -307,7 +304,6 @@ export default {
       {
         label: "Compras",
         icon: "shopping_bag",
-        visible: true,
         expanded: true,
         items: [
           { label: "Ingresos", route: "purchases/income" },
@@ -323,7 +319,7 @@ export default {
         icon: "sell",
         visible: true,
         expanded: true,
-        route: "/sales/sales",
+        route: null,
         items: [
           { label: "Ventas", route: "sales/sales" },
           { label: "Garantias de ventas", route: "sales/sales_guarantees" },
@@ -335,8 +331,8 @@ export default {
       {
         label: "Movimientos",
         icon: "mdi-transfer",
-        visible: true,
         expanded: true,
+        route: null,
         items: [
           { label: "Consulta Vendedor", route: "movements/consult_seller" },
           { label: "Consulta Utilidad", route: "movements/consult_utility" },
@@ -346,8 +342,8 @@ export default {
       {
         label: "Créditos",
         icon: "mdi-cash-multiple",
-        visible: true,
         expanded: true,
+        route: null,
         items: [
           {
             label: "Créditos Cliente",
