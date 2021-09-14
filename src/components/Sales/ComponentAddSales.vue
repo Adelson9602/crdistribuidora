@@ -942,6 +942,7 @@ export default {
         producto: this.producto_selecte.label,
         Art_Id: this.producto_selecte.value,
         Dv_Cant: this.cantidad,
+        Dc_Pv_Id: this.descuento_art.pv_id,
         Dv_Precio_compra: this.producto_selecte.precio_compra,
         Dv_precio_venta: this.producto_selecte.precio_venta,
         Dv_valor_descuento: this.descuento_art.value,
