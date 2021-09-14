@@ -173,6 +173,11 @@ export default {
           categories: cat_daily_sales,
           tickAmount: 10,
         },
+        yaxis: {
+          title: {
+            text: 'Cantidad vendida',
+          },
+        },
         title: {
           text: 'Ventas diarias',
           align: 'left',
@@ -193,10 +198,6 @@ export default {
             stops: [0, 100, 100, 100]
           },
         },
-        // yaxis: {
-        //   min: 0,
-        //   max: 10000000
-        // }
       },
       data_radial_bar: data_val_stock,
       options_radial: {
@@ -223,6 +224,14 @@ export default {
                 show: false,
               }
             }
+          }
+        },
+        title: {
+          text: 'Bodegas',
+          align: 'left',
+          style: {
+            fontSize: "16px",
+            color: '#666'
           }
         },
         colors: colors,
@@ -419,10 +428,10 @@ export default {
           const res_pro_sales = await this.chartProductMoreSales().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get gráfica productos mas vendidos',
-            data: res_pro_sales
-          });
+          // console.log({
+          //   msg: 'Respuesta get gráfica productos mas vendidos',
+          //   data: res_pro_sales
+          // });
           if(res_pro_sales.ok){
             if(res_pro_sales.result){
               cat_prod_more_sales.length = 0;
