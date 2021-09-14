@@ -208,10 +208,11 @@
             <q-card-section class="q-py-none">
               <q-list>
                 <q-item class="q-py-sm q-px-none">
-                  <q-item-section style="width:60px" avatar v-if="props.row.img">
-                    <q-avatar size="50px">
+                  <q-item-section style="width:60px" avatar v-if="props.row.img || props.row.Icon">
+                    <q-avatar size="50px" v-if="props.row.img" >
                       <img :src="props.row.img" alt="Imágen">
                     </q-avatar>
+                    <q-icon :name="props.row.Icon" v-if="props.row.Icon"/>
                   </q-item-section>
                   <q-item-section class="text_personalized">
                     <strong> {{ props.row.title }} </strong><!--Títulos para las cards de las tablas-->
