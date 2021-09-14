@@ -73,3 +73,13 @@ export function insertMovil(context, data){
 export function insertIntegranteMovil(context, data){
     return Vue.prototype.$axios.post(`insert_update_movil_integrante`, data);
 }
+
+// Obtiene los porcentajes de ventas por producto
+export function getPercentSaleProduct(context, id_product){
+    return Vue.prototype.$axios.get(`select_porcentaje_personalizado_single/${base}/${id_product}`)
+}
+
+// Guarda los porcentajes personalizados
+export function savePercentPerso(context, data){
+    return Vue.prototype.$axios.post(`insert_update_pv_hash_articulo`, data);
+}

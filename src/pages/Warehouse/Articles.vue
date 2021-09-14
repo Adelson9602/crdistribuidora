@@ -35,6 +35,7 @@
             @getrangedata="getArticleRang"
             @onedit="editArticle"
             @tostatus="openDialogStatus"
+            @ondetails="openDialogPercent"
             v-if="rendercomponent"
           >
             <template v-slot:toggle>
@@ -51,6 +52,125 @@
             @cancel="enable_diable = false"
             @changeStatus="changeStatus"
           />
+          <q-dialog v-model="dialog_percent" persistent full-width>
+            <q-card>
+              <q-bar dark class="bg-primary text-white">
+                <div class="col text-center text-weight-bold">
+                  Ajustar porcentajes de venta
+                </div>
+                <q-btn dense flat round icon="close" color="white" v-close-popup/>
+              </q-bar>
+              <q-card-section>
+                <q-form
+                  @submit="editPercent"
+                  class="row q-gutter-y-sm"
+                  ref="form_percent"
+                  autocomplete="off"
+                >
+                  <div class="col-xs-12 col-sm-12 col-md-4 q-px-xs">
+                    <q-field hint="Nombre artículo" stack-label>
+                      <template v-slot:control>
+                        <div class="self-center full-width no-outline" tabindex="0">{{article_edit.Art_Nombre}}</div>
+                      </template>
+                    </q-field>
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-4 q-px-xs">
+                    <q-select
+                      v-model="percent_selected"
+                      :options="options_percents"
+                      hint="Porcentajes generales"
+                      :rules="[val => !!val || 'Seleccione un porcentaje']"
+                    />
+                  </div>
+                  <div class="col-xs-12 col-sm-6 col-md-4 q-px-xs">
+                    <q-input
+                      v-model="new_percent"
+                      hint="Porcentaje"
+                      :rules="[val => !!val || 'Ingrese un porcentaje']"
+                    />
+                  </div>
+                  <q-btn color="white" text-color="black" label="Agregar" type="submit" class="hide-btn_submit"/>
+                </q-form>
+              </q-card-section>
+              <q-card-section class="row">
+                <div class="col-xs-12 col-md-6">
+                  <q-table
+                    title="Porcentajes del producto"
+                    :data="data_percents_added"
+                    row-key="name"
+                    flat
+                    style="height: 350px"
+                  >
+                    <template v-slot:header="props">
+                      <q-tr :props="props">
+                        <q-th
+                          v-for="col in props.cols"
+                          :key="col.name"
+                          :props="props"
+                          style="text-align: center !important;"
+                        >
+                          {{ col.label }}
+                        </q-th>
+                      </q-tr>
+                    </template>
+                    <template v-slot:body="props">
+                      <q-tr :props="props">
+                        <q-td
+                          v-for="col in props.cols"
+                          :key="col.name"
+                          :props="props"
+                          style="text-align: center !important;"
+                        >
+                          {{ col.value }}
+                        </q-td>
+                      </q-tr>
+                    </template>
+                  </q-table>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                  <q-table
+                    title="Porcentajes agregados"
+                    :data="data_percents"
+                    :columns="columns_percents"
+                    row-key="name"
+                    flat
+                    style="height: 350px"
+                  >
+                    <template v-slot:header="props">
+                      <q-tr :props="props">
+                        <q-th auto-width />
+                        <q-th
+                          v-for="col in props.cols"
+                          :key="col.name"
+                          :props="props"
+                        >
+                          {{ col.label }}
+                        </q-th>
+                      </q-tr>
+                    </template>
+                    <template v-slot:body="props">
+                      <q-tr :props="props">
+                        <q-td auto-width class="q-gutter-x-sm">
+                          <q-btn color="red" dense size="sm" icon="delete" round @click="deleteItem(props.row)"/>
+                        </q-td>
+
+                        <q-td
+                          v-for="col in props.cols"
+                          :key="col.name"
+                          :props="props"
+                        >
+                          {{ col.value }}
+                        </q-td>
+                      </q-tr>
+                    </template>
+                  </q-table>
+                </div>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn icon="save" @click="saveChangePercent" label="Guardar" color="green" v-if="data_percents.length > 0" />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </q-tab-panel>
 
         <q-tab-panel name="create_article">
@@ -65,9 +185,11 @@
 import ComponentAddArticle from "components/Warehouse/ComponentAddArticle";
 import componentTable from "components/Generals/ComponentTable";
 import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
+import dialog from 'components/Generals/ComponentDialogWarning';
 import { mapActions, mapState } from "vuex";
 let categorias = [];
 let ums = [];
+let percents = [];
 export default {
   name: "Articles",
   components: {
@@ -249,6 +371,32 @@ export default {
         btn_export_pdf: false,
         export_excel: true,
       },
+      dialog_percent: false,
+      data_percents: [],
+      data_percents_added: [],
+      columns_percents: [
+        {
+          name: 'Art_Id',
+          align: 'center',
+          label: 'ID PRODUCTO',
+          field: 'Art_Id'
+        },
+        {
+          name: 'porcentaje',
+          align: 'center',
+          label: 'PORCENTAJE SELECCIONADO',
+          field: 'porcentaje'
+        },
+        {
+          name: 'Pv_Prcentaje',
+          align: 'center',
+          label: 'PORCENTAJE',
+          field: 'Pv_Prcentaje'
+        },
+      ],
+      options_percents: percents,
+      new_percent: null,
+      percent_selected: null,
     };
   },
   computed: {
@@ -283,6 +431,11 @@ export default {
         setTimeout(this.getData(), 300);
       }
     },
+    dialog_percent(value){
+      if(!value){
+        this.article_edit = null;
+      }
+    }
   },
   methods: {
     ...mapActions("warehouse", [
@@ -291,7 +444,12 @@ export default {
       "addArticle",
       "getCategoriasAlmacen",
     ]),
-    ...mapActions("master", ["getAllUm"]),
+    ...mapActions("master", [
+      "getAllUm",
+      "getAllPorcentaje",
+      "getPercentSaleProduct",
+      "savePercentPerso"
+    ]),
     getData() {
       this.$q.loading.show({
         message: "Obteniendo articulos existentes, por favor espere...",
@@ -333,11 +491,11 @@ export default {
                   status: element.Art_Estado,
                   btn_edit: true,
                   btn_status: true,
-                  // btn_details: true,
+                  btn_details: true,
                   // btn_pdf: true,
                   icon_btn_edit: "mdi-pencil",
                   icon_btn_status: "power_settings_new",
-                  // icon_btn_details: "mdi-eye-settings",
+                  icon_btn_details: "settings",
                 });
                 this.datageneral.push({
                   Id: element.Id,
@@ -362,11 +520,11 @@ export default {
                   status: element.Art_Estado,
                   btn_edit: true,
                   btn_status: true,
-                  // btn_details: true,
+                  btn_details: true,
                   // btn_pdf: true,
                   icon_btn_edit: "mdi-pencil",
                   icon_btn_status: "power_settings_new",
-                  // icon_btn_details: "mdi-eye-settings",
+                  icon_btn_details: "settings",
                 });
               });
             } else {
@@ -440,6 +598,37 @@ export default {
           } else {
             throw new Error(res_um.message);
           }
+
+          const res_percent = await this.getAllPorcentaje().then(
+            res => {
+              return res.data;
+            }
+          );
+          // console.log({
+          //   msg: 'Repeusta get artículos',
+          //   data: resgetDataArticles,
+          // });
+          if (res_percent.ok) {
+            if (res_percent.result) {
+              percents.length = 0;
+              res_percent.data.forEach(element => {
+                if(element.Pv_Estado){
+                  percents.push({
+                    label: element.Pv_Descripcion,
+                    value: element.Pv_Id,
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_percent.message,
+                type: "warning"
+              });
+            }
+          } else {
+            this.data.length = 0;
+            throw res_percent.message;
+          }
           this.excel.data = this.data;
         } catch (e) {
           console.log(e);
@@ -501,11 +690,11 @@ export default {
                     : "Image/No-Image-Icon.png",
                   btn_edit: true,
                   btn_status: true,
-                  // btn_details: true,
+                  btn_details: true,
                   // btn_pdf: true,
                   icon_btn_edit: "mdi-pencil",
                   icon_btn_status: "power_settings_new",
-                  // icon_btn_details: "mdi-eye-settings",
+                  icon_btn_details: "settings",
                 });
               });
             } else {
@@ -634,6 +823,146 @@ export default {
         }
       }, 2000);
     },
+    // Abre el dialog para editar los porcentajes de ventas
+    openDialogPercent(row){
+      this.$q.loading.show({
+        message: 'Obteniendo porcentajes, por favor espere...',
+      })
+      setTimeout(async() => {
+        try {
+          this.article_edit = row;
+          const res_per_pro = await this.getPercentSaleProduct(this.article_edit.Id).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get porcentajes producto',
+            data: res_per_pro
+          });
+          this.data_percents_added.length = 0;
+          if(res_per_pro.ok){
+            if(res_per_pro.result){
+              res_per_pro.data.forEach( element => {
+                this.data_percents_added.push({
+                  'Nombre porcentaje': element.Pv_Descripcion,
+                  'Porcentaje': element.Pv_Prcentaje,
+                  'Usuario creador': element.Pv_User_control,
+                  'Fecha creación': element.Pv_Fecha_control,
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_per_pro.message)
+          }
+          this.dialog_percent = true;
+          this.data_percents.length = 0;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide()
+        }
+      }, 1000)
+    },
+    deleteItem(row){
+      this.$q.dialog({
+        component: dialog,
+        parent: this,
+        title: 'Eliminar porcentaje',
+        msg: 'Atención! vas a eliminar un porcentaje agregado a la tabla, ¿Seguro que desea continuar?',
+      }).onOk(() => {
+        let index = this.data_percents.indexOf(row)
+        this.data_percents.splice(index, 1)
+      })
+    },
+    editPercent(){
+      let percent_add = {
+        base: process.env.__BASE__,
+        Pv_Id: this.percent_selected.value,
+        porcentaje: this.percent_selected.label,
+        Art_Id: this.article_edit.Art_Id,
+        Pv_Prcentaje: this.new_percent,
+        Pv_User_control: this.data_user.Per_Num_documento
+      }
+      let result_find = this.data_percents.find(product => product.Pv_Id == percent_add.Pv_Id);
+      if(result_find){
+        this.$q.notify({
+          message: 'Este porcentaje ya esta gregado',
+          type: 'warning'
+        })
+      } else {
+        this.data_percents.push(percent_add)
+        this.percent_selected = null;
+        this.new_percent = null;
+        setTimeout(() => {
+          this.$refs.form_percent.resetValidation();
+        }, 200)
+      }
+    },
+    saveChangePercent(){
+      this.$q.loading.show({
+        message: 'Guardando los porcentajes, por favor espere..'
+      });
+      setTimeout(async() => {
+        try {
+          let promesas = [];
+          this.data_percents.forEach( porcentaje => {
+            promesas.push(this.savePercentPerso(porcentaje).then( res => {
+              res.data.msg = 'Respuesta insert porcentaje personalizado';
+              return res.data;
+            }).catch( e => {
+              throw new Error(e);
+            }));
+          });
+          Promise.all(promesas).then( data => {
+            data.forEach( res => {
+              console.log(res)
+            })
+          });
+          this.$q.notify({
+            message: 'Cambios guardados',
+            type: 'positive'
+          });
+          // RELOAD before save
+          this.data_percents.length = 0;
+          this.percent_selected = null;
+          this.new_percent = null;
+          this.article_edit = null;
+          this.dialog_percent = false;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
+    }
   },
 };
 </script>
