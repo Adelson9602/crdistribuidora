@@ -162,7 +162,7 @@
             <q-avatar
               size="50px"
               square
-              v-if="col.name == 'image'"
+              v-if="col.name == 'image' && col.value"
             >
               <img :src="col.value" alt="Imagen del articulo">
             </q-avatar>
