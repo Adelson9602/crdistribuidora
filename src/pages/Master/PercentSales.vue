@@ -266,11 +266,12 @@ export default {
     editPorcentaje(row) {
       this.edit_form = true;
       this.percentage_edit = row;
-      this.dialog_add_percent = true;;
+      this.dialog_add_percent = true;
     },
     reload() {
       this.tab = "percentage";
       this.edit_form = false;
+      this.dialog_add_percent = false;
       setTimeout(() => {
         this.getData();
       }, 500);
