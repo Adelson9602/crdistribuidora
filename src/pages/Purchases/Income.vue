@@ -623,10 +623,10 @@ filter_pendientes(value){
               return res.data;
             }
           );
-          console.log({
-            msg: "Respuesta get ingreso",
-            data: res_ingreso
-          });
+          // console.log({
+          //   msg: "Respuesta get ingreso",
+          //   data: res_ingreso
+          // });
           if (res_ingreso.ok) {
             if (res_ingreso.result) {
               this.data.length = 0;
