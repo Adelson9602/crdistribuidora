@@ -539,7 +539,7 @@ export default {
         data: [],
         orientation: "l", // l => landscape, p => portrait
         title: {
-          title: "Inventario actual",
+          title: "Ventas realizadas",
           potitionx: 300,
           potitiony: 30
         },
