@@ -180,8 +180,8 @@
             :propcolumns="columns_cotizacion"
             :propgrid="true"
             :propflat="true"
-            :propexcel="excel"
-            :proppdf="optionpdf"
+            :propexcel="excel_cotiza"
+            :proppdf="optionpdfcotizacion"
             :propbtns="btns"
             :proppagination="initial_pagination"
             :propactions="true"
@@ -703,13 +703,6 @@ export default {
           field: "Ec_Total_venta"
         },
         {
-          name: "Ec_dias_credito",
-          align: "center",
-          label: "Días crédito",
-          sortable: true,
-          field: "Ec_dias_credito"
-        },
-        {
           name: "Mov_Descripcion",
           align: "center",
           label: "Nombre movil",
@@ -783,6 +776,114 @@ export default {
           field: 'Dc_valor_descuento'
         },
       ],
+      optionpdfcotizacion: {
+        columns: [
+          {
+            header: "Cotización N°",
+            dataKey: "Ec_Id"
+          },
+          {
+            header: "NIT",
+            dataKey: "CP_Nit"
+          },
+          {
+            header: "Descuento general venta",
+            dataKey: "Ec_Des_gen_venta"
+          },
+          {
+            header: "Descuento total artículo",
+            dataKey: "Ec_Des_total_art"
+          },
+          {
+            header: "Impuesto",
+            dataKey: "Ec_Impuesto"
+          },
+          {
+            header: "Subtotal",
+            dataKey: "Ec_Subtotal"
+          },
+          {
+            header: "Venta total",
+            dataKey: "Ec_Total_venta"
+          },
+          {
+            header: "Nombre movil",
+            dataKey: "Mov_Descripcion"
+          },
+          {
+            header: "Nombre vendedor",
+            dataKey: "Per_Nombre"
+          },
+          {
+            header: "Documento vendedor",
+            dataKey: "Per_Num_documento"
+          },
+          {
+            header: "Estado",
+            dataKey: "Estado"
+          }
+        ],
+        data: [],
+        orientation: "l", // l => landscape, p => portrait
+        title: {
+          title: "Cotizaciones realizadas",
+          potitionx: 300,
+          potitiony: 30
+        },
+        styles: {
+          font_size: 7
+        }
+      },
+      excel_cotiza: {
+        columns: [
+          {
+            label: "Cotización N°",
+            field: "Ec_Id"
+          },
+          {
+            label: "NIT",
+            field: "CP_Nit"
+          },
+          {
+            label: "Descuento general venta",
+            field: "Ec_Des_gen_venta"
+          },
+          {
+            label: "Descuento total artículo",
+            field: "Ec_Des_total_art"
+          },
+          {
+            label: "Impuesto",
+            field: "Ec_Impuesto"
+          },
+          {
+            label: "Subtotal",
+            field: "Ec_Subtotal"
+          },
+          {
+            label: "Venta total",
+            field: "Ec_Total_venta"
+          },
+          {
+            label: "Nombre movil",
+            field: "Mov_Descripcion"
+          },
+          {
+            label: "Nombre vendedor",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Documento vendedor",
+            field: "Per_Num_documento"
+          },
+          {
+            label: "Estado",
+            field: "Estado"
+          }
+        ],
+        data: [],
+        title: "Ventas"
+      },
       data_det_cotiza: [],
       encabezado_cotiza: null,
       encabezado_cotiza_selecte: null,
@@ -1029,6 +1130,8 @@ export default {
                   icon_btn_details: "mdi-eye-settings"
                 });
               });
+              this.optionpdfcotizacion.data = this.data_cotizaciones;
+              this.excel_cotiza.data = this.data_cotizaciones;
             } else {
               this.$q.notify({
                 message: res_cotizacion.message,
@@ -1577,6 +1680,8 @@ export default {
                   icon_btn_details: "mdi-eye-settings"
                 });
               });
+              this.optionpdfcotizacion.data = this.data_cotizaciones;
+              this.excel_cotiza.data = this.data_cotizaciones;
             } else {
               this.$q.notify({
                 message: res_cotizacion.message,
