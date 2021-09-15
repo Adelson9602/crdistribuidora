@@ -33,6 +33,8 @@ export function getDetailSales(context, id_venta){
   return Vue.prototype.$axios.get(`select_det_venta_single/${base}/${id_venta}`)
 }
 
+
+
 // Lista todos los productos agrupados por articulos y discriminados por ventas
 export function requestGetSalestoList(contex, data) {
   return Vue.prototype.$axios.get(`select_list_picking_range/${data.base}/${data.from}/${data.to}`);

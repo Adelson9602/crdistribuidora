@@ -187,7 +187,7 @@
             :propactions="true"
             @onrange="getCotizRange"
             @ondetails="detatilCotizacion"
-            @onpdf="generatePdf"
+            @onpdf="generatePdfcot"
           />
           <!-- Dialogo para ver el detalle de la cotización -->
           <q-dialog v-model="dialog_detail" persistent full-height full-width>
@@ -668,6 +668,13 @@ export default {
           field: "CP_Nit"
         },
         {
+          name: "CP_Razon_social",
+          align: "center",
+          label: "Razon social",
+          sortable: true,
+          field: "CP_Razon_social"
+        },
+        {
           name: "Ec_Des_gen_venta",
           align: "center",
           label: "Descuento general venta",
@@ -1098,6 +1105,7 @@ export default {
               res_cotizacion.data.forEach( cotizacion => {
                 this.data_cotizaciones.push({
                   CP_Nit: cotizacion.CP_Nit,
+                  CP_Razon_social: cotizacion.CP_Razon_social,
                   Ec_Des_gen_venta: cotizacion.Ec_Des_gen_venta,
                   Ec_Des_total_art: cotizacion.Ec_Des_total_art,
                   Ec_Descuentog: cotizacion.Ec_Descuentog,
@@ -1311,12 +1319,6 @@ export default {
           });
         }
 
-        // var img = new Image();
-        // if (process.env.__CARP__ == "co" || process.env.__CARP__ == "ps") {
-        //   img.src = "/images/Logo.png";
-        // } else {
-        //   img.src = "/images/GYA.png";
-        // }
 
         var doc = new jsPDF("p", "mm", "a4");
 
@@ -1327,13 +1329,14 @@ export default {
             doc.setPage(i);
             //doc.addImage(imgData, 'PNG', 40, 40, 75, 75);
             doc.setFontSize(38);
-            doc.setTextColor(175);
+            doc.setTextColor(150);
             doc.text(
               50,
               doc.internal.pageSize.height - 130,
               "CR DISTRIBUIDORA",
               null,
               45
+             
             );
           }
 
@@ -1356,7 +1359,8 @@ export default {
             fontSize: 7,
             lineWidth: 1,
             lineColor: [150, 152, 154],
-            overflowColumns: "linebreak"
+            overflowColumns: "linebreak",
+        
           }
         });
 
@@ -1452,6 +1456,195 @@ export default {
         }
         doc = addWaterMark(doc);
         doc.save("Venta N° " + row.Ev_Id + ".pdf");
+      }, 1000);
+    },
+    generatePdfcot(row) {
+        
+      setTimeout(async () => {
+        try {
+          this.data_det_cotiza.length = 0;
+          const res_detail = await this.getDetCotizacion(row.Id).then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: "Respuesta get detalle cotizacion pdf",
+            data: res_detail
+          });
+          if (res_detail.ok) {
+            if (res_detail.result) {
+              res_detail.data.forEach((product, index) => {
+                this.data_det_cotiza.push({
+                  item: parseInt(index + 1),
+                  Art_Codigo_inv: product.cond_inventario,
+                  Art_Descripcion: product.Art_Nombre,
+                  Art_Id: product.Art_Id,
+                  Dv_Cant: product.Dc_Cant,
+                  Dv_Precio_compra: product.Dc_Precio_compra,
+                  Dv_precio_venta: product.Dc_precio_venta,
+                  Dv_valor_descuento: product.Dc_valor_descuento,
+                  subtotal: product.Dc_valor_descuento * product.Dc_Cant,
+                  // categoria: product.categoria
+                });
+              });
+            } else {
+              this.$q.notify({
+                message: "Sin resultados",
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_deta.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        }
+
+        var docs = new jsPDF("p", "mm", "a4");
+
+        function addWaterMarks(docs) {
+          var totalPages = docs.internal.getNumberOfPages();
+
+          for (i = 1; i <= totalPages; i++) {
+            docs.setPage(i);
+            //docs.addImage(imgData, 'PNG', 40, 40, 75, 75);
+            docs.setFontSize(38);
+            docs.setTextColor(150);
+            docs.text(
+              50,
+              docs.internal.pageSize.height - 130,
+              "CR DISTRIBUIDORA",
+              null,
+              45
+             
+            );
+          }
+
+          return docs;
+        }
+        docs.autoTable({
+          body: this.data_det_cotiza,
+          columns: [
+            { header: "Item", dataKey: "item" },
+            { header: "Codigo", dataKey: "Art_Codigo_inv" },
+            { header: "Descripcion item", dataKey: "Art_Descripcion" },
+            { header: "Cant", dataKey: "Dv_Cant" },
+            { header: "Valor und", dataKey: "Dv_precio_venta" },
+            { header: "Descuento", dataKey: "Dv_valor_descuento" },
+            { header: "subtotal", dataKey: "subtotal" }
+          ],
+          margin: { top: 64, right: 10, left: 10, bottom: 50 },
+          styles: {
+            overflow: "linebreak",
+            fontSize: 7,
+            lineWidth: 1,
+            lineColor: [150, 152, 154],
+            overflowColumns: "linebreak",
+          }
+        });
+
+        const pageCounts = docs.internal.getNumberOfPages();
+
+        for (var i = 1; i <= pageCounts; i++) {
+          docs.setFontSize(8);
+
+        //   //MARCO DONDE MUESTRA LA INFORMACION DEL CLIENTE FACTURA Y FECHA
+          docs.text(15, 32, "CLIENTE");
+          docs.text(15, 37, "Razon social: " + row.CP_Razon_social);
+          // if (row.contacto) {
+          //   docs.text(15, 42, "Nombre: " + row.contacto);
+          // } else {
+            docs.text(15, 42, "Nombre: ");
+          // }
+          // if (row.CP_Direccion) {
+          //   docs.text(15, 47, "Domicilio: " + row.CP_Direccion);
+          // } else {
+            docs.text(15, 47, "Domicilio: ");
+          // }
+
+          docs.text(15, 52, "Nit o CC: " + row.CP_Nit);
+          // if (row.CP_Email) {
+          //   docs.text(15, 57, "Email: " + row.CP_Email);
+          // } else {
+            docs.text(15, 57, "Email: ");
+          // }
+
+          docs.setFontSize(11);
+          // docs.setTextColor(255, 215, 0);
+          docs.setFillColor("#F7C66D");
+          docs.roundedRect(168, 26, 30, 9, 5.5, 5.5, "FD");
+          docs.setTextColor("#000000");
+          docs.text(172, 32, "Fecha");
+          // docs.setTextColor('#000000');
+          docs.text(172, 39, row.Ec_Fecha_control);
+          docs.setFillColor("#33ff42");
+          docs.roundedRect(168, 41, 30, 9, 5.5, 5.5, "FD");
+          docs.text(172, 47, "N° Cotizacion");
+
+          docs.text(172, 54, "" + row.Ec_Id);
+          docs.rect(10, 24, 190, 40);
+
+          //INICIA EL MARCO DE TODO EL FORMATO
+          // Descripcion_trabajo  Observacion_encontrada
+          // docs.addImage(img, "PNG", 10, 10, 20, 12, "sicte", "SLOW", 0);
+          docs.rect(10, 10, 20, 12);
+          docs.setFontSize(16);
+          docs.text(60, 17.5, "FORMATO DE COTIZACION");
+          docs.rect(30, 10, 135, 12); //rect(x,y,width, height)
+          docs.setFontSize(8);
+          docs.text(167, 13.5, "Codigo");
+          docs.rect(165, 10, 15, 6);
+          docs.text(182, 13.5, "HSEQ-F-003");
+          docs.rect(180, 10, 20, 6);
+          docs.text(167, 19.5, "Versión");
+          docs.rect(165, 16, 15, 6);
+          docs.text(190, 19.5, "01");
+          docs.rect(180, 16, 20, 6);
+
+          docs.roundedRect(10, 243, 190, 11, 5.5, 5.5, "S");
+          docs.text(15, 249, "IMPORTE TOTAL CON LETRA");
+          docs.roundedRect(10, 254, 90, 30, 5.5, 5.5, "S");
+          docs.line(55, 254, 55, 284, "S");
+          docs.text(12, 258, "Firma Autoriza");
+          docs.text(57, 258, "Firma Cliente");
+          docs.roundedRect(100, 254, 50, 30, 5.5, 5.5, "S");
+          docs.line(100, 269, 150, 269, "S");
+          docs.text(101, 258, " ");
+          docs.text(101, 273, " ");
+          docs.roundedRect(150, 254, 50, 30, 5.5, 5.5, "S");
+          docs.text(177, 258, "Totales");
+          docs.line(175, 254, 175, 284, "S");
+          docs.text(152, 263, "Subtotal"); //Ev_Impuesto, Ev_Subtotal, Ev_Des_total_art, Ev_Descuentog, Ev_Des_gen_venta, Ev_Total_venta,
+          docs.text(177, 263, "$ " + row.Ec_Subtotal);
+          docs.text(152, 268, "Descuento");
+          docs.text(177, 268, "$ " + row.Ec_Des_gen_venta);
+          docs.text(152, 273, "igv %");
+          docs.text(177, 273, "" + row.Ec_Descuentog);
+          docs.text(152, 278, "Total a pagar");
+          docs.text(177, 278, "$ " + row.Ec_Total_venta);
+          docs.setPage(i);
+        //   //Print Page 1 of 4 for example
+          docs.text(
+            "Pagina " + String(i) + " de " + String(pageCounts),
+            210 - 100,
+            297 - 10,
+            null,
+            null,
+            "right"
+          );
+        }
+        docs = addWaterMarks(docs);
+        docs.save("Cotizacion N° " + row.Ec_Id + ".pdf");
       }, 1000);
     },
     getSalesByRange(date) {
@@ -1648,6 +1841,7 @@ export default {
               res_cotizacion.data.forEach( cotizacion => {
                 this.data_cotizaciones.push({
                   CP_Nit: cotizacion.CP_Nit,
+                  CP_Razon_social:cotizacion.CP_Razon_social,
                   Ec_Des_gen_venta: cotizacion.Ec_Des_gen_venta,
                   Ec_Des_total_art: cotizacion.Ec_Des_total_art,
                   Ec_Descuentog: cotizacion.Ec_Descuentog,
@@ -1720,6 +1914,7 @@ export default {
           this.encabezado_cotiza = {
             "Cotización N°": row.Ec_Id,
             NIT: row.CP_Nit,
+            "Razon social": row.CP_Razon_social,
             "Descuento general venta": row.Ec_Des_gen_venta,
             "Descuento total articulos": row.Ec_Des_total_art,
             "Descuento": row.Ec_Descuentog,
