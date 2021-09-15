@@ -298,7 +298,7 @@ export default {
                 route: modulo.route,
                 Descripcion: modulo.Descripcion,
                 Id_modulo: modulo.Id_modulo,
-                label: modulo.label.replace(/\b\w/g, (l) => l.toUpperCase()),
+                label: modulo.label.replace(/^\w/, (l) => l.toUpperCase()),
                 items: [],
               });
             });
