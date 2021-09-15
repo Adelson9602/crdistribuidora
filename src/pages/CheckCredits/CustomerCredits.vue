@@ -105,6 +105,10 @@
                 <div class="col-xs-12 q-px-sm">
                   <q-input
                     v-model="det_credit.Dc_Observaciones"
+                    :rules="[
+                      val => !!val || 'Observaciones es requerido'
+                    ]"
+                    rows="2"
                     type="textarea"
                     label="Observaciones"
                   />
@@ -862,12 +866,9 @@ export default {
       setTimeout(async () => {
         try {
           this.det_credit.base = process.env.__BASE__;
-          this.det_credit.Dc_Id = this.credit_selected.Dc_Id;
           this.det_credit.Ev_Id = this.credit_selected.Ev_Id;
           this.det_credit.Dc_User_Recibe_abono = this.data_user.Per_Num_documento;
-          const res_update = await this.insertUpdateCredito(
-            this.det_credit
-          ).then(res => {
+          const res_update = await this.insertUpdateCredito(this.det_credit).then(res => {
             return res.data;
           });
           console.log({
@@ -904,18 +905,16 @@ export default {
       }, 1000);
     },
     confimPayment(row) {
-      this.$q
-        .dialog({
+      this.$q.dialog({
           title: "Verificación de identidad",
           message: "Ingrese su contraseña",
           prompt: {
             model: "",
-            type: "text" // optional
+            type: "password" // optional
           },
           cancel: true,
           persistent: true
-        })
-        .onOk(async data => {
+        }).onOk(async data => {
           let password = this.aesEncrypt(data);
           if (password == this.data_user.Usu_Clave_verificacion) {
             this.$q.loading.show({
@@ -950,6 +949,8 @@ export default {
                   message: "Abono confirmado",
                   type: "positive"
                 });
+                this.onReset();
+                setTimeout(this.getData(), 200)
                 this.dialog_detalle_credit = false;
               } catch (e) {
                 console.log(e);
