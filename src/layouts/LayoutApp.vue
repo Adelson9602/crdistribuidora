@@ -245,6 +245,7 @@ export default {
       notifications: [],
       count_notifications: null,
       messageStr: null,
+      array_modules: [],
     };
   },
   mounted() {
@@ -255,107 +256,7 @@ export default {
     window.addEventListener("offline", () => {
       this.setIsOnline(false);
     });
-    this.getNotificaciones();
-    this.menu = [
-      {
-        label: "Escritorio",
-        icon: "dashboard",
-        visible: true,
-        expanded: false,
-        route: "/desktop",
-      },
-      {
-        label: "Acceso",
-        icon: "desktop_windows",
-        expanded: true,
-        route: null,
-        items: [
-          { label: "Metas", route: "access/goals" },
-          { label: "Permisos", route: "access/permissions" },
-          { label: "Usuarios", route: "access/users" },
-        ],
-      },
-      {
-        label: "Almacen",
-        icon: "mdi-warehouse",
-        expanded: true,
-        route: null,
-        items: [
-          { label: "Artículos", route: "warehouse/articles" },
-          { label: "Categorías", route: "warehouse/categories" },
-          {
-            label: "Traslado de bodega",
-            route: "warehouse/warehouse_transfer",
-          },
-          { label: "Inventario", route: "warehouse/inventory" },
-        ],
-      },
-      {
-        label: "Maestras",
-        icon: "mdi-puzzle-plus",
-        expanded: true,
-        route: null,
-        items: [
-          { label: "% de ventas", route: "master/percentsales" },
-          { label: "Cargos", route: "master/charges" },
-          { label: "Moviles", route: "master/mobiles" },
-        ],
-      },
-      {
-        label: "Compras",
-        icon: "shopping_bag",
-        expanded: true,
-        items: [
-          { label: "Ingresos", route: "purchases/income" },
-          { label: "Proveedores", route: "purchases/providers" },
-          {
-            label: "Salida inventario",
-            route: "purchases/departures_guarantees",
-          },
-        ],
-      },
-      {
-        label: "Ventas",
-        icon: "sell",
-        visible: true,
-        expanded: true,
-        route: null,
-        items: [
-          { label: "Ventas", route: "sales/sales" },
-          { label: "Garantias de ventas", route: "sales/sales_guarantees" },
-          { label: "Clientes", route: "sales/customers" },
-          { label: "Consulta stock", route: "sales/stock_inquiry" },
-          { label: "Notas crédito y débito", route: "sales/notes" },
-        ],
-      },
-      {
-        label: "Movimientos",
-        icon: "mdi-transfer",
-        expanded: true,
-        route: null,
-        items: [
-          { label: "Consulta Vendedor", route: "movements/consult_seller" },
-          { label: "Consulta Utilidad", route: "movements/consult_utility" },
-          { label: "Ventas para alistar", route: "movements/sales_to_list" },
-        ],
-      },
-      {
-        label: "Créditos",
-        icon: "mdi-cash-multiple",
-        expanded: true,
-        route: null,
-        items: [
-          {
-            label: "Créditos Cliente",
-            route: "check_credits/customer_credits",
-          },
-          {
-            label: "Créditos Proveedor",
-            route: "check_credits/provider_credits",
-          },
-        ],
-      },
-    ];
+    this.getData();
   },
   computed: {
     ...mapState("auth", ["user_logged"]),
@@ -364,40 +265,132 @@ export default {
     },
   },
   methods: {
-    ...mapMutations("auth", ["setIsLogged"]),
+    ...mapMutations("auth", ["setIsLogged", "setUserPermissions"]),
     ...mapMutations("app", ["setIsOnline"]),
     ...mapActions("notifications", [
       "GetNotifications",
       "PostInsertNotification",
     ]),
-    async getNotificaciones() {
-      const resGetNotifications = await this.GetNotifications(
-        this.data_user.Per_Num_documento
-      ).then((res) => {
-        return res.data.data;
+    ...mapActions("access", [
+      "GetModules",
+      "getCheckPermissions",
+      "getPermissionUserEdit",
+    ]),
+    getData(){
+      this.$q.loading.show({
+        message: 'Obteniendo datos del servidor, por favor espere...'
       });
-      console.log({
-        msg: "Respuesta notificaciones",
-        data: resGetNotifications,
-      });
-      resGetNotifications.forEach((element) => {
-        this.notifications.push({
-          nt_id: element.nt_id,
-          nt_titulo: element.nt_titulo,
-          nt_descripcion: element.nt_descripcion,
-          nt_usuario_notificado: element.nt_usuario_notificado,
-          nt_usuario_control: element.nt_usuario_control,
-          nt_fecha_control: element.nt_fecha_control,
-          dias: element.dias,
-          horas: element.horas,
-          minutos: element.minutos,
-          nt_estado: element.nt_estado,
-        });
-        // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
-        if (element.nt_estado == 1) {
-          this.count_notifications += 1;
+      setTimeout(async() => {
+        try {
+          const res_modulos = await this.GetModules().then((res) => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: "Respuesta get modulos",
+          //   data: res_modulos,
+          // });
+          if(res_modulos.ok){
+            this.array_modules.length = 0;
+            res_modulos.data.forEach((modulo) => {
+              this.array_modules.push({
+                icon: modulo.icon,
+                expanded: modulo.expanded == 1 ? true : false,
+                route: modulo.route,
+                Descripcion: modulo.Descripcion,
+                Id_modulo: modulo.Id_modulo,
+                label: modulo.label.replace(/\b\w/g, (l) => l.toUpperCase()),
+                items: [],
+              });
+            });
+          } else {
+            throw new Error(res_modulos.message)
+          }
+          console.log(this.array_modules)
+          const res_permi = await this.getCheckPermissions(this.data_user.Rol_Id).then((res) => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: "Respuesta permisos básicos y adicionales",
+          //   data: res_permi,
+          // });
+          if(res_permi.ok){
+            this.array_modules.forEach((modulo) => {
+              res_permi.data.forEach((permiso) => {
+                if (modulo.Id_modulo == permiso.Id_modulo) {
+                  modulo.items.push({
+                    label: permiso.label,
+                    route: permiso.router,
+                    Descripcion: permiso.Descripcion,
+                    Estado: permiso.Estado,
+                    Id_item: permiso.Id_item,
+                    Id_rol: permiso.Id_rol,
+                    Actualizar: permiso.Actualizar === 1 ? true : false,
+                    Borrar: permiso.Borrar === 1 ? true : false,
+                    Crear: permiso.Crear === 1 ? true : false,
+                    Leer: permiso.Leer === 1 ? true : false,
+                  });
+                }
+              });
+            });
+          } else {
+            throw new Error(res_permi.message);
+          }
+          const perm_user = await this.getPermissionUserEdit(this.data_user.Per_Num_documento).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get permisos asignados del usuario a editar',
+          //   data: perm_user
+          // });
+          let state_permissions = [];
+          this.array_modules.forEach((modulo) => {
+            perm_user.data.forEach( permiso_basico => {
+              if (modulo.Id_modulo === permiso_basico.Id_modulo) {
+                // Permisos para el estado
+                state_permissions.push({
+                  modulo: modulo.label.replace(/\b\w/g, (l) => l.toUpperCase()),
+                  Id_modulo: permiso_basico.Id_modulo,
+                  Actualizar: permiso_basico.Actualizar === 1 ? true : false,
+                  Borrar: permiso_basico.Borrar === 1 ? true : false,
+                  Crear: permiso_basico.Crear === 1 ? true : false,
+                  Leer: permiso_basico.Leer === 1 ? true : false,
+                  route: `/${permiso_basico.route}`,
+                })
+                // Permisos para el menu
+                modulo.item_menu.push({
+                  active_item: false,
+                  route: permiso_basico.router,
+                  Estado: permiso_basico.Estado,
+                  Id_modulo: permiso_basico.Id_modulo,
+                  label: permiso_basico.label,
+                  Descripcion: permiso_basico.Descripcion,
+                  validator: permiso_basico.validator,
+                  Actualizar: permiso_basico.Actualizar === 1 ? true : false,
+                  Borrar: permiso_basico.Borrar === 1 ? true : false,
+                  Crear: permiso_basico.Crear === 1 ? true : false,
+                  Leer: permiso_basico.Leer === 1 ? true : false,
+                })
+              }
+            })
+          }); //Fin foreach array_modulos
+          this.menu = this.array_modules;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
         }
-      });
+      }, 1000)
     },
     async editEstadoNotification(notification) {
       try {
@@ -416,10 +409,10 @@ export default {
           ).then((res) => {
             return res.data;
           });
-          console.log({
-            msg: "Edit estado de notificación",
-            data: resPostInsertNotification,
-          });
+          // console.log({
+          //   msg: "Edit estado de notificación",
+          //   data: resPostInsertNotification,
+          // });
           if (resPostInsertNotification.data.affectedRows > 0) {
             this.onResetNotifs();
             this.getNotificaciones();
@@ -447,6 +440,48 @@ export default {
     },
     onActive() {
       this.messageStr = 'Hello'
+    },
+    async getNotificaciones(){
+      try {
+        const res_notifica = await this.GetNotifications(this.data_user.Per_Num_documento).then((res) => {
+          return res.data.data;
+        });
+        // console.log({
+        //   msg: "Respuesta notificaciones",
+        //   data: res_notifica,
+        // });
+        res_notifica.forEach((element) => {
+          this.notifications.push({
+            nt_id: element.nt_id,
+            nt_titulo: element.nt_titulo,
+            nt_descripcion: element.nt_descripcion,
+            nt_usuario_notificado: element.nt_usuario_notificado,
+            nt_usuario_control: element.nt_usuario_control,
+            nt_fecha_control: element.nt_fecha_control,
+            dias: element.dias,
+            horas: element.horas,
+            minutos: element.minutos,
+            nt_estado: element.nt_estado,
+          });
+          // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
+          if (element.nt_estado == 1) {
+            this.count_notifications += 1;
+          }
+        });
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        } else if (e.message === "Request failed with status code 404") {
+          e = "Error 404 al hacer la petición al servidor";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative",
+        });
+      }
     },
     reloadNotifications() {
       this.notifications = [];
