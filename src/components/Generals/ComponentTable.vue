@@ -250,7 +250,7 @@
                       />
 
                       <q-fab-action
-                        color="info"
+                        color="amber"
                         round
                         push
                         padding="5px"
