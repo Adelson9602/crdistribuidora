@@ -857,6 +857,7 @@ export default {
             if(this.cliente_selected.value == 0){
               this.$refs.select_client.focus();
               this.validation = true;
+              return;
             } else {
               let enc_cotizacion = {
                 base: process.env.__BASE__,
