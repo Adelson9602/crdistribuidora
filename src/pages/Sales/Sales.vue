@@ -467,13 +467,74 @@ export default {
       data: [],
       optionpdf: {
         columns: [
-          { header: "Art_Codigo_inv", datakey: "Art_Codigo_inv" },
-          { header: "Art_Id", datakey: "Art_Id" },
-          { header: "Art_Nombre", datakey: "Art_Nombre" },
-          { header: "Mov_Descripcion", datakey: "Mov_Descripcion" },
-          { header: "Mov_Id", datakey: "Mov_Id" },
-          { header: "Si_Cant", datakey: "Si_Cant" },
-          { header: "id", datakey: "id" }
+          {
+            header: "Venta N°",
+            dataKey: "Ev_Id"
+          },
+          {
+            header: "NIT",
+            dataKey: "CP_Nit"
+          },
+          {
+            header: "Descuento general venta",
+            dataKey: "Ev_Des_gen_venta"
+          },
+          {
+            header: "Descuento total artículo",
+            dataKey: "Ev_Des_total_art"
+          },
+          {
+            header: "Impuesto",
+            dataKey: "Ev_Impuesto"
+          },
+          {
+            header: "Subtotal",
+            dataKey: "Ev_Subtotal"
+          },
+          {
+            header: "Venta total",
+            dataKey: "Ev_Total_venta"
+          },
+          {
+            header: "Días crédito",
+            dataKey: "Ev_dias_credito"
+          },
+          {
+            header: "Nombre movil",
+            dataKey: "Mov_Descripcion"
+          },
+          {
+            header: "Nombre vendedor",
+            dataKey: "Per_Nombre"
+          },
+          {
+            header: "Documento vendedor",
+            dataKey: "Per_Num_documento"
+          },
+          {
+            header: "Autoriza garantía",
+            dataKey: "name_qautorizqa"
+          },
+          {
+            header: "Documento autoriza garantía",
+            dataKey: "Eg_Quien_autoriza"
+          },
+          {
+            header: "Observación",
+            dataKey: "Eg_Observacion"
+          },
+          {
+            header: "Fecha garantía",
+            dataKey: "Eg_Fecha_control"
+          },
+          {
+            header: "Fecha venta",
+            dataKey: "Ev_Fecha_venta"
+          },
+          {
+            header: "Estado",
+            dataKey: "Estado"
+          }
         ],
         data: [],
         orientation: "l", // l => landscape, p => portrait
@@ -883,6 +944,8 @@ export default {
                   icon_btn_details: "mdi-eye-settings"
                 });
               });
+              this.optionpdf.data = this.data;
+              console.log(this.optionpdf)
             } else {
               this.$q.notify({
                 message: "Sin resultados",
@@ -1297,10 +1360,10 @@ export default {
           const res_sales = await this.getSalesRange(date).then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get ventas por rango",
-            data: res_sales
-          });
+          // console.log({
+          //   msg: "Respuesta get ventas por rango",
+          //   data: res_sales
+          // });
           if (res_sales.ok) {
             if (res_sales.result) {
               this.data.length = 0;
@@ -1342,6 +1405,7 @@ export default {
                   icon_btn_details: "mdi-eye-settings"
                 });
               });
+              this.optionpdf.data = this.data;
             } else {
               this.$q.notify({
                 message: res_sales.message,
@@ -1463,7 +1527,6 @@ export default {
       this.category_edit = row;
     },
     getCotizRange(date){
-      console.log('hOLA')
       this.$q.loading.show({
         message: 'Obtieniendo cotizaciones en la rango seleccionado, por favor espere...'
       });
