@@ -32,8 +32,9 @@
             :proppagination="initial_pagination"
             :propactions="true"
             @onrange="getSalesByRange"
-            @onedit="editSale"
+            @onedit="aprovedCredit"
             @ondetails="detatilSale"
+            @tostatus="deliverProduct"
             @onpdf="generatePdf"
           >
             <template v-slot:input_one>
@@ -253,7 +254,9 @@ import ComponentAddSales from "components/Sales/ComponentAddSales";
 import componentTable from "components/Generals/ComponentTable";
 import ComponentAddNoteDebit from "components/Sales/ComponentAddNoteDebit";
 import ComponentAddNoteCredit from "src/components/Sales/ComponentAddNoteCredit";
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
+import dialog from 'components/Generals/ComponentDialogWarning';
+import CryptoJS from "crypto-js";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 let all_clients = []; //Contiene todos los clientes
@@ -887,7 +890,14 @@ export default {
       data_det_cotiza: [],
       encabezado_cotiza: null,
       encabezado_cotiza_selecte: null,
+      confirm_credit: false,
     };
+  },
+  computed: {
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
   },
   created() {
     this.getData();
@@ -988,7 +998,8 @@ export default {
       "getDetailsGuarantess",
       "getCotizaciones",
       "getDetCotizacion",
-      "getCotizacionRange"
+      "getCotizacionRange",
+      "insertEncVenta"
     ]),
     ...mapActions("shopping", ["getProviders"]),
     getData() {
@@ -1036,17 +1047,16 @@ export default {
                   title: venta.CP_Razon_social,
                   name_mp: venta.name_mp,
                   name_qautorizqa: venta.name_qautorizqa,
-                  // btn_edit: true,
-                  // btn_status: true,
+                  btn_edit: venta.Ev_Estado == 2 ? true : false,
+                  btn_status: venta.Tc_Id == 2 ? true : false,
                   btn_details: true,
                   btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
+                  icon_btn_edit: "done_all",
+                  icon_btn_status: "done",
                   icon_btn_details: "mdi-eye-settings"
                 });
               });
               this.optionpdf.data = this.data;
-              console.log(this.optionpdf)
             } else {
               this.$q.notify({
                 message: "Sin resultados",
@@ -1499,12 +1509,12 @@ export default {
                   title: venta.CP_Razon_social,
                   name_mp: venta.name_mp,
                   name_qautorizqa: venta.name_qautorizqa,
-                  // btn_edit: true,
-                  // btn_status: true,
+                  btn_edit: venta.Ev_Estado == 1 ? true : false,
+                  btn_status: venta.Tc_Id == 2 ? true : false,
                   btn_details: true,
                   btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
+                  icon_btn_edit: "done_all",
+                  icon_btn_status: "done",
                   icon_btn_details: "mdi-eye-settings"
                 });
               });
@@ -1625,9 +1635,6 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000);
-    },
-    editSale(row) {
-      this.category_edit = row;
     },
     getCotizRange(date){
       this.$q.loading.show({
@@ -1783,6 +1790,181 @@ export default {
         }
       }, 1000)
     },
+    // Cambia el estado de la venta a si ya fue entregado el material
+    deliverProduct(row){
+      this.$q.dialog({
+        title: "Confirmar entrega de material",
+        message: "Estas confirmando la entrega de material, por favor ingrese su contraseña",
+        prompt: {
+          model: "",
+          type: "password" // optional
+        },
+        cancel: true,
+        persistent: true
+      }).onOk( data => {
+        let password = this.aesEncrypt(data);
+        if (password == this.data_user.Usu_Clave_verificacion) {
+          this.$q.loading.show({
+            message: 'Confirmando entrega, por favor espere...'
+          });
+          this.timer = setTimeout(async() => {
+            try {
+              row.base = process.env.__BASE__;
+              row.Ev_Usuario_control = this.data_user.Per_Num_documento; //Si es a credito es 0    
+              row.Ev_Entregado = 1;
+              row.Tc_Id = 1;
+              const res_enc = await this.insertEncVenta(row).then( res => {
+                return res.data;
+              });
+              console.log({
+                msg: 'Respuesta insert enc venta',
+                data: res_enc
+              });
+              if(res_enc.ok){
+                this.$q.notify({
+                  message: 'Entregado',
+                  type: 'positive'
+                })
+              } else{
+                throw new Error('No pudimos confirmar la entrega')
+              }
+            } catch (e) {
+              console.log(e);
+              if (e.message === "Network Error") {
+                e = e.message;
+              }
+              if (e.message === "Request failed with status code 404") {
+                e = "URL de solicitud no existe, err 404";
+              } else if (e.message) {
+                e = e.message;
+              }
+              this.$q.notify({
+                message: e,
+                type: "negative"
+              });
+            } finally {
+              this.$q.loading.hide();
+            }
+            this.timer = setTimeout(this.getData(), 1000)
+          }, 1000)
+        } else {
+          this.$q.notify({
+            message: "Las contraseñas no coinciden",
+            type: "warning"
+          });
+        }
+      })
+    },
+    aprovedCredit(row){
+      this.$q.dialog({
+        component: dialog,
+        parent: this,
+        title: 'Aprobación de créditos',
+        msg: 'Esta venta ha sido realizada como crédito, ¿Seguro que desea aprobarla?',
+      }).onOk(() => {
+        this.$q.loading.show({
+          message: 'Aprobando crédito, por favor espere...'
+        });
+        this.timer = setTimeout(async() => {
+          try {
+            row.base = process.env.__BASE__;
+            row.Ev_Usuario_control = this.data_user.Per_Num_documento; //Si es a credito es 0    
+            row.Ev_Estado = 1;
+            const res_enc = await this.insertEncVenta(row).then( res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Respuesta insert enc venta',
+            //   data: res_enc
+            // });
+            if(res_enc.ok){
+              this.$q.notify({
+                message: 'Aprovado',
+                type: 'positive'
+              })
+            } else{
+              throw new Error('No pudimos confirmar la entrega')
+            }
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative"
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+          this.timer = setTimeout(this.getData(), 1000)
+        }, 1000)
+        // let password = this.aesEncrypt(data);
+        // if (password == this.data_user.Usu_Clave_verificacion) {
+        // } else {
+        //   this.$q.notify({
+        //     message: "Las contraseñas no coinciden",
+        //     type: "warning"
+        //   });
+        // }
+      }).onCancel(() => {
+        this.$q.loading.show({
+          message: 'Anulando crédito, por favor espere...'
+        });
+        this.timer = setTimeout(async() => {
+          try {
+            row.base = process.env.__BASE__;
+            row.Ev_Usuario_control = this.data_user.Per_Num_documento; //Si es a credito es 0    
+            row.Ev_Estado = 0;
+            const res_enc = await this.insertEncVenta(row).then( res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Respuesta insert enc venta',
+            //   data: res_enc
+            // });
+            if(res_enc.ok){
+              this.$q.notify({
+                message: 'Aprovado',
+                type: 'positive'
+              })
+            } else{
+              throw new Error('No pudimos confirmar la entrega')
+            }
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative"
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+          this.timer = setTimeout(this.getData(), 1000)
+        }, 1000)
+        // let password = this.aesEncrypt(data);
+        // if (password == this.data_user.Usu_Clave_verificacion) {
+        // } else {
+        //   this.$q.notify({
+        //     message: "Las contraseñas no coinciden",
+        //     type: "warning"
+        //   });
+        // }
+      })
+    },
     reload() {
       this.dialog_detail = false;
       this.tab = "sales";
@@ -1818,6 +2000,24 @@ export default {
           }
         );
       }, 300);
+    },
+    // Encripta contraseñas o strings
+    aesEncrypt(txt) {
+      const cipher = this.CryptoJS.AES.encrypt(
+        txt,
+        CryptoJS.enc.Utf8.parse(process.env.__KEY__),
+        {
+          iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+          mode: CryptoJS.mode.CBC
+        }
+      ).toString();
+      return cipher.toString();
+    }
+  },
+  beforeDestroy () {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer)
+      this.$q.loading.hide()
     }
   }
 };
