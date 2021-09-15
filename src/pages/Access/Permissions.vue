@@ -106,14 +106,6 @@
                       </div>
                       <div class="col-xs-12 col-md-6 q-px-sm">
                         <q-input
-                          v-model="item.Icon"
-                          type="text"
-                          :rules="[val => !!val || 'Icon es requerido']"
-                          label="Icon"
-                        />
-                      </div>
-                      <div class="col-xs-12 col-md-6 q-px-sm">
-                        <q-input
                           v-model="item.label"
                           type="text"
                           :rules="[val => !!val || 'Label es requerido']"
@@ -534,7 +526,8 @@ export default {
         item.asociar = true;
       })
       // recorremos los items que no estan asociados y le cambiamos el valor que tiene el Id_modulo por el Id_modulo del row, osea del modulo que estamos viendo
-      item_no_modulo.forEach( item => {
+      this.items_no_modulo.forEach( item => {
+        item.asociar = false;
         item.new_Id_modulo = row.Id_modulo
       })
       this.items_modulo = item_modulo;
