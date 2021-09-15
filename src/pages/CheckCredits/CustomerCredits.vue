@@ -21,7 +21,7 @@
                   dense
                   v-model="filter_pendientes"
                   :options="options_state"
-                  hint="Estados Movimiento"
+                  hint="Filtro créditos"
                   map-options
                   emit-value
                 />
@@ -35,7 +35,10 @@
         <q-card>
           <q-bar dark class="bg-primary text-white">
             <div class="cursor-pointer non-selectable">
-              Menú
+              <div class="text-bold">
+                <q-icon name="menu" />
+                Menú
+              </div>
               <q-menu>
                 <q-list dense style="min-width: 100px">
                   <q-item clickable v-close-popup>
@@ -134,6 +137,7 @@
                 row-key="name"
                 flat
                 style="height: 70vh"
+                :pagination="pagination_table"
               >
                 <!-- Btns en modo normal -->
                 <template v-slot:header="props">
@@ -561,6 +565,12 @@ export default {
         Dc_User_Recibe_abono: null, //vendedor recibe pago
         Dc_Conf_pago: 0,
         Dc_User_conf_pago: 0 //Recibe plata en bodega
+      },
+      pagination_table: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 10
       }
     };
   },
@@ -572,55 +582,17 @@ export default {
   },
   watch: {
     filter_pendientes(value) {
-      if (value == 1) {
-        this.rendercomponent = false;
-        let dataselect = this.datageneral.filter(credit => credit.status == 1);
+      this.rendercomponent = false;
+      if (value != 5) {
+        let dataselect = this.datageneral.filter(credit => value == 1 && credit.status == 1 || value == 2 && credit.status == 2 || value == 3 && credit.pdt_conf_pago == 0 || value == 4 && credit.pdt_conf_pago == 1);
         this.data.length = 0;
-
         setTimeout(() => {
           this.data = dataselect;
-
-          this.rendercomponent = true;
-        }, 300);
-      } else if (value == 2) {
-        this.rendercomponent = false;
-        let dataselect = this.datageneral.filter(credit => credit.status == 2);
-        this.data.length = 0;
-
-        console.log(this.datageneral);
-        setTimeout(() => {
-          this.data = dataselect;
-
-          this.rendercomponent = true;
-        }, 300);
-      } else if (value == 3) {
-        this.rendercomponent = false;
-        let dataselect = this.datageneral.filter(
-          credit => credit.pdt_conf_pago == 0
-        );
-        this.data.length = 0;
-
-        console.log(this.datageneral);
-        setTimeout(() => {
-          this.data = dataselect;
-
-          this.rendercomponent = true;
-        }, 300);
-      } else if (value == 4) {
-        this.rendercomponent = false;
-        let dataselect = this.datageneral.filter(
-          credit => credit.pdt_conf_pago == 1
-        );
-        this.data.length = 0;
-
-        console.log(this.datageneral);
-        setTimeout(() => {
-          this.data = dataselect;
-
           this.rendercomponent = true;
         }, 300);
       } else {
         setTimeout(this.getData(), 300);
+        this.rendercomponent = true;
       }
     }
   },
@@ -640,6 +612,7 @@ export default {
       });
       setTimeout(async () => {
         try {
+          this.rendercomponent = false;
           const res_credits = await this.getAllCredits(this.data_user).then(
             res => {
               return res.data;
@@ -653,16 +626,6 @@ export default {
             if (res_credits.result) {
               this.data.length = 0;
               this.datageneral.length = 0;
-              // Create our number formatter.
-              var formatter = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "COP"
-
-                // These options are needed to round to whole numbers if that's what you want.
-                //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-              });
-
               res_credits.data.forEach(credit => {
                 this.data.push({
                   CP_Nit: credit.CP_Nit,
@@ -671,9 +634,7 @@ export default {
                   Ev_Estado: credit.Ev_Estado, //Estado de la venta
                   Ev_Fecha_venta: credit.Ev_Fecha_venta,
                   Ev_Id: credit.Ev_Id,
-                  Ev_Total_venta: `$ ${formatter.format(
-                    credit.Ev_Total_venta
-                  )}`,
+                  Ev_Total_venta: credit.Ev_Total_venta,
                   Ev_dias_credito: credit.Ev_dias_credito,
                   Mov_Descripcion: credit.Mov_Descripcion,
                   Mov_Id: credit.Mov_Id,
@@ -702,9 +663,7 @@ export default {
                   Ev_Estado: credit.Ev_Estado, //Estado de la venta
                   Ev_Fecha_venta: credit.Ev_Fecha_venta,
                   Ev_Id: credit.Ev_Id,
-                  Ev_Total_venta: `$ ${formatter.format(
-                    credit.Ev_Total_venta
-                  )}`,
+                  Ev_Total_venta: credit.Ev_Total_venta,
                   Ev_dias_credito: credit.Ev_dias_credito,
                   Mov_Descripcion: credit.Mov_Descripcion,
                   Mov_Id: credit.Mov_Id,
@@ -736,6 +695,7 @@ export default {
             throw new Error(res_credits.message);
           }
           this.excel.data = this.data;
+          this.rendercomponent = true;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -762,45 +722,27 @@ export default {
       setTimeout(async () => {
         try {
           this.credit_selected = row;
-          for (const key in this.credit_selected) {
-            if (
-              key !== "Dc_Id" &&
-              key !== "Ev_Id" &&
-              key !== "Mov_Id" &&
-              key !== "status_credito" &&
-              key !== "Id" &&
-              key !== "Ev_Estado" &&
-              key !== "title" &&
-              key !== "btn_edit" &&
-              key !== "btn_status" &&
-              key !== "btn_details" &&
-              key !== "icon_btn_edit" &&
-              key !== "icon_btn_status" &&
-              key !== "icon_btn_details"
-            ) {
-              let key_no_dash = key.replace(/_|#|-|@|<>/g, " "); //Reemplaza los guines con espacios
-              let key_capitalized = key_no_dash.replace(/\b\w/g, l =>
-                l.toUpperCase()
-              ); //Capitaliza el primer caracter de cada palabra
-              let column = this.columns.find(column => column.field == key);
-              if (column) {
-                let key_obj = column.label;
-                Object.defineProperty(this.encabezado_credito, key_obj, {
-                  value: this.credit_selected[key],
-                  writable: true,
-                  enumerable: true,
-                  configurable: true
-                });
-              }
-            }
+          this.encabezado_credito = {
+            NIT: row.CP_Nit,
+            'Razón social': row.CP_Razon_social,
+            'Fecha de venta': row.Ev_Fecha_venta,
+            'Nombre móvil': row.Mov_Descripcion,
+            'Nombre cliente': row.Per_Nombre,
+            'Documento cliente': row.Per_Num_documento,
+            'Pagos pendientes': row.conf_pago,
+            'Días de crédito': row.dcredito,
+            'Días adicionales': row.dias_mas,
+            'Total venta': `$ ${row.Ev_Total_venta}`,
+            'Total abonos': `$ ${row.tota_abonos}`,
+            Estado: row.Estado,
           }
           const res_det = await this.getDetailCredit(row.Ev_Id).then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get detalle crédito",
-            data: res_det
-          });
+          // console.log({
+          //   msg: "Respuesta get detalle crédito",
+          //   data: res_det
+          // });
           this.data_historico.length = 0;
           if (res_det.ok) {
             if (res_det.result) {
@@ -860,49 +802,56 @@ export default {
     },
     // Realiza el abono
     doPay() {
-      this.$q.loading.show({
-        message: "Realizando abono, por favor espere..."
-      });
-      setTimeout(async () => {
-        try {
-          this.det_credit.base = process.env.__BASE__;
-          this.det_credit.Ev_Id = this.credit_selected.Ev_Id;
-          this.det_credit.Dc_User_Recibe_abono = this.data_user.Per_Num_documento;
-          const res_update = await this.insertUpdateCredito(this.det_credit).then(res => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta insert update abono",
-            data: res_update
-          });
-          if (!res_update.ok) {
-            throw new Error(res_update.message);
+      if(Number(this.det_credit.Dc_Valor_abono) <= Number(this.credit_selected.Ev_Total_venta - this.credit_selected.tota_abonos)){
+        this.$q.loading.show({
+          message: "Realizando abono, por favor espere..."
+        });
+        setTimeout(async () => {
+          try {
+            this.det_credit.base = process.env.__BASE__;
+            this.det_credit.Ev_Id = this.credit_selected.Ev_Id;
+            this.det_credit.Dc_User_Recibe_abono = this.data_user.Per_Num_documento;
+            const res_update = await this.insertUpdateCredito(this.det_credit).then(res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: "Respuesta insert update abono",
+            //   data: res_update
+            // });
+            if (!res_update.ok) {
+              throw new Error(res_update.message);
+            }
+            this.$q.notify({
+              message: "Abono realizado",
+              type: "positive"
+            });
+            this.onReset();
+            this.dialog_detalle_credit = false;
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative"
+            });
+          } finally {
+            this.$q.loading.hide();
           }
-          this.$q.notify({
-            message: "Abono realizado",
-            type: "positive"
-          });
-          this.onReset();
-          this.dialog_detalle_credit = false;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
-        }
-        setTimeout(this.getData(), 1000);
-      }, 1000);
+          setTimeout(this.getData(), 1000);
+        }, 1000);
+      } else {
+        this.$q.notify({
+          message: 'El valor a abonar es mayor al saldo pendiente por pagar',
+          type: 'warning'
+        })
+      }
     },
     confimPayment(row) {
       this.$q.dialog({
@@ -938,10 +887,10 @@ export default {
                 ).then(res => {
                   return res.data;
                 });
-                console.log({
-                  msg: "Respuesta insert update abono",
-                  data: res_update
-                });
+                // console.log({
+                //   msg: "Respuesta insert update abono",
+                //   data: res_update
+                // });
                 if (!res_update.ok) {
                   throw new Error(res_update.message);
                 }
@@ -950,7 +899,7 @@ export default {
                   type: "positive"
                 });
                 this.onReset();
-                setTimeout(this.getData(), 200)
+                setTimeout(this.getData(), 500)
                 this.dialog_detalle_credit = false;
               } catch (e) {
                 console.log(e);
