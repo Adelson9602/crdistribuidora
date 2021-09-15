@@ -491,7 +491,6 @@ export default {
       "InsertUpdateUsuario",
       'InsertUpdatePersonal',
       "saveFile",
-      "getPermissionUser",
       "getPermissionUserEdit",
       "insertUpdatePersmiso",
     ]),
