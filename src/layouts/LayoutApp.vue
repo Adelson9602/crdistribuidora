@@ -305,7 +305,6 @@ export default {
           } else {
             throw new Error(res_modulos.message)
           }
-          console.log(this.array_modules)
           const res_permi = await this.getCheckPermissions(this.data_user.Rol_Id).then((res) => {
             return res.data;
           });
