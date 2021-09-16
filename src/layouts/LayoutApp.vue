@@ -248,21 +248,15 @@ export default {
       array_modules: [],
     };
   },
-  mounted() {
-    this.version = process.env.__VERSION__;
-    window.addEventListener("online", () => {
-      this.setIsOnline(true);
-    }),
-    window.addEventListener("offline", () => {
-      this.setIsOnline(false);
-    });
-    this.getData();
-  },
   computed: {
     ...mapState("auth", ["user_logged"]),
     data_user() {
       return this.user_logged;
     },
+  },
+  mounted() {
+    this.version = process.env.__VERSION__;
+    this.getData();
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged", "setUserPermissions"]),
@@ -276,6 +270,7 @@ export default {
       "getCheckPermissions",
       "getPermissionUserEdit",
     ]),
+    ...mapActions("sales", ["getAllstock"]),
     getData(){
       this.$q.loading.show({
         message: 'Obteniendo datos del servidor, por favor espere...'
@@ -373,6 +368,48 @@ export default {
             })
           }); //Fin foreach array_modulos
           this.menu = this.array_modules;
+
+          const res_stock = await this.getAllstock().then(res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Repeusta get artículos',
+          //   data: res_stock,
+          // });
+          if (res_stock.ok) {
+            if (res_stock.result) {
+              let stock_minimo = res_stock.data.filter( element => element.Si_Cant <= element.Art_Stockminimo)
+              if(stock_minimo.length > 0 ){
+                let notificacion = {
+                  nt_id: null,
+                  nt_titulo: 'Artículos con stock mínimo',
+                  nt_descripcion: `En este momento hay artículos que han alcanzado el stock mínimo`,
+                  nt_usuario_notificado: this.data_user.Per_Num_documento,
+                  nt_estado: 1,
+                  nt_usuario_control: this.data_user.Per_Num_documento,
+                  base: process.env.__BASE__,
+                }
+                const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+                  return res.data;
+                }).catch( e => {
+                  throw new Error(e)
+                })
+                console.log({
+                  msg: 'Respuesta insert notificación',
+                  data: res_in_not
+                })
+              }
+            } else {
+              this.$q.notify({
+                message: res_stock.message,
+                type: "warning"
+              });
+            }
+          } else {
+            this.data.length = 0;
+            throw res_stock.message;
+          }
+          this.getNotificaciones();
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -434,12 +471,6 @@ export default {
         this.$q.loading.hide();
       }
     },
-    onIdle() {
-      this.messageStr = 'ZZZ'
-    },
-    onActive() {
-      this.messageStr = 'Hello'
-    },
     async getNotificaciones(){
       try {
         const res_notifica = await this.GetNotifications(this.data_user.Per_Num_documento).then((res) => {
@@ -481,6 +512,12 @@ export default {
           type: "negative",
         });
       }
+    },
+    onIdle() {
+      this.messageStr = 'ZZZ'
+    },
+    onActive() {
+      this.messageStr = 'Hello'
     },
     reloadNotifications() {
       this.notifications = [];
