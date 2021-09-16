@@ -99,27 +99,60 @@
                 >
                   <q-tab-panel name="detalle">
                     <!-- Encabezado -->
-                    <div class="row">
-                      <div
-                        class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
-                        v-for="(value, index) in encebezado_venta"
-                        :key="index"
-                      >
-                        <!-- Items para entregados -->
-                        <q-field :hint="index" stack-label dense>
-                          <template v-slot:control>
-                            <div
-                              class="self-center full-width no-outline"
-                              tabindex="0"
-                            >
-                              {{ value }}
-                            </div>
-                          </template>
-                        </q-field>
+                    <q-form
+                      @submit="changeMethod"
+                      class="q-gutter-md"
+                    >
+                      <div class="row">
+                        <div
+                          class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-px-sm"
+                          v-for="(value, index) in encebezado_venta"
+                          :key="index"
+                        >
+                          <!-- Items para entregados -->
+                          <q-field :hint="index" stack-label dense>
+                            <template v-slot:control>
+                              <div
+                                class="self-center full-width no-outline"
+                                tabindex="0"
+                              >
+                                {{ value }}
+                              </div>
+                            </template>
+                          </q-field>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+                          <q-select
+                            v-model="mp_id"
+                            :options="options_me_pago"
+                            hint="Forma de pago"
+                            :rules="[val => !!val || 'Forma de pago es obligatorio']"
+                            map-options
+                            emit-value
+                            :disable="mp_id == 2"
+                          />
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+                          <q-input
+                            v-model="dias_credito"
+                            mask="###"
+                            hint="Días de crédito"
+                            :rules="[val => !!val || 'Días de céedito es obligatorio']"
+                            v-if="mp_id == 2 && encabezado_selected.Ev_dias_credito == 0"
+                          />
+                        </div>
                       </div>
-                    </div>
+                      <div>
+                        <q-btn
+                          label="Guardar"
+                          type="submit"
+                          color="green"
+                          v-if="mp_id == 2 && dias_credito"
+                        />
+                      </div>
+                    </q-form>
                     <!-- Detalle -->
-                    <div class="row">
+                    <div class="row q-mt-md">
                       <div class="col-xs-12 col-md-6 q-px-sm">
                         <q-table
                           flat
@@ -260,6 +293,7 @@ import CryptoJS from "crypto-js";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 let all_clients = []; //Contiene todos los clientes
+let all_medios = []; //Contiene los medios de pago
 export default {
   name: "DeparturesGuarantees",
   components: {
@@ -898,6 +932,9 @@ export default {
       encabezado_cotiza: null,
       encabezado_cotiza_selecte: null,
       confirm_credit: false,
+      options_me_pago: all_medios,
+      mp_id: null,
+      dias_credito: null,
     };
   },
   computed: {
@@ -1009,6 +1046,9 @@ export default {
       "insertEncVenta"
     ]),
     ...mapActions("shopping", ["getProviders"]),
+    ...mapActions('master', [
+      'getMedioPago'
+    ]),
     getData() {
       this.$q.loading.show({
         message: "Obteniendo datos, por favor espere..."
@@ -1064,6 +1104,7 @@ export default {
                 });
               });
               this.optionpdf.data = this.data;
+              this.excel.data = this.data;
             } else {
               this.$q.notify({
                 message: "Sin resultados",
@@ -1159,7 +1200,27 @@ export default {
           } else {
             throw new Error(res_cotizacion.message);
           }
-          this.excel.data = this.data;
+
+          const res_medio = await this.getMedioPago().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get medio pago',
+          //   data: res_medio
+          // });
+          if(res_medio.ok){
+            all_medios.length = 0;
+            res_medio.data.forEach( element => {
+              if(element.Mp_Estado == 1){
+                all_medios.push({
+                  label: element.Mp_Descripcion,
+                  value: element.Mp_Id
+                });
+              }
+            })
+          } else {
+            throw new Error(res_medio.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -1186,6 +1247,7 @@ export default {
       setTimeout(async () => {
         try {
           this.encabezado_selected = row;
+          this.mp_id = row.Mp_Id;
           this.encebezado_venta = {
             "Venta N°": row.Ev_Id,
             NIT: row.CP_Nit,
@@ -2159,6 +2221,55 @@ export default {
         //   });
         // }
       })
+    },
+    // Cambia el método de pago
+    changeMethod(){
+      this.$q.loading.show({
+        message: 'Aprobando crédito, por favor espere...'
+      });
+      this.timer = setTimeout(async() => {
+        try {
+          this.encabezado_selected.base = process.env.__BASE__;
+          this.encabezado_selected.Ev_Usuario_control = this.data_user.Per_Num_documento; //Si es a credito es 0    
+          this.encabezado_selected.Mp_Id = this.mp_id;
+          this.encabezado_selected.Ev_dias_credito = this.dias_credito;
+          const res_enc = await this.insertEncVenta(this.encabezado_selected).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta insert enc venta',
+          //   data: res_enc
+          // });
+          if(res_enc.ok){
+            this.$q.notify({
+              message: 'Método de pago cambiado',
+              type: 'positive'
+            })
+            this.mp_id = null;
+            this.dias_credito = null;
+            this.reload();
+          } else{
+            throw new Error('No pudimos cambiar el método de pago')
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+        this.timer = setTimeout(this.getData(), 1000)
+      }, 1000)
     },
     reload() {
       this.dialog_detail = false;
