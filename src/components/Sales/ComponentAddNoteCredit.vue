@@ -306,10 +306,10 @@ export default {
           const res_enc_credito = await this.insertEncNotaCredito(this.enc_nota_credito).then( res => {
             return res.data;
           });
-          console.log({
-            msg:  'Respuesta insert encabezado nota credito',
-            data: res_enc_credito
-          });
+          // console.log({
+          //   msg:  'Respuesta insert encabezado nota credito',
+          //   data: res_enc_credito
+          // });
           if(res_enc_credito.ok){
             let promesas = [];
             this.data_products_sales.forEach( product => {
@@ -327,38 +327,37 @@ export default {
                 throw new Error('Error al actualizar el inventario')
               }))
             })
-            Promise.all(promesas).then( data => {
-              data.forEach( async res => {
+            Promise.all(promesas).then( async data => {
+              data.forEach( res => {
                 console.log(res)
-                if(!res.data.affectedRows){
-                  throw new Error(res.message);
-                }
-                let notificacion = {
-                  nt_id: null,
-                  nt_titulo: 'Nota crédito realizada',
-                  nt_descripcion: `Se ha ralizado una nota crédito a la cuenta del cliente ${this.prop_encabezado.CP_Razon_social}, Venta No. ${this.prop_encabezado.Ev_Id}`,
-                  nt_usuario_notificado: this.data_user.Per_Num_documento,
-                  nt_estado: 1,
-                  nt_usuario_control: this.data_user.Per_Num_documento,
-                  base: process.env.__BASE__,
-                }
-                const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
-                  return res.data;
-                }).catch( e => {
-                  throw new Error(e)
-                })
-                // console.log({
-                //   msg: 'Respuesta insert notificación',
-                //   data: res_in_not
-                // })
               })
+              let notificacion = {
+                nt_id: null,
+                nt_titulo: 'Nota crédito realizada',
+                nt_descripcion: `Se ha ralizado una nota crédito a la cuenta del cliente ${this.prop_encabezado.CP_Razon_social}, Venta No. ${this.prop_encabezado.Ev_Id}`,
+                nt_usuario_notificado: this.data_user.Per_Num_documento,
+                nt_estado: 1,
+                nt_usuario_control: this.data_user.Per_Num_documento,
+                base: process.env.__BASE__,
+              }
+              const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+                return res.data;
+              }).catch( e => {
+                throw new Error(e)
+              })
+              // console.log({
+              //   msg: 'Respuesta insert notificación',
+              //   data: res_in_not
+              // })
+              this.$q.notify({
+                message: 'Venta realizada',
+                type: 'positive'
+              });
+              this.$emit('reload')
+            }).catch( e => {
+              console.log(e)
+              throw new Error(e)
             })
-            this.$q.notify({
-              message: 'Venta realizada',
-              type: 'positive'
-            });
-            this.$emit('reloadNotifications')
-            this.$emit('reload')
           } else {
             throw new Error(res_enc_credito.message);
           }

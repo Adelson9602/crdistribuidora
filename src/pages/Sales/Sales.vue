@@ -2275,6 +2275,7 @@ export default {
       this.dialog_detail = false;
       this.tab = "sales";
       setTimeout(() => {
+        this.$emit('reloadNotifications')
         this.getData();
       }, 200);
     },

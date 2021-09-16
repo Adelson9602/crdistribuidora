@@ -413,7 +413,9 @@ export default {
         let resultado = new Promise((resolve, reject) => {
           if(value.art_porce_general){
             this.options_des_products.length = 0;
-            this.options_des_products = percent_genres;
+            percent_genres.forEach( element => {
+              this.options_des_products.push(element);
+            })
           } else {
             let porcentaje_productos = percent_persona.filter( porcentaje => porcentaje.Art_Id == value.value);
             this.options_des_products.length = 0;
@@ -487,6 +489,9 @@ export default {
       'insertEncNotaDebito',
       'insertDetNotaDebito',
     ]),
+    ...mapActions("notifications", [
+      "PostInsertNotification",
+    ]),
     getData(){
       this.$q.loading.show({
         message: 'Obteniendo datos del servidor, por favor espere...'
@@ -509,7 +514,6 @@ export default {
           
           // Se asigna datos para el encabezadoq que se guarda en base de datos
           this.enc_nota_debito = this.prop_encabezado;
-          console.log(this.enc_nota_debito)
           this.Ev_Subtotal = this.enc_nota_debito.Ev_Subtotal;
           this.subtotal_venta = this.enc_nota_debito.Ev_Subtotal;
           this.Ev_Des_total_art = this.enc_nota_debito.Ev_Des_total_art;
@@ -618,10 +622,10 @@ export default {
           const res_enc_debito = await this.insertEncNotaDebito(this.enc_nota_debito).then( res => {
             return res.data;
           });
-          console.log({
-            msg:  'Respuesta insert encabezado nota débito',
-            data: res_enc_debito
-          });
+          // console.log({
+          //   msg:  'Respuesta insert encabezado nota débito',
+          //   data: res_enc_debito
+          // });
           if(res_enc_debito.ok){
             let promesas = [];
             this.data_sales.forEach( product => {
@@ -652,10 +656,10 @@ export default {
               const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
                 return res.data;
               });
-              console.log({
-                msg: 'Respuesta insert enc garantia',
-                data: res_gara
-              });
+              // console.log({
+              //   msg: 'Respuesta insert enc garantia',
+              //   data: res_gara
+              // });
               if(!res_gara.data.affectedRows){
                 throw new Error(res_gara.message)
               }
@@ -674,19 +678,37 @@ export default {
                 }))
               })
             }
-            Promise.all(promesas).then( data => {
+            Promise.all(promesas).then( async data => {
               data.forEach( res => {
                 console.log(res)
-                if(!res.data.affectedRows){
-                  throw new Error(res.message);
-                }
               })
+              let notificacion = {
+                nt_id: null,
+                nt_titulo: 'Nota débito realizada',
+                nt_descripcion: `Se ha ralizado una nota débito a la cuenta del cliente ${this.enc_nota_debito.CP_Razon_social}, Venta No. ${this.enc_nota_debito.Ev_Id}`,
+                nt_usuario_notificado: this.data_user.Per_Num_documento,
+                nt_estado: 1,
+                nt_usuario_control: this.data_user.Per_Num_documento,
+                base: process.env.__BASE__,
+              }
+              const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+                return res.data;
+              }).catch( e => {
+                throw new Error(e)
+              })
+              // console.log({
+              //   msg: 'Respuesta insert notificación',
+              //   data: res_in_not
+              // })
+              this.$q.notify({
+                message: 'Venta realizada',
+                type: 'positive'
+              });
+              this.$emit('reload')
+            }).catch( e => {
+              console.log(e)
+              throw new Error(e)
             })
-            this.$q.notify({
-              message: 'Venta realizada',
-              type: 'positive'
-            });
-            this.$emit('reload')
           } else {
             throw new Error(res_enc_debito.message);
           }
@@ -722,10 +744,13 @@ export default {
         Dv_valor_descuento: this.descuento_art.value,
         porcentaje_venta: this.producto_selecte.porcentaje_venta,
         subtotal_product: null,
+        subtotal_venta: null, //Subtotal sin descuentos al momento de agregar este producto
+        total_venta: null, //Total de la venta al momento de agregar este producto
+        diferencia_descuento: null,
         des_articulo: this.descuento_art.label,
         // Propiedade para actualizar el stock
         Mov_Id: this.movil_selecte,
-        Si_Cant: this.cantidad + this.cantidad_garantia,
+        Si_Cant: Number(this.cantidad) + Number(this.cantidad_garantia),
         simbol: '-',
         // Art_Id: null, -> ya esa declarado
       }
@@ -758,15 +783,20 @@ export default {
           // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
           // diferencia entre precio venta y subtotal
 
-          product_add.subtotal_product = product_add.Dv_Precio_compra + (this.descuento_art.value * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
-          this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
+          product_add.subtotal_product = Math.round((product_add.Dv_Precio_compra + (product_add.Dv_Precio_compra * (this.descuento_art.value / 100))) * this.cantidad); //calcula el subtotal por cada articulo
+          this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad - product_add.subtotal_product )); //Calculamos el descuento de cada articulo
+          product_add.diferencia_descuento = this.Ev_Des_total_art;
 
           this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
+          product_add.subtotal_venta = this.subtotal_venta;
           this.Ev_Subtotal = this.subtotal_venta;
 
           this.Ev_Des_gen_venta = ( this.Ev_Subtotal - this.Ev_Des_total_art ) * ( this.enc_nota_debito.Ev_Descuentog / 100 );
 
           this.total_venta = this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
+          this.total_venta =  Math.round(this.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta);
+          this.total_venta =  Math.round(this.enc_nota_debito.Ev_Impuesto > 0 ? this.total_venta * this.enc_nota_debito.Ev_Impuesto : this.total_venta);
+          product_add.total_venta = this.total_venta;
 
           this.data_sales.push(product_add);
           this.onReset();
@@ -783,8 +813,9 @@ export default {
       }).onOk(() => {
         let index = this.data_sales.indexOf(row)
         this.data_sales.splice(index, 1)
-        this.Ev_Des_total_art = this.Ev_Des_total_art - (row.subtotal_product * Number(row.Dv_Cant));
-        this.subtotal_venta = this.subtotal_venta - (row.Dv_precio_venta * Number(row.Dv_Cant));
+        this.Ev_Des_total_art = this.Ev_Des_total_art - row.diferencia_descuento;
+        this.subtotal_venta = this.subtotal_venta - row.subtotal_venta;
+        this.total_venta = this.total_venta - row.total_venta;
       })
     },
     // Recarga el select luego de crear un cliente
