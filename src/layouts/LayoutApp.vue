@@ -394,10 +394,10 @@ export default {
                 }).catch( e => {
                   throw new Error(e)
                 })
-                console.log({
-                  msg: 'Respuesta insert notificación',
-                  data: res_in_not
-                })
+                // console.log({
+                //   msg: 'Respuesta insert notificación',
+                //   data: res_in_not
+                // })
               }
             } else {
               this.$q.notify({
