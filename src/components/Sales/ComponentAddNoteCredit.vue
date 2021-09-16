@@ -245,6 +245,9 @@ export default {
       'insertEncNotaCredito',
       'insertDetNotaCredito'
     ]),
+    ...mapActions("notifications", [
+      "PostInsertNotification",
+    ]),
     ...mapActions('warehouse', [
       'updateInventarioMovil',
     ]),
@@ -268,7 +271,6 @@ export default {
       this.Ev_Subtotal = this.enc_nota_credito.Ev_Subtotal;
       this.Ev_Des_total_art = this.enc_nota_credito.Ev_Des_total_art;
       this.total_venta = this.enc_nota_credito.Ev_Total_venta;
-      console.log(this.enc_nota_credito)
 
       all_product.length = 0;
       this.prop_product.forEach(element => {
@@ -325,53 +327,37 @@ export default {
                 throw new Error('Error al actualizar el inventario')
               }))
             })
-            // if(this.cantidad_garantia){
-            //   this.ecn_garantia = {
-            //     base: process.env.__BASE__,
-            //     Eg_Id: null,
-            //     Eg_Quien_autoriza: 0,
-            //     Ev_Id: res_enc.data.insertId,
-            //     Eg_Observacion: null,
-            //     Eg_estado: 0,
-            //     Eg_User_control: this.data_user.Per_Num_documento,
-            //   }
-            //   const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
-            //     return res.data;
-            //   });
-            //   console.log({
-            //     msg: 'Respuesta insert enc garantia',
-            //     data: res_gara
-            //   });
-            //   if(!res_gara.data.affectedRows){
-            //     throw new Error(res_gara.message)
-            //   }
-            //   this.data_products_sales.forEach( product => {
-            //     product.Eg_Id = res_gara.data.insertId;
-            //     product.Dg_Cant = this.cantidad_garantia;
-            //     promesas.push(this.insertDetGarantia(product).then( res => {
-            //       res.data.msg = 'Respuesta insert det garantía';
-            //       return res.data;
-            //     }))
-            //     product.Sg_Cant = this.cantidad_garantia;
-            //     product.simbol = '+';
-            //     promesas.push(this.insertUpdateStockGarantia(product).then( res => {
-            //       res.data.msg = 'Respuesta update stock garantía';
-            //       return res.data;
-            //     }))
-            //   })
-            // }
             Promise.all(promesas).then( data => {
-              data.forEach( res => {
+              data.forEach( async res => {
                 console.log(res)
                 if(!res.data.affectedRows){
                   throw new Error(res.message);
                 }
+                let notificacion = {
+                  nt_id: null,
+                  nt_titulo: 'Nota crédito realizada',
+                  nt_descripcion: `Se ha ralizado una nota crédito a la cuenta del cliente ${this.prop_encabezado.CP_Razon_social}, Venta No. ${this.prop_encabezado.Ev_Id}`,
+                  nt_usuario_notificado: this.data_user.Per_Num_documento,
+                  nt_estado: 1,
+                  nt_usuario_control: this.data_user.Per_Num_documento,
+                  base: process.env.__BASE__,
+                }
+                const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+                  return res.data;
+                }).catch( e => {
+                  throw new Error(e)
+                })
+                // console.log({
+                //   msg: 'Respuesta insert notificación',
+                //   data: res_in_not
+                // })
               })
             })
             this.$q.notify({
               message: 'Venta realizada',
               type: 'positive'
             });
+            this.$emit('reloadNotifications')
             this.$emit('reload')
           } else {
             throw new Error(res_enc_credito.message);
@@ -407,7 +393,10 @@ export default {
         Dv_precio_venta: this.producto_selecte.precio_venta,
         Dv_valor_descuento: this.producto_selecte.porcentaje_venta,
         porcentaje_venta: this.producto_selecte.porcentaje_venta,
-        subtotal_product: null,
+        subtotal_product: null, //Subtotal del producto
+        subtotal_venta: null, //Subtotal sin descuentos al momento de agregar este producto
+        total_venta: null, //Total de la venta al momento de agregar este producto
+        diferencia_descuento: null,
         // Propiedade para actualizar el stock
         Mov_Id: this.enc_nota_credito.Mov_Id,
         Si_Cant: this.cantidad,
@@ -427,10 +416,9 @@ export default {
         // Ev_Total_venta => Ev_Subtotal - Ev_Des_total_art - Ev_Des_gen_venta *
         // Ev_Descuentog => porcentaje descuento de la factura final (10% ...)
         // Ev_Des_gen_venta => ( Ev_subtotal - Ev_des_total_art) * (Ev_Descuentog / 100) *
-        // diferencia entre precio venta y subtotal
 
-        product_add.subtotal_product = product_add.Dv_Precio_compra + (product_add.porcentaje_venta * product_add.Dv_Precio_compra) / 100 * this.cantidad; //calcula el subtotal por cada articulo
-        this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad ) - product_add.subtotal_product); //Calculamos el descuento de cada articulo
+        product_add.subtotal_product = Math.round((product_add.Dv_Precio_compra + (product_add.porcentaje_venta * (product_add.Dv_Precio_compra / 100))) * this.cantidad); //calcula el subtotal por cada articulo
+        this.Ev_Des_total_art = Math.round(this.Ev_Des_total_art + (product_add.Dv_precio_venta * this.cantidad - product_add.subtotal_product)); //Calculamos el descuento de cada articulo
 
         this.subtotal_venta = Math.round(this.subtotal_venta + (product_add.Dv_precio_venta * this.cantidad)); // se asigna el subtotal de la factura
         
@@ -448,6 +436,7 @@ export default {
       this.producto_selecte = null;
       this.cantidad = null;
       this.cant_vendida = null;
+      this.precio_vendido = null;
       setTimeout(() => {
         this.$refs.form_sales.resetValidation();
       }, 300)
