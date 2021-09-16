@@ -9,7 +9,11 @@
         :propdata="data"
         :propcolumns="columns"
         :propbtns="btns"
-      />
+      >
+        <template v-slot:toggle>
+          <q-toggle v-model="filter" label="Productos agotados"/>
+        </template>
+      </component-table>
     </q-card>
   </q-page>
 </template>
@@ -17,6 +21,7 @@
 <script>
 import ComponentTable from "components/Generals/ComponentTable";
 import { mapActions } from "vuex";
+let stock = [];
 export default {
   name: "SaleswithoutBalance",
   components: {
@@ -146,17 +151,31 @@ export default {
         range_date: false,
         btn_export_pdf: false,
         export_excel: true
-      }
+      },
+      filter: false,
     };
   },
-
+  watch: {
+    filter(value){
+      this.data.length = 0;
+      if(value){
+        stock.forEach(product => {
+          if(product.Si_Cant == 0){
+            this.data.push(product)  
+          }
+        });
+      } else {
+        stock.forEach(product => {
+          this.data.push(product)
+        })
+      }
+    }
+  },
   created() {
     this.getData();
   },
-
   methods: {
     ...mapActions("sales", ["getAllstock"]),
-
     getData() {
       this.$q.loading.show({
         message: "Obteniendo datos existentes, por favor espere..."
@@ -172,9 +191,9 @@ export default {
           // });
           if (resgetDatastock.ok) {
             if (resgetDatastock.result) {
-              this.data.length = 0;
+              stock.length = 0;
               resgetDatastock.data.forEach(element => {
-                this.data.push({
+                stock.push({
                   Id: element.Id,
                   Art_Id: element.Art_Id,
                   Art_Codigo_inv: element.Art_Codigo_inv,
@@ -206,6 +225,9 @@ export default {
                   // icon_btn_details: "mdi-eye-settings",
                 });
               });
+              stock.forEach(product => {
+                this.data.push(product)
+              })
             } else {
               this.$q.notify({
                 message: resgetDatastock.message,
@@ -216,7 +238,6 @@ export default {
             this.data.length = 0;
             throw resgetDatastock.message;
           }
-
           this.excel.data = this.data;
         } catch (e) {
           console.log(e);
