@@ -605,6 +605,10 @@ export default {
       "getDetailCredit",
       "insertUpdateCredito"
     ]),
+    ...mapActions("notifications", [
+      "GetNotifications",
+      "PostInsertNotification",
+    ]),
     ...mapActions("sales", ["getDetailSales"]),
     getData() {
       this.$q.loading.show({
@@ -821,6 +825,25 @@ export default {
             if (!res_update.ok) {
               throw new Error(res_update.message);
             }
+            let notificacion = {
+              nt_id: null,
+              nt_titulo: 'Abono realizado',
+              nt_descripcion: `Se ha ralizado un abono a la cuenta del cliente ${this.credit_selected.CP_Razon_social}, Crédito No. ${this.credit_selected.Dc_Id}`,
+              nt_usuario_notificado: this.data_user.Per_Num_documento,
+              nt_estado: 1,
+              nt_usuario_control: this.data_user.Per_Num_documento,
+              base: process.env.__BASE__,
+            }
+            const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+              return res.data;
+            }).catch( e => {
+              throw new Error(e)
+            })
+            // console.log({
+            //   msg: 'Respuesta insert notificación',
+            //   data: res_in_not
+            // })
+            this.$emit('reloadNotifications')
             this.$q.notify({
               message: "Abono realizado",
               type: "positive"
