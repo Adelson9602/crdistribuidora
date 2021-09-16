@@ -31,6 +31,7 @@
           :propactions="true"
           @onedit="editPorcentaje"
           @tostatus="openDialogStatus"
+          @ondetails="addedIntegrante"
         />
         <!-- Dialogo para activar o inactivar una meta -->
         <component-dialog-enable
@@ -39,6 +40,31 @@
           @cancel="enable_diable = false"
           @changeStatus="changeStatus"
         />
+
+        <q-dialog v-model="added_person" persistent>
+          <q-card style="width: 700px; max-width: 80vw">
+            <q-form @submit="savePersons">
+              <q-bar dark class="bg-primary text-white">
+                <div class="col text-center text-weight-bold">
+                  Personas asociadas al porcentaje
+                </div>
+                <q-btn dense flat round icon="close" color="white" v-close-popup/>
+              </q-bar>
+              <q-card-section>
+                <q-list bordered separator>
+                  <q-item clickable v-ripple v-for="item in persons_percents" :key="item.documento">
+                    <q-item-section>
+                      <q-toggle v-model="item.associate" :label="item.nombre" color="green" checked-icon="check" unchecked-icon="clear"/>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-card-section>
+              <q-card-actions align="right">
+                <q-btn flat label="Guardar" color="primary" type="submit" />
+              </q-card-actions>
+            </q-form>
+          </q-card>
+        </q-dialog>
       </q-card-section>
     </q-card>
   </q-page>
@@ -49,6 +75,7 @@ import ComponentAddPercentSales from "src/components/Master/ComponentAddPercentS
 import componentTable from "components/Generals/ComponentTable";
 import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
 import { mapActions, mapState } from "vuex";
+let all_percent_user = [];
 export default {
   name: "Percentage",
   components: {
@@ -169,6 +196,8 @@ export default {
       },
       dialog_add_percent: false,
       edit_form: false,
+      added_person: false,
+      persons_percents: [],
     };
   },
   computed: {
@@ -189,8 +218,8 @@ export default {
     }
   },
   methods: {
-    ...mapActions("master", ["getAllPorcentaje", "addPorcentaje"]),
-    ...mapActions("master", ["getAllUm"]),
+    ...mapActions("master", ["getAllPorcentaje", "addPorcentaje", "percentsPersons", "getAllUm"]),
+    ...mapActions("access", ["getPersons"]),
     getData() {
       this.$q.loading.show({
         message: "Obteniendo Informacion existentes, por favor espere..."
@@ -225,13 +254,14 @@ export default {
                   status: element.Pv_Estado,
                   btn_edit: true,
                   btn_status: true,
-                  // btn_details: true,
+                  btn_details: true,
                   // btn_pdf: true,
                   icon_btn_edit: "mdi-pencil",
-                  icon_btn_status: "power_settings_new"
-                  // icon_btn_details: "mdi-eye-settings",
+                  icon_btn_status: "power_settings_new",
+                  icon_btn_details: "group_add",
                 });
               });
+              this.excel.data = this.data;
             } else {
               this.$q.notify({
                 message: resgetDataPorcentaje.message,
@@ -243,7 +273,61 @@ export default {
             throw resgetDataPorcentaje.message;
           }
 
-          this.excel.data = this.data;
+          const res_persons = await this.getPersons().then(res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: "Respuesta get personal",
+          //   data: res_persons
+          // });
+          if (res_persons.ok) {
+            if (res_persons.result) {
+              this.persons_percents.length = 0;
+              res_persons.data.forEach(persona => {
+                if(persona.Usu_Estado == 1){
+                  this.persons_percents.push({
+                    nombre: persona.Per_Nombre,
+                    documento: persona.Per_Num_documento,
+                    associate: false,
+                    Pv_Id: null,
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_persons.message,
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_persons.message);
+          }
+          const res_perc_persons = await this.percentsPersons().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get porcentaje con usuario',
+            data: res_perc_persons
+          });
+          if (res_perc_persons.ok) {
+            if (res_perc_persons.result) {
+              all_percent_user.length = 0;
+              res_perc_persons.data.forEach(porcentaje => {
+                all_percent_user.push({
+                  Pv_Id: porcentaje.Pv_Id,
+                  Integrante: porcentaje.Integrante,
+                  Estado: porcentaje.Estado
+                })
+              });
+            } else {
+              this.$q.notify({
+                message: res_perc_persons.message,
+                type: "warning"
+              });
+            }
+          } else {
+            throw new Error(res_perc_persons.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -352,6 +436,41 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000);
+    },
+    // Abre el dialog para agregar personas a los porcentajes
+    addedIntegrante(row){
+      this.percentage_edit = row;
+      this.added_person = true;
+      this.persons_percents.forEach( persona => {
+        let result = all_percent_user.find( porcentaje => porcentaje.Integrante == persona.documento );
+        console.log(result)
+      })
+    },
+    savePersons(){
+      this.$q.loading.show({
+        message: 'Guardando, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative"
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
     }
   }
 };

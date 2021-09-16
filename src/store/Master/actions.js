@@ -83,3 +83,8 @@ export function getPercentSaleProduct(context, id_product){
 export function savePercentPerso(context, data){
     return Vue.prototype.$axios.post(`insert_update_pv_hash_articulo`, data);
 }
+
+// Obtiene los porcentajes con las personas asociadas
+export function percentsPersons(){
+    return Vue.prototype.$axios.get(`select_pv_hash_user_genral/${base}`)
+}
