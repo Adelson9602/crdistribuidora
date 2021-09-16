@@ -648,7 +648,7 @@ export default {
                     : "No tiene pagos por confirmar", //0 sin pagos por confirmar y 1 es con pagos por confirmar
                   status_credito: credit.status_credito, // Validación si el crédito debe o no, 1 saldo y 0 sin saldo
                   Id: credit.Ev_Id,
-                  tota_abonos: credit.tota_abonos,
+                  tota_abonos: credit.tota_abonos ? credit.tota_abonos : 0,
                   status: credit.Ev_Estado,
                   Estado: credit.name_estado, //Estado de la venta
                   title: credit.CP_Razon_social,
@@ -677,7 +677,7 @@ export default {
                     : "No tiene pagos por confirmar", //0 sin pagos por confirmar y 1 es con pagos por confirmar
                   status_credito: credit.status_credito, // Validación si el crédito debe o no, 1 saldo y 0 sin saldo
                   Id: credit.Ev_Id,
-                  tota_abonos: credit.tota_abonos,
+                  tota_abonos: credit.tota_abonos ? credit.tota_abonos : 0,
                   status: credit.Ev_Estado,
                   Estado: credit.name_estado, //Estado de la venta
                   title: credit.CP_Razon_social,
