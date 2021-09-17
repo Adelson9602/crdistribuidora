@@ -64,6 +64,7 @@
             :rules="[val => !!val || 'Tipo comprobante es obligatorio']"
             emit-value
             map-options
+            :disable="tipo_accion == false ? true : false"
           >
             <template v-slot:no-option>
               <q-item>
@@ -239,6 +240,7 @@
             hint="Cantidad para garantía"
             mask="############"
             :rules="[val => !!val || 'Cantidad garantía es obligatorio']"
+            v-if="tipo_accion"
           />
         </div>
       </div>
@@ -567,6 +569,8 @@ export default {
           value: 0,
           label: 'COTIZACIÓN'
         }
+        this.enc_venta.Tc_Id = 5;
+        this.cantidad_garantia = 0;
       }
     }
   },
