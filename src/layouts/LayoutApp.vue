@@ -573,18 +573,30 @@ export default {
           const re_data_email = await this.getStockMinimoMail().then(res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get data para email',
-            data: re_data_email
-          })
+          // console.log({
+          //   msg: 'Respuesta get data para email',
+          //   data: re_data_email
+          // });
+          if(re_data_email.ok){
+            if(re_data_email.result){
+              let data = {
+                data: re_data_email.data
+              }
+              const res_email = await this.sendEmail(data).then( res => {
+                return res.data;
+              });
+              // console.log({
+              //   msg: 'Respuesta send email',
+              //   data: res_email
+              // })
+              if(!res_email.received){
+                throw new Error('No pudimos enviar el email con los detalles del stock')
+              }
+            }
+          } else {
+            throw new Error(re_data_email.message)
+          }
 
-          const res_email = await this.sendEmail().then( res => {
-            return res.data;
-          });
-          console.log({
-            msg: 'Respuesta send email',
-            data: res_email
-          })
         } catch (e) {
           
         } finally {
