@@ -227,6 +227,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
+import { date } from 'quasar'
 
 export default {
   // name: 'LayoutName',
@@ -257,11 +258,15 @@ export default {
   mounted() {
     this.version = process.env.__VERSION__;
     this.getData();
-    // setInterval(() => {
-      
-    // }, interval);
+    
+    let time = new Date();
+    setInterval(() => {
+      // Si son las 7 de la mañana se envia el correo
+      if(time.getHours() == 7){
+        this.sendEmailStock();
+      }
+    }, 50000);
 
-    this.sendEmailStock();
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged", "setUserPermissions"]),
