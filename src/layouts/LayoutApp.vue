@@ -257,6 +257,11 @@ export default {
   mounted() {
     this.version = process.env.__VERSION__;
     this.getData();
+    // setInterval(() => {
+      
+    // }, interval);
+
+    this.sendEmailStock();
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged", "setUserPermissions"]),
@@ -269,8 +274,12 @@ export default {
       "GetModules",
       "getCheckPermissions",
       "getPermissionUserEdit",
+      "sendEmail"
     ]),
-    ...mapActions("sales", ["getAllstock"]),
+    ...mapActions("sales", [
+      "getAllstock",
+      "getStockMinimoMail"
+    ]),
     getData(){
       this.$q.loading.show({
         message: 'Obteniendo datos del servidor, por favor espere...'
@@ -555,6 +564,34 @@ export default {
         location.reload();
       }, 2000);
     },
+    sendEmailStock(){
+      this.$q.loading.show({
+        message: 'Obteniendo datos del servidor, por favor espere...'
+      });
+      setTimeout(async() => {
+        try {
+          const re_data_email = await this.getStockMinimoMail().then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get data para email',
+            data: re_data_email
+          })
+
+          const res_email = await this.sendEmail().then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta send email',
+            data: res_email
+          })
+        } catch (e) {
+          
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
+    }
   },
 };
 </script>

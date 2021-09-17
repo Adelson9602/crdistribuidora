@@ -5,6 +5,10 @@ export function saveFile(context, data){
     return Vue.prototype.$axios.post(`file-upload`, data);
 }
 
+export function sendEmail(contex, data){
+    return Vue.prototype.$axios.post('send-email', data);
+}
+
 // PERMISOS
 //Inicio Select Login
 export function GetModules (context) {

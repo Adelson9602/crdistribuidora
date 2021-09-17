@@ -183,3 +183,8 @@ export function getDetCotizacion(context, id_cotizacion){
 export function getCotizacionRange(context, data){
   return Vue.prototype.$axios.get(`select_enc_cotizacion_range/${base}/${data.from}/${data.to}`)
 }
+
+// Obtiene los datos para enviar por email
+export function getStockMinimoMail(contex){
+  return Vue.prototype.$axios.get(`select_stock_minimo_email/${base}`);
+}
