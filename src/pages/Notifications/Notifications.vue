@@ -87,10 +87,10 @@ export default {
         const resGetNotifications = await this.GetNotifications(this.dataUser.Per_Num_documento).then((res) => {
           return res.data.data;
         });
-        console.log({
-          msg: "Respuesta notificaciones",
-          data: resGetNotifications,
-        });
+        // console.log({
+        //   msg: "Respuesta notificaciones",
+        //   data: resGetNotifications,
+        // });
         resGetNotifications.forEach((element) => {
           this.notifications.push({
             nt_id: element.nt_id,
@@ -141,17 +141,16 @@ export default {
           const resPostInsertNotification = await this.PostInsertNotification(dataPostInsertNotification).then((res) => {
             return res.data;
           });
-          console.log({
-            msg: "Edit estado de notificación",
-            data: resPostInsertNotification.data,
-          });
+          // console.log({
+          //   msg: "Edit estado de notificación",
+          //   data: resPostInsertNotification.data,
+          // });
           if(resPostInsertNotification.data.affectedRows > 0){
             this.notifications.forEach(element => {
               if(element.nt_id == notification.nt_id){
                 element.nt_estado = 0;
               }
             });
-            console.log("Llego al reload");
             this.reloadNotifications();
           }
         }
