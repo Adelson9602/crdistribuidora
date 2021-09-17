@@ -11,7 +11,7 @@
         :propbtns="btns"
       >
         <template v-slot:toggle>
-          <q-toggle v-model="filter" label="Productos agotados"/>
+          <q-toggle v-model="filter" label="Productos con stock mínimo"/>
         </template>
       </component-table>
     </q-card>
@@ -69,6 +69,14 @@ export default {
           label: "Cantidad",
           align: "center",
           field: "Si_Cant",
+          sortable: true
+        },
+        {
+          name: "Art_Stockminimo",
+          required: true,
+          label: "Stock mínimo",
+          align: "center",
+          field: "Art_Stockminimo",
           sortable: true
         },
         {
@@ -160,7 +168,7 @@ export default {
       this.data.length = 0;
       if(value){
         stock.forEach(product => {
-          if(product.Si_Cant == 0){
+          if(product.Si_Cant == 0 || product.Si_Cant < product.Art_Stockminimo ){
             this.data.push(product)  
           }
         });
@@ -204,6 +212,7 @@ export default {
                   Mov_Id: element.Mov_Id,
                   Mov_Descripcion: element.Mov_Descripcion,
                   Si_Cant: element.Si_Cant,
+                  Art_Stockminimo: element.Art_Stockminimo,
                   desc_porcen: element.desc_porcen ? "% " + element.desc_porcen
                     : "% 0",
                   porce_venta: element.porce_venta
@@ -216,13 +225,6 @@ export default {
                     ? "$ " + element.precio_venta
                     : "$ 0",
                   title: element.Art_Nombre
-                  // btn_edit: false,
-                  // btn_status: false,
-                  // btn_details: true,
-                  // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
-                  // icon_btn_details: "mdi-eye-settings",
                 });
               });
               stock.forEach(product => {
