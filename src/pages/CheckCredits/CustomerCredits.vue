@@ -606,7 +606,6 @@ export default {
       "insertUpdateCredito"
     ]),
     ...mapActions("notifications", [
-      "GetNotifications",
       "PostInsertNotification",
     ]),
     ...mapActions("sales", ["getDetailSales"]),
