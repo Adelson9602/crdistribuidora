@@ -88,3 +88,8 @@ export function savePercentPerso(context, data){
 export function percentsPersons(){
     return Vue.prototype.$axios.get(`select_pv_hash_user_genral/${base}`)
 }
+
+// Asocia o desasocia los usuario a un porcentaje
+export function savePersenUser(context, data){
+    return Vue.prototype.$axios.post(`insert_update_pv_hash_user`, data);
+}

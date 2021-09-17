@@ -218,7 +218,13 @@ export default {
     }
   },
   methods: {
-    ...mapActions("master", ["getAllPorcentaje", "addPorcentaje", "percentsPersons", "getAllUm"]),
+    ...mapActions("master", [
+      "getAllPorcentaje",
+      "addPorcentaje",
+      "percentsPersons",
+      "getAllUm",
+      "savePersenUser"
+    ]),
     ...mapActions("access", ["getPersons"]),
     getData() {
       this.$q.loading.show({
@@ -290,6 +296,10 @@ export default {
                     documento: persona.Per_Num_documento,
                     associate: false,
                     Pv_Id: null,
+                    base: process.env.__BASE__,
+                    Integrante: persona.Per_Num_documento,
+                    Estado: 0,
+                    User_control: this.data_user.Per_Num_documento
                   });
                 }
               });
@@ -305,10 +315,10 @@ export default {
           const res_perc_persons = await this.percentsPersons().then( res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get porcentaje con usuario',
-            data: res_perc_persons
-          });
+          // console.log({
+          //   msg: 'Respuesta get porcentaje con usuario',
+          //   data: res_perc_persons
+          // });
           if (res_perc_persons.ok) {
             if (res_perc_persons.result) {
               all_percent_user.length = 0;
@@ -442,17 +452,60 @@ export default {
       this.percentage_edit = row;
       this.added_person = true;
       this.persons_percents.forEach( persona => {
-        let result = all_percent_user.find( porcentaje => porcentaje.Integrante == persona.documento );
-        console.log(result)
+        let result = all_percent_user.find( porcentaje => porcentaje.Integrante == persona.documento && porcentaje.Pv_Id == row.Id );
+        if(result){
+          persona.associate = result.Estado == 1 ? true : false;
+          persona.Estado = result.Estado;
+          persona.Pv_Id = result.Pv_Id;
+        }
       })
     },
     savePersons(){
       this.$q.loading.show({
         message: 'Guardando, por favor espere...'
       });
-      setTimeout(async() => {
+      this.timer = setTimeout(async() => {
         try {
-          
+          let promesas = [];
+          this.persons_percents.forEach( persona => {
+            if (persona.associate && persona.Pv_Id) {
+              persona.Estado = 1;
+              promesas.push(this.savePersenUser(persona).then(res => {
+                return res.data;
+              }).catch(e => {
+                throw new Error(e)
+              }))
+            } else if (!persona.associate && persona.Pv_Id) {
+              persona.Estado = 0;
+              promesas.push(this.savePersenUser(persona).then(res => {
+                return res.data;
+              }).catch(e => {
+                throw new Error(e)
+              }))
+            } else if (persona.associate && !persona.Pv_Id){
+              persona.Estado = 1;
+              persona.Pv_Id = this.percentage_edit.Id;
+              promesas.push(this.savePersenUser(persona).then(res => {
+                return res.data;
+              }).catch(e => {
+                throw new Error(e)
+              }))
+            }
+          })
+          Promise.all(promesas).then( data => {
+            data.forEach( res => {
+              console.log(res)
+            });
+            this.$q.notify({
+              message: 'Guardado',
+              type: "positive"
+            });
+            this.added_person = false;
+            this.timer = setTimeout(this.getData(), 1000);
+          }).catch( err => {
+            throw new Error(err)
+          })
+
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -471,6 +524,12 @@ export default {
           this.$q.loading.hide();
         }
       }, 1000)
+    }
+  },
+  beforeDestroy () {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer)
+      this.$q.loading.hide()
     }
   }
 };
