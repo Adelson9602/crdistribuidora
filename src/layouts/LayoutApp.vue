@@ -59,15 +59,14 @@
                 {{ count_notifications }}
               </q-badge>
               <q-menu
-                anchor="top right"
-                self="top left"
+                auto-close 
+                fit
                 :offset="[30, 0]"
-                class="no-scroll"
-                style="overflow: hidden"
               >
                 <q-list
-                  style="max-width: 300px; min-width: 300px; overflow: hidden"
-                  class="no-scroll"
+                  style="min-width: 100px; max-width: 300px"
+                  class="q-pa-none"
+                  separator
                 >
                   <q-item class="notificaciones__title">
                     <q-item-label caption>Notificaciones</q-item-label>
@@ -77,82 +76,66 @@
                       >
                     </router-link>
                   </q-item>
-
-                  <q-separator />
-                  <div
+                  <q-item 
                     v-if="notifications.length > 0"
                     class="notifications__content"
                   >
-                    <div
-                      v-for="(notification, index) in notifications"
-                      :key="index"
-                    >
-                      <q-item
-                        clickable
-                        @click="editEstadoNotification(notification)"
+                    <q-item-section>
+                      <q-list
+                        v-for="(notification, index) in notifications"
+                        :key="index"
+                        class="q-pa-none"
                       >
-                        <q-item-section>
-                          <q-item-label>{{
-                            notification.nt_titulo
-                          }}</q-item-label>
-                          <q-item-label caption lines="2">{{
-                            notification.nt_descripcion
-                          }}</q-item-label>
-                        </q-item-section>
+                        <q-item
+                          clickable
+                          @click="editEstadoNotification(notification)"
+                          class="q-pa-none"
+                        >
+                          <q-item-section>
+                            <q-item-label>{{notification.nt_titulo}}</q-item-label>
+                            <q-item-label caption lines="2">{{notification.nt_descripcion}}</q-item-label>
+                          </q-item-section>
 
-                        <q-item-section side top>
-                          <q-item-label v-if="notification.dias > 0" caption
-                            >hace {{ notification.dias }} dia<span
-                              v-if="notification.dias > 1"
-                              >s</span
-                            ></q-item-label
-                          >
+                          <q-item-section side top>
+                            <q-item-label v-if="notification.dias > 0" caption>
+                              hace {{ notification.dias }} dia<span v-if="notification.dias > 1">s</span>
+                            </q-item-label>
 
-                          <q-item-label
-                            v-if="
-                              notification.horas < 24 && notification.horas > 0
-                            "
-                            caption
-                            >hace {{ notification.horas }} horas</q-item-label
-                          >
+                            <q-item-label
+                              v-if="notification.horas < 24 && notification.horas > 0"
+                              caption
+                              >
+                                hace {{ notification.horas }} horas
+                            </q-item-label>
 
-                          <q-item-label
-                            v-if="
-                              notification.minutos < 59 &&
-                              notification.minutos > 0
-                            "
-                            caption
-                            >hace {{ notification.minutos }} minuto<span
-                              v-if="notification.minutos > 1"
-                              >s</span
-                            ></q-item-label
-                          >
+                            <q-item-label
+                              v-if=" notification.minutos < 59 && notification.minutos > 0"
+                              caption
+                            >
+                              hace {{ notification.minutos }} minuto<span v-if="notification.minutos > 1">s</span>
+                            </q-item-label>
 
-                          <q-item-label v-if="notification.minutos <= 0" caption
-                            >hace un momento</q-item-label
-                          >
-                          <q-icon
-                            name="circle"
-                            color="blue"
-                            size="10px"
-                            style="margin-top: 10px"
-                            v-if="notification.nt_estado == 1"
-                          />
-                        </q-item-section>
-                      </q-item>
-                      <q-separator spaced inset />
-                    </div>
-                  </div>
-                  <div v-else class="notifications__content">
-                    <div>
-                      <q-item clickable>
-                        <q-item-section>
-                          <q-item-label>Sin notificaciones</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-separator spaced inset />
-                    </div>
-                  </div>
+                            <q-item-label v-if="notification.minutos <= 0" caption>
+                              hace un momento
+                            </q-item-label>
+                            <q-icon
+                              name="circle"
+                              color="blue"
+                              size="10px"
+                              style="margin-top: 10px"
+                              v-if="notification.nt_estado == 1"
+                            />
+                          </q-item-section>
+                        </q-item>
+                        <q-separator spaced inset />
+                      </q-list>
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable v-else class="notifications__content">
+                    <q-item-section>
+                      <q-item-label>Sin notificaciones</q-item-label>
+                    </q-item-section>
+                  </q-item>
                 </q-list>
               </q-menu>
             </q-btn>
@@ -260,12 +243,12 @@ export default {
     this.getData();
     
     let time = new Date();
-    setInterval(() => {
-      // Si son las 7 de la mañana se envia el correo
-      if(time.getHours() == 7){
-        this.sendEmailStock();
-      }
-    }, 50000);
+    // setInterval(() => {
+    //   // Si son las 7 de la mañana se envia el correo
+    //   if(time.getHours() == 7){
+    //     }
+    // }, 50000);
+    // this.sendEmailStock();
 
   },
   methods: {
@@ -403,15 +386,15 @@ export default {
                   nt_usuario_control: this.data_user.Per_Num_documento,
                   base: process.env.__BASE__,
                 }
-                const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
-                  return res.data;
-                }).catch( e => {
-                  throw new Error(e)
-                })
-                // console.log({
-                //   msg: 'Respuesta insert notificación',
-                //   data: res_in_not
+                // const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+                //   return res.data;
+                // }).catch( e => {
+                //   throw new Error(e)
                 // })
+                // // console.log({
+                // //   msg: 'Respuesta insert notificación',
+                // //   data: res_in_not
+                // // })
               }
             } else {
               this.$q.notify({
@@ -494,6 +477,7 @@ export default {
         //   msg: "Respuesta notificaciones",
         //   data: res_notifica,
         // });
+        res_notifica.length = 5;
         res_notifica.forEach((element) => {
           this.notifications.push({
             nt_id: element.nt_id,
