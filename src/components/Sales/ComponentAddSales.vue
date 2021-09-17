@@ -789,7 +789,7 @@ export default {
             this.enc_venta.Ev_Entregado = this.enc_venta.Tc_Id == 2 ? 0 : 1;
             this.enc_venta.Ev_conf_pago = this.enc_venta.Mp_Id == 1 ? 1 : 0;
             this.enc_venta.Ev_Subtotal = this.subtotal_venta;
-            this.enc_venta.Ev_Des_total_art = this.Ev_Des_total_art;
+            this.Ev_Des_total_artt = this.Ev_Des_total_art;
             this.enc_venta.Ev_Des_gen_venta = (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100)
             this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
             this.enc_venta.Mov_Id = this.movil_selecte;
@@ -876,8 +876,8 @@ export default {
                 Ec_Subtotal: this.subtotal_venta,
                 Ec_Des_total_art: this.Ev_Des_total_art,
                 Ec_Descuentog: this.enc_venta.Ev_Descuentog,
-                Ec_Des_gen_venta: (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100),
-                Ec_Total_venta: this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta,
+                Ec_Des_gen_venta: (this.subtotal_venta - this.Ev_Des_total_artt) * (this.enc_venta.Ev_Descuentog / 100),
+                Ec_Total_venta: this.subtotal_venta - this.Ev_Des_total_art - this.Ev_Des_gen_venta,
                 Ec_Estado: 1,
                 Ec_Usuario_control: this.data_user.Per_Num_documento,
               }
