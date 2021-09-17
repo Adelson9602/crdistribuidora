@@ -62,10 +62,11 @@
             </div>
           </q-card-section>
           <q-card-section>
+            {{credit_selected.status_credito}}
             <q-form
               @submit="doPay"
               class="q-gutter-md"
-              v-if="credit_selected.status_credito && form_abono"
+              v-if="credit_selected.status_credito == 2 && form_abono"
             >
               <div class="row">
                 <div class="col-xs-12 col-md-3 q-px-sm">
@@ -579,15 +580,6 @@ export default {
             if (res_credits.result) {
               this.data.length = 0;
               this.datageneral.length = 0;
-              // Create our number formatter.
-              var formatter = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "COP"
-
-                // These options are needed to round to whole numbers if that's what you want.
-                //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-                //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-              });
 
               res_credits.data.forEach(credit => {
                 this.data.push({
@@ -618,35 +610,10 @@ export default {
                   btn_details: true,
                   icon_btn_details: "mdi-eye-settings"
                 });
-                this.datageneral.push({
-                  CP_Nit: credit.CP_Nit,
-                  CP_Razon_social: credit.CP_Razon_social,
-                  Dcc_Aumento_plazo: credit.Dcc_Aumento_plazo,
-                  Dcc_Id: credit.Dcc_Id,
-                  Dcc_Observaciones: credit.Dcc_Observaciones,
-                  Dcc_Valor_abono: credit.Dcc_Valor_abono,
-                  Ecb_Id: credit.Ecb_Id,
-                  Enc_Estado: credit.Enc_Estado,
-                  Enc_User_control: credit.Enc_User_control,
-                  Enc_dias_credito: credit.Enc_dias_credito,
-                  Enc_num_comprobante: credit.Enc_num_comprobante,
-                  Enc_total_compra: credit.Enc_total_compra,
-                  Fecha_compra: credit.Fecha_compra,
-                  Per_Nombre: credit.Per_Nombre,
-                  dcredito: credit.dcredito,
-                  dias_mas: credit.dias_mas,
-                  status: credit.Enc_Estado,
-                  status_credito: credit.status_credito,
-                  Id: credit.Ecb_Id,
-                  Estado:
-                    credit.status_credito == 1
-                      ? "Aprovado"
-                      : "Con saldo pendiente", //Estado de la venta
-                  title: credit.CP_Razon_social,
-                  btn_details: true,
-                  icon_btn_details: "mdi-eye-settings"
-                });
               });
+              this.data.forEach( element => {
+                this.datageneral.push(element);
+              })
             } else {
               this.$q.notify({
                 message: "Sin resultados",
@@ -690,14 +657,13 @@ export default {
             "Razon social": row.CP_Razon_social,
             "Documento vendedor": row.Dcc_Aumento_plazo,
             "Valor abono": row.Dcc_Valor_abono,
-            Estado: row.Enc_Estado,
             "Número comprobante": row.Enc_num_comprobante,
             "Total compra": row.Enc_total_compra,
             "Fecha compra": row.Fecha_compra,
             "Nombre vendedor": row.Per_Nombre,
             "Dias de crédito": row.dcredito,
             "Dias de más": row.dias_mas,
-            "Estado del credito": row.status_credito,
+            "Estado del credito": row.Estado,
             Observaciones: row.Dcc_Observaciones
           };
 
@@ -706,10 +672,10 @@ export default {
               return res.data;
             }
           );
-          console.log({
-            msg: "Respuesta get detalle crédito",
-            data: res_det
-          });
+          // console.log({
+          //   msg: "Respuesta get detalle crédito",
+          //   data: res_det
+          // });
           this.data_historico.length = 0;
           if (res_det.ok) {
             if (res_det.result) {
@@ -728,10 +694,10 @@ export default {
           const res_deta = await this.getDetailSales(row.Ecb_Id).then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get detalle venta",
-            data: res_deta
-          });
+          // console.log({
+          //   msg: "Respuesta get detalle venta",
+          //   data: res_deta
+          // });
           this.data_product.length = 0;
           if (res_deta.ok) {
             if (res_deta.result) {
@@ -766,7 +732,70 @@ export default {
           this.$q.loading.hide();
         }
       }, 2000);
-    }
+    },
+    // Realiza el abono
+    doPay() {
+      if(Number(this.det_credit.Dc_Valor_abono) <= Number(this.credit_selected.Ev_Total_venta - this.credit_selected.tota_abonos)){
+        this.$q.loading.show({
+          message: "Realizando abono, por favor espere..."
+        });
+        setTimeout(async () => {
+          try {
+            this.det_credit.base = process.env.__BASE__;
+            this.det_credit.Ev_Id = this.credit_selected.Ev_Id;
+            this.det_credit.Dc_User_Recibe_abono = this.data_user.Per_Num_documento;
+            
+            // let notificacion = {
+            //   nt_id: null,
+            //   nt_titulo: 'Abono realizado',
+            //   nt_descripcion: `Se ha ralizado un abono a la cuenta del cliente ${this.credit_selected.CP_Razon_social}, Crédito No. ${this.credit_selected.Dc_Id}`,
+            //   nt_usuario_notificado: this.data_user.Per_Num_documento,
+            //   nt_estado: 1,
+            //   nt_usuario_control: this.data_user.Per_Num_documento,
+            //   base: process.env.__BASE__,
+            // }
+            // const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+            //   return res.data;
+            // }).catch( e => {
+            //   throw new Error(e)
+            // })
+            // // console.log({
+            // //   msg: 'Respuesta insert notificación',
+            // //   data: res_in_not
+            // // })
+            // this.$emit('reloadNotifications')
+            this.$q.notify({
+              message: "Abono realizado",
+              type: "positive"
+            });
+            this.onReset();
+            this.dialog_detalle_credit = false;
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative"
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+          setTimeout(this.getData(), 1000);
+        }, 1000);
+      } else {
+        this.$q.notify({
+          message: 'El valor a abonar es mayor al saldo pendiente por pagar',
+          type: 'warning'
+        })
+      }
+    },
   }
 };
 </script>
