@@ -185,6 +185,15 @@
           <q-item-section>Cerrar Sesión</q-item-section>
         </q-item>
         <q-item>
+          <q-item-section top avatar>
+            <q-icon name="schedule" color="primary"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Hora actual</q-item-label>
+            <q-item-label caption lines="2">{{reloj}}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item>
           {{messageStr}}
         </q-item>
       </q-scroll-area>
@@ -230,6 +239,7 @@ export default {
       count_notifications: null,
       messageStr: null,
       array_modules: [],
+      reloj: null,
     };
   },
   computed: {
@@ -247,7 +257,8 @@ export default {
       let hora = time.getHours();
       let minutos = time.getMinutes();
       let segundos = time.getSeconds();
-      if(hora == 6 && minutos == 0 && segundos == 0 || hora == 18 && minutos == 0 && segundos == 0){
+      this.reloj =`${hora}:${minutos}:${segundos}`; 
+      if(hora == 10 && minutos == 24 && segundos == 0 || hora == 18 && minutos == 0 && segundos == 0){
         this.sendEmailStock();
       }
     }, 1000);
