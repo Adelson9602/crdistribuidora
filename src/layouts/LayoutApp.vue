@@ -241,15 +241,16 @@ export default {
   mounted() {
     this.version = process.env.__VERSION__;
     this.getData();
-    
-    let time = new Date();
-    // setInterval(() => {
-    //   // Si son las 7 de la mañana se envia el correo
-    //   if(time.getHours() == 7){
-    //     }
-    // }, 50000);
-    // this.sendEmailStock();
 
+    setInterval(() => {
+      let time = new Date();
+      let hora = time.getHours();
+      let minutos = time.getMinutes();
+      let segundos = time.getSeconds();
+      if(hora == 6 && minutos == 0 && segundos == 0 || hora == 18 && minutos == 0 && segundos == 0){
+        this.sendEmailStock();
+      }
+    }, 1000);
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged", "setUserPermissions"]),
