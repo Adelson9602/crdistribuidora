@@ -592,7 +592,8 @@ export default {
     ]),
     ...mapActions('master', [
       'getTiposComprobante',
-      'getMedioPago'
+      'getMedioPago',
+      'percentsPersons'
     ]),
     ...mapActions('sales', [
       'getPercentSaleArt',
@@ -720,7 +721,7 @@ export default {
             throw new Error(res_mov.message);
           }
 
-          const res_por_prod = await this.getPercentSaleArt().then( res => {
+          const res_por_prod = await this.percentsPersons().then( res => {
             return res.data;
           });
           // console.log({
@@ -729,8 +730,8 @@ export default {
           // });
           if(res_por_prod.ok){
             percent_genres.length = 0;
-            res_por_prod.data.forEach( element => {  
-              if(element.Pv_Estado == 1){
+            res_por_prod.data.forEach( element => {
+              if(element.Estado == 1 && this.data_user.Per_Num_documento == element.Integrante){
                 percent_genres.push({
                   label: element.Pv_Descripcion,
                   value: element.Pv_Prcentaje,
