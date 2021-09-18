@@ -3,7 +3,7 @@
     <q-card class="height-card_page q-pa-md">
       <!-- Tabla de las ventas realizadas -->
       <component-table
-        class="q-mt-md height-table"
+        class="q-mt-md"
         proptitle="Productos agrupados para picking"
         :propdata="data"
         :propcolumns="columns"
@@ -15,7 +15,7 @@
 
       <!-- Tabla de las ventas realizadas -->
       <component-table
-        class="q-mt-md height-table"
+        class="q-mt-md"
         proptitle="Detalle de Productos"
         :propdata="datadetail"
         :propcolumns="columnsdetail"
