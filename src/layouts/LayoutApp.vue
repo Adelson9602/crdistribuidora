@@ -258,10 +258,10 @@ export default {
       let minutos = time.getMinutes();
       let segundos = time.getSeconds();
       this.reloj =`${hora}:${minutos}:${segundos}`; 
-      if(hora == 10 && minutos == 24 && segundos == 0 || hora == 18 && minutos == 0 && segundos == 0){
+      if(hora == 6 && minutos == 0 && segundos == 0 || hora == 18 && minutos == 0 && segundos == 0){
         this.sendEmailStock();
       }
-    }, 1000);
+    }, 500);
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged", "setUserPermissions"]),
@@ -574,7 +574,7 @@ export default {
     },
     sendEmailStock(){
       this.$q.loading.show({
-        message: 'Obteniendo datos del servidor, por favor espere...'
+        message: 'Enviando email, por favor espere...'
       });
       setTimeout(async() => {
         try {
@@ -604,9 +604,19 @@ export default {
           } else {
             throw new Error(re_data_email.message)
           }
-
         } catch (e) {
-          
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
         } finally {
           this.$q.loading.hide();
         }
