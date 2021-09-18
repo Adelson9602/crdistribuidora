@@ -297,6 +297,7 @@ import dialog from "components/Generals/ComponentDialogWarning";
 import CryptoJS from "crypto-js";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { numeros_letras } from 'boot/convert'; //Se importa archivo boot para convertir números a letras
 let all_clients = []; //Contiene todos los clientes
 let all_medios = []; //Contiene los medios de pago
 export default {
@@ -950,6 +951,7 @@ export default {
   },
   created() {
     this.getData();
+    console.log(numeros_letras(45).toUpperCase()) //Se usa el metodo para convertir números a letras
   },
   watch: {
     client_selected(value) {
