@@ -491,6 +491,13 @@ export default {
             minutos: element.minutos,
             nt_estado: element.nt_estado,
           });
+          this.$q.notify({
+            message: element.nt_titulo,
+            caption: element.nt_descripcion,
+            icon: 'notifications',
+            position: 'top-right',
+            color: 'orange-5'
+          })
           // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
           if (element.nt_estado == 1) {
             this.count_notifications += 1;
