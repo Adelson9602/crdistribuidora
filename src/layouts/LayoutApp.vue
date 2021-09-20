@@ -258,10 +258,10 @@ export default {
       let minutos = time.getMinutes();
       let segundos = time.getSeconds();
       this.reloj =`${hora}:${minutos}:${segundos}`; 
-      if(hora == 6 && minutos == 0 && segundos == 0 || hora == 18 && minutos == 0 && segundos == 0){
+      if(hora == 7 && minutos == 0 && segundos == 0 || hora == 12 && minutos == 0 && segundos == 0 || hora == 17 && minutos == 0 && segundos == 0 ){
         this.sendEmailStock();
       }
-    }, 500);
+    }, 1000);
   },
   methods: {
     ...mapMutations("auth", ["setIsLogged", "setUserPermissions"]),
@@ -398,15 +398,15 @@ export default {
                   nt_usuario_control: this.data_user.Per_Num_documento,
                   base: process.env.__BASE__,
                 }
-                // const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
-                //   return res.data;
-                // }).catch( e => {
-                //   throw new Error(e)
+                const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
+                  return res.data;
+                }).catch( e => {
+                  throw new Error(e)
+                })
+                // console.log({
+                //   msg: 'Respuesta insert notificación',
+                //   data: res_in_not
                 // })
-                // // console.log({
-                // //   msg: 'Respuesta insert notificación',
-                // //   data: res_in_not
-                // // })
               }
             } else {
               this.$q.notify({
@@ -573,9 +573,6 @@ export default {
       }, 2000);
     },
     sendEmailStock(){
-      this.$q.loading.show({
-        message: 'Enviando email, por favor espere...'
-      });
       setTimeout(async() => {
         try {
           const re_data_email = await this.getStockMinimoMail().then(res => {
@@ -597,7 +594,14 @@ export default {
               //   msg: 'Respuesta send email',
               //   data: res_email
               // })
-              if(!res_email.received){
+              if(res_email.received){
+                this.$q.notify({
+                  message: 'Hemos enviado un email, con el detalle del stock',
+                  icon: 'mail',
+                  position: 'top-right',
+                  color: 'orange-5'
+                })
+              } else {
                 throw new Error('No pudimos enviar el email con los detalles del stock')
               }
             }
@@ -620,7 +624,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      }, 1000)
+      }, 500)
     }
   },
 };
