@@ -509,6 +509,7 @@ export default {
       }, 1000)
     },
     addProduct(){
+      // base: this.tipo_salida == 1 || this.tipo_salida == 3 ? process.env.__BASE__ : 'crdistribuidora_local',
       let det_salida = {
         base: process.env.__BASE__,
         Esp_Id: null, //Id del encabezado

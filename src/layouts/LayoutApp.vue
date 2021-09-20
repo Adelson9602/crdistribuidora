@@ -64,7 +64,7 @@
                 :offset="[30, 0]"
               >
                 <q-list
-                  style="min-width: 100px; max-width: 300px"
+                  style="min-width: 220px; max-width: 300px"
                   class="q-pa-none"
                   separator
                 >
@@ -491,27 +491,27 @@ export default {
         // });
         res_notifica.length = 5;
         res_notifica.forEach((element) => {
-          this.notifications.push({
-            nt_id: element.nt_id,
-            nt_titulo: element.nt_titulo,
-            nt_descripcion: element.nt_descripcion,
-            nt_usuario_notificado: element.nt_usuario_notificado,
-            nt_usuario_control: element.nt_usuario_control,
-            nt_fecha_control: element.nt_fecha_control,
-            dias: element.dias,
-            horas: element.horas,
-            minutos: element.minutos,
-            nt_estado: element.nt_estado,
-          });
-          this.$q.notify({
-            message: element.nt_titulo,
-            caption: element.nt_descripcion,
-            icon: 'notifications',
-            position: 'top-right',
-            color: 'orange-5'
-          })
-          // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
-          if (element.nt_estado == 1) {
+          if(element.nt_estado == 1){
+            this.notifications.push({
+              nt_id: element.nt_id,
+              nt_titulo: element.nt_titulo,
+              nt_descripcion: element.nt_descripcion,
+              nt_usuario_notificado: element.nt_usuario_notificado,
+              nt_usuario_control: element.nt_usuario_control,
+              nt_fecha_control: element.nt_fecha_control,
+              dias: element.dias,
+              horas: element.horas,
+              minutos: element.minutos,
+              nt_estado: element.nt_estado,
+            });
+            this.$q.notify({
+              message: element.nt_titulo,
+              caption: element.nt_descripcion,
+              icon: 'notifications',
+              position: 'top-right',
+              color: 'orange-5'
+            })
+            // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
             this.count_notifications += 1;
           }
         });
