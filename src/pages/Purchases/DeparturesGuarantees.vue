@@ -159,7 +159,7 @@ export default {
     ]),
     getData(){
       this.$q.loading.show({
-        message: 'Obteniendo salidas a garantías, por favor espere...'
+        message: 'Obteniendo salidas, por favor espere...'
       });
       setTimeout( async() => {
         try {
