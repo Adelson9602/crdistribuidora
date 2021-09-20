@@ -951,7 +951,7 @@ export default {
   },
   created() {
     this.getData();
-    console.log(numeros_letras(45).toUpperCase()) //Se usa el metodo para convertir números a letras
+  
   },
   watch: {
     client_selected(value) {
@@ -1510,7 +1510,9 @@ export default {
           doc.rect(180, 16, 20, 6);
 
           doc.rect(10, 243, 190, 11);
-          doc.text(15, 249, "IMPORTE TOTAL CON LETRA");
+          doc.text(15, 247, "IMPORTE TOTAL CON LETRA:");
+          var letranum=  numeros_letras(row.Ev_Total_venta).toUpperCase();
+          doc.text(15, 251, letranum);
           doc.rect(10, 254, 90, 30);
           doc.line(55, 254, 55, 284, "S");
           doc.text(12, 258, "Firma Autoriza");
@@ -1694,7 +1696,9 @@ export default {
           docs.rect(180, 16, 20, 6);
 
           docs.rect(10, 243, 190, 11);
-          docs.text(15, 249, "IMPORTE TOTAL CON LETRA");
+          docs.text(15, 247, "IMPORTE TOTAL CON LETRA:");
+          var letranum=  numeros_letras(row.Ev_Total_venta).toUpperCase();
+          doc.text(15, 251, letranum);
           docs.rect(10, 254, 90, 30);
           docs.line(55, 254, 55, 284, "S");
           docs.text(12, 258, "Firma Autoriza");
