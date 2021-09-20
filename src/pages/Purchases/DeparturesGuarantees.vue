@@ -189,7 +189,7 @@ export default {
               });
             } else {
               this.$q.notify({
-                message: res_waranties.message,
+                message: 'No hay salidas',
                 type: 'warning'
               });
             }
