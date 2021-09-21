@@ -89,3 +89,8 @@ export function insertEncSalidaProv(context, data){
 export function insertDetSalidaProv(context, data){
   return Vue.prototype.$axios.post(`insert_update_det_salida_pro`, data);
 }
+
+// Proveedore
+export function getOuputProvider(){
+  return Vue.prototype.$axios.get(`select_enc_salida_proveedor_limit/${base}`);
+}
