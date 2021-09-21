@@ -10,9 +10,19 @@
       <div class="row">
         <div class="col-xs-12 q-px-sm q-gutter-x-sm">
           <div class="text-body1">Tipo de salida a realizar</div>
-          <q-radio keep-color v-model="tipo_salida" val="1" label="Salida a proveedor" color="teal" />
-          <q-radio keep-color v-model="tipo_salida" val="2" label="Salida a garantía" color="orange" />
-          <q-radio keep-color v-model="tipo_salida" val="3" label="Salida a almacen" color="red" />
+          <q-field
+            :value="tipo_salida"
+            hide-bottom-space
+            borderless
+            color="black"
+            :rules="[
+              val => !!val || 'Seleccione tipo de salida',
+            ]"
+          >
+            <q-radio keep-color v-model="tipo_salida" val="1" label="Salida a proveedor" color="teal" />
+            <q-radio keep-color v-model="tipo_salida" val="2" label="Salida a garantía" color="orange" />
+            <q-radio keep-color v-model="tipo_salida" val="3" label="Salida a almacen" color="red" />
+          </q-field>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="tipo_salida == 3">
           <q-select
@@ -304,7 +314,7 @@
         </q-table>
       </div>
     </div>
-    <q-page-sticky position="bottom-right" :offset="[18,18]">
+    <q-page-sticky position="bottom-right" :offset="[18,18]" v-if="data_product.length > 0">
       <q-btn color="green" icon="save" label="Guardar" @click="onSubmit" />
     </q-page-sticky>
   </div>
