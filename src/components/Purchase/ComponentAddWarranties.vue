@@ -12,6 +12,17 @@
           <q-radio keep-color v-model="tipo_salida" val="2" label="Salida a garantía" color="orange" />
           <q-radio keep-color v-model="tipo_salida" val="3" label="Salida a almacen" color="red" />
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="tipo_salida == 3">
+          <q-select
+            v-model="bodega_selected"
+            dense
+            hint="Seleccione bodega destino"
+            :options="options_destino"
+            map-options
+            emit-value
+            :rules="[val => !!val || 'Bodega destino es obligatorio']"
+          />
+        </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="enc_salida.CP_Nit"
@@ -26,6 +37,7 @@
             @filter="filterProvider"
             map-options
             emit-value
+            :rules="[val => !!val || 'Proveedor es obligatorio']"
           >
             <template v-slot:no-option>
               <q-item>
@@ -50,6 +62,7 @@
             @filter="filterPerson"
             map-options
             emit-value
+            :rules="[val => !!val || 'Quien autoriza es obligatorio']"
           >
             <template v-slot:no-option>
               <q-item>
@@ -107,6 +120,7 @@
             hint="Producto"
             :options="options_products"
             @filter="filterProducts"
+            :rules="[val => !!val || 'Debe seleccionar un producto']"
           >
             <template v-slot:no-option>
               <q-item>
@@ -130,6 +144,7 @@
             dense
             type="text"
             hint="Cantidad"
+            :rules="[val => !!val || 'Ingrese la cantidad']"
           />
         </div>
         <div class="col-xs-12 q-px-sm">
@@ -180,6 +195,17 @@ export default {
   name: 'ComponentAddWarranties',
   data () {
     return {
+      options_destino: [
+        {
+          label: 'LOCAL',
+          value: 'crdistribuidora_local'
+        },
+        {
+          label: 'BODEGA PRINCIPAL',
+          value: 'crdistribuidora_ppl'
+        },
+      ],
+      bodega_selected: null,
       options_providers: all_providers, //Opciones para el select proveedores
       options_products: all_productos, //Opciones para el select productos
       options_person: all_person, //Opciones para el select quien autoriza
@@ -381,7 +407,7 @@ export default {
               });
             } else {
               this.$q.notify({
-                message: res_provider.message,
+                message: 'No hay proveedores',
                 type: 'warning'
               });
             }
@@ -409,7 +435,7 @@ export default {
               });
             } else {
               this.$q.notify({
-                message: res_autorized.message,
+                message: 'No hay personal autorizado',
                 type: 'warning'
               });
             }
@@ -443,6 +469,7 @@ export default {
         try {
           this.enc_salida.Esp_User_control = this.data_user.Per_Num_documento,
           this.enc_salida.base = process.env.__BASE__;
+          console.log(this.enc_salida)
           const res_enc = await this.insertEncSalidaProv(this.enc_salida).then( res => {
             return res.data;
           });
@@ -450,6 +477,16 @@ export default {
           //   msg: 'Respuesta insert enc salida',
           //   data: res_enc
           // });
+          if(this.tipo_salida == 3){
+            this.enc_salida.base = this.bodega_selected;
+              const res_enc = await this.insertEncSalidaProv(this.enc_salida).then( res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Respuesta insert enc salida',
+            //   data: res_enc
+            // });
+          }
           if(res_enc.ok){
             let promesas = [];
             this.data_product.forEach(product => {
@@ -458,14 +495,26 @@ export default {
                 res.data.msg = 'Respuesta insert det traslado';
                 return res.data;
               }))
-              if(this.tipo_salida == 1 || this.tipo_salida == 3){
+              if(this.tipo_salida == 1){
                 promesas.push(this.updateInventarioMovil(product).then( res => {
                   res.data.msg = 'Respuesta update inventario';
                   return res.data
                 }))
-              } else {
+              } else if (this.tipo_salida == 2){
                 promesas.push(this.insertUpdateStockGarantia(product).then( res => {
                   res.data.msg = 'Respuesta update inventario garantial';
+                  return res.data
+                }))
+              }  else if(this.tipo_salida == 3){
+                product.base = this.bodega_selected;
+                product.simbol = '+';
+                product.Esp_Id = res_enc.data.insertId;
+                promesas.push(this.insertDetSalidaProv(product).then( res => {
+                  res.data.msg = 'Respuesta insert det traslado';
+                  return res.data;
+                }))
+                promesas.push(this.updateInventarioMovil(product).then( res => {
+                  res.data.msg = 'Respuesta update inventario';
                   return res.data
                 }))
               }
@@ -488,7 +537,7 @@ export default {
             message: 'Salida realizada',
             type: 'positive'
           })
-          this.$emit('reload')
+          // this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -548,7 +597,9 @@ export default {
       this.cantidad = null;
       this.cantidad_disponible = null;
       this.producto_selected = null;
-      setTimeout(this.$refs.form_salida.resetValidation(), 300);
+      setTimeout(() => {
+        this.$refs.form_salida.resetValidation()
+      }, 300);
     },
     // Buscador para el select proveedor
     filterProvider (val, update, abort) {
