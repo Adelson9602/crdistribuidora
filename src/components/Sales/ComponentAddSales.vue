@@ -816,28 +816,23 @@ export default {
                   res.data.msg = 'Respuesta update inventario movil';
                   return res.data;
                 }))
-              });
-              if(this.cantidad_garantia){
-                this.ecn_garantia = {
-                  base: process.env.__BASE__,
-                  Eg_Id: null,
-                  Eg_Quien_autoriza: 0,
-                  Ev_Id: res_enc.data.insertId,
-                  Eg_Observacion: null,
-                  Eg_estado: 0,
-                  Eg_User_control: this.data_user.Per_Num_documento,
-                }
-                const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
-                  return res.data;
-                });
-                // console.log({
-                //   msg: 'Respuesta insert enc garantia',
-                //   data: res_gara
-                // });
-                if(!res_gara.data.affectedRows){
-                  throw new Error(res_gara.message)
-                }
-                this.data_sales.forEach( product => {
+                if(product.cantidad_garantia){
+                  this.ecn_garantia = {
+                    base: process.env.__BASE__,
+                    Eg_Id: null,
+                    Eg_Quien_autoriza: 0,
+                    Ev_Id: res_enc.data.insertId,
+                    Eg_Observacion: null,
+                    Eg_estado: 0,
+                    Eg_User_control: this.data_user.Per_Num_documento,
+                  }
+                  const res_gara = this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
+                    res.data.msg = 'Respuesta insert enc garantia';
+                    return res.data;
+                  }).catch( e => {
+                    throw new Error(e)
+                  });
+                  promesas.push(res_gara)
                   product.Eg_Id = res_gara.data.insertId;
                   product.Dg_Cant = this.cantidad_garantia;
                   promesas.push(this.insertDetGarantia(product).then( res => {
@@ -850,8 +845,8 @@ export default {
                     res.data.msg = 'Respuesta update stock garantía';
                     return res.data;
                   }))
-                })
-              }
+                }
+              });
               Promise.all(promesas).then( data => {
                 data.forEach( res => {
                   console.log(res)
@@ -957,13 +952,14 @@ export default {
         total_venta: null, //Total de la venta al momento de agregar este producto
         diferencia_descuento: null,
         des_articulo: this.descuento_art.label,
+        cantidad_garantia: this.cantidad_garantia,
         // Propiedade para actualizar el stock
         Mov_Id: this.movil_selecte,
         Si_Cant: Number(this.cantidad) + Number(this.cantidad_garantia),
         simbol: '-',
         // Art_Id: null, -> ya esa declarado
       }
-      if(this.cantidad > this.cant_disponible){
+      if(this.cantidad > this.cant_disponible || (Number(this.cantidad) + Number(this.cantidad_garantia)) > this.cant_disponible){
         this.$q.notify({
           message: 'La cantidad es mayor a la disponible',
           type: 'warning'
