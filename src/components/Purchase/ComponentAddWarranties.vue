@@ -14,6 +14,7 @@
             :value="tipo_salida"
             hide-bottom-space
             borderless
+            dense
             color="black"
             :rules="[
               val => !!val || 'Seleccione tipo de salida',
