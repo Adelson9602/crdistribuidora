@@ -270,7 +270,7 @@ export default {
         columns:[
           {
             label: 'Salida No.',
-            field: 'id'
+            field: 'Id'
           },
           {
             label: 'NIT',
@@ -383,6 +383,7 @@ export default {
                   icon_btn_edit: 'edit',
                 })
               });
+              this.excel.data = this.data;
             } else {
               this.$q.notify({
                 message: 'No hay salidas a garantía',
@@ -420,6 +421,7 @@ export default {
                   icon_btn_details: "visibility",
                 })
               });
+              this.excel_salidas.data = this.data_salidas;
             } else {
               this.$q.notify({
                 message: 'No hay salidas',
@@ -429,7 +431,6 @@ export default {
           } else {
             throw new Error(res_ouputs.message);
           }
-          this.excel.data = this.data;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -508,6 +509,7 @@ export default {
                   icon_btn_details: "visibility",
                 })
               })
+              this.excel_salidas.data = this.data_salidas;
             } else {
               this.$q.notify({
                 message: 'No hay salidas a proveedor o almacen',
