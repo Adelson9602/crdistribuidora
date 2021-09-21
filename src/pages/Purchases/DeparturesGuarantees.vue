@@ -29,7 +29,7 @@
               :propexcel="excel"
               :propbtns="btns"
               :proppagination="initial_pagination"
-              @onedit="editWarranty"
+              @onedit="viewDetailGarantia"
             />
         </q-tab-panel>
 
@@ -37,16 +37,45 @@
           <component-table
               class="q-mt-md"
               proptitle="Salidas"
-              :propdata="data_saldias"
+              :propdata="data_salidas"
               :propcolumns="columns_salidas"
               :propgrid="true"
               :propflat="true"
               :propexcel="excel_salidas"
               :propbtns="btns"
               :proppagination="initial_pagination"
-              @onedit="editWarranty"
+              @ondetails="viewDetailSalida"
+              @onrange="getSalidasProveedorRange"
               :propactions="true"
             />
+            <q-dialog v-model="detail_salida_pro" persistent>
+              <q-card style="min-width: 700px; max-width: 80vw">
+                <q-bar dark class="bg-primary text-white">
+                  <div class="col text-center text-weight-bold">
+                    Detalle de la salida
+                  </div>
+                  <q-btn flat round icon="close" color="white" v-close-popup/>
+                </q-bar>
+                <q-card-section class="row q-gutter-y-md">
+                  <div class="col-xs-12 col-sm-6 col-md-3 q-px-xs" v-for="(value, key) in salida_selecte" :key="key">
+                    <q-field :hint="key" stack-label dense>
+                      <template v-slot:control>
+                        <div class="self-center full-width no-outline" tabindex="0">{{value}}</div>
+                      </template>
+                    </q-field>
+                  </div>
+                </q-card-section>
+                <q-card-section>
+                  <q-table
+                    title="Productos"
+                    :data="data_products"
+                    :columns="columns_products"
+                    row-key="name"
+                    flat
+                  />
+                </q-card-section>
+              </q-card>
+            </q-dialog>
         </q-tab-panel>
 
         <q-tab-panel name="add_warranties">
@@ -156,7 +185,7 @@ export default {
         }
       },
       btns: {
-        range_date: false,
+        range_date: true,
         btn_export_pdf: false,
         export_excel: true
       },
@@ -164,7 +193,7 @@ export default {
         page: 1,
         rowsPerPage: 9,
       },
-      data_saldias: [],
+      data_salidas: [],
       columns_salidas: [
         {
           name: 'Id',
@@ -282,7 +311,36 @@ export default {
         ],
         data: [],
         title: "Salidas proveedor"
-      }
+      },
+      salida_selecte: null,
+      detail_salida_pro: false,
+      columns_products: [
+        {
+          name: 'Art_Id',
+          align: 'center',
+          label: 'ID Artículo',
+          field: 'Art_Id'
+        },
+        {
+          name: 'Art_Nombre',
+          align: 'center',
+          label: 'Nombre artículo',
+          field: 'Art_Nombre'
+        },
+        {
+          name: 'Dsp_Cant',
+          align: 'center',
+          label: 'Cantidad',
+          field: 'Dsp_Cant'
+        },
+        {
+          name: 'Dsp_Observacion',
+          align: 'center',
+          label: 'Observación',
+          field: 'Dsp_Observacion'
+        }
+      ],
+      data_products: [],
     }
   },
   created(){
@@ -290,8 +348,10 @@ export default {
   },
   methods: {
     ...mapActions('shopping', [
-      'getWaraniesOutput',,
-      'getOuputProvider'
+      'getWaraniesOutput',
+      'getOuputProvider',
+      'getOuputProviderRange',
+      'getDetailOuputProvider'
     ]),
     getData(){
       this.$q.loading.show({
@@ -342,9 +402,9 @@ export default {
           // });
           if(res_ouputs.ok){
             if(res_ouputs.result){
-              this.data_saldias.length = 0 ;
+              this.data_salidas.length = 0 ;
               res_ouputs.data.forEach( salida => {
-                this.data_saldias.push({
+                this.data_salidas.push({
                   Id: salida.id,
                   CP_Nit: salida.CP_Nit,
                   CP_Razon_social: salida.CP_Razon_social,
@@ -356,10 +416,8 @@ export default {
                   Per_Nombre: salida.Per_Nombre,
                   Esp_Fecha_control: salida.Esp_Fecha_control,
                   title: salida.CP_Razon_social,
-                  btn_edit: false,
-                  icon_btn_details: "visibility",
                   btn_details: true,
-                  icon_btn_edit: "edit"
+                  icon_btn_details: "visibility",
                 })
               });
             } else {
@@ -391,8 +449,140 @@ export default {
         }
       }, 2000)
     },
-    editWarranty(){
-
+    viewDetailGarantia(){
+      this.$q.loading.show({
+        message: 'Obteniendo detalle, por favor espere..'
+      });
+      setTimeout(async() => {
+        try {
+          
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
+    },
+    getSalidasProveedorRange(data){
+      this.$q.loading.show({
+        message: 'Obteniendo salidas en el rango seleccionado, por favor espere..'
+      });
+      setTimeout(async() => {
+        try {
+          const res_data = await this.getOuputProviderRange(range).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get salidas por rango',
+            data: res_data
+          });
+          if(res_data.ok){
+            if(res_data.result){
+              this.data_salidas.length = 0;
+              res_data.data.forEach(salida => {
+                this.data_salidas.push({
+                  Id: salida.id,
+                  CP_Nit: salida.CP_Nit,
+                  CP_Razon_social: salida.CP_Razon_social,
+                  Esp_Autoriza_cliente: salida.Esp_Autoriza_cliente,
+                  Esp_Cedula_Autoriza: salida.Esp_Cedula_Autoriza,
+                  Esp_Nombre_Recibe: salida.Esp_Nombre_Recibe,
+                  Esp_Observacion: salida.Esp_Observacion,
+                  Esp_User_control: salida.Esp_User_control,
+                  Per_Nombre: salida.Per_Nombre,
+                  Esp_Fecha_control: salida.Esp_Fecha_control,
+                  title: salida.CP_Razon_social,
+                  btn_details: true,
+                  icon_btn_details: "visibility",
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'No hay salidas a proveedor o almacen',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_data.message);
+          }
+        } catch (e) {
+          
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
+    },
+    viewDetailSalida(row){
+      this.$q.loading.show({
+        message: 'Obteniendo detalle, por favor espere..'
+      });
+      setTimeout(async() => {
+        try {
+          this.salida_selecte = {
+            'Salida No.': row.Id,
+            'NIT': row.CP_Nit,
+            'Razón social': row.CP_Razon_social,
+            'Documento autoriza': row.Esp_Cedula_Autoriza,
+            'Cliente autoriza': row.Esp_Autoriza_cliente,
+            'Cliente recibe': row.Esp_Nombre_Recibe,
+            'Observación': row.Esp_Observacion,
+            'Realizado por': row.Per_Nombre,
+            'Documento': row.Esp_User_control,
+            'Fecha salida': row.Esp_Fecha_control,
+          }
+          const res_det = await this.getDetailOuputProvider(row.Id).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get detalle salida',
+          //   data: res_det
+          // });
+          if(res_det.ok){
+            if(res_det.result){
+              this.data_products.length = 0;
+              res_det.data.forEach(salida => {
+                this.data_products.push(salida);
+              })
+            } else {
+              this.$q.notify({
+                message: 'No hay salidas a proveedor o almacen',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_det.message);
+          }
+          this.detail_salida_pro = true;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
     },
     reload(){
       this.tab = 'warranties';
