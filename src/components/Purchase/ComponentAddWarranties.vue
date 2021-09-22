@@ -481,12 +481,14 @@ export default {
                 if(res_stock_garantia.result){
                   all_productos.length = 0;
                   res_stock_garantia.data.forEach( product => {
-                    all_productos.push({
-                      label: product.Art_Nombre,
-                      value: product.Art_Id,
-                      codigo: product.Art_Codigo_inv,
-                      cantidad: product.Sg_Cant,
-                    })
+                    if(product.Si_Cant > 0){
+                      all_productos.push({
+                        label: product.Art_Nombre,
+                        value: product.Art_Id,
+                        codigo: product.Art_Codigo_inv,
+                        cantidad: product.Sg_Cant,
+                      })
+                    }
                   });
                 } else {
                   this.$q.notify({
