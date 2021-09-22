@@ -4,13 +4,26 @@
       @submit="addProduct"
       ref="form_salida"
       autocomplete="off"
-    >
+      autocapitalize="on"
+    > 
+      <!-- Encabezado salida -->
       <div class="row">
         <div class="col-xs-12 q-px-sm q-gutter-x-sm">
           <div class="text-body1">Tipo de salida a realizar</div>
-          <q-radio keep-color v-model="tipo_salida" val="1" label="Salida a proveedor" color="teal" />
-          <q-radio keep-color v-model="tipo_salida" val="2" label="Salida a garantía" color="orange" />
-          <q-radio keep-color v-model="tipo_salida" val="3" label="Salida a almacen" color="red" />
+          <q-field
+            :value="tipo_salida"
+            hide-bottom-space
+            borderless
+            dense
+            color="black"
+            :rules="[
+              val => !!val || 'Seleccione tipo de salida',
+            ]"
+          >
+            <q-radio keep-color v-model="tipo_salida" val="1" label="Salida a proveedor" color="teal" />
+            <q-radio keep-color v-model="tipo_salida" val="2" label="Salida a garantía" color="orange" />
+            <q-radio keep-color v-model="tipo_salida" val="3" label="Salida a almacen" color="red" />
+          </q-field>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="tipo_salida == 3">
           <q-select
@@ -97,18 +110,110 @@
             @input="val => { enc_salida.Esp_Nombre_Recibe = val.toUpperCase() }"
           />
         </div>
-        <div class="col-xs-12 col-sm-12 q-px-sm">
+        <div class="col-xs-12 col-sm-12 col-md-9 q-px-sm">
           <q-input
             v-model="enc_salida.Esp_Observacion"
             dense
-            type="textarea"
+            :type="$q.screen.lt.sm || $q.screen.lt.xs ? 'textarea' : 'text'"
             hint="Observación"
-            rows="3"
+            rows="2"
           />
         </div>
       </div>
+      <div class="row" v-if="tipo_salida == 3">
+        <!-- Encabezado ingredo cuando la salida es para la bodega -->
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-select
+            v-model="enc_entrada.Tc_Id"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            hint="Tipo comprobante"
+            :options="options_comprobantes"
+            @filter="filterComprobante"
+            :rules="[val => !!val || 'Tipo comprobante es obligatorio']"
+            emit-value
+            map-options
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sin resultados
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-select
+            v-model="enc_entrada.Mp_Id"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            :options="options_medios"
+            hint="Medio de pago"
+            :rules="[val => !!val || 'Medio de pago es obligatorio']"
+            @filter="filterMedios"
+            map-options
+            emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sin resultados
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="enc_entrada.Mp_Id == 2">
+          <q-input
+            v-model="enc_entrada.Enc_dias_credito"
+            mask="####"
+            hint="Días de crédito"
+            :rules="[val => !!val || 'Días de crédito es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-input
+            v-model="enc_entrada.Enc_num_comprobante"
+            hint="Número comprobante"
+            :rules="[val => !!val || 'Númerocompra es obligatorio']"
+            @input="val => { enc_entrada.Enc_num_comprobante = val.toUpperCase()}"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-input
+            v-model="enc_entrada.Enc_subtotal_compra"
+            hint="Subtotal compra"
+            mask="############"
+            :rules="[val => !!val || 'Subtotal compra es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-input
+            v-model="enc_entrada.Enc_total_compra"
+            hint="Total compra"
+            mask="############"
+            :rules="[val => !!val || 'Total compra es obligatorio']"
+          />
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
+          <q-input
+            v-model="enc_entrada.Enc_impuesto"
+            hint="Impuesto"
+            mask="######"
+            :rules="[val => !!val || 'Impuesto es obligatorio']"
+          />
+        </div>
+      </div>
+      <!-- Productos -->
       <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-select
             v-model="producto_selected"
             dense
@@ -131,14 +236,14 @@
             </template>
           </q-select>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-field hint="Cantidad disponible" dense stack-label>
             <template v-slot:control>
               <div class="self-center full-width no-outline" tabindex="0">{{cantidad_disponible}}</div>
             </template>
           </q-field>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 q-px-sm">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
           <q-input
             v-model="cantidad"
             dense
@@ -147,11 +252,20 @@
             :rules="[val => !!val || 'Ingrese la cantidad']"
           />
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm" v-if="tipo_salida == 3">
+          <q-input
+            v-model="precio_compra"
+            mask="#########"
+            hint="Precio de compra"
+            dense
+            :rules="[val => !!val || 'Precio es requerido', val => val > 0 || 'El precio no puede ser 0']"
+          />
+        </div>
         <div class="col-xs-12 q-px-sm">
           <q-input
             v-model="dsp_observacion"
             dense
-            type="textarea"
+            :type="$q.screen.lt.sm || $q.screen.lt.xs ? 'textarea' : 'text'"
             hint="Observaciones"
             rows="3"
           />
@@ -171,16 +285,37 @@
           flat
           class="height"
         >
-          <template v-slot:header-cell-calories="props">
-            <q-th :props="props">
-              <q-icon name="thumb_up" size="1.5em" />
-              {{ props.col.label }}
-            </q-th>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th auto-width />
+              <q-th
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.label }}
+              </q-th>
+            </q-tr>
+          </template>
+
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td auto-width>
+                <q-btn icon="delete" size="sm" color="negative" round dense @click="delteProduct(props.row)" />
+              </q-td>
+              <q-td
+                v-for="col in props.cols"
+                :key="col.name"
+                :props="props"
+              >
+                {{ col.value }}
+              </q-td>
+            </q-tr>
           </template>
         </q-table>
       </div>
     </div>
-    <q-page-sticky position="bottom-right" :offset="[18,18]">
+    <q-page-sticky position="bottom-right" :offset="[18,18]" v-if="data_product.length > 0">
       <q-btn color="green" icon="save" label="Guardar" @click="onSubmit" />
     </q-page-sticky>
   </div>
@@ -188,9 +323,12 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import dialog from 'components/Generals/ComponentDialogWarning';
 let all_providers = []; //Contiene todos los proveedores
 let all_productos = []; //Contiene todos los productos
 let all_person = []; //Contiene todos los productos
+let all_comprobante = []; //Opciones para el select tipo comprobante
+let all_medios = []; //Opciones para el select medios de pago
 export default {
   name: 'ComponentAddWarranties',
   data () {
@@ -261,6 +399,24 @@ export default {
         },
       ],
       data_product: [],
+      // Entrada
+      options_comprobantes: all_comprobante, //Opciones para el select proveedores
+      options_medios: all_medios, //Opciones para el select medios de pago
+      enc_entrada: {
+        base: null,
+        Ecb_Id: null,
+        CP_Nit: null,
+        Tc_Id: null, //Tipo comprobante
+        Mp_Id: null, //Medio pago
+        Enc_dias_credito: null,
+        Enc_num_comprobante: null, //Numero comprobante
+        Enc_impuesto: null, //Numero impuesto
+        Enc_subtotal_compra: null, //
+        Enc_total_compra: null,
+        Enc_Estado: null,
+        Enc_User_control: null
+      },
+      precio_compra: null,
     }
   },
   created(){
@@ -294,12 +450,14 @@ export default {
                 if (res_stock_mv.result) {
                   all_productos.length = 0;
                   res_stock_mv.data.forEach( product => {
-                    all_productos.push({
-                      label: product.Art_Nombre,
-                      value: product.Art_Id,
-                      codigo: product.Art_Codigo_inv,
-                      cantidad: product.Si_Cant
-                    })
+                    if(product.Si_Cant > 0){
+                      all_productos.push({
+                        label: product.Art_Nombre,
+                        value: product.Art_Id,
+                        codigo: product.Art_Codigo_inv,
+                        cantidad: product.Si_Cant
+                      })
+                    }
                   });
                 } else {
                   this.$q.notify({
@@ -373,6 +531,10 @@ export default {
       'getPersonAuthorized',
       'insertEncSalidaProv',
       'insertDetSalidaProv',
+      'insertEncEntry',
+      'insertDetEntry',
+      'getPersonAuthorized',
+      'insertArtVenta'
     ]),
     ...mapActions("warehouse", [
       "getStockMovil",
@@ -380,6 +542,10 @@ export default {
     ]),
     ...mapActions("sales", [
       "insertUpdateStockGarantia",
+    ]),
+    ...mapActions('master', [
+      'getTiposComprobante',
+      'getMedioPago'
     ]),
     getData(){
       this.$q.loading.show({
@@ -442,6 +608,55 @@ export default {
           } else {
             throw new Error(res_autorized.message);
           }
+
+          const res_compro = await this.getTiposComprobante().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get tipo de comprobante',
+          //   data: res_compro
+          // });
+          if(res_compro.ok){
+            if(res_compro.result){
+              all_comprobante.length = 0;
+              res_compro.data.forEach(element => {
+                if(element.Tc_Estado == 1){
+                  all_comprobante.push({
+                    label: element.Tc_Descripcion,
+                    value: element.Tc_Id
+                  });
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              });
+            }
+          } else {
+            throw new Error(res_compro.message);
+          }
+
+          const res_medio = await this.getMedioPago().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get medio pago',
+          //   data: res_medio
+          // });
+          if(res_medio.ok){
+            all_medios.length = 0;
+            res_medio.data.forEach( element => {
+              if(element.Mp_Estado == 1){
+                all_medios.push({
+                  label: element.Mp_Descripcion,
+                  value: element.Mp_Id
+                });
+              }
+            })
+          } else {
+            throw new Error(res_medio.message);
+          }
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -469,7 +684,6 @@ export default {
         try {
           this.enc_salida.Esp_User_control = this.data_user.Per_Num_documento,
           this.enc_salida.base = process.env.__BASE__;
-          console.log(this.enc_salida)
           const res_enc = await this.insertEncSalidaProv(this.enc_salida).then( res => {
             return res.data;
           });
@@ -495,7 +709,7 @@ export default {
                 res.data.msg = 'Respuesta insert det traslado';
                 return res.data;
               }))
-              if(this.tipo_salida == 1){
+              if(this.tipo_salida == 1 || this.tipo_salida == 3){
                 promesas.push(this.updateInventarioMovil(product).then( res => {
                   res.data.msg = 'Respuesta update inventario';
                   return res.data
@@ -505,39 +719,75 @@ export default {
                   res.data.msg = 'Respuesta update inventario garantial';
                   return res.data
                 }))
-              }  else if(this.tipo_salida == 3){
-                product.base = this.bodega_selected;
-                product.simbol = '+';
-                product.Esp_Id = res_enc.data.insertId;
-                promesas.push(this.insertDetSalidaProv(product).then( res => {
-                  res.data.msg = 'Respuesta insert det traslado';
-                  return res.data;
-                }))
-                promesas.push(this.updateInventarioMovil(product).then( res => {
-                  res.data.msg = 'Respuesta update inventario';
-                  return res.data
-                }))
               }
             });
+            if(this.tipo_salida == 3){
+              this.enc_entrada.CP_Nit = this.enc_salida.CP_Nit;
+              this.enc_entrada.Enc_dias_credito = this.enc_entrada.Mp_Id == 1 ? 0 : this.enc_entrada.Enc_dias_credito;
+              this.enc_entrada.Enc_Estado = this.enc_entrada.Mp_Id == 1 ? 1 : 2;
+              this.enc_entrada.base = this.bodega_selected;
+              this.enc_entrada.Enc_User_control = this.data_user.Per_Num_documento;
+              const res_ingreso = await this.insertEncEntry(this.enc_entrada).then( res => {
+                return res.data;
+              });
+              // console.log({
+              //   msg: 'Respuesta insert encabezado entrada',
+              //   data: res_ingreso
+              // })
+              if(res_ingreso.ok){
+                this.data_product.forEach( product => {
+                  product.base = this.bodega_selected;
+                  product.Enc_Id = res_ingreso.data.insertId;
+                  let save_product = this.insertDetEntry(product).then( res => {
+                    res.data.msg = 'Respuesta insert detalle entrada';
+                    return res.data;
+                  }).catch( e => {
+                    throw new Error(e)
+                  });
+                  promesas.push(save_product);
+
+                  let product_venta = this.insertArtVenta(product).then( res => {
+                    res.data.msg = 'Respuesta insert articulos venta';
+                    return res.data;
+                  }).catch( e => {
+                    throw new Error(e)
+                  });
+                  promesas.push(product_venta);
+
+                  product.simbol = '+';
+                  let update_stock = this.updateInventarioMovil(product).then( res => {
+                    res.data.msg = 'Respuesta insert update inventario movil';
+                    return res.data;
+                  }).catch( e => {
+                    throw new Error(e)
+                  });
+                  promesas.push(update_stock)
+                });
+              } else {
+                throw new Error(res_ingreso.message);
+              }
+            }
             Promise.all(promesas).then( data => {
               data.forEach( res => {
                 // console.log({
                 //   msg: res.msg,
                 //   data: res
                 // });
-                if(!res.data.affectedRows){
-                  throw new Error('No pudimos realizar el traslado')
+                if(!res.ok){
+                  throw new Error(res.message);
                 }
               })
+            }).catch( e => {
+              throw new Error(e);
             })
           } else {
             throw new Error(res_enc.message)
-          }
+          }   
+          this.$emit('reload')
           this.$q.notify({
             message: 'Salida realizada',
             type: 'positive'
           })
-          // this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -568,9 +818,14 @@ export default {
         Dsp_Cant: this.cantidad,
         Dsp_Observacion: this.dsp_observacion,
         Mov_Id: 1,
+        simbol: '-',
         Si_Cant: this.cantidad,
         Sg_Cant: this.cantidad,
-        simbol: '-'
+        Dei_Precio_compra: this.precio_compra,
+        Av_Precio_venta: this.precio_compra,
+        Dei_Cant: this.cantidad,
+        Av_Estado: 1,
+        Av_User_control: this.data_user.Per_Num_documento
       };
       // Movil siempre es 1
       // proveedor, descuenta del stock consulta de siempre,
@@ -597,9 +852,22 @@ export default {
       this.cantidad = null;
       this.cantidad_disponible = null;
       this.producto_selected = null;
+      this.dsp_observacion = null;
+      this.precio_compra = null;
       setTimeout(() => {
         this.$refs.form_salida.resetValidation()
       }, 300);
+    },
+    delteProduct(row){
+      this.$q.dialog({
+        component: dialog,
+        parent: this,
+        title: 'Eliminar producto',
+        msg: 'Atención! vas a eliminar un producto agregado a la tabla, ¿Seguro que desea continuar?',
+      }).onOk(() => {
+        let index = this.data_product.indexOf(row)
+        this.data_product.splice(index, 1)
+      })
     },
     // Buscador para el select proveedor
     filterProvider (val, update, abort) {
@@ -656,6 +924,42 @@ export default {
             else {
               const needle = val.toLowerCase()
               this.options_person = all_person.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.codigo.toLowerCase().indexOf(needle) > -1)
+            }
+          },
+          ref => {
+            if (val !== '' && ref.options.length > 0) {
+              ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+              ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+            }
+          }
+        )
+      }, 300)
+    },
+    // Buscador para el select comprobante
+    filterComprobante(val, update, abort){
+      setTimeout(() => {
+        update(() => {
+          const needle = val.toLowerCase();
+          this.options_comprobantes = all_comprobante.filter( v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1 );
+        },
+        ref => {
+          if (val !== '' && ref.options.length > 0) {
+            ref.setOptionIndex(-1) // reset optionIndex in case there is something selected
+            ref.moveOptionSelection(1, true) // focus the first selectable option and do not update the input-value
+          }
+        })
+      }, 300)
+    },
+    // Buscador para el select medio de pago
+    filterMedios(val, update, abort){
+      setTimeout(() => {
+        update(() => {
+            if (val === '') {
+              this.options_medios = all_medios
+            }
+            else {
+              const needle = val.toLowerCase()
+              this.options_medios = all_medios.filter(v => v.label.toLowerCase().indexOf(needle) > -1 || v.value.toString().toLowerCase().indexOf(needle) > -1)
             }
           },
           ref => {

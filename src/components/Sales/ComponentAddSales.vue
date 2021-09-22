@@ -790,7 +790,7 @@ export default {
             this.enc_venta.Ev_Entregado = this.enc_venta.Tc_Id == 2 ? 0 : 1;
             this.enc_venta.Ev_conf_pago = this.enc_venta.Mp_Id == 1 ? 1 : 0;
             this.enc_venta.Ev_Subtotal = this.subtotal_venta;
-            this.enc_venta.Ev_Des_total_artt = this.Ev_Des_total_art;
+            this.enc_venta.Ev_Des_total_art = this.Ev_Des_total_art;
             this.enc_venta.Ev_Des_gen_venta = (this.enc_venta.Ev_Subtotal - this.enc_venta.Ev_Des_total_art) * (this.enc_venta.Ev_Descuentog / 100)
             this.enc_venta.Ev_Total_venta = this.enc_venta.Ev_Subtotal - this.Ev_Des_total_art - this.Ev_Des_gen_venta;
             this.enc_venta.Mov_Id = this.movil_selecte;
@@ -804,60 +804,59 @@ export default {
             //   msg: 'Respuesta insert enc venta',
             //   data: res_enc
             // });
-            let promesas = [];
-            this.data_sales.forEach( product => {
-              product.Ev_Id = res_enc.data.insertId;
-              promesas.push(this.insertDetVenta(product).then( res => {
-                res.data.msg = 'Respuesta insert det venta';
-                return res.data;
-              }));
-              promesas.push(this.updateInventarioMovil(product).then( res => {
-                res.data.msg = 'Respuesta update inventario movil';
-                return res.data;
-              }))
-            });
-            if(this.cantidad_garantia){
-              this.ecn_garantia = {
-                base: process.env.__BASE__,
-                Eg_Id: null,
-                Eg_Quien_autoriza: 0,
-                Ev_Id: res_enc.data.insertId,
-                Eg_Observacion: null,
-                Eg_estado: 0,
-                Eg_User_control: this.data_user.Per_Num_documento,
-              }
-              const res_gara = await this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
-                return res.data;
-              });
-              // console.log({
-              //   msg: 'Respuesta insert enc garantia',
-              //   data: res_gara
-              // });
-              if(!res_gara.data.affectedRows){
-                throw new Error(res_gara.message)
-              }
+            if(res_enc.ok){
+              let promesas = [];
               this.data_sales.forEach( product => {
-                product.Eg_Id = res_gara.data.insertId;
-                product.Dg_Cant = this.cantidad_garantia;
-                promesas.push(this.insertDetGarantia(product).then( res => {
-                  res.data.msg = 'Respuesta insert det garantía';
+                product.Ev_Id = res_enc.data.insertId;
+                promesas.push(this.insertDetVenta(product).then( res => {
+                  res.data.msg = 'Respuesta insert det venta';
+                  return res.data;
+                }));
+                promesas.push(this.updateInventarioMovil(product).then( res => {
+                  res.data.msg = 'Respuesta update inventario movil';
                   return res.data;
                 }))
-                product.Sg_Cant = this.cantidad_garantia;
-                product.simbol = '+';
-                promesas.push(this.insertUpdateStockGarantia(product).then( res => {
-                  res.data.msg = 'Respuesta update stock garantía';
-                  return res.data;
-                }))
+                if(product.cantidad_garantia){
+                  this.ecn_garantia = {
+                    base: process.env.__BASE__,
+                    Eg_Id: null,
+                    Eg_Quien_autoriza: 0,
+                    Ev_Id: res_enc.data.insertId,
+                    Eg_Observacion: null,
+                    Eg_estado: 0,
+                    Eg_User_control: this.data_user.Per_Num_documento,
+                  }
+                  const res_gara = this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
+                    res.data.msg = 'Respuesta insert enc garantia';
+                    return res.data;
+                  }).catch( e => {
+                    throw new Error(e)
+                  });
+                  promesas.push(res_gara)
+                  product.Eg_Id = res_gara.data.insertId;
+                  product.Dg_Cant = this.cantidad_garantia;
+                  promesas.push(this.insertDetGarantia(product).then( res => {
+                    res.data.msg = 'Respuesta insert det garantía';
+                    return res.data;
+                  }))
+                  product.Sg_Cant = this.cantidad_garantia;
+                  product.simbol = '+';
+                  promesas.push(this.insertUpdateStockGarantia(product).then( res => {
+                    res.data.msg = 'Respuesta update stock garantía';
+                    return res.data;
+                  }))
+                }
+              });
+              Promise.all(promesas).then( data => {
+                data.forEach( res => {
+                  console.log(res)
+                })
+              }).catch( e => {
+                throw new Error(e)
               })
+            } else {
+              throw new Error(res_enc.message)
             }
-            Promise.all(promesas).then( data => {
-              data.forEach( res => {
-                console.log(res)
-              })
-            }).catch( e => {
-              throw new Error(e)
-            })
           } else {
             if(this.cliente_selected.value == 0){
               this.$refs.select_client.focus();
@@ -953,13 +952,14 @@ export default {
         total_venta: null, //Total de la venta al momento de agregar este producto
         diferencia_descuento: null,
         des_articulo: this.descuento_art.label,
+        cantidad_garantia: this.cantidad_garantia,
         // Propiedade para actualizar el stock
         Mov_Id: this.movil_selecte,
         Si_Cant: Number(this.cantidad) + Number(this.cantidad_garantia),
         simbol: '-',
         // Art_Id: null, -> ya esa declarado
       }
-      if(this.cantidad > this.cant_disponible){
+      if(this.cantidad > this.cant_disponible || (Number(this.cantidad) + Number(this.cantidad_garantia)) > this.cant_disponible){
         this.$q.notify({
           message: 'La cantidad es mayor a la disponible',
           type: 'warning'

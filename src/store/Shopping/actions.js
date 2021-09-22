@@ -89,3 +89,19 @@ export function insertEncSalidaProv(context, data){
 export function insertDetSalidaProv(context, data){
   return Vue.prototype.$axios.post(`insert_update_det_salida_pro`, data);
 }
+
+// Salidas a proveedor
+// Obtiene las 50 salidas por defecto
+export function getOuputProvider(){
+  return Vue.prototype.$axios.get(`select_enc_salida_proveedor_limit/${base}`);
+}
+
+// Obtiene las salidas por rango de fecha
+export function getOuputProviderRange(context, data){
+  return Vue.prototype.$axios.get(`select_enc_salida_proveedor_single/${base}/${data.from}/${data.to}`)
+}
+
+// Obtiene el detalle de la salida a proveedor o almacen
+export function getDetailOuputProvider(context, id_salida){
+  return Vue.prototype.$axios.get(`select_det_salida_pro_single/${base}/${id_salida}`)
+}

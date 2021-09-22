@@ -156,7 +156,7 @@
             v-model="precio_compra"
             mask="#########"
             hint="Precio de compra"
-            :rules="[val => !!val || 'Precio es requerido', val => val > 0 || 'La cantidad no puede ser 0']"
+            :rules="[val => !!val || 'Precio es requerido', val => val > 0 || 'El precio no puede ser 0']"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-2 q-px-sm">
