@@ -806,6 +806,7 @@ export default {
             // });
             if(res_enc.ok){
               let promesas = [];
+              let prom_garan = [];
               this.data_sales.forEach( product => {
                 product.Ev_Id = res_enc.data.insertId;
                 promesas.push(this.insertDetVenta(product).then( res => {
@@ -816,6 +817,7 @@ export default {
                   res.data.msg = 'Respuesta update inventario movil';
                   return res.data;
                 }))
+                // Se guarda el encabezado de la garantía
                 if(product.cantidad_garantia){
                   this.ecn_garantia = {
                     base: process.env.__BASE__,
@@ -826,34 +828,51 @@ export default {
                     Eg_estado: 0,
                     Eg_User_control: this.data_user.Per_Num_documento,
                   }
-                  const res_gara = this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
+                  promesas.push(this.insertUpdateEncGarantia(this.ecn_garantia).then( res => {
                     res.data.msg = 'Respuesta insert enc garantia';
+                    res.data.ecn_garantia = true;
                     return res.data;
                   }).catch( e => {
                     throw new Error(e)
-                  });
-                  promesas.push(res_gara)
-                  product.Eg_Id = res_gara.data.insertId;
-                  product.Dg_Cant = this.cantidad_garantia;
-                  promesas.push(this.insertDetGarantia(product).then( res => {
-                    res.data.msg = 'Respuesta insert det garantía';
-                    return res.data;
-                  }))
-                  product.Sg_Cant = this.cantidad_garantia;
-                  product.simbol = '+';
-                  promesas.push(this.insertUpdateStockGarantia(product).then( res => {
-                    res.data.msg = 'Respuesta update stock garantía';
-                    return res.data;
-                  }))
+                  }));
                 }
               });
               Promise.all(promesas).then( data => {
                 data.forEach( res => {
-                  console.log(res)
+                  // console.log(res)
+                  if(res.ecn_garantia){
+                    this.data_sales.forEach( product => {
+                      if(product.cantidad_garantia){
+                        product.Eg_Id = res.data.insertId;
+                        prom_garan.push(this.insertDetGarantia(product).then( res => {
+                          res.data.msg = 'Respuesta insert det garantía';
+                          return res.data;
+                        }))
+                        product.simbol = '+';
+                        prom_garan.push(this.insertUpdateStockGarantia(product).then( res => {
+                          res.data.msg = 'Respuesta update stock garantía';
+                          return res.data;
+                        }))
+                      }
+                    })
+                  }
                 })
               }).catch( e => {
                 throw new Error(e)
               })
+              // Se ejecuta el insert para garantías
+              Promise.all(prom_garan).then( data => {
+                // data.forEach( res => {
+                //   console.log(res)
+                // })
+              }).catch( e => {
+                throw new Error(e)
+              })
+              this.$q.notify({
+                message: 'Guardado',
+                type: 'positive'
+              });
+              this.$emit('reload')
             } else {
               throw new Error(res_enc.message)
             }
@@ -910,11 +929,6 @@ export default {
               }
             }
           }
-          this.$q.notify({
-            message: 'Guardado',
-            type: 'positive'
-          });
-          this.$emit('reload')
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -957,6 +971,8 @@ export default {
         Mov_Id: this.movil_selecte,
         Si_Cant: Number(this.cantidad) + Number(this.cantidad_garantia),
         simbol: '-',
+        Dg_Cant: this.cantidad_garantia,
+        Sg_Cant: this.cantidad_garantia,
         // Art_Id: null, -> ya esa declarado
       }
       if(this.cantidad > this.cant_disponible || (Number(this.cantidad) + Number(this.cantidad_garantia)) > this.cant_disponible){
