@@ -42,7 +42,7 @@
                             label="Ok"
                             color="primary"
                             flat
-                            @click="range"
+                            @click="date_range"
                           />
                         </div>
                       </q-date>
@@ -53,7 +53,11 @@
             </q-field>
           </div>
           <div class="col-xs-12 col-md-3 q-px-sm">
-            <q-select v-model="model" :options="options" hint="Origen" />
+            <q-select
+              v-model="seller_selecte"
+              :options="options_seller"
+              hint="Origen"
+            />
           </div>
         </div>
         <div class="row">
@@ -127,12 +131,14 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+let all_seller = []; //Contiene todos los vendedores
 export default {
   name: "ConsultSeller",
   data() {
     return {
-      mode: null,
-      options: ["Option 1", "Option 2", "Option 3"],
+      seller_selecte: null,
+      options_seller: all_seller,
       date_range: {
         to: null,
         from: null,
@@ -289,6 +295,111 @@ export default {
       ],
     };
   },
-  methods: {},
+  watch: {
+    seller_selecte(value){
+      if(value){
+        if(typeof(this.date_range) == 'object' && !this.date_range.to){
+          this.$q.notify({
+            message: 'Seleccione un rango de fecha',
+            type: 'warning'
+          });
+          return;
+        }
+        this.$q.loading.show({
+          message: 'Obteniendo datos, por favor espere....'
+        })
+        this.render_table = false;
+        setTimeout(async() => {
+          try {
+            let params = {
+              Per_Num_documento: value,
+              to: null,
+              from: null
+            }
+            params.from = typeof(this.date_range) == 'object' ? this.date_range.from : this.date_range;
+            params.to = typeof(this.date_range) == 'object' ? this.date_range.to : this.date_range;
+            
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative",
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+        }, 1000)
+      }
+    }
+  },
+  methods: {
+    ...mapActions('access', [
+      'getPersons',
+    ]),
+    ...mapActions('movements', [
+      'getCommissionSeller',
+      'getCommissionSellerDet'
+    ]),
+    getData() {
+      this.$q.loading.show({
+        message: "Obteniendo datos del servidor, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          const res_persons = await this.getPersons().then(res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get personal',
+            data: res_persons
+          });
+          if(res_persons.ok){
+            if(res_persons.result){
+              all_seller.length = 0;
+              res_persons.data.forEach( persona => {
+                if(persona.Usu_Estado == 1){
+                  all_seller.push({
+                    label: persona.Per_Nombre,
+                    value: persona.Per_Num_documento
+                  })
+                }
+              });
+            } else {
+              this.$q.notify({
+                message: res_persons.message,
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_persons.message);
+          }
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000);
+    },
+  },
 };
 </script>
