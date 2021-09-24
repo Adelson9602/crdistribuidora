@@ -61,57 +61,87 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-xs-12 col-md-3 q-px-sm">
+          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
             <q-card class="my-card">
               <q-card-section>
-                <q-item>
-                  <q-item-section top avatar>
-                    <q-avatar color="primary" text-color="white" icon="sell" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-h6">Ventas</q-item-label>
-                    <q-item-label caption lines="2">total</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-card-section>
-              <q-card-section>
-                <div class="text-h5">$18.559.000</div>
+                <q-list>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label>Procentaje</q-item-label>
+                      <q-item-label class="number_card">{{comision.percent_commission}}</q-item-label>
+                      <q-item-label>
+                        <q-icon
+                          name="info"
+                          color="positive"
+                        /> Comisión
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-avatar
+                        size="60px"
+                        class="bg-primary-gradient"
+                        text-color="white"
+                        icon="trending_up"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
             </q-card>
           </div>
-          <div class="col-xs-12 col-md-3 q-px-sm">
+          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
             <q-card class="my-card">
               <q-card-section>
-                <q-item>
-                  <q-item-section top avatar>
-                    <q-avatar color="primary" text-color="white" icon="shopping_cart" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-h6">Compras</q-item-label>
-                    <q-item-label caption lines="2">total</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-card-section>
-              <q-card-section>
-                <div class="text-h5">$18.559.000</div>
+                <q-list>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label>Comisión</q-item-label>
+                      <q-item-label class="number_card">{{comision.commission}}</q-item-label>
+                      <q-item-label>
+                        <q-icon
+                          name="info"
+                          color="positive"
+                        /> Alcanzado
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-avatar
+                        size="60px"
+                        class="bg-danger-gradient"
+                        text-color="white"
+                        icon="mdi-rocket-launch"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
             </q-card>
           </div>
-          <div class="col-xs-12 col-md-3 q-px-sm">
+          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
             <q-card class="my-card">
               <q-card-section>
-                <q-item>
-                  <q-item-section top avatar>
-                    <q-icon color="green" text-color="white" name="paid" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-h6">Utilidad</q-item-label>
-                    <q-item-label caption lines="2">total</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-card-section>
-              <q-card-section>
-                <div class="text-h5">$532.000</div>
+                <q-list>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label>Total ventas</q-item-label>
+                      <q-item-label class="number_card">{{comision.total_sales}}</q-item-label>
+                      <q-item-label>
+                        <q-icon
+                          name="info"
+                          color="positive"
+                        /> Facturadas
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-avatar
+                        size="60px"
+                        class="bg-secondary-gradient"
+                        text-color="white"
+                        icon="attach_money"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
             </q-card>
           </div>
@@ -293,6 +323,11 @@ export default {
           iron: "6%",
         },
       ],
+      comision: {
+        commission: 0,
+        total_sales: 0,
+        percent_commission: 0,
+      },
     };
   },
   watch: {
@@ -403,3 +438,25 @@ export default {
   },
 };
 </script>
+<style scoped>
+.my-card{
+  border-radius: 10px;
+  height: 120px;
+}
+.number_card{
+  font-weight: 600 !important;
+  font-size: 1.5rem;
+}
+.bg-primary-gradient {
+  background: linear-gradient(to bottom right, #9e88f5 0%, #6259ca 100%) !important;
+}
+.bg-danger-gradient {
+  background-image: linear-gradient(to bottom right, #f1bf64 0%, #f71d36 100%) !important;
+}
+.bg-secondary-gradient {
+  background: linear-gradient(to bottom right, #9070ff 0%, #ff5d9e 100%) !important;
+}
+.bg-success-gradient {
+  background: linear-gradient(to bottom right, #4be8d4 0%, #129bd2 100%) !important;
+}
+</style>
