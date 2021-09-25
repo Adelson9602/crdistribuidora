@@ -131,13 +131,13 @@ module.exports = function (/* ctx */) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: `crapp`,
-        short_name: `crapp`,
+        name: `CrApp`,
+        short_name: `CrApp`,
         description: `Aplicación para manejo de invetario`,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
-        theme_color: '#027be3',
+        theme_color: '#FF9C17',
         icons: [
           {
             src: 'icons/icon-128x128.png',
