@@ -46,3 +46,13 @@ export function getDisVentaGeneral(){
 export function getDisVentaGeneralRange(context, data){
   return Vue.prototype.$axios.get(`select_v_c_a_v_discrimidado_range/${base}/${data.year}/${data.month}`)
 }
+
+// OBtiene las utilidades al detalle de cada vendedor por un rango de fecha seleccionado
+export function getDisVentaSingleRange(context, data){
+  return Vue.prototype.$axios.get(`select_bonificacion_vendedor_discrimidado_range_/${base}/${data.year}/${data.month}/${data.documento}`)
+}
+
+// Hace los pagos
+export function insertBonificacion(context, data){
+  return Vue.prototype.$axios.post(`insert_Pago_bonificacion`, data)
+}

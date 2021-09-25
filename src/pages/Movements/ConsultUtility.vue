@@ -1,7 +1,21 @@
 <template>
   <q-page padding>
     <q-card class="height-card_page q-pa-md">
-      <q-card-section class="q-gutter-y-lg">
+      <q-card-section class="q-gutter-y-md">
+        <div>
+          <q-radio
+            v-model="tipo_consulta"
+            :val="true"
+            label="Consulta general"
+            color="orange"
+          />
+          <q-radio
+            v-model="tipo_consulta"
+            :val="false"
+            label="Consulta vendedor"
+            color="green"
+          />
+        </div>
         <div class="row">
           <div class="col-xs-12 col-md-3 q-px-sm">
             <q-input  v-model="date" mask="date" :rules="['date']">
@@ -14,7 +28,8 @@
                       :emit-immediately="true"
                     >
                       <div class="row items-center justify-end">
-                        <q-btn @click="getDataRange" label="Ok" color="primary" flat />
+                        <q-btn @click="getDataRange" label="Ok" color="primary" flat v-if="tipo_consulta"/>
+                        <q-btn v-close-popup label="Ok" color="primary" flat v-else/>
                       </div>
                     </q-date>
                   </q-popup-proxy>
@@ -22,11 +37,13 @@
               </template>
             </q-input>
           </div>
-          <div class="col-xs-12 col-md-3 q-px-sm">
+          <div class="col-xs-12 col-md-3 q-px-sm" v-if="!tipo_consulta">
             <q-select
               v-model="seller_selecte"
               :options="options_seller"
-              hint="Origen"
+              hint="Vendedor"
+              map-options
+              emit-value
             />
           </div>
         </div>
@@ -151,7 +168,7 @@
           :data="data_creditos"
           :columns="columns_creditos"
           flat
-          v-if="render_component"
+          v-if="render_component && tipo_consulta"
         />
 
         <q-table
@@ -160,15 +177,23 @@
           :data="data_dis_ventas"
           :columns="columns_dis_ventas"
           flat
+          :visible-columns="visible_columns"
           v-if="render_component"
-        />
+          row-key="Ev_Id"
+          selection="multiple"
+          :selected.sync="selected_pay"
+        >
+          <template v-slot:top-right v-if="selected_pay.length > 0">
+            <q-btn color="green" icon="paid" label="Pagar" @click="doPayment" />
+          </template>
+        </q-table>
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { date } from 'quasar'
 let all_seller = []; //Contiene todos los vendedores
 export default {
@@ -499,17 +524,28 @@ export default {
           sortable: true,
           field: 'bonificaion_posible'
         },
+        {
+          name: 'fecha_venta',
+          align: 'center',
+          label: 'Fecha venta',
+          sortable: true,
+          field: 'fecha_venta'
+        },
       ],
       data_dis_ventas: [],
+      visible_columns: [],
       render_component: false,
+      tipo_consulta: true,
+      selected_pay: [],
     };
   },
   watch: {
     seller_selecte(value){
       if(value){
-        if(typeof(this.date) == 'object' && !this.date.to){
+        this.render_component = false;
+        if(!this.date){
           this.$q.notify({
-            message: 'Seleccione un rango de fecha',
+            message: 'Seleccione una fecha',
             type: 'warning'
           });
           return;
@@ -517,17 +553,88 @@ export default {
         this.$q.loading.show({
           message: 'Obteniendo datos, por favor espere....'
         })
-        this.render_table = false;
         setTimeout(async() => {
           try {
-            let params = {
-              Per_Num_documento: value,
-              to: null,
-              from: null
+            let fecha = new Date(this.date);
+            let month = fecha.getMonth()+1;
+            let year = fecha.getFullYear();
+            let date_consult = {
+              documento: value,
+              month,
+              year
             }
-            params.from = typeof(this.date) == 'object' ? this.date.from : this.date;
-            params.to = typeof(this.date) == 'object' ? this.date.to : this.date;
-            
+            const res_data = await this.getDisVentaSingleRange(date_consult).then( res => {
+              return res.data;
+            });
+            console.log({
+              msg: 'Respuesta get utilidad vendedor',
+              data: res_data
+            });
+            this.data_dis_ventas.length = 0;
+            this.visible_columns.length = 0;
+            if(res_data.ok){
+              if(res_data.result){
+                this.visible_columns = [
+                  'Ev_Id',
+                  'Mov_Descripcion',
+                  'Per_Nombre',
+                  'Per_Num_documento',
+                  'dias_credito',
+                  'porcen_meta',
+                  'total_abonos',
+                  'fecha_ultimo_abono',
+                  'total_credito',
+                  'total_facturas',
+                  'total_pagado',
+                  'total_base_bonificacion',
+                  'bonificacion_real',
+                  'bonificaion_posible',
+                  'fecha_venta'
+                ];
+                res_data.data.forEach( element => {
+                  this.data_dis_ventas.push(element)
+                })
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                })
+              }
+            } else {
+              throw new Error(res_data.message);
+            }
+
+            const res_resumen = await this.getResumenUtilidadRange(date_consult).then( res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Respuesta get resumen utilidad',
+            //   data: res_resumen
+            // });
+            this.utilidad = {
+              total_abonos: null,
+              total_creditos: null,
+              total_facturas: null,
+              total_contado: null,
+            }
+            if(res_resumen.ok){
+              if(res_resumen.result){
+                this.utilidad = {
+                  total_abonos: res_resumen.data.total_abonos,
+                  total_creditos: res_resumen.data.total_creditos,
+                  total_facturas: res_resumen.data.total_facturas,
+                  total_contado: res_resumen.data.total_facturas - res_resumen.data.total_creditos,
+                };
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                })
+              }
+            } else {
+              throw new Error(res_resumen.message)
+            }
+            this.render_component = true;
           } catch (e) {
             console.log(e);
             if (e.message === "Network Error") {
@@ -549,6 +656,12 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
+      return this.user_logged;
+    }
+  },
   created(){
     this.getData();
   },
@@ -562,9 +675,12 @@ export default {
       'getDisVentaGeneral',
       'getResumenUtilidadRange',
       'getTotalCreGeneralRange',
-      'getDisVentaGeneralRange'
+      'getDisVentaGeneralRange',
+      'getDisVentaSingleRange',
+      'insertBonificacion'
     ]),
     getData() {
+      this.render_component = false;
       this.$q.loading.show({
         message: "Obteniendo datos del servidor, por favor espere..."
       });
@@ -634,17 +750,7 @@ export default {
           if(res_venta.ok){
             if(res_venta.result){
               res_venta.data.forEach( element => {
-                this.data_creditos.push({
-                  Per_Num_documento: element.Per_Num_documento,
-                  bonificacion_real: element.bonificacion_real,
-                  bonificaion_posible: element.bonificaion_posible,
-                  porcen_meta: element.porcen_meta,
-                  total_abonos: element.total_abonos,
-                  total_base_bonificacion: element.total_base_bonificacion,
-                  total_credito: element.total_credito,
-                  total_facturas: element.total_facturas,
-                  total_pagado: element.total_pagado,
-                })
+                this.data_creditos.push(element)
               })
             } else {
               this.$q.notify({
@@ -664,25 +770,27 @@ export default {
           //   data: res_dis
           // });
           this.data_dis_ventas.length = 0;
+          this.visible_columns.length = 0;
           if(res_dis.ok){
             if(res_dis.result){
+              this.visible_columns = [
+                'Ev_Id',
+                'Mov_Descripcion',
+                'Per_Nombre',
+                'Per_Num_documento',
+                'dias_credito',
+                'porcen_meta',
+                'total_abonos',
+                'fecha_ultimo_abono',
+                'total_credito',
+                'total_facturas',
+                'total_pagado',
+                'total_base_bonificacion',
+                'bonificacion_real',
+                'bonificaion_posible',
+              ];
               res_dis.data.forEach( element => {
-                this.data_dis_ventas.push({
-                  Ev_Id: element.Ev_Id,
-                  Mov_Descripcion: element.Mov_Descripcion,
-                  Per_Nombre: element.Per_Nombre,
-                  Per_Num_documento: element.Per_Num_documento,
-                  dias_credito: element.dias_credito,
-                  porcen_meta: element.porcen_meta,
-                  total_abonos: element.total_abonos,
-                  fecha_ultimo_abono: element.fecha_ultimo_abono,
-                  total_credito: element.total_credito,
-                  total_facturas: element.total_facturas,
-                  total_pagado: element.total_pagado,
-                  total_base_bonificacion: element.total_base_bonificacion,
-                  bonificacion_real: element.bonificacion_real,
-                  bonificaion_posible: element.bonificaion_posible,
-                })
+                this.data_dis_ventas.push(element)
               })
             } else {
               this.$q.notify({
@@ -770,17 +878,7 @@ export default {
           if(res_venta.ok){
             if(res_venta.result){
               res_venta.data.forEach( element => {
-                this.data_creditos.push({
-                  Per_Num_documento: element.Per_Num_documento,
-                  bonificacion_real: element.bonificacion_real,
-                  bonificaion_posible: element.bonificaion_posible,
-                  porcen_meta: element.porcen_meta,
-                  total_abonos: element.total_abonos,
-                  total_base_bonificacion: element.total_base_bonificacion,
-                  total_credito: element.total_credito,
-                  total_facturas: element.total_facturas,
-                  total_pagado: element.total_pagado,
-                })
+                this.data_creditos.push(element)
               })
             } else {
               this.$q.notify({
@@ -800,25 +898,27 @@ export default {
           //   data: res_dis
           // });
           this.data_dis_ventas.length = 0;
+          this.visible_columns.length = 0;
           if(res_dis.ok){
             if(res_dis.result){
+              this.visible_columns = [
+                'Ev_Id',
+                'Mov_Descripcion',
+                'Per_Nombre',
+                'Per_Num_documento',
+                'dias_credito',
+                'porcen_meta',
+                'total_abonos',
+                'fecha_ultimo_abono',
+                'total_credito',
+                'total_facturas',
+                'total_pagado',
+                'total_base_bonificacion',
+                'bonificacion_real',
+                'bonificaion_posible',
+              ];
               res_dis.data.forEach( element => {
-                this.data_dis_ventas.push({
-                  Ev_Id: element.Ev_Id,
-                  Mov_Descripcion: element.Mov_Descripcion,
-                  Per_Nombre: element.Per_Nombre,
-                  Per_Num_documento: element.Per_Num_documento,
-                  dias_credito: element.dias_credito,
-                  porcen_meta: element.porcen_meta,
-                  total_abonos: element.total_abonos,
-                  fecha_ultimo_abono: element.fecha_ultimo_abono,
-                  total_credito: element.total_credito,
-                  total_facturas: element.total_facturas,
-                  total_pagado: element.total_pagado,
-                  total_base_bonificacion: element.total_base_bonificacion,
-                  bonificacion_real: element.bonificacion_real,
-                  bonificaion_posible: element.bonificaion_posible,
-                })
+                this.data_dis_ventas.push(element)
               })
             } else {
               this.$q.notify({
@@ -830,6 +930,62 @@ export default {
             throw new Error(res_dis.message)
           }
           this.render_component = true;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000);
+    },
+    doPayment(){
+      this.$q.loading.show({
+        message: "Obteniendo datos del servidor, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          let promesas = [];
+          this.selected_pay.forEach( venta => {
+            let pago = {
+              base: process.env.__BASE__,
+              pb_id_venta: venta.Ev_Id,
+              Pb_porc_meta: venta.porcen_meta,
+              Pb_valor_pagar: venta.bonificaion_posible,
+              pb_valor_pagado: venta.total_pagado,
+              Pb_user_control: this.data_user.Per_Num_documento
+            }
+            promesas.push(this.insertBonificacion(pago).then( res => {
+              return res.data;
+            }).catch( e => {
+              throw new Error(e)
+            }));
+          });
+          Promise.all(promesas).then( data => {
+            data.forEach( res => {
+              console.log(res)
+            });
+            this.$q.notify({
+              message: 'Pagado',
+              type: 'positive',
+            });
+            this.selected_pay.length = 0;
+            setTimeout(() => {
+              this.getData();
+            }, 300);
+          }).catch( e => {
+            throw new Errro(e);
+          })
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
