@@ -961,7 +961,7 @@ export default {
               base: process.env.__BASE__,
               pb_id_venta: venta.Ev_Id,
               Pb_porc_meta: venta.porcen_meta,
-              Pb_valor_pagar: venta.bonificaion_posible,
+              Pb_valor_pagar: venta.bonificaion_real,
               pb_valor_pagado: venta.total_pagado,
               Pb_user_control: this.data_user.Per_Num_documento
             }
