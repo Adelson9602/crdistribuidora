@@ -4,53 +4,23 @@
       <q-card-section class="q-gutter-y-lg">
         <div class="row">
           <div class="col-xs-12 col-md-3 q-px-sm">
-            <q-field
-              stack-label
-              class="date_training"
-              hint="Seleccione un rango de fecha"
-            >
-              <template v-slot:control>
-                <div
-                  class="self-center full-width no-outline row justify-between"
-                  tabindex="0"
-                >
-                  <label class="self-center">
-                    Desde {{ date_range.from }} Hasta {{ date_range.to }}
-                  </label>
-                  <q-btn
-                    icon="event"
-                    round
-                    color="primary"
-                    class="self-end"
-                    size="xs"
-                  >
-                    <q-popup-proxy
-                      ref="qDateProxy"
-                      transition-show="scale"
-                      transition-hide="scale"
+            <q-input  v-model="date" mask="date" :rules="['date']">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                    <q-date
+                      v-model="date"
+                      default-view="Years"
+                      :emit-immediately="true"
                     >
-                      <q-date v-model="date_range" range mask="YYYY-MM-DD">
-                        <div class="row items-center justify-end">
-                          <q-btn
-                            label="Borrar"
-                            color="primary"
-                            flat
-                            @click="date_range = { to: '', from: '' }"
-                          />
-                          <q-btn
-                            v-close-popup
-                            label="Ok"
-                            color="primary"
-                            flat
-                            @click="date_range"
-                          />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-btn>
-                </div>
+                      <div class="row items-center justify-end">
+                        <q-btn @click="getDataRange" label="Ok" color="primary" flat />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-icon>
               </template>
-            </q-field>
+            </q-input>
           </div>
           <div class="col-xs-12 col-md-3 q-px-sm">
             <q-select
@@ -61,19 +31,19 @@
           </div>
         </div>
         <div class="row">
-          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
+          <div class="q-pa-sm col-xs-12 col-sm-6 col-lg-3">
             <q-card class="my-card">
               <q-card-section>
                 <q-list>
                   <q-item>
                     <q-item-section>
-                      <q-item-label>Procentaje</q-item-label>
-                      <q-item-label class="number_card">{{comision.percent_commission}}</q-item-label>
+                      <q-item-label>Abonos créditos</q-item-label>
+                      <q-item-label class="number_card">$ {{new Intl.NumberFormat().format(utilidad.total_abonos)}}</q-item-label>
                       <q-item-label>
                         <q-icon
                           name="info"
                           color="positive"
-                        /> Comisión
+                        /> Total
                       </q-item-label>
                     </q-item-section>
                     <q-item-section side>
@@ -89,19 +59,19 @@
               </q-card-section>
             </q-card>
           </div>
-          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
+          <div class="q-pa-sm col-xs-12 col-sm-6 col-lg-3">
             <q-card class="my-card">
               <q-card-section>
                 <q-list>
                   <q-item>
                     <q-item-section>
-                      <q-item-label>Comisión</q-item-label>
-                      <q-item-label class="number_card">{{comision.commission}}</q-item-label>
+                      <q-item-label>Ventas crédito</q-item-label>
+                      <q-item-label class="number_card">$ {{new Intl.NumberFormat().format(utilidad.total_creditos)}}</q-item-label>
                       <q-item-label>
                         <q-icon
                           name="info"
                           color="positive"
-                        /> Alcanzado
+                        /> Total
                       </q-item-label>
                     </q-item-section>
                     <q-item-section side>
@@ -109,7 +79,7 @@
                         size="60px"
                         class="bg-danger-gradient"
                         text-color="white"
-                        icon="mdi-rocket-launch"
+                        icon="credit_card"
                       />
                     </q-item-section>
                   </q-item>
@@ -117,14 +87,14 @@
               </q-card-section>
             </q-card>
           </div>
-          <div class="q-pa-md col-xs-12 col-sm-6 col-md-4">
+          <div class="q-pa-sm col-xs-12 col-sm-6 col-lg-3">
             <q-card class="my-card">
               <q-card-section>
                 <q-list>
                   <q-item>
                     <q-item-section>
                       <q-item-label>Total ventas</q-item-label>
-                      <q-item-label class="number_card">{{comision.total_sales}}</q-item-label>
+                      <q-item-label class="number_card">$ {{new Intl.NumberFormat().format(utilidad.total_facturas)}}</q-item-label>
                       <q-item-label>
                         <q-icon
                           name="info"
@@ -145,15 +115,52 @@
               </q-card-section>
             </q-card>
           </div>
+          <div class="q-pa-sm col-xs-12 col-sm-6 col-lg-3">
+            <q-card class="my-card">
+              <q-card-section>
+                <q-list>
+                  <q-item>
+                    <q-item-section>
+                      <q-item-label>Total ventas</q-item-label>
+                      <q-item-label class="number_card">$ {{new Intl.NumberFormat().format(utilidad.total_contado)}}</q-item-label>
+                      <q-item-label>
+                        <q-icon
+                          name="money"
+                          color="positive"
+                        /> Contado
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-avatar
+                        size="60px"
+                        class="bg-success-gradient"
+                        text-color="white"
+                        icon="shopping_basket"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-card-section>
+            </q-card>
+          </div>
         </div>
         <!-- Tabla de las ventas realizadas -->
         <q-table
-          class="q-mt-md height-table"
-          title="Ventas realizadas"
-          :data="data"
-          :columns="columns"
-          row-key="name"
+          class="q-mt-md height"
+          title="Resumen ventas a crédito"
+          :data="data_creditos"
+          :columns="columns_creditos"
           flat
+          v-if="render_component"
+        />
+
+        <q-table
+          class="q-mt-md height"
+          title="Detalle ventas"
+          :data="data_dis_ventas"
+          :columns="columns_dis_ventas"
+          flat
+          v-if="render_component"
         />
       </q-card-section>
     </q-card>
@@ -162,6 +169,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { date } from 'quasar'
 let all_seller = []; //Contiene todos los vendedores
 export default {
   name: "ConsultSeller",
@@ -169,10 +177,7 @@ export default {
     return {
       seller_selecte: null,
       options_seller: all_seller,
-      date_range: {
-        to: null,
-        from: null,
-      },
+      date: null,
       columns: [
         {
           name: "name",
@@ -323,17 +328,186 @@ export default {
           iron: "6%",
         },
       ],
-      comision: {
-        commission: 0,
-        total_sales: 0,
-        percent_commission: 0,
+      utilidad: {
+        total_abonos: null,
+        total_creditos: null,
+        total_facturas: null,
+        total_contado: null,
       },
+      columns_creditos: [
+        {
+          name: 'Per_Num_documento',
+          align: 'center',
+          label: 'Documento vendedor',
+          sortable: true,
+          field: 'Per_Num_documento'
+        },
+        {
+          name: 'porcen_meta',
+          align: 'center',
+          label: 'Porcentaje meta',
+          sortable: true,
+          field: 'porcen_meta'
+        },
+        {
+          name: 'total_base_bonificacion',
+          align: 'center',
+          label: 'Total base bonificación',
+          sortable: true,
+          field: 'total_base_bonificacion'
+        },
+        {
+          name: 'total_facturas',
+          align: 'center',
+          label: 'Total facturas',
+          sortable: true,
+          field: 'total_facturas'
+        },
+        {
+          name: 'total_credito',
+          align: 'center',
+          label: 'Total créditos',
+          sortable: true,
+          field: 'total_credito'
+        },
+        {
+          name: 'total_abonos',
+          align: 'center',
+          label: 'Total abonos',
+          sortable: true,
+          field: 'total_abonos'
+        },
+        {
+          name: 'total_pagado',
+          align: 'center',
+          label: 'Total pagado',
+          sortable: true,
+          field: 'total_pagado'
+        },
+        {
+          name: 'bonificacion_real',
+          align: 'center',
+          label: 'Bonificación real',
+          sortable: true,
+          field: 'bonificacion_real'
+        },
+        {
+          name: 'bonificaion_posible',
+          align: 'center',
+          label: 'Bonificación posible',
+          sortable: true,
+          field: 'bonificaion_posible'
+        },
+      ],
+      data_creditos: [],
+      columns_dis_ventas: [
+        {
+          name: 'Ev_Id',
+          align: 'center',
+          label: 'No. Venta',
+          sortable: true,
+          field: 'Ev_Id'
+        },
+        {
+          name: 'Mov_Descripcion',
+          align: 'center',
+          label: 'Nombre móvil',
+          sortable: true,
+          field: 'Mov_Descripcion'
+        },
+        {
+          name: 'Per_Nombre',
+          align: 'center',
+          label: 'Nombre vendedor',
+          sortable: true,
+          field: 'Per_Nombre'
+        },
+        {
+          name: 'Per_Num_documento',
+          align: 'center',
+          label: 'Documento vendedor',
+          sortable: true,
+          field: 'Per_Num_documento'
+        },
+        {
+          name: 'dias_credito',
+          align: 'center',
+          label: 'Días de crédito',
+          sortable: true,
+          field: 'dias_credito'
+        },
+        {
+          name: 'porcen_meta',
+          align: 'center',
+          label: 'Porcentaje meta',
+          sortable: true,
+          field: 'porcen_meta'
+        },
+        {
+          name: 'total_abonos',
+          align: 'center',
+          label: 'Total abonos',
+          sortable: true,
+          field: 'total_abonos'
+        },
+        {
+          name: 'fecha_ultimo_abono',
+          align: 'center',
+          label: 'Fecha último abono',
+          sortable: true,
+          field: 'fecha_ultimo_abono'
+        },
+        {
+          name: 'total_credito',
+          align: 'center',
+          label: 'total_credito',
+          sortable: true,
+          field: 'total_credito'
+        },
+        {
+          name: 'total_facturas',
+          align: 'center',
+          label: 'Total facturas',
+          sortable: true,
+          field: 'total_facturas'
+        },
+        {
+          name: 'total_pagado',
+          align: 'center',
+          label: 'Total pagado',
+          sortable: true,
+          field: 'total_pagado'
+        },
+        {
+          name: 'total_base_bonificacion',
+          align: 'center',
+          label: 'Total base bonificación',
+          sortable: true,
+          field: 'total_base_bonificacion'
+        },
+        {
+          name: 'bonificacion_real',
+          align: 'center',
+          label: 'Bonificación real',
+          sortable: true,
+          field: 'bonificacion_real'
+        },
+        {
+          name: 'bonificaion_posible',
+          align: 'center',
+          label: 'Bonificación posible',
+          sortable: true,
+          field: 'bonificaion_posible'
+        },
+      ],
+      data_dis_ventas: [],
+      render_component: false,
     };
   },
   watch: {
     seller_selecte(value){
       if(value){
-        if(typeof(this.date_range) == 'object' && !this.date_range.to){
+        if(typeof(this.date) == 'object' && !this.date.to){
           this.$q.notify({
             message: 'Seleccione un rango de fecha',
             type: 'warning'
@@ -351,8 +525,8 @@ export default {
               to: null,
               from: null
             }
-            params.from = typeof(this.date_range) == 'object' ? this.date_range.from : this.date_range;
-            params.to = typeof(this.date_range) == 'object' ? this.date_range.to : this.date_range;
+            params.from = typeof(this.date) == 'object' ? this.date.from : this.date;
+            params.to = typeof(this.date) == 'object' ? this.date.to : this.date;
             
           } catch (e) {
             console.log(e);
@@ -375,13 +549,20 @@ export default {
       }
     }
   },
+  created(){
+    this.getData();
+  },
   methods: {
     ...mapActions('access', [
       'getPersons',
     ]),
     ...mapActions('movements', [
-      'getCommissionSeller',
-      'getCommissionSellerDet'
+      'getResumenUtilidad',
+      'getTotalCreGeneral',
+      'getDisVentaGeneral',
+      'getResumenUtilidadRange',
+      'getTotalCreGeneralRange',
+      'getDisVentaGeneralRange'
     ]),
     getData() {
       this.$q.loading.show({
@@ -392,10 +573,10 @@ export default {
           const res_persons = await this.getPersons().then(res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get personal',
-            data: res_persons
-          });
+          // console.log({
+          //   msg: 'Respuesta get personal',
+          //   data: res_persons
+          // });
           if(res_persons.ok){
             if(res_persons.result){
               all_seller.length = 0;
@@ -416,6 +597,103 @@ export default {
           } else {
             throw new Error(res_persons.message);
           }
+
+          const res_resumen = await this.getResumenUtilidad().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get resumen utilidad',
+          //   data: res_resumen
+          // });
+          if(res_resumen.ok){
+            if(res_resumen.result){
+              this.utilidad = {
+                total_abonos: res_resumen.data.total_abonos,
+                total_creditos: res_resumen.data.total_creditos,
+                total_facturas: res_resumen.data.total_facturas,
+                total_contado: res_resumen.data.total_facturas - res_resumen.data.total_creditos,
+              };
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_resumen.message)
+          }
+
+          const res_venta = await this.getTotalCreGeneral().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get abonos créditos',
+          //   data: res_venta
+          // });
+          this.data_creditos.length = 0;
+          if(res_venta.ok){
+            if(res_venta.result){
+              res_venta.data.forEach( element => {
+                this.data_creditos.push({
+                  Per_Num_documento: element.Per_Num_documento,
+                  bonificacion_real: element.bonificacion_real,
+                  bonificaion_posible: element.bonificaion_posible,
+                  porcen_meta: element.porcen_meta,
+                  total_abonos: element.total_abonos,
+                  total_base_bonificacion: element.total_base_bonificacion,
+                  total_credito: element.total_credito,
+                  total_facturas: element.total_facturas,
+                  total_pagado: element.total_pagado,
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_venta.message)
+          }
+
+          const res_dis = await this.getDisVentaGeneral().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get ventas discriminadas',
+          //   data: res_dis
+          // });
+          this.data_dis_ventas.length = 0;
+          if(res_dis.ok){
+            if(res_dis.result){
+              res_dis.data.forEach( element => {
+                this.data_dis_ventas.push({
+                  Ev_Id: element.Ev_Id,
+                  Mov_Descripcion: element.Mov_Descripcion,
+                  Per_Nombre: element.Per_Nombre,
+                  Per_Num_documento: element.Per_Num_documento,
+                  dias_credito: element.dias_credito,
+                  porcen_meta: element.porcen_meta,
+                  total_abonos: element.total_abonos,
+                  fecha_ultimo_abono: element.fecha_ultimo_abono,
+                  total_credito: element.total_credito,
+                  total_facturas: element.total_facturas,
+                  total_pagado: element.total_pagado,
+                  total_base_bonificacion: element.total_base_bonificacion,
+                  bonificacion_real: element.bonificacion_real,
+                  bonificaion_posible: element.bonificaion_posible,
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_dis.message)
+          }
+          this.render_component = true;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
@@ -435,10 +713,149 @@ export default {
         }
       }, 1000);
     },
+    getDataRange(){
+      this.render_component = false;
+      let fecha = new Date(this.date);
+      let month = fecha.getMonth()+1;
+      let year = fecha.getFullYear();
+      this.$refs.qDateProxy.hide()
+      this.$q.loading.show({
+        message: "Obteniendo datos del servidor, por favor espere..."
+      });
+      setTimeout(async () => {
+        try {
+          let date_consult = {
+            month,
+            year
+          }
+          const res_resumen = await this.getResumenUtilidadRange(date_consult).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get resumen utilidad',
+          //   data: res_resumen
+          // });
+          this.utilidad = {
+            total_abonos: null,
+            total_creditos: null,
+            total_facturas: null,
+            total_contado: null,
+          }
+          if(res_resumen.ok){
+            if(res_resumen.result){
+              this.utilidad = {
+                total_abonos: res_resumen.data.total_abonos,
+                total_creditos: res_resumen.data.total_creditos,
+                total_facturas: res_resumen.data.total_facturas,
+                total_contado: res_resumen.data.total_facturas - res_resumen.data.total_creditos,
+              };
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_resumen.message)
+          }
+
+          const res_venta = await this.getTotalCreGeneralRange(date_consult).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get abonos créditos',
+          //   data: res_venta
+          // });
+          this.data_creditos.length = 0;
+          if(res_venta.ok){
+            if(res_venta.result){
+              res_venta.data.forEach( element => {
+                this.data_creditos.push({
+                  Per_Num_documento: element.Per_Num_documento,
+                  bonificacion_real: element.bonificacion_real,
+                  bonificaion_posible: element.bonificaion_posible,
+                  porcen_meta: element.porcen_meta,
+                  total_abonos: element.total_abonos,
+                  total_base_bonificacion: element.total_base_bonificacion,
+                  total_credito: element.total_credito,
+                  total_facturas: element.total_facturas,
+                  total_pagado: element.total_pagado,
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_venta.message)
+          }
+
+          const res_dis = await this.getDisVentaGeneralRange(date_consult).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get ventas discriminadas',
+          //   data: res_dis
+          // });
+          this.data_dis_ventas.length = 0;
+          if(res_dis.ok){
+            if(res_dis.result){
+              res_dis.data.forEach( element => {
+                this.data_dis_ventas.push({
+                  Ev_Id: element.Ev_Id,
+                  Mov_Descripcion: element.Mov_Descripcion,
+                  Per_Nombre: element.Per_Nombre,
+                  Per_Num_documento: element.Per_Num_documento,
+                  dias_credito: element.dias_credito,
+                  porcen_meta: element.porcen_meta,
+                  total_abonos: element.total_abonos,
+                  fecha_ultimo_abono: element.fecha_ultimo_abono,
+                  total_credito: element.total_credito,
+                  total_facturas: element.total_facturas,
+                  total_pagado: element.total_pagado,
+                  total_base_bonificacion: element.total_base_bonificacion,
+                  bonificacion_real: element.bonificacion_real,
+                  bonificaion_posible: element.bonificaion_posible,
+                })
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_dis.message)
+          }
+          this.render_component = true;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000);
+    }
   },
 };
 </script>
 <style scoped>
+.height{
+  height: 450px;
+}
 .my-card{
   border-radius: 10px;
   height: 120px;
