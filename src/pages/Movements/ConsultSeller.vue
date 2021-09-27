@@ -38,7 +38,7 @@
                             @click="date_range = { to: '', from: '' }"
                           />
                           <q-btn
-                            v-close-popup
+                            @click="okDate"
                             label="Ok"
                             color="primary"
                             flat
@@ -172,7 +172,14 @@
               row-key="name"
               flat
               v-if="render_table"
-            />
+            >
+              <template v-slot:body-cell="props">
+                <q-td :props="props">
+                  <q-icon name="attach_money" size="1.2em" v-if="props.col.money"/>
+                  {{ props.col.money ? new Intl.NumberFormat().format(props.value) : props.value}}
+                </q-td>
+              </template>
+            </q-table>
           </div>
           <q-spinner-facebook
             color="primary"
@@ -244,23 +251,25 @@ export default {
         {
           name: 'Ev_Descuentog',
           align: 'center',
-          label: 'Ev_Descuentog',
+          label: 'Porcentaje descuento',
           sortable: true,
           field: 'Ev_Descuentog'
         },
         {
           name: 'Ev_Des_gen_venta',
           align: 'center',
-          label: 'Ev_Des_gen_venta',
+          label: 'Total descuento general',
           sortable: true,
-          field: 'Ev_Des_gen_venta'
+          field: 'Ev_Des_gen_venta',
+          money: true,
         },
         {
           name: 'Ev_Total_venta',
           align: 'center',
           label: 'Total venta',
           sortable: true,
-          field: 'Ev_Total_venta'
+          field: 'Ev_Total_venta',
+          money: true,
         },
         {
           name: 'Ev_Estado',
@@ -306,110 +315,7 @@ export default {
   watch: {
     seller_selecte(value){
       if(value){
-        if(typeof(this.date_range) == 'object' && !this.date_range.to){
-          this.$q.notify({
-            message: 'Seleccione un rango de fecha',
-            type: 'warning'
-          });
-          return;
-        }
-        this.$q.loading.show({
-          message: 'Obteniendo datos, por favor espere....'
-        })
-        this.render_table = false;
-        setTimeout(async() => {
-          try {
-            let params = {
-              Per_Num_documento: value,
-              to: null,
-              from: null
-            }
-            params.from = typeof(this.date_range) == 'object' ? this.date_range.from : this.date_range;
-            params.to = typeof(this.date_range) == 'object' ? this.date_range.to : this.date_range;
-            const res_data = await this.getCommissionSeller(params).then( res => {
-              return res.data;
-            });
-            // console.log({
-            //   msg: 'Repuesta comision vendedor',
-            //   data: res_data
-            // })
-            if(res_data.ok){
-              if(res_data.result){
-                this.comision = {
-                  commission: res_data.data.comision ? res_data.data.comision : 0,
-                  total_sales: res_data.data.vt ? res_data.data.vt : 0,
-                  percent_commission: res_data.data.pc ? res_data.data.pc : 0,
-                }
-              } else {
-                this.$q.notify({
-                  message: 'Sin resultados',
-                  type: 'warning'
-                });
-              }
-            } else {
-              throw new Error(res_data.message)
-            }
-            const res_deta = await this.getCommissionSellerDet(params).then( res => {
-              return res.data;
-            });
-            console.log({
-              msg: 'Repuesta detalle comision vendedor',
-              data: res_deta
-            })
-            this.data.length = 0;
-            if(res_deta.ok){
-              if(res_deta.result){
-                res_deta.data.forEach( venta => {
-                  this.data.push({
-                    Ev_Id: venta.Ev_Id,
-                    CP_Nit: venta.CP_Nit,
-                    Mov_Id: venta.Mov_Id,
-                    Mp_Id: venta.Mp_Id,
-                    Tc_Id: venta.Tc_Id,
-                    Per_Num_documento: venta.Per_Num_documento,
-                    Ev_dias_credito: venta.Ev_dias_credito,
-                    Ev_Impuesto: venta.Ev_Impuesto,
-                    Ev_Subtotal: venta.Ev_Subtotal,
-                    Ev_Des_total_art: venta.Ev_Des_total_art,
-                    Ev_Descuentog: venta.Ev_Descuentog,
-                    Ev_Des_gen_venta: venta.Ev_Des_gen_venta,
-                    Ev_Total_venta: venta.Ev_Total_venta,
-                    Ev_Estado: venta.Ev_Estado,
-                    Ev_conf_pago: venta.Ev_conf_pago,
-                    Ev_Entregado: venta.Ev_Entregado,
-                    Ev_Usuario_control: venta.Ev_Usuario_control,
-                    Ev_Fecha_control: venta.Ev_Fecha_control,
-                  })
-                })
-                this.render_table = true;
-              } else {
-                this.render_table = true;
-                this.$q.notify({
-                  message: 'Sin resultados',
-                  type: 'warning'
-                });
-              }
-            } else {
-              throw new Error(res_deta.message)
-            }
-          } catch (e) {
-            console.log(e);
-            if (e.message === "Network Error") {
-              e = e.message;
-            }
-            if (e.message === "Request failed with status code 404") {
-              e = "URL de solicitud no existe, err 404";
-            } else if (e.message) {
-              e = e.message;
-            }
-            this.$q.notify({
-              message: e,
-              type: "negative",
-            });
-          } finally {
-            this.$q.loading.hide();
-          }
-        }, 1000)
+        this.getDataSeller();
       }
     }
   },
@@ -430,10 +336,10 @@ export default {
           const res_persons = await this.getPersons().then(res => {
             return res.data;
           });
-          console.log({
-            msg: 'Respuesta get personal',
-            data: res_persons
-          });
+          // console.log({
+          //   msg: 'Respuesta get personal',
+          //   data: res_persons
+          // });
           if(res_persons.ok){
             if(res_persons.result){
               all_seller.length = 0;
@@ -493,6 +399,101 @@ export default {
           }
         })
       }, 300)
+    },
+    getDataSeller(){
+      if(typeof(this.date_range) == 'object' && !this.date_range.to){
+          this.$q.notify({
+            message: 'Seleccione un rango de fecha',
+            type: 'warning'
+          });
+          return;
+        }
+        this.$q.loading.show({
+          message: 'Obteniendo datos, por favor espere....'
+        })
+        this.render_table = false;
+        setTimeout(async() => {
+          try {
+            let params = {
+              Per_Num_documento: this.seller_selecte,
+              to: null,
+              from: null
+            }
+            params.from = typeof(this.date_range) == 'object' ? this.date_range.from : this.date_range;
+            params.to = typeof(this.date_range) == 'object' ? this.date_range.to : this.date_range;
+            const res_data = await this.getCommissionSeller(params).then( res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Repuesta comision vendedor',
+            //   data: res_data
+            // })
+            if(res_data.ok){
+              if(res_data.result){
+                this.comision = {
+                  commission: res_data.data.comision ? res_data.data.comision : 0,
+                  total_sales: res_data.data.vt ? res_data.data.vt : 0,
+                  percent_commission: res_data.data.pc ? res_data.data.pc : 0,
+                }
+              } else {
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                });
+              }
+            } else {
+              throw new Error(res_data.message)
+            }
+            const res_deta = await this.getCommissionSellerDet(params).then( res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Repuesta detalle comision vendedor',
+            //   data: res_deta
+            // })
+            this.data.length = 0;
+            if(res_deta.ok){
+              if(res_deta.result){
+                res_deta.data.forEach( venta => {
+                  this.data.push(venta)
+                })
+                this.render_table = true;
+              } else {
+                this.render_table = true;
+                this.$q.notify({
+                  message: 'Sin resultados',
+                  type: 'warning'
+                });
+              }
+            } else {
+              throw new Error(res_deta.message)
+            }
+          } catch (e) {
+            console.log(e);
+            if (e.message === "Network Error") {
+              e = e.message;
+            }
+            if (e.message === "Request failed with status code 404") {
+              e = "URL de solicitud no existe, err 404";
+            } else if (e.message) {
+              e = e.message;
+            }
+            this.$q.notify({
+              message: e,
+              type: "negative",
+            });
+          } finally {
+            this.$q.loading.hide();
+          }
+        }, 1000)
+    },
+    okDate(){
+      if(this.seller_selecte){
+        this.$refs.qDateProxy.hide();
+        this.getDataSeller();
+      } else {
+        this.$refs.qDateProxy.hide();
+      }
     }
   },
 };
