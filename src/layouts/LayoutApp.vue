@@ -184,18 +184,6 @@
           </q-item-section>
           <q-item-section>Cerrar Sesión</q-item-section>
         </q-item>
-        <q-item>
-          <q-item-section top avatar>
-            <q-icon name="schedule" color="primary"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Hora actual</q-item-label>
-            <q-item-label caption lines="2">{{reloj}}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item>
-          {{messageStr}}
-        </q-item>
       </q-scroll-area>
     </q-drawer>
 
@@ -237,7 +225,6 @@ export default {
       leftDrawerOpen: false,
       notifications: [],
       count_notifications: null,
-      messageStr: null,
       array_modules: [],
       reloj: null,
     };
@@ -529,12 +516,6 @@ export default {
           type: "negative",
         });
       }
-    },
-    onIdle() {
-      this.messageStr = 'ZZZ'
-    },
-    onActive() {
-      this.messageStr = 'Hello'
     },
     reloadNotifications() {
       this.notifications = [];
