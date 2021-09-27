@@ -59,11 +59,7 @@
             @onedit="editProvider"
             @tostatus="openDialogStatus"
             v-if="rendercomponent"
-          >
-            <template v-slot:toggle>
-              <q-toggle v-model="filter_pendientes" label="Pendiente" />
-            </template>
-          </component-table>
+          />
           <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable
             :dialog="enable_diable"
@@ -305,23 +301,6 @@ export default {
     tab(value) {
       if (value == "provider") {
         this.provider_edit = null;
-      }
-    },
-    filter_pendientes(value) {
-      if (value) {
-        this.rendercomponent = false;
-        let dataselect = this.datageneral.filter(
-          credit => credit.CP_Estado == 0
-        );
-        this.data.length = 0;
-
-        setTimeout(() => {
-          this.data = dataselect;
-
-          this.rendercomponent = true;
-        }, 300);
-      } else {
-        setTimeout(this.getData(), 300);
       }
     }
   },
