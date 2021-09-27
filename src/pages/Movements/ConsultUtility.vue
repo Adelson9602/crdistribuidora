@@ -26,10 +26,11 @@
                       v-model="date"
                       default-view="Years"
                       :emit-immediately="true"
+                      @input="hidePopupDate"
                     >
                       <div class="row items-center justify-end">
                         <q-btn @click="getDataRange" label="Ok" color="primary" flat v-if="tipo_consulta"/>
-                        <q-btn v-close-popup label="Ok" color="primary" flat v-else/>
+                        <q-btn @click="consultDataSeller" label="Ok" color="primary" flat v-else/>
                       </div>
                     </q-date>
                   </q-popup-proxy>
@@ -169,7 +170,14 @@
           :columns="columns_creditos"
           flat
           v-if="render_component && tipo_consulta"
-        />
+        >
+          <template v-slot:body-cell="props">
+            <q-td :props="props">
+              <q-icon name="attach_money" size="1.2em" v-if="props.col.money"/>
+              {{ props.col.money ? new Intl.NumberFormat().format(props.value) : props.value}}
+            </q-td>
+          </template>
+        </q-table>
 
         <q-table
           class="q-mt-md height"
@@ -185,6 +193,12 @@
         >
           <template v-slot:top-right v-if="selected_pay.length > 0">
             <q-btn color="green" icon="paid" label="Pagar" @click="doPayment" />
+          </template>
+          <template v-slot:body-cell="props">
+            <q-td :props="props">
+              <q-icon name="attach_money" size="1.2em" v-if="props.col.money"/>
+              {{ props.col.money ? new Intl.NumberFormat().format(props.value) : props.value}}
+            </q-td>
           </template>
         </q-table>
       </q-card-section>
@@ -203,156 +217,6 @@ export default {
       seller_selecte: null,
       options_seller: all_seller,
       date: null,
-      columns: [
-        {
-          name: "name",
-          required: true,
-          label: "Dessert (100g serving)",
-          align: "left",
-          field: (row) => row.name,
-          format: (val) => `${val}`,
-          sortable: true,
-        },
-        {
-          name: "calories",
-          align: "center",
-          label: "Calories",
-          field: "calories",
-          sortable: true,
-        },
-        { name: "fat", label: "Fat (g)", field: "fat", sortable: true },
-        {
-          name: "carbs",
-          label: "Carbs (g)",
-          field: "carbs",
-        },
-        {
-          name: "protein",
-          label: "Protein (g)",
-          field: "protein",
-        },
-        {
-          name: "sodium",
-          label: "Sodium (mg)",
-          field: "sodium",
-        },
-        {
-          name: "calcium",
-          label: "Calcium (%)",
-          field: "calcium",
-          sortable: true,
-          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
-        },
-        {
-          name: "iron",
-          label: "Iron (%)",
-          field: "iron",
-          sortable: true,
-          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
-        },
-      ],
-      data: [
-        {
-          name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: "14%",
-          iron: "1%",
-        },
-        {
-          name: "Ice cream sandwich",
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: "8%",
-          iron: "1%",
-        },
-        {
-          name: "Eclair",
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: "6%",
-          iron: "7%",
-        },
-        {
-          name: "Cupcake",
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: "3%",
-          iron: "8%",
-        },
-        {
-          name: "Gingerbread",
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: "7%",
-          iron: "16%",
-        },
-        {
-          name: "Jelly bean",
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: "0%",
-          iron: "0%",
-        },
-        {
-          name: "Lollipop",
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: "0%",
-          iron: "2%",
-        },
-        {
-          name: "Honeycomb",
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: "0%",
-          iron: "45%",
-        },
-        {
-          name: "Donut",
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: "2%",
-          iron: "22%",
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: "12%",
-          iron: "6%",
-        },
-      ],
       utilidad: {
         total_abonos: null,
         total_creditos: null,
@@ -379,49 +243,56 @@ export default {
           align: 'center',
           label: 'Total base bonificación',
           sortable: true,
-          field: 'total_base_bonificacion'
+          field: 'total_base_bonificacion',
+          money: true
         },
         {
           name: 'total_facturas',
           align: 'center',
           label: 'Total facturas',
           sortable: true,
-          field: 'total_facturas'
+          field: 'total_facturas',
+          money: true
         },
         {
           name: 'total_credito',
           align: 'center',
           label: 'Total créditos',
           sortable: true,
-          field: 'total_credito'
+          field: 'total_credito',
+          money: true
         },
         {
           name: 'total_abonos',
           align: 'center',
           label: 'Total abonos',
           sortable: true,
-          field: 'total_abonos'
+          field: 'total_abonos',
+          money: true
         },
         {
           name: 'total_pagado',
           align: 'center',
           label: 'Total pagado',
           sortable: true,
-          field: 'total_pagado'
+          field: 'total_pagado',
+          money: true
         },
         {
           name: 'bonificacion_real',
           align: 'center',
           label: 'Bonificación real',
           sortable: true,
-          field: 'bonificacion_real'
+          field: 'bonificacion_real',
+          money: true
         },
         {
           name: 'bonificaion_posible',
           align: 'center',
           label: 'Bonificación posible',
           sortable: true,
-          field: 'bonificaion_posible'
+          field: 'bonificaion_posible',
+          money: true
         },
       ],
       data_creditos: [],
@@ -466,14 +337,16 @@ export default {
           align: 'center',
           label: 'Porcentaje meta',
           sortable: true,
-          field: 'porcen_meta'
+          field: 'porcen_meta',
+          money: true
         },
         {
           name: 'total_abonos',
           align: 'center',
           label: 'Total abonos',
           sortable: true,
-          field: 'total_abonos'
+          field: 'total_abonos',
+          money: true
         },
         {
           name: 'fecha_ultimo_abono',
@@ -487,42 +360,48 @@ export default {
           align: 'center',
           label: 'total_credito',
           sortable: true,
-          field: 'total_credito'
+          field: 'total_credito',
+          money: true
         },
         {
           name: 'total_facturas',
           align: 'center',
           label: 'Total facturas',
           sortable: true,
-          field: 'total_facturas'
+          field: 'total_facturas',
+          money: true
         },
         {
           name: 'total_pagado',
           align: 'center',
           label: 'Total pagado',
           sortable: true,
-          field: 'total_pagado'
+          field: 'total_pagado',
+          money: true
         },
         {
           name: 'total_base_bonificacion',
           align: 'center',
           label: 'Total base bonificación',
           sortable: true,
-          field: 'total_base_bonificacion'
+          field: 'total_base_bonificacion',
+          money: true
         },
         {
           name: 'bonificacion_real',
           align: 'center',
           label: 'Bonificación real',
           sortable: true,
-          field: 'bonificacion_real'
+          field: 'bonificacion_real',
+          money: true
         },
         {
           name: 'bonificaion_posible',
           align: 'center',
           label: 'Bonificación posible',
           sortable: true,
-          field: 'bonificaion_posible'
+          field: 'bonificaion_posible',
+          money: true
         },
         {
           name: 'fecha_venta',
@@ -542,119 +421,9 @@ export default {
   watch: {
     seller_selecte(value){
       if(value){
-        this.render_component = false;
-        if(!this.date){
-          this.$q.notify({
-            message: 'Seleccione una fecha',
-            type: 'warning'
-          });
-          return;
-        }
-        this.$q.loading.show({
-          message: 'Obteniendo datos, por favor espere....'
-        })
-        setTimeout(async() => {
-          try {
-            let fecha = new Date(this.date);
-            let month = fecha.getMonth()+1;
-            let year = fecha.getFullYear();
-            let date_consult = {
-              documento: value,
-              month,
-              year
-            }
-            const res_data = await this.getDisVentaSingleRange(date_consult).then( res => {
-              return res.data;
-            });
-            console.log({
-              msg: 'Respuesta get utilidad vendedor',
-              data: res_data
-            });
-            this.data_dis_ventas.length = 0;
-            this.visible_columns.length = 0;
-            if(res_data.ok){
-              if(res_data.result){
-                this.visible_columns = [
-                  'Ev_Id',
-                  'Mov_Descripcion',
-                  'Per_Nombre',
-                  'Per_Num_documento',
-                  'dias_credito',
-                  'porcen_meta',
-                  'total_abonos',
-                  'fecha_ultimo_abono',
-                  'total_credito',
-                  'total_facturas',
-                  'total_pagado',
-                  'total_base_bonificacion',
-                  'bonificacion_real',
-                  'bonificaion_posible',
-                  'fecha_venta'
-                ];
-                res_data.data.forEach( element => {
-                  this.data_dis_ventas.push(element)
-                })
-              } else {
-                this.$q.notify({
-                  message: 'Sin resultados',
-                  type: 'warning'
-                })
-              }
-            } else {
-              throw new Error(res_data.message);
-            }
-
-            const res_resumen = await this.getResumenUtilidadRange(date_consult).then( res => {
-              return res.data;
-            });
-            // console.log({
-            //   msg: 'Respuesta get resumen utilidad',
-            //   data: res_resumen
-            // });
-            this.utilidad = {
-              total_abonos: null,
-              total_creditos: null,
-              total_facturas: null,
-              total_contado: null,
-            }
-            if(res_resumen.ok){
-              if(res_resumen.result){
-                this.utilidad = {
-                  total_abonos: res_resumen.data.total_abonos,
-                  total_creditos: res_resumen.data.total_creditos,
-                  total_facturas: res_resumen.data.total_facturas,
-                  total_contado: res_resumen.data.total_facturas - res_resumen.data.total_creditos,
-                };
-              } else {
-                this.$q.notify({
-                  message: 'Sin resultados',
-                  type: 'warning'
-                })
-              }
-            } else {
-              throw new Error(res_resumen.message)
-            }
-            this.render_component = true;
-          } catch (e) {
-            console.log(e);
-            if (e.message === "Network Error") {
-              e = e.message;
-            }
-            if (e.message === "Request failed with status code 404") {
-              e = "URL de solicitud no existe, err 404";
-            } else if (e.message) {
-              e = e.message;
-            }
-            this.$q.notify({
-              message: e,
-              type: "negative",
-            });
-          } finally {
-            this.$q.loading.hide();
-          }
-        }, 1000)
+        this.consultDataSeller();
       }
-    }
+    },
   },
   computed: {
     ...mapState("auth", ["user_logged"]),
@@ -790,6 +559,9 @@ export default {
                 'bonificaion_posible',
               ];
               res_dis.data.forEach( element => {
+                let timeStamp = new Date(element.fecha_ultimo_abono)
+                let formattedString = date.formatDate(timeStamp, 'YYYY/MM/DD')
+                element.fecha_ultimo_abono = element.fecha_ultimo_abono ? formattedString : element.fecha_ultimo_abono;
                 this.data_dis_ventas.push(element)
               })
             } else {
@@ -1004,6 +776,128 @@ export default {
           this.$q.loading.hide();
         }
       }, 1000);
+    },
+    consultDataSeller(){
+      this.render_component = false;
+      this.$refs.qDateProxy.hide();
+      if(!this.date){
+        this.$q.notify({
+          message: 'Seleccione una fecha',
+          type: 'warning'
+        });
+        return;
+      }
+      this.$q.loading.show({
+        message: 'Obteniendo datos, por favor espere....'
+      })
+      setTimeout(async() => {
+        try {
+          let fecha = new Date(this.date);
+          let month = fecha.getMonth()+1;
+          let year = fecha.getFullYear();
+          let date_consult = {
+            documento: this.seller_selecte,
+            month,
+            year
+          }
+          const res_data = await this.getDisVentaSingleRange(date_consult).then( res => {
+            return res.data;
+          });
+          console.log({
+            msg: 'Respuesta get utilidad vendedor',
+            data: res_data
+          });
+          this.data_dis_ventas.length = 0;
+          this.visible_columns.length = 0;
+          if(res_data.ok){
+            if(res_data.result){
+              this.visible_columns = [
+                'Ev_Id',
+                'Mov_Descripcion',
+                'Per_Nombre',
+                'Per_Num_documento',
+                'dias_credito',
+                'porcen_meta',
+                'total_abonos',
+                'fecha_ultimo_abono',
+                'total_credito',
+                'total_facturas',
+                'total_pagado',
+                'total_base_bonificacion',
+                'bonificacion_real',
+                'bonificaion_posible',
+                'fecha_venta'
+              ];
+              res_data.data.forEach( element => {
+                this.data_dis_ventas.push(element)
+              })
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_data.message);
+          }
+
+          const res_resumen = await this.getResumenUtilidadRange(date_consult).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get resumen utilidad',
+          //   data: res_resumen
+          // });
+          this.utilidad = {
+            total_abonos: null,
+            total_creditos: null,
+            total_facturas: null,
+            total_contado: null,
+          }
+          if(res_resumen.ok){
+            if(res_resumen.result){
+              this.utilidad = {
+                total_abonos: res_resumen.data.total_abonos,
+                total_creditos: res_resumen.data.total_creditos,
+                total_facturas: res_resumen.data.total_facturas,
+                total_contado: res_resumen.data.total_facturas - res_resumen.data.total_creditos,
+              };
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_resumen.message)
+          }
+          this.render_component = true;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          }
+          if (e.message === "Request failed with status code 404") {
+            e = "URL de solicitud no existe, err 404";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
+        }
+      }, 1000)
+    },
+    hidePopupDate (val, reason, details) {
+      if (reason === 'month') {
+        this.$refs.qDateProxy.hide();
+        if(!this.tipo_consulta){
+          this.consultDataSeller();
+        }
+      }
     }
   },
 };
