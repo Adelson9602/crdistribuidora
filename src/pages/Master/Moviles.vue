@@ -17,7 +17,7 @@
           </q-card>
         </q-dialog>
         <component-table
-          class="q-mt-md height-table"
+          class="q-mt-md"
           proptitle="Moviles"
           :propdata="data_moviles"
           :propcolumns="columns_moviles"

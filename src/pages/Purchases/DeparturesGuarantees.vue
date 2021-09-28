@@ -49,7 +49,7 @@
               :propactions="true"
             />
             <q-dialog v-model="detail_salida_pro" persistent>
-              <q-card style="min-width: 700px; max-width: 80vw">
+              <q-card style="width: 700px; max-width: 80vw">
                 <q-bar dark class="bg-primary text-white">
                   <div class="col text-center text-weight-bold">
                     Detalle de la salida
