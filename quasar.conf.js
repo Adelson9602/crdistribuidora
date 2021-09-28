@@ -59,6 +59,7 @@ module.exports = function (/* ctx */) {
         __IV__: 'AES256',
         __PROJECT__: 'SIGI',
       },
+      // bases: crdistribuidora_ppl, crdistribuidora_local, crdistribuidora_newpruebas
       // transpile: false,
 
       // Add dependencies for transpiling with Babel (Array of string/regex)
