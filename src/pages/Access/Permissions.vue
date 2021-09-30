@@ -457,6 +457,7 @@ export default {
           let post_as_items = [];
           this.items_no_modulo.forEach( element => {
             element.Estado = element.asociar ? 1 : element.Estado;
+            element.Id_modulo = element.asociar ? element.new_Id_modulo : element.Id_modulo;
             element.base = process.env.__BASE__;
             const ins_itm = this.PostCreateItemModules(element).then( res => {
               return res.data;
