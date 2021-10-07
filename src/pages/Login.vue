@@ -234,14 +234,25 @@ iframe {
   justify-content: center;
   align-items: center;
   padding: 15px;
-  background-image: url('../statics/back-login.png');
+  background-image: url('../statics/digital-marketing.jpg');
   background-image: no-repeat;
-  background-image: fixed;
-  background-image: center;
+  background-position: center;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+  z-index: 2000;
+}
+
+.limiter::before {
+  content: "";
+  width: 100%;
+  min-height: 100vh;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(90deg, rgb(255, 255, 255), rgb(0, 0, 0));
+  opacity: .5;
 }
 
 .wrap-login100 {

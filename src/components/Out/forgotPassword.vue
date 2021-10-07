@@ -52,7 +52,7 @@ export default {
         } finally {
           this.$q.loading.hide();
         }
-      });
+      }, 500);
     },
     login() {
       this.$emit("login");
