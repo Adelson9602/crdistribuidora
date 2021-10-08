@@ -268,6 +268,16 @@
                         @click="generatePdf(props.row)"
                         v-if="props.row.btn_pdf"
                       />
+
+                      <q-fab-action
+                        color="warning"
+                        round
+                        push
+                        padding="5px"
+                        icon="print"
+                        @click="printPdf(props.row)"
+                        v-if="props.row.btn_print"
+                      />
                     </q-fab>
                   </q-item-section>
                 </q-item>
@@ -472,12 +482,12 @@ export default {
       this.$emit("onpdf", row);
     },
     // Emite función editar
-    edit(id, row) {
-      this.$emit("onedit", id, row);
+    edit(row) {
+      this.$emit("onedit", row);
     },
     // Emite la función para cambiar el estado de cualquien dato de la tabla
-    status(id, row) {
-      this.$emit("tostatus", id, row);
+    status(row) {
+      this.$emit("tostatus", row);
     },
     // Emite filtrar datos por rango de fecha
     range() {
@@ -498,6 +508,10 @@ export default {
     // Busca en especifico
     search(){
 
+    },
+    // Imprime en impresora termica
+    printPdf(row){
+      this.$emit("onprint", row);
     }
   },
 };

@@ -36,6 +36,7 @@
             @ondetails="detatilSale"
             @tostatus="deliverProduct"
             @onpdf="generatePdf"
+            @onprint="getDataPrint"
           >
             <template v-slot:input_one>
               <q-select
@@ -61,6 +62,67 @@
               </q-select>
             </template>
           </component-table>
+          <!-- Dialogo para imprimir -->
+          <q-dialog v-model="dialog_print_sale">
+            <q-card class="my-card">
+              <q-card-section>
+                <div class="ticket">
+                  <div class="text-center"><q-icon name="store" size="50px"/></div>
+                  <div class="text-center">
+                    <p class="q-ma-none"> <span class="text-bold">Fecha: </span>{{encabezado_selected ? encabezado_selected.Ev_Fecha_venta : ''}}</p>
+                    <p class="q-ma-none"> <span class="text-bold">Cliente: </span> {{encabezado_selected ? encabezado_selected.CP_Razon_social : ''}}</p>
+                    <p class="q-ma-none"> <span class="text-bold">C.C:</span> {{encabezado_selected ? encabezado_selected.CP_Nit : ''}}</p>
+                    <p class="q-ma-none"> <span class="text-bold">Remisión No: </span> {{encabezado_selected ? encabezado_selected.Ev_Id : ''}}</p>
+                    <p class="q-ma-none"> <span class="text-bold">Método Pago:</span> {{encabezado_selected ? encabezado_selected.name_mp : ''}}</p>
+                  </div>
+                  <table class="ticket_print">
+                    <tr>
+                      <th>Cant</th>
+                      <th>Código</th>
+                      <th>Descripción</th>
+                      <th>V. Unt $</th>
+                      <th>Valor $</th>
+                    </tr>
+                    <tr class="data" v-for="(product, key) in product_saled" :key="key">
+                      <td class="cantidad">{{product.cantidad}}</td>
+                      <td class="codigo">{{product.codigo}}</td>
+                      <td class="producto">{{product.descripcion}}</td>
+                      <td class="val_uni">{{product.precio_un}}</td>
+                      <td class="precio">{{new Intl.NumberFormat().format(product.valor)}}</td>
+                    </tr>
+                  </table>
+                  <table>
+                    <tr>
+                      <td class="text-right text-bold">SUBTOTAL:</td>
+                      <td>$ {{new Intl.NumberFormat().format(encabezado_selected ? encabezado_selected.Ev_Subtotal : 0)}}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-right text-bold">DESCUENTO ART:</td>
+                      <td>$ {{new Intl.NumberFormat().format(encabezado_selected ? encabezado_selected.Ev_Des_total_art : 0)}}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-right text-bold">DESCUENTO GRAL:</td>
+                      <td>$ {{new Intl.NumberFormat().format(encabezado_selected ? encabezado_selected.Ev_Descuentog : 0)}}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-right text-bold">TOTAL:</td>
+                      <td>$ {{new Intl.NumberFormat().format(encabezado_selected ? encabezado_selected.Ev_Total_venta : 0)}}</td>
+                    </tr>
+                  </table>
+                  <br>
+                  <p class="text-center"><span class="text-bold">N° Artículos </span>{{encabezado_selected ? encabezado_selected.cantidad_art : 0}} 
+                  <p class="text-center"><span class="text-bold">Vendedor </span>{{encabezado_selected ? encabezado_selected.Per_Nombre : 0}} 
+                  <br>
+                  ¡GRACIAS POR SU COMPRA!
+                  <br>crdistribuidora.com</p>
+                  <div class="row justify-center">
+                    <q-btn flat label="Imprimir" color="primary" class="btn_print" @click="printSale()" v-if="!print_file"/>
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+            
+          </q-dialog>
           <!-- Dialogo para ver el detalle de la venta -->
           <q-dialog v-model="dialog_detail" persistent full-height full-width>
             <q-card>
@@ -941,6 +1003,9 @@ export default {
       options_me_pago: all_medios,
       mp_id: null,
       dias_credito: null,
+      dialog_print_sale: false,
+      product_saled: [],
+      print_file: false,
     };
   },
   computed: {
@@ -1005,6 +1070,7 @@ export default {
                     // icon_btn_edit: "mdi-pencil",
                     // icon_btn_status: "power_settings_new",
                     icon_btn_details: "mdi-eye-settings",
+                    btn_print: true,
                   });
                 });
               } else {
@@ -1107,6 +1173,7 @@ export default {
                   icon_btn_edit: "done_all",
                   icon_btn_status: "done",
                   icon_btn_details: "mdi-eye-settings",
+                  btn_print: true,
                 });
               });
               this.optionpdf.data = this.data;
@@ -1347,16 +1414,19 @@ export default {
       }, 2000);
     },
     generatePdf(row) {
+      this.$q.loading.show({
+        message: 'Generando pdf, por favor espere...'
+      })
       setTimeout(async () => {
         try {
           this.data_products.length = 0;
           const res_deta = await this.getDetailSales(row.Ev_Id).then((res) => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta get detalle venta pdf",
-            data: res_deta,
-          });
+          // console.log({
+          //   msg: "Respuesta get detalle venta pdf",
+          //   data: res_deta,
+          // });
           if (res_deta.ok) {
             if (res_deta.result) {
               res_deta.data.forEach((product, index) => {
@@ -1379,6 +1449,130 @@ export default {
                   categoria: product.categoria,
                 });
               });
+              var doc = new jsPDF("p", "mm", "a4");
+
+              doc.autoTable({
+                body: this.data_products,
+                columns: [
+                  { header: "Item", dataKey: "item" },
+                  { header: "Codigo", dataKey: "Art_Codigo_inv" },
+                  { header: "Descripcion item", dataKey: "Art_Descripcion" },
+                  { header: "Cant", dataKey: "Dv_Cant" },
+                  { header: "Vr. Unitario", dataKey: "Dv_precio_venta" },
+                  { header: "Vr. Descuento", dataKey: "Dv_valor_descuento" },
+                  { header: "Vr. Total", dataKey: "subtotal" },
+                ],
+                margin: { top: 64, right: 10, left: 10, bottom: 50 },
+                styles: {
+                  overflow: "linebreak",
+                  fontSize: 7,
+                  lineWidth: 1,
+                  lineColor: [150, 152, 154],
+                  overflowColumns: "linebreak",
+                },
+              });
+
+              const pageCount = doc.internal.getNumberOfPages();
+
+              for (var i = 1; i <= pageCount; i++) {
+                doc.setFontSize(8);
+
+                //MARCO DONDE MUESTRA LA INFORMACION DEL CLIENTE FACTURA Y FECHA
+                doc.text(15, 32, "CLIENTE");
+                doc.text(15, 37, "Razon social: " + row.CP_Razon_social);
+                if (row.contacto) {
+                  doc.text(15, 42, "Nombre: " + row.contacto);
+                } else {
+                  doc.text(15, 42, "Nombre: ");
+                }
+                if (row.CP_Direccion) {
+                  doc.text(15, 47, "Domicilio: " + row.CP_Direccion);
+                } else {
+                  doc.text(15, 47, "Domicilio: ");
+                }
+
+                doc.text(15, 52, "Nit o CC: " + row.CP_Nit);
+                if (row.CP_Email) {
+                  doc.text(15, 57, "Email: " + row.CP_Email);
+                } else {
+                  doc.text(15, 57, "Email: ");
+                }
+                doc.text(15, 62, "Forma de pago: " + row.name_mp);
+                doc.setFontSize(11);
+                // doc.setTextColor(255, 215, 0);
+                doc.setFillColor("#F7C66D");
+                doc.roundedRect(168, 26, 30, 9, 5.5, 5.5, "FD");
+                doc.setTextColor("#000000");
+                doc.text(172, 32, "Fecha Venta");
+                // doc.setTextColor('#000000');
+                doc.text(172, 39, row.Ev_Fecha_venta);
+                doc.setFillColor("#33ff42");
+                doc.roundedRect(168, 41, 30, 9, 5.5, 5.5, "FD");
+
+                if (row.Tc_Id == 2) {
+                  var name_comprobante = "O. Pedido";
+                } else {
+                  var name_comprobante = row.name_tc_id;
+                }
+                doc.text(172, 47, name_comprobante);
+
+                doc.text(172, 54, "" + row.Ev_Id);
+                doc.rect(10, 24, 190, 40);
+
+                //INICIA EL MARCO DE TODO EL FORMATO
+                // Descripcion_trabajo  Observacion_encontrada
+                // doc.addImage(img, "PNG", 10, 10, 20, 12, "sicte", "SLOW", 0);
+                doc.rect(10, 10, 20, 12);
+                doc.setFontSize(16);
+                doc.text(60, 17.5, "FORMATO DE " + row.name_tc_id);
+                doc.rect(30, 10, 135, 12); //rect(x,y,width, height)
+                doc.setFontSize(8);
+                doc.text(167, 13.5, "Codigo");
+                doc.rect(165, 10, 15, 6);
+                doc.text(182, 13.5, "HSEQ-F-002");
+                doc.rect(180, 10, 20, 6);
+                doc.text(167, 19.5, "Versión");
+                doc.rect(165, 16, 15, 6);
+                doc.text(190, 19.5, "01");
+                doc.rect(180, 16, 20, 6);
+
+                doc.rect(10, 243, 190, 11);
+                doc.text(15, 247, "IMPORTE TOTAL CON LETRA:");
+                var letranum=  numeros_letras(row.Ev_Total_venta).toUpperCase();
+                doc.text(15, 251, letranum);
+                doc.rect(10, 254, 90, 30);
+                doc.line(55, 254, 55, 284, "S");
+                doc.text(12, 258, "Firma Autoriza");
+                doc.text(57, 258, "Firma Cliente");
+                doc.rect(100, 254, 50, 30);
+                doc.line(100, 269, 150, 269, "S");
+                doc.text(101, 258, "Total Abonos");
+                doc.text(101, 273, "Total Saldos");
+                doc.rect(150, 254, 50, 30);
+                doc.text(177, 258, "Totales");
+                doc.line(175, 254, 175, 284, "S");
+                doc.text(152, 263, "Subtotal"); //Ev_Impuesto, Ev_Subtotal, Ev_Des_total_art, Ev_Descuentog, Ev_Des_gen_venta, Ev_Total_venta,
+                doc.text(177, 263, "$ " + row.Ev_Subtotal);
+                doc.text(152, 268, "Dcto Art");
+                doc.text(177, 268, "$ " + row.Ev_Des_total_art);
+                doc.text(152, 273, "Dcto Gral");
+                doc.text(177, 273, "" + row.Ev_Descuentog);
+                doc.text(152, 278, "Igv %");
+                doc.text(177, 278, "" + row.Ev_Impuesto);
+                doc.text(152, 283, "Total a pagar");
+                doc.text(177, 283, "$ " + row.Ev_Total_venta);
+                doc.setPage(i);
+                //Print Page 1 of 4 for example
+                doc.text(
+                  "Pagina " + String(i) + " de " + String(pageCount),
+                  210 - 100,
+                  297 - 10,
+                  null,
+                  null,
+                  "right"
+                );
+              }
+              doc.save("Venta N° " + row.Ev_Id + ".pdf");
             } else {
               this.$q.notify({
                 message: "Sin resultados",
@@ -1401,153 +1595,71 @@ export default {
             message: e,
             type: "negative",
           });
+        } finally {
+          this.$q.loading.hide();
         }
-
-        var doc = new jsPDF("p", "mm", "a4");
-
-        function addWaterMark(doc) {
-          var totalPages = doc.internal.getNumberOfPages();
-
-          for (i = 1; i <= totalPages; i++) {
-            doc.setPage(i);
-            //doc.addImage(imgData, 'PNG', 40, 40, 75, 75);
-            doc.setFontSize(38);
-            doc.setTextColor(150);
-            doc.text(
-              50,
-              doc.internal.pageSize.height - 130,
-              "CR DISTRIBUIDORA",
-              null,
-              45
-            );
+      }, 500);
+    },
+    getDataPrint(row){
+      this.$q.loading.show({
+        message: 'Imprimiendo, por favor espere...'
+      })
+      setTimeout(async () => {
+        try {
+          this.print_file = false;
+          this.encabezado_selected = row;
+          this.data_products.length = 0;
+          this.encabezado_selected.cantidad_art = 0;
+          const res_deta = await this.getDetailSales(row.Ev_Id).then((res) => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: "Respuesta get detalle venta pdf",
+          //   data: res_deta,
+          // });
+          this.product_saled.length = 0;
+          if (res_deta.ok) {
+            if (res_deta.result) {
+              res_deta.data.forEach( product => {
+                this.encabezado_selected.cantidad_art = Number(this.encabezado_selected.cantidad_art) + Number(product.Dv_Cant);
+                this.product_saled.push({
+                  codigo: product.Art_Codigo_inv,
+                  descripcion: product.Art_Descripcion,
+                  cantidad: product.Dv_Cant,
+                  precio_un: product.Dv_precio_venta,
+                  valor: Number(product.Dv_Cant) * Number(product.Dv_precio_venta),
+                  Dv_valor_descuento: product.Dv_valor_descuento,
+                })
+              })
+              this.dialog_print_sale = true;
+            } else {
+              this.$q.notify({
+                message: "Sin resultados",
+                type: "warning",
+              });
+            }
           }
-
-          return doc;
+        } catch (e) {
+          console.log(e);
+          if (e.message === "Network Error") {
+            e = e.message;
+          } else if (e.message === "Request failed with status code 404") {
+            e = "Error 404 al hacer la petición al servidor";
+          } else if (e.message) {
+            e = e.message;
+          }
+          this.$q.notify({
+            message: e,
+            type: "negative",
+          });
+        } finally {
+          this.$q.loading.hide();
         }
-        doc.autoTable({
-          body: this.data_products,
-          columns: [
-            { header: "Item", dataKey: "item" },
-            { header: "Codigo", dataKey: "Art_Codigo_inv" },
-            { header: "Descripcion item", dataKey: "Art_Descripcion" },
-            { header: "Cant", dataKey: "Dv_Cant" },
-            { header: "Vr. Unitario", dataKey: "Dv_precio_venta" },
-            { header: "Vr. Descuento", dataKey: "Dv_valor_descuento" },
-            { header: "Vr. Total", dataKey: "subtotal" },
-          ],
-          margin: { top: 64, right: 10, left: 10, bottom: 50 },
-          styles: {
-            overflow: "linebreak",
-            fontSize: 7,
-            lineWidth: 1,
-            lineColor: [150, 152, 154],
-            overflowColumns: "linebreak",
-          },
-        });
-
-        const pageCount = doc.internal.getNumberOfPages();
-
-        for (var i = 1; i <= pageCount; i++) {
-          doc.setFontSize(8);
-
-          //MARCO DONDE MUESTRA LA INFORMACION DEL CLIENTE FACTURA Y FECHA
-          doc.text(15, 32, "CLIENTE");
-          doc.text(15, 37, "Razon social: " + row.CP_Razon_social);
-          if (row.contacto) {
-            doc.text(15, 42, "Nombre: " + row.contacto);
-          } else {
-            doc.text(15, 42, "Nombre: ");
-          }
-          if (row.CP_Direccion) {
-            doc.text(15, 47, "Domicilio: " + row.CP_Direccion);
-          } else {
-            doc.text(15, 47, "Domicilio: ");
-          }
-
-          doc.text(15, 52, "Nit o CC: " + row.CP_Nit);
-          if (row.CP_Email) {
-            doc.text(15, 57, "Email: " + row.CP_Email);
-          } else {
-            doc.text(15, 57, "Email: ");
-          }
-          doc.text(15, 62, "Forma de pago: " + row.name_mp);
-          doc.setFontSize(11);
-          // doc.setTextColor(255, 215, 0);
-          doc.setFillColor("#F7C66D");
-          doc.roundedRect(168, 26, 30, 9, 5.5, 5.5, "FD");
-          doc.setTextColor("#000000");
-          doc.text(172, 32, "Fecha Venta");
-          // doc.setTextColor('#000000');
-          doc.text(172, 39, row.Ev_Fecha_venta);
-          doc.setFillColor("#33ff42");
-          doc.roundedRect(168, 41, 30, 9, 5.5, 5.5, "FD");
-
-          if (row.Tc_Id == 2) {
-            var name_comprobante = "O. Pedido";
-          } else {
-            var name_comprobante = row.name_tc_id;
-          }
-          doc.text(172, 47, name_comprobante);
-
-          doc.text(172, 54, "" + row.Ev_Id);
-          doc.rect(10, 24, 190, 40);
-
-          //INICIA EL MARCO DE TODO EL FORMATO
-          // Descripcion_trabajo  Observacion_encontrada
-          // doc.addImage(img, "PNG", 10, 10, 20, 12, "sicte", "SLOW", 0);
-          doc.rect(10, 10, 20, 12);
-          doc.setFontSize(16);
-          doc.text(60, 17.5, "FORMATO DE " + row.name_tc_id);
-          doc.rect(30, 10, 135, 12); //rect(x,y,width, height)
-          doc.setFontSize(8);
-          doc.text(167, 13.5, "Codigo");
-          doc.rect(165, 10, 15, 6);
-          doc.text(182, 13.5, "HSEQ-F-002");
-          doc.rect(180, 10, 20, 6);
-          doc.text(167, 19.5, "Versión");
-          doc.rect(165, 16, 15, 6);
-          doc.text(190, 19.5, "01");
-          doc.rect(180, 16, 20, 6);
-
-          doc.rect(10, 243, 190, 11);
-          doc.text(15, 247, "IMPORTE TOTAL CON LETRA:");
-          var letranum=  numeros_letras(row.Ev_Total_venta).toUpperCase();
-          doc.text(15, 251, letranum);
-          doc.rect(10, 254, 90, 30);
-          doc.line(55, 254, 55, 284, "S");
-          doc.text(12, 258, "Firma Autoriza");
-          doc.text(57, 258, "Firma Cliente");
-          doc.rect(100, 254, 50, 30);
-          doc.line(100, 269, 150, 269, "S");
-          doc.text(101, 258, "Total Abonos");
-          doc.text(101, 273, "Total Saldos");
-          doc.rect(150, 254, 50, 30);
-          doc.text(177, 258, "Totales");
-          doc.line(175, 254, 175, 284, "S");
-          doc.text(152, 263, "Subtotal"); //Ev_Impuesto, Ev_Subtotal, Ev_Des_total_art, Ev_Descuentog, Ev_Des_gen_venta, Ev_Total_venta,
-          doc.text(177, 263, "$ " + row.Ev_Subtotal);
-          doc.text(152, 268, "Dcto Art");
-          doc.text(177, 268, "$ " + row.Ev_Des_total_art);
-          doc.text(152, 273, "Dcto Gral");
-          doc.text(177, 273, "" + row.Ev_Descuentog);
-          doc.text(152, 278, "Igv %");
-          doc.text(177, 278, "" + row.Ev_Impuesto);
-          doc.text(152, 283, "Total a pagar");
-          doc.text(177, 283, "$ " + row.Ev_Total_venta);
-          doc.setPage(i);
-          //Print Page 1 of 4 for example
-          doc.text(
-            "Pagina " + String(i) + " de " + String(pageCount),
-            210 - 100,
-            297 - 10,
-            null,
-            null,
-            "right"
-          );
-        }
-        // doc = addWaterMark(doc);
-        doc.save("Venta N° " + row.Ev_Id + ".pdf");
-      }, 1000);
+      }, 500);
+    },
+    printSale(){
+      this.print_file = true;
+      window.print();
     },
     generatePdfcot(row) {
       setTimeout(async () => {
@@ -1784,6 +1896,7 @@ export default {
                   btn_status: venta.Tc_Id == 2 ? true : false,
                   btn_details: true,
                   btn_pdf: true,
+                  btn_print: true,
                   icon_btn_edit: "done_all",
                   icon_btn_status: "done",
                   icon_btn_details: "mdi-eye-settings",
@@ -1876,6 +1989,7 @@ export default {
                   btn_edit: true,
                   icon_btn_details: "visibility",
                   btn_details: true,
+                  btn_print: true,
                   icon_btn_edit: "edit",
                 });
               });
@@ -2356,10 +2470,64 @@ export default {
 </script>
 
 <style scoped>
-p {
-  font-size: 55px;
-}
 .alto_tabla {
   height: 450px;
+}
+
+td.data,
+th.data,
+tr.data,
+table.ticket_print {
+  border-top: 1px solid black;
+  border-collapse: collapse;
+  text-align: center;
+}
+table{
+  min-width: 350px;
+}
+.cantidad{
+  width: 38px !important;
+  max-width: 38px !important;
+  word-break: break-all;
+}
+.codigo {
+  width: 46px !important;
+  max-width: 46px !important;
+  word-break: break-all;
+}
+.producto{
+  width: 120px !important;
+  max-width: 120px !important;
+  word-break: break-all;
+}
+.val_uni{
+  width: 60px !important;
+  max-width: 60px !important;
+  word-break: break-all;
+}
+.precio{
+  width: 60px !important;
+  max-width: 60px !important;
+  word-break: break-all;
+}
+
+@media print {
+  .btn_print,
+  .btn_print * {
+    display: none !important;
+  }
+}
+
+.ticket {
+  width: 350px;
+  max-width: 350px;
+  background: #fff;
+}
+
+img {
+  /* max-width: inherit;
+  width: inherit; */
+  margin: auto;
+  height: 130px;
 }
 </style>
