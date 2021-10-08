@@ -1,51 +1,96 @@
 <template>
-  <form class="login100-form validate-form" @submit="onSubmit">
-    <span class="login100-form-title">
-      Recuperar contraseña
-    </span>
-    <q-input
-      filled
-      v-model="datauser.user"
-      label="Ingrese su email o usuario"
+  <div>
+    <q-form
+      @submit="onSubmit"
+      class="q-gutter-md"
     >
-      <template v-slot:prepend>
-        <q-icon name="account_circle" />
-      </template>
-    </q-input>
-    <div class="container-login100-form-btn">
-      <button class="login100-form-btn" type="submit">
-        RECUPERAR CONTRASEÑA
-      </button>
-    </div>
-    <div class="forgot-pass text-center p-t-12">
-      <a class="txt2" href="#" @click="login">
-        Iniciar sesión
-      </a>
-    </div>
-  </form>
+      <div class="login100-form validate-form">
+        <span class="login100-form-title">
+          Recuperar contraseña
+        </span>
+        <q-input
+            filled
+            v-model="user"
+            label="Ingrese su email o usuario"
+            :rules="[val => !!val || 'Debe ingresar su usuario o email']"
+          >
+            <template v-slot:prepend>
+              <q-icon name="account_circle" />
+            </template>
+          </q-input>
+          <div class="container-login100-form-btn">
+            <q-btn class="login100-form-btn" type="submit" label="Continuar" />
+          </div>
+          <div class="forgot-pass text-center p-t-12">
+            <a class="txt2" href="#" @click="login">
+              Iniciar sesión
+            </a>
+          </div>
+      </div>
+    </q-form>
+  </div>
 </template>
 
 <script>
 import { mapActions, mapState } from "vuex";
+import CryptoJS from 'crypto-js';
 
 export default {
   name: 'ForgotPassword',
   data() {
     return {
-      datauser: {
-        user: null
-      }
+      user: null
     };
   },
 
   methods: {
+    ...mapActions('auth', [
+      'getDataUserRecove',
+      'sendEmailRecover'
+    ]),
     onSubmit() {
       this.$q.loading.show({
         message: "Recuperando contraseña"
       });
       setTimeout(async () => {
         try {
-          
+          const res_user = await this.getDataUserRecove(this.user).then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get datos usuario',
+          //   data: res_user
+          // })
+          if(res_user.ok){
+            if(res_user.result){
+              let data = {
+                nombre: res_user.data.Per_Nombre,
+                email: res_user.data.Per_Email,
+                usuario: res_user.data.Usu_Login,
+                password: this.aesDencrypt(res_user.data.Usu_Clave_ppl),
+                clave_verificacion: this.aesDencrypt(res_user.data.Usu_Clave_verificacion)
+              }
+              const res_email = await this.sendEmailRecover(data).then( res => {
+                return res.data;
+              });
+              // console.log({
+              //   msg: 'Respuesta email',
+              //   data: res_email
+              // });
+              this.$q.notify({
+                message: 'Hemos enviado un email con los datos de acceso',
+                type: 'positive'
+              });
+              this.login();
+            } else {
+              this.$q.notify({
+                message: 'No hemos econtrado datos relacionado al usuario o email ingresado',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res.message)
+          }
         } catch (e) {
           console.log(e);
         } finally {
@@ -64,7 +109,7 @@ export default {
       return cipher.toString()
     },
     aesDencrypt(txt) {
-      const cipher = CryptoJS.AES.decrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
+      const cipher = this.CryptoJS.AES.decrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
         iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
         mode: CryptoJS.mode.CBC
       })
