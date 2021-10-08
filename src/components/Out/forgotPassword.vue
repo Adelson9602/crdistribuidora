@@ -6,8 +6,7 @@
     <q-input
       filled
       v-model="datauser.user"
-      type="number"
-      label="Ingrese su usuario"
+      label="Ingrese su email o usuario"
     >
       <template v-slot:prepend>
         <q-icon name="account_circle" />
@@ -174,7 +173,7 @@ button:hover {
   width: 100%;
   height: 50px;
   border-radius: 5px;
-  background: rgb(74,98,220);
+  background: #ED9221 !important;
   background: linear-gradient(90deg, rgba(74,98,220,1) 0%, rgba(0,11,171,1) 52%, rgba(24,75,217,1) 100%);
   display: -webkit-box;
   display: -webkit-flex;

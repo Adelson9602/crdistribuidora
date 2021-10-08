@@ -1,9 +1,10 @@
 <template>
   <div>
       <div class="limiter">
+        <div class="backgorund_gradient"></div>
         <div class="container-login100">
           <div class="wrap-login100">
-            <div class="login">
+            <div class="login bg-white">
               <div class="content-login">
                 <img class="logo" src="../statics/logo_cr.png" alt="Logo de empresa">
 
@@ -217,9 +218,18 @@ iframe {
 }
 
 
-.limiter {
-  width: 100%;
+.backgorund_gradient {
   margin: 0 auto;
+  background-image: url('../statics/background_des.jpg');
+  background-image: no-repeat;
+  background-position: center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
 }
 
 .container-login100 {
@@ -234,24 +244,17 @@ iframe {
   justify-content: center;
   align-items: center;
   padding: 15px;
-  background-image: url('../statics/digital-marketing.jpg');
-  background-image: no-repeat;
-  background-position: center;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
   z-index: 2000;
 }
 
-.limiter::before {
+.backgorund_gradient::after {
   content: "";
   width: 100%;
   min-height: 100vh;
   position: absolute;
   top: 0;
   right: 0;
-  background: linear-gradient(90deg, rgb(255, 255, 255), rgb(0, 0, 0));
+  background: linear-gradient(90deg, rgb(75, 75, 75), rgb(0, 0, 0));
   opacity: .5;
 }
 
