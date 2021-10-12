@@ -118,16 +118,16 @@
     <!-- CHARTS -->
     <div class="row q-gutter-y-md">
       <div class="col-xs-12 col-sm-6 col-md-8 q-px-md">
-        <apexchart type="line" height="350" :options="options_line" :series="data_line"/>
+        <apexchart type="line" height="350" :options="options_line" :series="data_line" ref="daily_sales"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-4 q-px-md">
-        <apexchart type="radialBar" height="390" :options="options_radial" :series="data_radial_bar" />
+        <apexchart type="radialBar" height="390" :options="options_radial" :series="data_radial_bar" ref="sellars"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 q-px-md">
-        <apexchart type="bar" height="350" :options="options_bar" :series="data_bar" />
+        <apexchart type="bar" height="350" :options="options_bar" :series="data_bar" ref="more_sales"/>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-6 q-px-md">
-        <apexchart type="bar" height="350" :options="options_line_hoz" :series="data_line_hoz"/>
+        <apexchart type="bar" height="350" :options="options_line_hoz" :series="data_line_hoz" ref="best_clients"/>
       </div>
     </div>
   </div>
@@ -198,6 +198,18 @@ export default {
             stops: [0, 100, 100, 100]
           },
         },
+        noData: {  
+          text: "Cargando...",  
+          align: 'center',  
+          verticalAlign: 'middle',  
+          offsetX: 0,  
+          offsetY: 0,  
+          style: {  
+            color: "#000000",  
+            fontSize: '18px',  
+            fontFamily: "Helvetica"  
+          }  
+        }
       },
       data_radial_bar: data_val_stock,
       options_radial: {
@@ -263,10 +275,22 @@ export default {
               show: false
             }
           }
-        }]
+        }],
+        noData: {  
+          text: "Cargando...",  
+          align: 'center',  
+          verticalAlign: 'middle',  
+          offsetX: 0,  
+          offsetY: 0,  
+          style: {  
+            color: "#000000",  
+            fontSize: '18px',  
+            fontFamily: "Helvetica"  
+          }  
+        }
       },
       data_bar: [{
-         name: 'Cantidad vendida',
+        name: 'Cantidad vendida',
         data: data_pro_sales,
       }],
       options_bar: {
@@ -319,6 +343,18 @@ export default {
             stops: [0, 50, 100],
             colorStops: []
           }
+        },
+        noData: {  
+          text: "Cargando...",  
+          align: 'center',  
+          verticalAlign: 'middle',  
+          offsetX: 0,  
+          offsetY: 0,  
+          style: {  
+            color: "#000000",  
+            fontSize: '18px',  
+            fontFamily: "Helvetica"  
+          }  
         }
       },
       data_line_hoz: [{
@@ -326,21 +362,6 @@ export default {
         data: data_best_client
       }],
       options_line_hoz: {
-        annotations: {
-          points: [{
-            x: 'Bananas',
-            seriesIndex: 0,
-            label: {
-              borderColor: '#775DD0',
-              offsetY: 0,
-              style: {
-                color: '#fff',
-                background: '#775DD0',
-              },
-              text: 'Bananas are good',
-            }
-          }]
-        },
         chart: {
           height: 350,
           type: 'bar',
@@ -395,6 +416,18 @@ export default {
             opacityTo: 0.85,
             stops: [50, 0, 100]
           },
+        },
+        noData: {  
+          text: "Cargando...",  
+          align: 'center',  
+          verticalAlign: 'middle',  
+          offsetX: 0,  
+          offsetY: 0,  
+          style: {  
+            color: "#000000",  
+            fontSize: '18px',  
+            fontFamily: "Helvetica"  
+          }  
         }
       },
       total_ventas: 0,
@@ -425,6 +458,65 @@ export default {
       });
       setTimeout(async() => {
         try {
+          // Gráfica para ventas diarias
+          const res_dai_sale = await this.chartDailySales().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get gráfica ventas diarias',
+          //   data: res_dai_sale
+          // });
+          if(res_dai_sale.ok){
+            if(res_dai_sale.result){
+              cat_daily_sales.length = 0;
+              data_daily_sales.length = 0;
+              res_dai_sale.data.forEach( venta => {
+                let fecha = new Date(venta.Ev_Fecha_venta);
+                let fecha_formated = date.formatDate(fecha, 'DD MMM');
+                cat_daily_sales.push(fecha_formated)
+                data_daily_sales.push(new Intl.NumberFormat().format(venta.cant))
+              });
+              this.$refs.daily_sales.updateSeries([{
+                data: data_daily_sales,
+              }], false, true);
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_dai_sale.message)
+          }
+
+          const res_price_stock = await this.chartPriceStock().then( res => {
+            return res.data;
+          });
+          // console.log({
+          //   msg: 'Respuesta get gráfica valor stock movil',
+          //   data: res_price_stock
+          // });
+          if(res_price_stock.ok){
+            if(res_price_stock.result){
+              cat_val_stock.length = 0;
+              data_val_stock.length = 0;
+              res_price_stock.data.forEach( movil => {
+                let valor = new Intl.NumberFormat().format(movil.valor);
+                cat_val_stock.push(movil.Mov_Descripcion)
+                data_val_stock.push(valor)
+              });
+              this.$refs.sellars.updateSeries(data_val_stock, false, true);
+            } else {
+              this.$q.notify({
+                message: 'Sin resultados',
+                type: 'warning'
+              })
+            }
+          } else {
+            throw new Error(res_price_stock.message)
+          }
+
+          // Grafica para productos mas vendidos
           const res_pro_sales = await this.chartProductMoreSales().then( res => {
             return res.data;
           });
@@ -467,6 +559,9 @@ export default {
                   cat_prod_more_sales.push(product.nombre)
                 })
               }
+              this.$refs.more_sales.updateSeries([{
+                data: data_pro_sales,
+              }], false, true);
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
@@ -477,33 +572,7 @@ export default {
             throw new Error(res_pro_sales.message)
           }
 
-          const res_dai_sale = await this.chartDailySales().then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get gráfica ventas diarias',
-          //   data: res_dai_sale
-          // });
-          if(res_dai_sale.ok){
-            if(res_dai_sale.result){
-              cat_daily_sales.length = 0;
-              data_daily_sales.length = 0;
-              res_dai_sale.data.forEach( venta => {
-                let fecha = new Date(venta.Ev_Fecha_venta);
-                let fecha_formated = date.formatDate(fecha, 'DD MMM');
-                cat_daily_sales.push(fecha_formated)
-                data_daily_sales.push(new Intl.NumberFormat().format(venta.cant))
-              });
-            } else {
-              this.$q.notify({
-                message: 'Sin resultados',
-                type: 'warning'
-              })
-            }
-          } else {
-            throw new Error(res_dai_sale.message)
-          }
-
+          // Grafica para mejores clientes
           const res_best_client = await this.chartBestClients().then( res => {
             return res.data;
           });
@@ -522,6 +591,9 @@ export default {
                   cat_best_clients.push(venta.CP_Razon_social)
                 }
               });
+              this.$refs.best_clients.updateSeries([{
+                data: data_best_client,
+              }], false, true);
             } else {
               this.$q.notify({
                 message: 'Sin resultados',
@@ -530,32 +602,6 @@ export default {
             }
           } else {
             throw new Error(res_best_client.message)
-          }
-
-          const res_price_stock = await this.chartPriceStock().then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get gráfica valor stock movil',
-          //   data: res_price_stock
-          // });
-          if(res_price_stock.ok){
-            if(res_price_stock.result){
-              cat_val_stock.length = 0;
-              data_val_stock.length = 0;
-              res_price_stock.data.forEach( movil => {
-                let valor = new Intl.NumberFormat().format(movil.valor);
-                cat_val_stock.push(movil.Mov_Descripcion)
-                data_val_stock.push(valor)
-              });
-            } else {
-              this.$q.notify({
-                message: 'Sin resultados',
-                type: 'warning'
-              })
-            }
-          } else {
-            throw new Error(res_price_stock.message)
           }
 
           const res_no_cred = await this.getTotalNotasCre().then( res => {
@@ -609,6 +655,7 @@ export default {
           } else {
             throw new Error(res_cre_pd.message);
           }
+          this.render_chart = true;
         } catch (e) {
           console.log(e);
           if (e.message === "Network Error") {
