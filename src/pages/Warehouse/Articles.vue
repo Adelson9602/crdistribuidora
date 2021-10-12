@@ -44,6 +44,60 @@
                 label="Articulos pendientes"
               />
             </template>
+            <template v-slot:input_one>
+              <q-btn color="primary" icon="check" label="OK" @click="dailog_barcode = true" />
+              <q-dialog v-model="dailog_barcode" persistent full-width>
+                <q-card>
+                  <q-card-section class="row items-center">
+                    <div class="col-xs-12 col-sm-6">
+                      <q-table
+                        title="Treats"
+                        :data="data"
+                        :columns="columns"
+                        row-key="Art_Codigo_inv"
+                        selection="multiple"
+                        :selected.sync="selected"
+                        :filter="filter"
+                        grid
+                        hide-header
+                      >
+                        <template v-slot:top-right>
+                          <q-input borderless dense debounce="300" v-model="filter" placeholder="Buscar" filled>
+                            <template v-slot:append>
+                              <q-icon name="search" />
+                            </template>
+                          </q-input>
+                        </template>
+
+                        <template v-slot:item="props">
+                          <div
+                            class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition"
+                            :style="props.selected ? 'transform: scale(0.95);' : ''"
+                          >
+                            <q-card :class="props.selected ? 'bg-grey-2' : ''">
+                              <q-card-section>
+                                <q-checkbox dense v-model="props.selected" :label="props.row.Art_Codigo_inv" />
+                              </q-card-section>
+                              <q-separator />
+                              <q-list dense>
+                                <vue-barcode v-bind:value="props.row.Art_Codigo_inv" :height="50">
+                                  Show this if the rendering fails.
+                                </vue-barcode>
+                              </q-list>
+                            </q-card>
+                          </div>
+                        </template>
+
+                      </q-table>
+                    </div>
+                  </q-card-section>
+                  <q-card-actions align="right">
+                    <q-btn flat label="Cancel" color="primary" v-close-popup />
+                    <q-btn flat label="Turn on Wifi" color="primary" v-close-popup />
+                  </q-card-actions>
+                </q-card>
+              </q-dialog>
+            </template>
           </component-table>
           <!-- Dialogo para activar o inactivar una meta -->
           <component-dialog-enable
@@ -187,6 +241,7 @@ import componentTable from "components/Generals/ComponentTable";
 import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
 import dialog from 'components/Generals/ComponentDialogWarning';
 import { mapActions, mapState } from "vuex";
+import VueBarcode from 'vue-barcode';
 let categorias = [];
 let ums = [];
 let percents = [];
@@ -196,9 +251,13 @@ export default {
     ComponentAddArticle,
     componentTable,
     ComponentDialogEnable,
+    VueBarcode
   },
   data() {
     return {
+      filter: null,
+      selected: [], //Contiene los codigos que se van a imprimir
+      dailog_barcode: false, //Abre el dialog para ver los codigos de barra generados
       tab: "articles",
       date_range: {
         to: null,
@@ -970,5 +1029,9 @@ export default {
 <style scoped>
 p {
   font-size: 55px;
+}
+.grid-style-transition{
+  transition: transform .28s; 
+  background-color: .28s;
 }
 </style>
