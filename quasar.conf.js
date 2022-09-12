@@ -53,8 +53,8 @@ module.exports = function (/* ctx */) {
       env:{
         __ENV__: 'dev',
         __VERSION__: 'v2.21.8.23',
-        __URLAPI__: `http://apis.crdistribuidora.com/pcr/`,
-        __BASE__: 'crdistribuidora_newpruebas',
+        __URLAPI__: `http://apis.appears.com.co/sigiP/`,
+        __BASE__: 'wwappe_sigi',
         __KEY__: '82f2ceed4c503896c8a291e560bd4325',
         __IV__: 'AES256',
         __PROJECT__: 'SIGI',
@@ -109,9 +109,9 @@ module.exports = function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [ 
+      plugins: [
         'Notify',
-        'Loading', 
+        'Loading',
         'LoadingBar',
         'Dialog',
         'AppFullscreen'
@@ -199,7 +199,7 @@ module.exports = function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'crdistribuidora'
+        appId: 'sigi'
       },
 
       // More info: https://v1.quasar.dev/quasar-cli/developing-electron-apps/node-integration

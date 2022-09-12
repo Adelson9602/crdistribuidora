@@ -110,18 +110,18 @@
                     </tr>
                   </table>
                   <br>
-                  <p class="text-center"><span class="text-bold">N° Artículos </span>{{encabezado_selected ? encabezado_selected.cantidad_art : 0}} 
-                  <p class="text-center"><span class="text-bold">Vendedor </span>{{encabezado_selected ? encabezado_selected.Per_Nombre : 0}} 
+                  <p class="text-center"><span class="text-bold">N° Artículos </span>{{encabezado_selected ? encabezado_selected.cantidad_art : 0}}
+                  <p class="text-center"><span class="text-bold">Vendedor </span>{{encabezado_selected ? encabezado_selected.Per_Nombre : 0}}
                   <br>
                   ¡GRACIAS POR SU COMPRA!
-                  <br>crdistribuidora.com</p>
+                  <br>sigi.appears.com.co</p>
                   <div class="row justify-center">
                     <q-btn flat label="Imprimir" color="primary" class="btn_print" @click="printSale()" v-if="!print_file"/>
                   </div>
                 </div>
               </q-card-section>
             </q-card>
-            
+
           </q-dialog>
           <!-- Dialogo para ver el detalle de la venta -->
           <q-dialog v-model="dialog_detail" persistent full-height full-width>
@@ -1016,7 +1016,7 @@ export default {
   },
   created() {
     this.getData();
-  
+
   },
   watch: {
     client_selected(value) {
@@ -1843,7 +1843,7 @@ export default {
             "right"
           );
         }
-       
+
         docs.save("Cotizacion N° " + row.Ec_Id + ".pdf");
       }, 1000);
     },
