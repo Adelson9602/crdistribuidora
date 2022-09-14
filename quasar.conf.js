@@ -47,9 +47,7 @@ module.exports = function(ctx) {
       env: {
         __ENV__: "dev",
         __VERSION__: "v2.21.8.23",
-        __URLAPI__: ctx.dev
-          ? "localhost:3050"
-          : `https://apis.appears.com.co/sigiP/`,
+        __URLAPI__: "https://apis.appears.com.co/sigiP/",
         __BASE__: "wwappe_sigi",
         __KEY__: "82f2ceed4c503896c8a291e560bd4325",
         __IV__: "AES256",
