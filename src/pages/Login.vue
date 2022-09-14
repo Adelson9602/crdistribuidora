@@ -1,33 +1,58 @@
 <template>
   <div>
-      <div class="limiter">
-        <div class="backgorund_gradient"></div>
-        <div class="container-login100">
-          <div class="wrap-login100">
-            <div class="login bg-white">
-              <div class="content-login">
-                <img class="logo" src="../statics/logo_cr.png" alt="Logo de empresa">
+    <div class="limiter">
+      <div class="backgorund_gradient"></div>
+      <div class="container-login100">
+        <div class="wrap-login100">
+          <div class="login bg-white">
+            <div class="content-login">
+              <img
+                class="logo"
+                src="../statics/logo_cr.png"
+                alt="Logo de empresa"
+              />
 
-                <login-form  class="col-xs-12" v-if="!isForgot" @onLogin="onLogin"/>
-                <div class="forgot-pass text-center p-t-12" v-if="!isForgot">
-                  <a class="txt2" href="#" @click="isForgot = true">
-                    ¿Olvidaste tu contraseña?
-                  </a>
-                </div> 
-                <forgot-password class="col-xs-12" v-if="isForgot" @login="forgot"/>
+              <login-form
+                class="col-xs-12"
+                v-if="!isForgot"
+                @onLogin="onLogin"
+              />
+              <div class="forgot-pass text-center p-t-12" v-if="!isForgot">
+                <a class="txt2" href="#" @click="isForgot = true">
+                  ¿Olvidaste tu contraseña?
+                </a>
               </div>
+              <forgot-password
+                class="col-xs-12"
+                v-if="isForgot"
+                @login="forgot"
+              />
             </div>
           </div>
         </div>
       </div>
-      <div class="footer items-center">
-        <div class="footer-container">
-          <!-- Rights-->
-          <p class="footer__p"><span>&copy;</span><span class="copyright-year"></span><span>&nbsp;</span><span><b>{{name_company}}</b>. Todos los derechos reservados</span><span>.&nbsp;</span><a class="footer__appears" target="_blank" href="https://appears.com.co"> Desarrollado por Appears</a></p>
-        </div>
+    </div>
+    <div class="footer items-center">
+      <div class="footer-container">
+        <!-- Rights-->
+        <p class="footer__p">
+          <span>&copy;</span><span class="copyright-year"></span
+          ><span>&nbsp;</span
+          ><span
+            ><b>{{ name_company }}</b
+            >. Todos los derechos reservados</span
+          ><span>.&nbsp;</span
+          ><a
+            class="footer__appears"
+            target="_blank"
+            href="https://appears.com.co"
+          >
+            Desarrollado por Appears</a
+          >
+        </p>
       </div>
+    </div>
   </div>
-  
 </template>
 
 <script>
@@ -35,11 +60,11 @@ import loginForm from "components/out/LoginForm";
 import forgotPassword from "components/out/forgotPassword";
 import { mapActions, mapMutations, mapState } from "vuex";
 export default {
-  data(){
+  data() {
     return {
       name_company: process.env.__PROJECT__,
-      isForgot: false,
-    }
+      isForgot: false
+    };
   },
   name: "PageLogin",
   components: {
@@ -57,33 +82,30 @@ export default {
     ...mapMutations("auth", ["setUser", "setIsLogged"]),
     async onLogin(user) {
       this.$q.loading.show({
-        message: 'Iniciando sesión, por favor espere...' 
+        message: "Iniciando sesión, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          user.base = process.env.__BASE__;
-          const { data } = await this.login(user); //login es la acción, está definida en mapActions de la tienda de datos de vuex
-          console.log(data.data)
-          this.setUser(data.data);
-          this.setIsLogged(true);
-          this.$router.push('desktop')
-          this.$q.notify({
-            type: "positive",
-            message: "Bienvenido",
-          });
-        } catch (e) {
-          this.$q.notify({
-            type: "negative",
-            message: e.message,
-          });
-        } finally {
-          this.$q.loading.hide();
-        }
-      }, 2000);
+      try {
+        user.base = process.env.__BASE__;
+        const { data } = await this.login(user); //login es la acción, está definida en mapActions de la tienda de datos de vuex
+        this.setUser(data.data);
+        this.setIsLogged(true);
+        this.$router.push("desktop");
+        this.$q.notify({
+          type: "positive",
+          message: "Bienvenido"
+        });
+      } catch (e) {
+        this.$q.notify({
+          type: "negative",
+          message: e.message
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    forgot(){
+    forgot() {
       this.isForgot = false;
-    },
+    }
   }
 };
 </script>
@@ -96,68 +118,73 @@ export default {
 
 @font-face {
   font-family: Poppins-Regular;
-  src: url('../statics/fonts/poppins/Poppins-Regular.ttf'); 
+  src: url("../statics/fonts/poppins/Poppins-Regular.ttf");
 }
 
 @font-face {
   font-family: Poppins-Bold;
-  src: url('../statics/fonts/poppins/Poppins-Bold.ttf'); 
+  src: url("../statics/fonts/poppins/Poppins-Bold.ttf");
 }
 
 @font-face {
   font-family: Poppins-Medium;
-  src: url('../statics/fonts/poppins/Poppins-Medium.ttf'); 
+  src: url("../statics/fonts/poppins/Poppins-Medium.ttf");
 }
 
 @font-face {
   font-family: Montserrat-Bold;
-  src: url('../statics/fonts/montserrat/Montserrat-Bold.ttf'); 
+  src: url("../statics/fonts/montserrat/Montserrat-Bold.ttf");
 }
 
 a {
-	font-family: Poppins-Regular;
-	font-size: 14px;
-	line-height: 1.7;
-	color: #666666;
-	margin: 0px;
-	transition: all 0.4s;
-	-webkit-transition: all 0.4s;
+  font-family: Poppins-Regular;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #666666;
+  margin: 0px;
+  transition: all 0.4s;
+  -webkit-transition: all 0.4s;
   -o-transition: all 0.4s;
   -moz-transition: all 0.4s;
 }
 
 a:focus {
-	outline: none !important;
+  outline: none !important;
 }
 
 a:hover {
-	text-decoration: none;
+  text-decoration: none;
   color: #57b846;
 }
 
 /*---------------------------------------------*/
-h1,h2,h3,h4,h5,h6 {
-	margin: 0px;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0px;
 }
 
 p {
-	font-family: Poppins-Regular;
-	font-size: 14px;
-	line-height: 1.7;
-	color: #666666;
-	margin: 0px;
+  font-family: Poppins-Regular;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #666666;
+  margin: 0px;
 }
 
-ul, li {
-	margin: 0px;
-	list-style-type: none;
+ul,
+li {
+  margin: 0px;
+  list-style-type: none;
 }
-
 
 /*---------------------------------------------*/
 input {
-	outline: none;
-	border: none;
+  outline: none;
+  border: none;
 }
 
 textarea {
@@ -165,42 +192,75 @@ textarea {
   border: none;
 }
 
-textarea:focus, input:focus {
+textarea:focus,
+input:focus {
   border-color: transparent !important;
 }
 
-input:focus::-webkit-input-placeholder { color:transparent; }
-input:focus:-moz-placeholder { color:transparent; }
-input:focus::-moz-placeholder { color:transparent; }
-input:focus:-ms-input-placeholder { color:transparent; }
+input:focus::-webkit-input-placeholder {
+  color: transparent;
+}
+input:focus:-moz-placeholder {
+  color: transparent;
+}
+input:focus::-moz-placeholder {
+  color: transparent;
+}
+input:focus:-ms-input-placeholder {
+  color: transparent;
+}
 
-textarea:focus::-webkit-input-placeholder { color:transparent; }
-textarea:focus:-moz-placeholder { color:transparent; }
-textarea:focus::-moz-placeholder { color:transparent; }
-textarea:focus:-ms-input-placeholder { color:transparent; }
+textarea:focus::-webkit-input-placeholder {
+  color: transparent;
+}
+textarea:focus:-moz-placeholder {
+  color: transparent;
+}
+textarea:focus::-moz-placeholder {
+  color: transparent;
+}
+textarea:focus:-ms-input-placeholder {
+  color: transparent;
+}
 
-input::-webkit-input-placeholder { color: #999999; }
-input:-moz-placeholder { color: #999999; }
-input::-moz-placeholder { color: #999999; }
-input:-ms-input-placeholder { color: #999999; }
+input::-webkit-input-placeholder {
+  color: #999999;
+}
+input:-moz-placeholder {
+  color: #999999;
+}
+input::-moz-placeholder {
+  color: #999999;
+}
+input:-ms-input-placeholder {
+  color: #999999;
+}
 
-textarea::-webkit-input-placeholder { color: #999999; }
-textarea:-moz-placeholder { color: #999999; }
-textarea::-moz-placeholder { color: #999999; }
-textarea:-ms-input-placeholder { color: #999999; }
+textarea::-webkit-input-placeholder {
+  color: #999999;
+}
+textarea:-moz-placeholder {
+  color: #999999;
+}
+textarea::-moz-placeholder {
+  color: #999999;
+}
+textarea:-ms-input-placeholder {
+  color: #999999;
+}
 
 button {
-	outline: none !important;
-	border: none;
-	background: transparent;
+  outline: none !important;
+  border: none;
+  background: transparent;
 }
 
 button:hover {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 iframe {
-	border: none !important;
+  border: none !important;
 }
 
 .txt1 {
@@ -217,10 +277,9 @@ iframe {
   color: #666666;
 }
 
-
 .backgorund_gradient {
   margin: 0 auto;
-  background-image: url('../statics/background_des.jpg');
+  background-image: url("../statics/background_des.jpg");
   background-image: no-repeat;
   background-position: center;
   -webkit-background-size: cover;
@@ -233,7 +292,7 @@ iframe {
 }
 
 .container-login100 {
-  width: 100%;  
+  width: 100%;
   min-height: 100vh;
   display: -webkit-box;
   display: -webkit-flex;
@@ -255,7 +314,7 @@ iframe {
   top: 0;
   right: 0;
   background: linear-gradient(90deg, rgb(75, 75, 75), rgb(0, 0, 0));
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .wrap-login100 {
@@ -290,8 +349,7 @@ iframe {
   background-size: cover;
 } */
 
-
-.login{
+.login {
   width: 100%;
   padding: 30px 50px;
   display: grid;
@@ -299,24 +357,24 @@ iframe {
   position: relative;
 }
 
-.logo{
+.logo {
   display: flex;
   margin: auto;
 }
 
-.img-back-login-left{
+.img-back-login-left {
   position: absolute;
   left: 0;
   top: 0;
 }
 
-.img-back-login{
+.img-back-login {
   position: absolute;
   right: 0;
   bottom: 0;
 }
 
-.content-login{
+.content-login {
   z-index: 1000;
   position: relative;
 }
@@ -359,38 +417,36 @@ iframe {
 }
 
 @media (max-width: 840px) {
-
-  .login{
+  .login {
     width: 100%;
   }
 
-  .wrap-login100{
-      width: 480px;
+  .wrap-login100 {
+    width: 480px;
   }
-
 }
 
 @media (max-width: 575px) {
-  .container-login100{
-    background: #FFFFFF;
+  .container-login100 {
+    background: #ffffff;
     padding: 0;
   }
 
-  .login{
+  .login {
     align-items: center;
     padding-top: 0;
-}
+  }
 
-  .wrap-login100{
+  .wrap-login100 {
     width: 100vw !important;
     height: 100vh;
-    -webkit-box-shadow: 0px 0px 15px -4px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 15px -4px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 15px -4px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 0px 0px 15px -4px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 15px -4px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 0px 15px -4px rgba(0, 0, 0, 0.75);
     border-radius: 0;
   }
 
-  .img-back-login{
+  .img-back-login {
     width: 100vw;
     height: 100vh;
     position: absolute;
@@ -399,8 +455,8 @@ iframe {
   }
 }
 
-@media (max-width: 360px){
-  .content-login img{
+@media (max-width: 360px) {
+  .content-login img {
     width: 260px;
   }
 }
@@ -469,11 +525,11 @@ iframe {
 
 /* utils */
 .p-t-12 {
-    padding-top: 12px;
+  padding-top: 12px;
 }
 
 /* Footer */
-.footer{
+.footer {
   background: white;
   bottom: 0;
   text-align: center;
@@ -481,10 +537,10 @@ iframe {
   z-index: 1111;
   width: 100%;
 }
-.footer__p{
+.footer__p {
   color: black;
 }
-.footer__appears{
+.footer__appears {
   text-decoration: none;
   color: black;
   font-weight: bold;

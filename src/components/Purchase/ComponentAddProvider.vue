@@ -8,7 +8,11 @@
             type="text"
             hint="Razon social"
             :rules="[val => !!val || 'Razon social es obligatorio']"
-            @input="val => {new_proveedor.CP_Razon_social = val.toUpperCase()}"
+            @input="
+              val => {
+                new_proveedor.CP_Razon_social = val.toUpperCase();
+              }
+            "
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -17,8 +21,8 @@
             :options="options_documento"
             hint="Tipo documento"
             :rules="[val => !!val || 'Tipo documento es obligatorio']"
-         emit-value
-         map-options
+            emit-value
+            map-options
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -47,7 +51,11 @@
             hint="Dirección"
             maxlength="500"
             counter
-            @input="val => {new_proveedor.CP_Direccion = val.toUpperCase()}"
+            @input="
+              val => {
+                new_proveedor.CP_Direccion = val.toUpperCase();
+              }
+            "
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -64,7 +72,11 @@
             v-model="new_proveedor.CP_Email"
             type="email"
             hint="Email"
-            @input="val => {new_proveedor.CP_Email = val.toUpperCase()}"
+            @input="
+              val => {
+                new_proveedor.CP_Email = val.toUpperCase();
+              }
+            "
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -79,7 +91,6 @@
             hint="Departamento"
             :rules="[val => !!val || 'Departamento es obligatorio']"
             @filter="filterDepartamento"
-           
           >
             <template v-slot:no-option>
               <q-item>
@@ -96,8 +107,8 @@
             :options="options_ciudades"
             hint="Ciudad"
             :rules="[val => !!val || 'Ciudad es obligatorio']"
-             emit-value
-             map-options
+            emit-value
+            map-options
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-3 q-px-sm">
@@ -111,7 +122,8 @@
         </div>
       </div>
       <div>
-        <q-btn v-if="!this.edit_data"
+        <q-btn
+          v-if="!this.edit_data"
           label="Restablecer"
           type="reset"
           color="primary"
@@ -176,10 +188,8 @@ export default {
         value.ciudades.forEach(ciudad => {
           ciudades.push(ciudad);
         });
-     
       }
-    },
-
+    }
   },
 
   created() {
@@ -188,174 +198,170 @@ export default {
   methods: {
     ...mapActions("master", ["getCities"]),
     ...mapActions("shopping", ["getTpDoc", "addProviders"]),
-    getData() {
+    async getData() {
       this.$q.loading.show({
         message: "Obteniendo datos del servidor, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_ciudade = await this.getCities().then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta get ciudades",
-          //   data: res_ciudade
-          // });
-          if (res_ciudade.ok) {
-            if (res_ciudade.result) {
-              //Creamos un nuevo objeto donde vamos a almacenar por ciudades.
-              let nuevoObjeto = {};
-              //Recorremos el arreglo
-              res_ciudade.data.forEach(x => {
-                //Si la ciudad no existe en nuevoObjeto entonces
-                //la creamos e inicializamos el arreglo de profesionales.
-                if (!nuevoObjeto.hasOwnProperty(x.Dep_Id)) {
-                  nuevoObjeto[x.Dep_Id] = {
-                    label: x.Dep_Descripcion,
-                    value: x.Dep_Id,
-                    ciudades: []
-                  };
-                }
-
-                //Agregamos los datos de ciudades.
-                if (x.Ciu_Estado == 1) {
-                  nuevoObjeto[x.Dep_Id].ciudades.push({
-                    label: x.Ciu_Nombre,
-                    value: x.Ciu_Id
-                  });
-                }
-              });
-              departamentos.length = 0;
-              for (const key in nuevoObjeto) {
-                departamentos.push(nuevoObjeto[key]);
+      try {
+        const res_ciudade = await this.getCities().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get ciudades",
+        //   data: res_ciudade
+        // });
+        if (res_ciudade.ok) {
+          if (res_ciudade.result) {
+            //Creamos un nuevo objeto donde vamos a almacenar por ciudades.
+            let nuevoObjeto = {};
+            //Recorremos el arreglo
+            res_ciudade.data.forEach(x => {
+              //Si la ciudad no existe en nuevoObjeto entonces
+              //la creamos e inicializamos el arreglo de profesionales.
+              if (!nuevoObjeto.hasOwnProperty(x.Dep_Id)) {
+                nuevoObjeto[x.Dep_Id] = {
+                  label: x.Dep_Descripcion,
+                  value: x.Dep_Id,
+                  ciudades: []
+                };
               }
-            } else {
-              this.$q.notify({
-                message: "Sin resultados",
-                type: "warning"
-              });
+
+              //Agregamos los datos de ciudades.
+              if (x.Ciu_Estado == 1) {
+                nuevoObjeto[x.Dep_Id].ciudades.push({
+                  label: x.Ciu_Nombre,
+                  value: x.Ciu_Id
+                });
+              }
+            });
+            departamentos.length = 0;
+            for (const key in nuevoObjeto) {
+              departamentos.push(nuevoObjeto[key]);
             }
           } else {
-            throw new Error(res_ciudade.message);
+            this.$q.notify({
+              message: "Sin resultados",
+              type: "warning"
+            });
           }
-
-          // Obtenemos los tipos de documento
-          const res_tpdoc = await this.getTpDoc().then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta get tipos documentos",
-          //   data: res_tpdoc
-          // });
-          if (res_tpdoc.ok) {
-            if (res_tpdoc.result) {
-              this.options_documento.length = 0;
-              res_tpdoc.data.forEach(element => {
-                if (element.Td_Estado == 1) {
-                  this.options_documento.push({
-                    value: element.Td_Id,
-                    label: element.Tp_Desc_corta
-                  });
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: res_tpdoc.message,
-                type: "warning"
-              });
-            }
-          } else {
-            throw new Error(res_tpdoc.message);
-          }
-
-          if (this.edit_data) {
-            // Buscamos la categoria del producto asignada
-            // let categoria = options_categorias.find( categoria => categoria.label.toLowerCase() == this.edit_data.Cat_Nombre.toLowerCase());
-            // Buscamos la unidad de medida asiganada
-            // let um = options_um.find( um => um.prefijo.toLowerCase() == this.edit_data.Prefijo.toLowerCase())
-            this.new_proveedor = {
-              base: null,
-              Dcp_Id: null,
-              Dcp_Contacto: null,
-              Dcp_Telefono: null,
-              Dcp_Estado: null,
-              CP_Nit: this.edit_data.CP_Nit,
-              CP_Razon_social: this.edit_data.CP_Razon_social,
-              CP_Digito_verificacion: this.edit_data.CP_Digito_verificacion,
-              Td_Id: this.edit_data.Td_Id,
-              Tp_Id: 0,
-              CP_Direccion: this.edit_data.CP_Direccion,
-              CP_Email: this.edit_data.CP_Email,
-              CP_Urlweb: this.edit_data.CP_Urlweb,
-              CP_Telefono: this.edit_data.CP_Telefono,
-              Ciu_Id: this.edit_data.Ciu_Id,
-              CP_Estado: this.edit_data.CP_Estado,
-              CP_User_control: this.data_user.Per_Num_documento
-            };
-          }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_ciudade.message);
         }
-      }, 2000);
+
+        // Obtenemos los tipos de documento
+        const res_tpdoc = await this.getTpDoc().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get tipos documentos",
+        //   data: res_tpdoc
+        // });
+        if (res_tpdoc.ok) {
+          if (res_tpdoc.result) {
+            this.options_documento.length = 0;
+            res_tpdoc.data.forEach(element => {
+              if (element.Td_Estado == 1) {
+                this.options_documento.push({
+                  value: element.Td_Id,
+                  label: element.Tp_Desc_corta
+                });
+              }
+            });
+          } else {
+            this.$q.notify({
+              message: res_tpdoc.message,
+              type: "warning"
+            });
+          }
+        } else {
+          throw new Error(res_tpdoc.message);
+        }
+
+        if (this.edit_data) {
+          // Buscamos la categoria del producto asignada
+          // let categoria = options_categorias.find( categoria => categoria.label.toLowerCase() == this.edit_data.Cat_Nombre.toLowerCase());
+          // Buscamos la unidad de medida asiganada
+          // let um = options_um.find( um => um.prefijo.toLowerCase() == this.edit_data.Prefijo.toLowerCase())
+          this.new_proveedor = {
+            base: null,
+            Dcp_Id: null,
+            Dcp_Contacto: null,
+            Dcp_Telefono: null,
+            Dcp_Estado: null,
+            CP_Nit: this.edit_data.CP_Nit,
+            CP_Razon_social: this.edit_data.CP_Razon_social,
+            CP_Digito_verificacion: this.edit_data.CP_Digito_verificacion,
+            Td_Id: this.edit_data.Td_Id,
+            Tp_Id: 0,
+            CP_Direccion: this.edit_data.CP_Direccion,
+            CP_Email: this.edit_data.CP_Email,
+            CP_Urlweb: this.edit_data.CP_Urlweb,
+            CP_Telefono: this.edit_data.CP_Telefono,
+            Ciu_Id: this.edit_data.Ciu_Id,
+            CP_Estado: this.edit_data.CP_Estado,
+            CP_User_control: this.data_user.Per_Num_documento
+          };
+        }
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    onSubmit() {
+    async onSubmit() {
       this.$q.loading.show({
         message: "Agregando Proveedor, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          this.new_proveedor.base = process.env.__BASE__;
-          this.new_proveedor.CP_User_control = this.data_user.Per_Num_documento;
-          this.new_proveedor.CP_Estado = 1;
+      try {
+        this.new_proveedor.base = process.env.__BASE__;
+        this.new_proveedor.CP_User_control = this.data_user.Per_Num_documento;
+        this.new_proveedor.CP_Estado = 1;
 
-          const res_add = await this.addProviders(this.new_proveedor).then(
-            res => {
-              return res.data;
-            }
-          );
-          // console.log({
-          //   msg: "Respuesta insert update proveedores",
-          //   data: res_add
-          // });
-          if (res_add.ok) {
-            this.$q.notify({
-              message: "Guardado",
-              type: "positive"
-            });
-            this.$emit("reload");
+        const res_add = await this.addProviders(this.new_proveedor).then(
+          res => {
+            return res.data;
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
+        );
+        // console.log({
+        //   msg: "Respuesta insert update proveedores",
+        //   data: res_add
+        // });
+        if (res_add.ok) {
           this.$q.notify({
-            message: e,
-            type: "negative"
+            message: "Guardado",
+            type: "positive"
           });
-        } finally {
-          this.$q.loading.hide();
+          this.$emit("reload");
         }
-      }, 2000);
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     onReset() {
       this.departamento_selecte = null;
@@ -378,7 +384,7 @@ export default {
         Ciu_Id: null,
         CP_Estado: null,
         CP_User_control: null
-      }
+      };
     },
     // Buscador para el select departamento
     filterDepartamento(val, update, abort) {

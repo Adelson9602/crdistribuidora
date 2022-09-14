@@ -58,10 +58,9 @@
                       </div>
                     </template>
                   </q-field>
-                </div> </q-card-section
-              >
+                </div>
+              </q-card-section>
 
-              
               <q-card-section>
                 <q-table
                   title="Productos "
@@ -84,10 +83,7 @@
                     </q-tr>
                   </template>
                   <template v-slot:body-cell="props">
-                    <q-td
-                      :props="props"
-                      style="text-align: center !important"
-                    >
+                    <q-td :props="props" style="text-align: center !important">
                       {{ props.value }}
                     </q-td>
                   </template>
@@ -107,7 +103,7 @@ import ComponentTable from "components/Generals/ComponentTable";
 export default {
   name: "SaleswithoutBalance",
   components: {
-    ComponentTable,
+    ComponentTable
   },
   data() {
     return {
@@ -325,220 +321,214 @@ export default {
       "insertUpdateEncGarantia",
       "insertUpdateStcok_garantias"
     ]),
-    getData() {
+    async getData() {
       this.$q.loading.show({
         message: "Obteniendo garantias, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_warranties = await this.getWarranties().then(res => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta get garantías",
-            data: res_warranties
-          });
-          if (res_warranties.ok) {
-            if (res_warranties.result) {
-              this.data.length = 0;
+      try {
+        const res_warranties = await this.getWarranties().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get garantías",
+        //   data: res_warranties
+        // });
+        if (res_warranties.ok) {
+          if (res_warranties.result) {
+            this.data.length = 0;
 
-              res_warranties.data.forEach(garantia => {
-                this.data.push({
-                  Eg_Id: garantia.Eg_Id,
-                  Ev_Id: garantia.Ev_Id,
-                  CP_Nit: garantia.CP_Nit,
-                  Mov_Id: garantia.Mov_Id,
-                  EvCP_Razon_social_Id: garantia.CP_Razon_social,
-                  Mov_Descripcion: garantia.Mov_Descripcion,
-                  name_integrnate: garantia.name_integrnate,
-                  Eg_Fecha_control: garantia.Eg_Fecha_control,
-                  Eg_Observacion: garantia.Eg_Observacion,
-                  Eg_Quien_autoriza: garantia.Eg_Quien_autoriza,
-                  name_autoriza: garantia.name_autoriza,
-                  Eg_estado: garantia.Eg_estado,
-                  name_estado: garantia.name_estado,
-                  Eg_User_control: garantia.Eg_User_control,
-                  Per_Nombre: garantia.Per_Nombre,
-                  Id: garantia.Ev_Id,
-                  title: `Movimiento No. ${garantia.Eg_Id}`,
-                  btn_edit: false,
-                  icon_btn_details: "visibility",
-                  btn_details: true,
-                  icon_btn_edit: "edit"
-                });
+            res_warranties.data.forEach(garantia => {
+              this.data.push({
+                Eg_Id: garantia.Eg_Id,
+                Ev_Id: garantia.Ev_Id,
+                CP_Nit: garantia.CP_Nit,
+                Mov_Id: garantia.Mov_Id,
+                EvCP_Razon_social_Id: garantia.CP_Razon_social,
+                Mov_Descripcion: garantia.Mov_Descripcion,
+                name_integrnate: garantia.name_integrnate,
+                Eg_Fecha_control: garantia.Eg_Fecha_control,
+                Eg_Observacion: garantia.Eg_Observacion,
+                Eg_Quien_autoriza: garantia.Eg_Quien_autoriza,
+                name_autoriza: garantia.name_autoriza,
+                Eg_estado: garantia.Eg_estado,
+                name_estado: garantia.name_estado,
+                Eg_User_control: garantia.Eg_User_control,
+                Per_Nombre: garantia.Per_Nombre,
+                Id: garantia.Ev_Id,
+                title: `Movimiento No. ${garantia.Eg_Id}`,
+                btn_edit: false,
+                icon_btn_details: "visibility",
+                btn_details: true,
+                icon_btn_edit: "edit"
               });
-            } else {
-              this.$q.notify({
-                message: res_warranties.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_metas.message);
+            this.$q.notify({
+              message: res_warranties.message,
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_metas.message);
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    detailsEntry(row) {
+    async detailsEntry(row) {
       this.$q.loading.show({
         message: "Obteniendo detalle del ingreso, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          // Modificamos muestra el encabezado de la entrada
-          this.encabezado_entrada = {
-            "Movimiento No.": row.Eg_Id,
-            "Fecha Movimiento": row.Eg_Fecha_control,
-            Nit: row.CP_Nit,
-            "Razon social": row.CP_Razon_social,
-            "Venta No.": row.Ev_Id,
-            "ID Movil": row.Mov_Id,
-            Movil: row.Mov_Descripcion,
-            "Cc Autoriza": row.Eg_Quien_autoriza,
-            Vendedor: row.name_integrnate,
-            Observacion: row.Eg_Observacion,
-            "Name autoriza": row.name_autoriza,
-            Estado: row.name_estado
-          };
+      try {
+        // Modificamos muestra el encabezado de la entrada
+        this.encabezado_entrada = {
+          "Movimiento No.": row.Eg_Id,
+          "Fecha Movimiento": row.Eg_Fecha_control,
+          Nit: row.CP_Nit,
+          "Razon social": row.CP_Razon_social,
+          "Venta No.": row.Ev_Id,
+          "ID Movil": row.Mov_Id,
+          Movil: row.Mov_Descripcion,
+          "Cc Autoriza": row.Eg_Quien_autoriza,
+          Vendedor: row.name_integrnate,
+          Observacion: row.Eg_Observacion,
+          "Name autoriza": row.name_autoriza,
+          Estado: row.name_estado
+        };
 
-          const res_detail = await this.getDetailsGuarantess(row.Ev_Id).then(
-            res => {
-              return res.data;
-            }
-          );
-          console.log({
-            msg: "Respuesta get detalle ingreso",
-            data: res_detail
-          });
-          if (res_detail.ok) {
-            if (res_detail.result) {
-              this.data_details.length = 0;
-              res_detail.data.forEach(garantias => {
-                this.data_details.push({
-                  "Id producto": garantias.Art_Id,
-                  "Codigo producto": garantias.Art_Codigo_inv,
-                  Descripción: garantias.Art_Nombre,
-                  Cantidad: garantias.Dg_Cant
-                });
+        const res_detail = await this.getDetailsGuarantess(row.Ev_Id).then(
+          res => {
+            return res.data;
+          }
+        );
+        // console.log({
+        //   msg: "Respuesta get detalle ingreso",
+        //   data: res_detail
+        // });
+        if (res_detail.ok) {
+          if (res_detail.result) {
+            this.data_details.length = 0;
+            res_detail.data.forEach(garantias => {
+              this.data_details.push({
+                "Id producto": garantias.Art_Id,
+                "Codigo producto": garantias.Art_Codigo_inv,
+                Descripción: garantias.Art_Nombre,
+                Cantidad: garantias.Dg_Cant
               });
-            } else {
-              this.$q.notify({
-                message: res_detail.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_detail.message);
+            this.$q.notify({
+              message: res_detail.message,
+              type: "warning"
+            });
           }
-          this.dailog_details = true;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_detail.message);
         }
-      }, 1000);
+        this.dailog_details = true;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    getDataSelect(value) {
+    async getDataSelect(value) {
       this.$q.loading.show({
         message: "Obteniendo garantias, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_warranties = await this.getWarrantiesSelect(value).then(
-            res => {
-              return res.data;
-            }
-          );
-          console.log({
-            msg: "Respuesta get garantías",
-            data: res_warranties
-          });
-          if (res_warranties.ok) {
-            if (res_warranties.result) {
-              this.data.length = 0;
+      try {
+        const res_warranties = await this.getWarrantiesSelect(value).then(
+          res => {
+            return res.data;
+          }
+        );
+        // console.log({
+        //   msg: "Respuesta get garantías",
+        //   data: res_warranties
+        // });
+        if (res_warranties.ok) {
+          if (res_warranties.result) {
+            this.data.length = 0;
 
-              res_warranties.data.forEach(garantia => {
-                this.data.push({
-                  Eg_Id: garantia.Eg_Id,
-                  Ev_Id: garantia.Ev_Id,
-                  CP_Nit: garantia.CP_Nit,
-                  Mov_Id: garantia.Mov_Id,
-                  EvCP_Razon_social_Id: garantia.CP_Razon_social,
-                  Mov_Descripcion: garantia.Mov_Descripcion,
-                  name_integrnate: garantia.name_integrnate,
-                  Eg_Fecha_control: garantia.Eg_Fecha_control,
-                  Eg_Observacion: garantia.Eg_Observacion,
-                  Eg_Quien_autoriza: garantia.Eg_Quien_autoriza,
-                  name_autoriza: garantia.name_autoriza,
-                  Eg_estado: garantia.Eg_estado,
-                  name_estado: garantia.name_estado,
-                  Eg_User_control: garantia.Eg_User_control,
-                  Per_Nombre: garantia.Per_Nombre,
-                  Id: garantia.Ev_Id,
-                  title: `Movimiento No. ${garantia.Eg_Id}`,
-                  btn_edit: false,
-                  icon_btn_details: "visibility",
-                  btn_details: true,
-                  icon_btn_edit: "edit"
-                });
+            res_warranties.data.forEach(garantia => {
+              this.data.push({
+                Eg_Id: garantia.Eg_Id,
+                Ev_Id: garantia.Ev_Id,
+                CP_Nit: garantia.CP_Nit,
+                Mov_Id: garantia.Mov_Id,
+                EvCP_Razon_social_Id: garantia.CP_Razon_social,
+                Mov_Descripcion: garantia.Mov_Descripcion,
+                name_integrnate: garantia.name_integrnate,
+                Eg_Fecha_control: garantia.Eg_Fecha_control,
+                Eg_Observacion: garantia.Eg_Observacion,
+                Eg_Quien_autoriza: garantia.Eg_Quien_autoriza,
+                name_autoriza: garantia.name_autoriza,
+                Eg_estado: garantia.Eg_estado,
+                name_estado: garantia.name_estado,
+                Eg_User_control: garantia.Eg_User_control,
+                Per_Nombre: garantia.Per_Nombre,
+                Id: garantia.Ev_Id,
+                title: `Movimiento No. ${garantia.Eg_Id}`,
+                btn_edit: false,
+                icon_btn_details: "visibility",
+                btn_details: true,
+                icon_btn_edit: "edit"
               });
-            } else {
-              this.$q.notify({
-                message: res_warranties.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_metas.message);
+            this.$q.notify({
+              message: res_warranties.message,
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_metas.message);
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     // Actualizamos el estado del traslado
     updateTraslado() {

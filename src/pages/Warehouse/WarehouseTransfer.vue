@@ -393,107 +393,105 @@ export default {
       "updateInventarioMovil"
     ]),
     ...mapActions("master", ["getMembersMovil"]),
-    getData() {
+    async getData() {
       this.$q.loading.show({
         message: "Obteniendo traslados, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_traslados = await this.getTransfer().then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get traslados',
-          //   data: res_traslados
-          // })
-          if (res_traslados.ok) {
-            if (res_traslados.result) {
-              this.data.length = 0;
-              this.datageneral.length = 0;
-              res_traslados.data.forEach(element => {
-                this.data.push({
-                  Etm_Estado: element.Etm_Estado,
-                  Etm_Id: element.Etm_Id,
-                  Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
-                  Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
-                  id: element.id,
-                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
-                  name_m_entrega: element.name_m_entrega,
-                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
-                  name_m_recibe: element.name_m_recibe,
-                  name_p_entrega: element.name_p_entrega,
-                  name_p_recibe: element.name_p_recibe,
-                  Etm_Observaciones: element.Etm_Observaciones,
-                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
-                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
-                  Id: element.Etm_Id,
-                  title: `Movimiento No. ${element.id}`,
-                  Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
-                  status: element.Etm_Estado,
-                  btn_details: true,
-                  icon_btn_details: "mdi-eye-settings"
-                  // btn_edit: false,
-                  // btn_status: false,
-                  // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
-                });
-                this.datageneral.push({
-                  Etm_Estado: element.Etm_Estado,
-                  Etm_Id: element.Etm_Id,
-                  Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
-                  Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
-                  id: element.id,
-                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
-                  name_m_entrega: element.name_m_entrega,
-                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
-                  name_m_recibe: element.name_m_recibe,
-                  name_p_entrega: element.name_p_entrega,
-                  name_p_recibe: element.name_p_recibe,
-                  Etm_Observaciones: element.Etm_Observaciones,
-                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
-                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
-                  Id: element.Etm_Id,
-                  title: `Movimiento No. ${element.id}`,
-                  Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
-                  status: element.Etm_Estado,
-                  btn_details: true,
-                  icon_btn_details: "mdi-eye-settings"
-                  // btn_edit: false,
-                  // btn_status: false,
-                  // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
-                });
+      try {
+        const res_traslados = await this.getTransfer().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Respuesta get traslados',
+        //   data: res_traslados
+        // })
+        if (res_traslados.ok) {
+          if (res_traslados.result) {
+            this.data.length = 0;
+            this.datageneral.length = 0;
+            res_traslados.data.forEach(element => {
+              this.data.push({
+                Etm_Estado: element.Etm_Estado,
+                Etm_Id: element.Etm_Id,
+                Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
+                Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
+                id: element.id,
+                Etm_Usuario_entrega: element.Etm_Usuario_entrega,
+                name_m_entrega: element.name_m_entrega,
+                Etm_Usuario_recibe: element.Etm_Usuario_recibe,
+                name_m_recibe: element.name_m_recibe,
+                name_p_entrega: element.name_p_entrega,
+                name_p_recibe: element.name_p_recibe,
+                Etm_Observaciones: element.Etm_Observaciones,
+                Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                Etm_Fecha_recibe: element.Etm_Fecha_recibe,
+                Id: element.Etm_Id,
+                title: `Movimiento No. ${element.id}`,
+                Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
+                status: element.Etm_Estado,
+                btn_details: true,
+                icon_btn_details: "mdi-eye-settings"
+                // btn_edit: false,
+                // btn_status: false,
+                // btn_pdf: true,
+                // icon_btn_edit: "mdi-pencil",
+                // icon_btn_status: "power_settings_new",
               });
-            } else {
-              this.$q.notify({
-                message: "Sin resultados",
-                type: "warning"
+              this.datageneral.push({
+                Etm_Estado: element.Etm_Estado,
+                Etm_Id: element.Etm_Id,
+                Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
+                Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
+                id: element.id,
+                Etm_Usuario_entrega: element.Etm_Usuario_entrega,
+                name_m_entrega: element.name_m_entrega,
+                Etm_Usuario_recibe: element.Etm_Usuario_recibe,
+                name_m_recibe: element.name_m_recibe,
+                name_p_entrega: element.name_p_entrega,
+                name_p_recibe: element.name_p_recibe,
+                Etm_Observaciones: element.Etm_Observaciones,
+                Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                Etm_Fecha_recibe: element.Etm_Fecha_recibe,
+                Id: element.Etm_Id,
+                title: `Movimiento No. ${element.id}`,
+                Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
+                status: element.Etm_Estado,
+                btn_details: true,
+                icon_btn_details: "mdi-eye-settings"
+                // btn_edit: false,
+                // btn_status: false,
+                // btn_pdf: true,
+                // icon_btn_edit: "mdi-pencil",
+                // icon_btn_status: "power_settings_new",
               });
-            }
+            });
           } else {
-            throw new Error(res_traslados.message);
+            this.$q.notify({
+              message: "Sin resultados",
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_traslados.message);
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     reload() {
       this.tab = "transfer";
@@ -579,97 +577,94 @@ export default {
       }, 1000);
     },
     // Obtiene los traslados por un rango de fecha
-    getRange(range) {
-      console.log(range);
+    async getRange(range) {
       this.$q.loading.show({
         message:
           "Obteniendo traslados en el rango seleccionado, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_range = await this.getTransferRange(range).then(res => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta get traslados por rango",
-            data: res_range
-          });
-          if (res_range.ok) {
-            if (res_range.result) {
-              this.data.length = 0;
-              this.datageneral.length = 0;
-              res_range.data.forEach(element => {
-                this.data.push({
-                  Etm_Estado: element.Etm_Estado,
-                  Etm_Id: element.Etm_Id,
-                  Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
-                  Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
-                  id: element.id,
-                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
-                  name_m_entrega: element.name_m_entrega,
-                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
-                  name_m_recibe: element.name_m_recibe,
-                  name_p_entrega: element.name_p_entrega,
-                  name_p_recibe: element.name_p_recibe,
-                  Etm_Observaciones: element.Etm_Observaciones,
-                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
-                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
-                  Id: element.Etm_Id,
-                  title: `Movimiento No. ${element.id}`,
-                  Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
-                  status: element.Etm_Estado,
-                  btn_details: true,
-                  icon_btn_details: "mdi-eye-settings"
-                  // btn_edit: false,
-                  // btn_status: false,
-                  // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
-                });
-                this.datageneral.push({
-                  Etm_Estado: element.Etm_Estado,
-                  Etm_Id: element.Etm_Id,
-                  Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
-                  Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
-                  id: element.id,
-                  Etm_Usuario_entrega: element.Etm_Usuario_entrega,
-                  name_m_entrega: element.name_m_entrega,
-                  Etm_Usuario_recibe: element.Etm_Usuario_recibe,
-                  name_m_recibe: element.name_m_recibe,
-                  name_p_entrega: element.name_p_entrega,
-                  name_p_recibe: element.name_p_recibe,
-                  Etm_Observaciones: element.Etm_Observaciones,
-                  Etm_Fecha_entrega: element.Etm_Fecha_entrega,
-                  Etm_Fecha_recibe: element.Etm_Fecha_recibe,
-                  Id: element.Etm_Id,
-                  title: `Movimiento No. ${element.id}`,
-                  Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
-                  status: element.Etm_Estado,
-                  btn_details: true,
-                  icon_btn_details: "mdi-eye-settings"
-                  // btn_edit: false,
-                  // btn_status: false,
-                  // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
-                });
+      try {
+        const res_range = await this.getTransferRange(range).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get traslados por rango",
+        //   data: res_range
+        // });
+        if (res_range.ok) {
+          if (res_range.result) {
+            this.data.length = 0;
+            this.datageneral.length = 0;
+            res_range.data.forEach(element => {
+              this.data.push({
+                Etm_Estado: element.Etm_Estado,
+                Etm_Id: element.Etm_Id,
+                Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
+                Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
+                id: element.id,
+                Etm_Usuario_entrega: element.Etm_Usuario_entrega,
+                name_m_entrega: element.name_m_entrega,
+                Etm_Usuario_recibe: element.Etm_Usuario_recibe,
+                name_m_recibe: element.name_m_recibe,
+                name_p_entrega: element.name_p_entrega,
+                name_p_recibe: element.name_p_recibe,
+                Etm_Observaciones: element.Etm_Observaciones,
+                Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                Etm_Fecha_recibe: element.Etm_Fecha_recibe,
+                Id: element.Etm_Id,
+                title: `Movimiento No. ${element.id}`,
+                Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
+                status: element.Etm_Estado,
+                btn_details: true,
+                icon_btn_details: "mdi-eye-settings"
+                // btn_edit: false,
+                // btn_status: false,
+                // btn_pdf: true,
+                // icon_btn_edit: "mdi-pencil",
+                // icon_btn_status: "power_settings_new",
               });
-            } else {
-              this.$q.notify({
-                message: "Ops! sin resultados",
-                type: "warning"
+              this.datageneral.push({
+                Etm_Estado: element.Etm_Estado,
+                Etm_Id: element.Etm_Id,
+                Etm_Mov_ID_entrega: element.Etm_Mov_ID_entrega,
+                Etm_Mov_Id_recibe: element.Etm_Mov_Id_recibe,
+                id: element.id,
+                Etm_Usuario_entrega: element.Etm_Usuario_entrega,
+                name_m_entrega: element.name_m_entrega,
+                Etm_Usuario_recibe: element.Etm_Usuario_recibe,
+                name_m_recibe: element.name_m_recibe,
+                name_p_entrega: element.name_p_entrega,
+                name_p_recibe: element.name_p_recibe,
+                Etm_Observaciones: element.Etm_Observaciones,
+                Etm_Fecha_entrega: element.Etm_Fecha_entrega,
+                Etm_Fecha_recibe: element.Etm_Fecha_recibe,
+                Id: element.Etm_Id,
+                title: `Movimiento No. ${element.id}`,
+                Estado: element.Etm_Estado == 1 ? "ENTREGADO" : "PENDIENTE",
+                status: element.Etm_Estado,
+                btn_details: true,
+                icon_btn_details: "mdi-eye-settings"
+                // btn_edit: false,
+                // btn_status: false,
+                // btn_pdf: true,
+                // icon_btn_edit: "mdi-pencil",
+                // icon_btn_status: "power_settings_new",
               });
-            }
+            });
           } else {
-            throw new Error(res_range.message);
+            this.$q.notify({
+              message: "Ops! sin resultados",
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_range.message);
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     // Actualizamos el estado del traslado
     updateTraslado() {
@@ -689,10 +684,10 @@ export default {
           ).then(res => {
             return res.data;
           });
-          console.log({
-            msg: "Respuesta insert update encabezado traslado",
-            data: res_enc
-          });
+          // console.log({
+          //   msg: "Respuesta insert update encabezado traslado",
+          //   data: res_enc
+          // });
           if (!res_enc.ok) {
             throw new Error(res_enc.message);
           }
@@ -720,7 +715,7 @@ export default {
             update_cant.push(suma_produ);
           });
           // Actualizamos las cantidades si el estado es entregado
-          Promise.all(update_cant).then(res_det => {
+          await Promise.all(update_cant).then(res_det => {
             res_det.forEach(res => {
               console.log({
                 msg: "Respuesta insert update cantidades traslado",
@@ -756,59 +751,55 @@ export default {
         this.timer = setTimeout(this.getData(), 1000);
       }, 1000);
     },
-    getDataMovilDestino(id_movil) {
+    async getDataMovilDestino(id_movil) {
       this.$q.loading.show({
         message: "Obteniendo integrantes de la movil, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const member_movil = await this.getMembersMovil(id_movil).then(
-            res => {
-              return res.data;
-            }
-          );
-          // console.log({
-          //   message: 'Repuesta get integrantes movile',
-          //   data: member_movil
-          // });
-          if (member_movil.ok) {
-            if (member_movil.result) {
-              integ_movil_destino.length = 0;
-              member_movil.data.forEach(member => {
-                if (member.Estado == 1) {
-                  integ_movil_destino.push({
-                    label: member.Per_Nombre.toUpperCase(),
-                    value: member.Per_Num_documento
-                  });
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: "Sin resultados",
-                type: "warning"
-              });
-            }
+      try {
+        const member_movil = await this.getMembersMovil(id_movil).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   message: 'Repuesta get integrantes movile',
+        //   data: member_movil
+        // });
+        if (member_movil.ok) {
+          if (member_movil.result) {
+            integ_movil_destino.length = 0;
+            member_movil.data.forEach(member => {
+              if (member.Estado == 1) {
+                integ_movil_destino.push({
+                  label: member.Per_Nombre.toUpperCase(),
+                  value: member.Per_Num_documento
+                });
+              }
+            });
           } else {
-            throw new Error(member_movil.message);
+            this.$q.notify({
+              message: "Sin resultados",
+              type: "warning"
+            });
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(member_movil.message);
         }
-      }, 2000);
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     // Valida el select estado
     validateState(val) {

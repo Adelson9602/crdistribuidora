@@ -47,7 +47,9 @@
                       v-model="id_entry"
                       type="text"
                       hint="Número ingreso"
-                      :rules="[val => !!val || 'Número de ingreso es requerido']"
+                      :rules="[
+                        val => !!val || 'Número de ingreso es requerido'
+                      ]"
                     />
                   </div>
                   <div class="col-xs-2 self-center">
@@ -255,61 +257,61 @@ export default {
           field: "name_mp"
         }
       ],
-       excel: {
+      excel: {
         columns: [
-        {
-          label: "No. Ingreso",
-          field: "no_ingreso"
-        },
-        {
-          label: "NIT",
-          field: "CP_Nit"
-        },
-        {
-          label: "RAZON SOCIAL",
-          field: "CP_Razon_social"
-        },
-        {
-          label: "Fecha ingreso",
-          field: "Enc_Fecha_hora"
-        },
-        {
-          label: "Días de credito",
-          field: "Enc_dias_credito"
-        },
-        {
-          label: "Número comprobante",
-          field: "Enc_num_comprobante"
-        },
-        {
-          label: "Subtotal compra",
-          field: "Enc_subtotal_compra"
-        },
-        {
-          label: "Total compra",
-          field: "Enc_total_compra"
-        },
-        {
-          label: "Documento",
-          field: "Enc_User_control"
-        },
-        {
-          label: "Nombre",
-          field: "Per_Nombre"
-        },
-        {
-          label: "Tipo comprobante",
-          field: "Tc_Descripcion"
-        },
-        {
-          label: "Estado",
-          field: "name_estado"
-        },
-        {
-          label: "Medio pago",
-          field: "name_mp"
-        }
-      ],
+          {
+            label: "No. Ingreso",
+            field: "no_ingreso"
+          },
+          {
+            label: "NIT",
+            field: "CP_Nit"
+          },
+          {
+            label: "RAZON SOCIAL",
+            field: "CP_Razon_social"
+          },
+          {
+            label: "Fecha ingreso",
+            field: "Enc_Fecha_hora"
+          },
+          {
+            label: "Días de credito",
+            field: "Enc_dias_credito"
+          },
+          {
+            label: "Número comprobante",
+            field: "Enc_num_comprobante"
+          },
+          {
+            label: "Subtotal compra",
+            field: "Enc_subtotal_compra"
+          },
+          {
+            label: "Total compra",
+            field: "Enc_total_compra"
+          },
+          {
+            label: "Documento",
+            field: "Enc_User_control"
+          },
+          {
+            label: "Nombre",
+            field: "Per_Nombre"
+          },
+          {
+            label: "Tipo comprobante",
+            field: "Tc_Descripcion"
+          },
+          {
+            label: "Estado",
+            field: "name_estado"
+          },
+          {
+            label: "Medio pago",
+            field: "name_mp"
+          }
+        ],
         data: [],
         title: "Ingresos"
       },
@@ -353,35 +355,34 @@ export default {
         input: false,
         label: ""
       },
-        options_state: [
+      options_state: [
         {
-          label: 'Anulado',
+          label: "Anulado",
           value: 0
         },
-         {
-          label: 'Aceptado',
+        {
+          label: "Aceptado",
           value: 1
         },
-          {
-          label: 'Credito',
+        {
+          label: "Credito",
           value: 2
         },
         {
-          label: 'Todos',
+          label: "Todos",
           value: 3
-        },
-      ],
+        }
+      ]
     };
   },
-  watch:{
-filter_pendientes(value){
- 
-  if(value==3){
-    setTimeout(this.getData(),300)
-  }else{
-      setTimeout(this.getDataSelect(value),300)
-  }
-}
+  watch: {
+    filter_pendientes(value) {
+      if (value == 3) {
+        setTimeout(this.getData(), 300);
+      } else {
+        setTimeout(this.getDataSelect(value), 300);
+      }
+    }
   },
   created() {
     this.getData();
@@ -394,374 +395,366 @@ filter_pendientes(value){
       "getEntriesRange",
       "getEntriesEstado"
     ]),
-    getData() {
+    async getData() {
       this.$q.loading.show({
         message: "Obteniendo ingresos, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_ingresos = await this.getEntries().then(res => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta get ingresos",
-            data: res_ingresos
-          });
-          if (res_ingresos.ok) {
-            if (res_ingresos.result) {
-              this.data.length = 0;
-              res_ingresos.data.forEach(ingreso => {
-                this.data.push({
-                  CP_Nit: ingreso.CP_Nit,
-                  CP_Razon_social: ingreso.CP_Razon_social,
-                  Ecb_Id: ingreso.Ecb_Id,
-                  Enc_Estado: ingreso.Enc_Estado,
-                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
-                  Enc_User_control: ingreso.Enc_User_control,
-                  Enc_dias_credito: ingreso.Enc_dias_credito,
-                  Enc_impuesto: ingreso.Enc_impuesto,
-                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
-                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
-                  Enc_total_compra: ingreso.Enc_total_compra,
-                  Mp_Id: ingreso.Mp_Id,
-                  Per_Nombre: ingreso.Per_Nombre,
-                  Tc_Descripcion: ingreso.Tc_Descripcion,
-                  status: ingreso.Enc_Estado,
-                  Tc_Id: ingreso.Tc_Id,
-                  Id: ingreso.id,
-                  no_ingreso: ingreso.id,
-                  title: `Ingreso No. ${ingreso.id}`,
-                  name_estado: ingreso.name_estado,
-                  name_mp: ingreso.name_mp,
-                  btn_edit: false,
-                  icon_btn_details: "visibility",
-                  btn_details: true,
-                  icon_btn_edit: "edit"
-                });
+      try {
+        const res_ingresos = await this.getEntries().then(res => {
+          return res.data;
+        });
+        console.log({
+          msg: "Respuesta get ingresos",
+          data: res_ingresos
+        });
+        if (res_ingresos.ok) {
+          if (res_ingresos.result) {
+            this.data.length = 0;
+            res_ingresos.data.forEach(ingreso => {
+              this.data.push({
+                CP_Nit: ingreso.CP_Nit,
+                CP_Razon_social: ingreso.CP_Razon_social,
+                Ecb_Id: ingreso.Ecb_Id,
+                Enc_Estado: ingreso.Enc_Estado,
+                Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                Enc_User_control: ingreso.Enc_User_control,
+                Enc_dias_credito: ingreso.Enc_dias_credito,
+                Enc_impuesto: ingreso.Enc_impuesto,
+                Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                Enc_total_compra: ingreso.Enc_total_compra,
+                Mp_Id: ingreso.Mp_Id,
+                Per_Nombre: ingreso.Per_Nombre,
+                Tc_Descripcion: ingreso.Tc_Descripcion,
+                status: ingreso.Enc_Estado,
+                Tc_Id: ingreso.Tc_Id,
+                Id: ingreso.id,
+                no_ingreso: ingreso.id,
+                title: `Ingreso No. ${ingreso.id}`,
+                name_estado: ingreso.name_estado,
+                name_mp: ingreso.name_mp,
+                btn_edit: false,
+                icon_btn_details: "visibility",
+                btn_details: true,
+                icon_btn_edit: "edit"
               });
-            } else {
-              this.$q.notify({
-                message: res_ingresos.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_ingresos.message);
+            this.$q.notify({
+              message: res_ingresos.message,
+              type: "warning"
+            });
           }
-           this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_ingresos.message);
         }
-      }, 1000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-     getDataSelect(value) {
+    async getDataSelect(value) {
       this.$q.loading.show({
         message: "Obteniendo ingresos, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_ingresosEstado = await this.getEntriesEstado(value).then(res => {
+      try {
+        const res_ingresosEstado = await this.getEntriesEstado(value).then(
+          res => {
             return res.data;
-          });
-          console.log({
-            msg: "Respuesta get ingresos",
-            data: res_ingresosEstado
-          });
-          if (res_ingresosEstado.ok) {
-            if (res_ingresosEstado.result) {
-              this.data.length = 0;
-              res_ingresosEstado.data.forEach(ingreso => {
-                this.data.push({
-                  CP_Nit: ingreso.CP_Nit,
-                  CP_Razon_social: ingreso.CP_Razon_social,
-                  Ecb_Id: ingreso.Ecb_Id,
-                  Enc_Estado: ingreso.Enc_Estado,
-                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
-                  Enc_User_control: ingreso.Enc_User_control,
-                  Enc_dias_credito: ingreso.Enc_dias_credito,
-                  Enc_impuesto: ingreso.Enc_impuesto,
-                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
-                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
-                  Enc_total_compra: ingreso.Enc_total_compra,
-                  Mp_Id: ingreso.Mp_Id,
-                  Per_Nombre: ingreso.Per_Nombre,
-                  Tc_Descripcion: ingreso.Tc_Descripcion,
-                  status: ingreso.Enc_Estado,
-                  Tc_Id: ingreso.Tc_Id,
-                  Id: ingreso.id,
-                  no_ingreso: ingreso.id,
-                  title: `Ingreso No. ${ingreso.id}`,
-                  name_estado: ingreso.name_estado,
-                  name_mp: ingreso.name_mp,
-                  btn_edit: false,
-                  icon_btn_details: "visibility",
-                  btn_details: true,
-                  icon_btn_edit: "edit"
-                });
+          }
+        );
+        console.log({
+          msg: "Respuesta get ingresos",
+          data: res_ingresosEstado
+        });
+        if (res_ingresosEstado.ok) {
+          if (res_ingresosEstado.result) {
+            this.data.length = 0;
+            res_ingresosEstado.data.forEach(ingreso => {
+              this.data.push({
+                CP_Nit: ingreso.CP_Nit,
+                CP_Razon_social: ingreso.CP_Razon_social,
+                Ecb_Id: ingreso.Ecb_Id,
+                Enc_Estado: ingreso.Enc_Estado,
+                Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                Enc_User_control: ingreso.Enc_User_control,
+                Enc_dias_credito: ingreso.Enc_dias_credito,
+                Enc_impuesto: ingreso.Enc_impuesto,
+                Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                Enc_total_compra: ingreso.Enc_total_compra,
+                Mp_Id: ingreso.Mp_Id,
+                Per_Nombre: ingreso.Per_Nombre,
+                Tc_Descripcion: ingreso.Tc_Descripcion,
+                status: ingreso.Enc_Estado,
+                Tc_Id: ingreso.Tc_Id,
+                Id: ingreso.id,
+                no_ingreso: ingreso.id,
+                title: `Ingreso No. ${ingreso.id}`,
+                name_estado: ingreso.name_estado,
+                name_mp: ingreso.name_mp,
+                btn_edit: false,
+                icon_btn_details: "visibility",
+                btn_details: true,
+                icon_btn_edit: "edit"
               });
-            } else {
-              this.$q.notify({
-                message: res_ingresosEstado.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_ingresosEstado.message);
+            this.$q.notify({
+              message: res_ingresosEstado.message,
+              type: "warning"
+            });
           }
-           this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_ingresosEstado.message);
         }
-      }, 1000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    detailsEntry(row) {
+    async detailsEntry(row) {
       this.$q.loading.show({
         message: "Obteniendo detalle del ingreso, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          // Modificamos muestra el encabezado de la entrada
-          this.encabezado_entrada = {
-            "Entrada No.": row.Id,
-            Nit: row.CP_Nit,
-            "Razon social": row.CP_Razon_social,
-            "Fecha Entrada": row.Enc_Fecha_hora,
-            "Dias credito": row.Enc_dias_credito,
-            "impuesto %": row.Enc_impuesto,
-            "N° comprobante": row.Enc_num_comprobante,
-            "Subtotal compra": row.Enc_subtotal_compra,
-            "Total compra": row.Enc_total_compra,
-            "Medio pago": row.name_mp,
-            Estado: row.name_estado
-          };
+      try {
+        // Modificamos muestra el encabezado de la entrada
+        this.encabezado_entrada = {
+          "Entrada No.": row.Id,
+          Nit: row.CP_Nit,
+          "Razon social": row.CP_Razon_social,
+          "Fecha Entrada": row.Enc_Fecha_hora,
+          "Dias credito": row.Enc_dias_credito,
+          "impuesto %": row.Enc_impuesto,
+          "N° comprobante": row.Enc_num_comprobante,
+          "Subtotal compra": row.Enc_subtotal_compra,
+          "Total compra": row.Enc_total_compra,
+          "Medio pago": row.name_mp,
+          Estado: row.name_estado
+        };
 
-          const res_detail = await this.getDetailsEntry(row.Id).then(res => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta get detalle ingreso",
-            data: res_detail
-          });
-          if (res_detail.ok) {
-            if (res_detail.result) {
-              this.data_details.length = 0;
-              res_detail.data.forEach(ingreso => {
-                this.data_details.push({
-                  "Id entrada": ingreso.Enc_Id,
-                  "Id producto": ingreso.Art_Id,
-                  "Codigo producto": ingreso.Art_Codigo_inv,
-                  Descripción: ingreso.Art_Nombre,
-                  Cantidad: ingreso.Dei_Cant,
-                  "Precio compra": ingreso.Dei_Precio_compra
-                });
+        const res_detail = await this.getDetailsEntry(row.Id).then(res => {
+          return res.data;
+        });
+        console.log({
+          msg: "Respuesta get detalle ingreso",
+          data: res_detail
+        });
+        if (res_detail.ok) {
+          if (res_detail.result) {
+            this.data_details.length = 0;
+            res_detail.data.forEach(ingreso => {
+              this.data_details.push({
+                "Id entrada": ingreso.Enc_Id,
+                "Id producto": ingreso.Art_Id,
+                "Codigo producto": ingreso.Art_Codigo_inv,
+                Descripción: ingreso.Art_Nombre,
+                Cantidad: ingreso.Dei_Cant,
+                "Precio compra": ingreso.Dei_Precio_compra
               });
-            } else {
-              this.$q.notify({
-                message: res_detail.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_detail.message);
+            this.$q.notify({
+              message: res_detail.message,
+              type: "warning"
+            });
           }
-          this.dailog_details = true;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_detail.message);
         }
-      }, 1000);
+        this.dailog_details = true;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    searchEntry() {
+    async searchEntry() {
       this.$q.loading.show({
         message: "Buscando ingreso, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_ingreso = await this.getSingleEntry(this.id_entry).then(
-            res => {
-              return res.data;
-            }
-          );
-          // console.log({
-          //   msg: "Respuesta get ingreso",
-          //   data: res_ingreso
-          // });
-          if (res_ingreso.ok) {
-            if (res_ingreso.result) {
-              this.data.length = 0;
-              res_ingreso.data.forEach(ingreso => {
-                this.data.push({
-                  CP_Nit: ingreso.CP_Nit,
-                  CP_Razon_social: ingreso.CP_Razon_social,
-                  Ecb_Id: ingreso.Ecb_Id,
-                  Enc_Estado: ingreso.Enc_Estado,
-                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
-                  Enc_User_control: ingreso.Enc_User_control,
-                  Enc_dias_credito: ingreso.Enc_dias_credito,
-                  Enc_impuesto: ingreso.Enc_impuesto,
-                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
-                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
-                  Enc_total_compra: ingreso.Enc_total_compra,
-                  Mp_Id: ingreso.Mp_Id,
-                  Per_Nombre: ingreso.Per_Nombre,
-                  Tc_Descripcion: ingreso.Tc_Descripcion,
-                  status: ingreso.Enc_Estado,
-                  Tc_Id: ingreso.Tc_Id,
-                  Id: ingreso.id,
-                  no_ingreso: ingreso.id,
-                  title: `Ingreso No. ${ingreso.id}`,
-                  name_estado: ingreso.name_estado,
-                  name_mp: ingreso.name_mp,
-                  btn_edit: false,
-                  icon_btn_details: "visibility",
-                  btn_details: true,
-                  icon_btn_edit: "edit"
-                });
+      try {
+        const res_ingreso = await this.getSingleEntry(this.id_entry).then(
+          res => {
+            return res.data;
+          }
+        );
+        // console.log({
+        //   msg: "Respuesta get ingreso",
+        //   data: res_ingreso
+        // });
+        if (res_ingreso.ok) {
+          if (res_ingreso.result) {
+            this.data.length = 0;
+            res_ingreso.data.forEach(ingreso => {
+              this.data.push({
+                CP_Nit: ingreso.CP_Nit,
+                CP_Razon_social: ingreso.CP_Razon_social,
+                Ecb_Id: ingreso.Ecb_Id,
+                Enc_Estado: ingreso.Enc_Estado,
+                Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                Enc_User_control: ingreso.Enc_User_control,
+                Enc_dias_credito: ingreso.Enc_dias_credito,
+                Enc_impuesto: ingreso.Enc_impuesto,
+                Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                Enc_total_compra: ingreso.Enc_total_compra,
+                Mp_Id: ingreso.Mp_Id,
+                Per_Nombre: ingreso.Per_Nombre,
+                Tc_Descripcion: ingreso.Tc_Descripcion,
+                status: ingreso.Enc_Estado,
+                Tc_Id: ingreso.Tc_Id,
+                Id: ingreso.id,
+                no_ingreso: ingreso.id,
+                title: `Ingreso No. ${ingreso.id}`,
+                name_estado: ingreso.name_estado,
+                name_mp: ingreso.name_mp,
+                btn_edit: false,
+                icon_btn_details: "visibility",
+                btn_details: true,
+                icon_btn_edit: "edit"
               });
-            } else {
-              this.$q.notify({
-                message: res_ingreso.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_ingreso.message);
+            this.$q.notify({
+              message: res_ingreso.message,
+              type: "warning"
+            });
           }
-           this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_ingreso.message);
         }
-      }, 1000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     editEntry() {},
-    searchEntryRange(date) {
+    async searchEntryRange(date) {
       this.$q.loading.show({
         message: "Obteniendo ingresos, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_ingresos = await this.getEntriesRange(date).then(res => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta get ingresos",
-            data: res_ingresos
-          });
-          if (res_ingresos.ok) {
-            if (res_ingresos.result) {
-              this.data.length = 0;
-              res_ingresos.data.forEach(ingreso => {
-                this.data.push({
-                  CP_Nit: ingreso.CP_Nit,
-                  CP_Razon_social: ingreso.CP_Razon_social,
-                  Ecb_Id: ingreso.Ecb_Id,
-                  Enc_Estado: ingreso.Enc_Estado,
-                  Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
-                  Enc_User_control: ingreso.Enc_User_control,
-                  Enc_dias_credito: ingreso.Enc_dias_credito,
-                  Enc_impuesto: ingreso.Enc_impuesto,
-                  Enc_num_comprobante: ingreso.Enc_num_comprobante,
-                  Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
-                  Enc_total_compra: ingreso.Enc_total_compra,
-                  Mp_Id: ingreso.Mp_Id,
-                  Per_Nombre: ingreso.Per_Nombre,
-                  Tc_Descripcion: ingreso.Tc_Descripcion,
-                  status: ingreso.Enc_Estado,
-                  Tc_Id: ingreso.Tc_Id,
-                  Id: ingreso.id,
-                  no_ingreso: ingreso.id,
-                  title: `Ingreso No. ${ingreso.id}`,
-                  name_estado: ingreso.name_estado,
-                  name_mp: ingreso.name_mp,
-                  btn_edit: false,
-                  icon_btn_details: "visibility",
-                  btn_details: true,
-                  icon_btn_edit: "edit"
-                });
+      try {
+        const res_ingresos = await this.getEntriesRange(date).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get ingresos",
+        //   data: res_ingresos
+        // });
+        if (res_ingresos.ok) {
+          if (res_ingresos.result) {
+            this.data.length = 0;
+            res_ingresos.data.forEach(ingreso => {
+              this.data.push({
+                CP_Nit: ingreso.CP_Nit,
+                CP_Razon_social: ingreso.CP_Razon_social,
+                Ecb_Id: ingreso.Ecb_Id,
+                Enc_Estado: ingreso.Enc_Estado,
+                Enc_Fecha_hora: ingreso.Enc_Fecha_hora,
+                Enc_User_control: ingreso.Enc_User_control,
+                Enc_dias_credito: ingreso.Enc_dias_credito,
+                Enc_impuesto: ingreso.Enc_impuesto,
+                Enc_num_comprobante: ingreso.Enc_num_comprobante,
+                Enc_subtotal_compra: ingreso.Enc_subtotal_compra,
+                Enc_total_compra: ingreso.Enc_total_compra,
+                Mp_Id: ingreso.Mp_Id,
+                Per_Nombre: ingreso.Per_Nombre,
+                Tc_Descripcion: ingreso.Tc_Descripcion,
+                status: ingreso.Enc_Estado,
+                Tc_Id: ingreso.Tc_Id,
+                Id: ingreso.id,
+                no_ingreso: ingreso.id,
+                title: `Ingreso No. ${ingreso.id}`,
+                name_estado: ingreso.name_estado,
+                name_mp: ingreso.name_mp,
+                btn_edit: false,
+                icon_btn_details: "visibility",
+                btn_details: true,
+                icon_btn_edit: "edit"
               });
-            } else {
-              this.$q.notify({
-                message: res_ingresos.message,
-                type: "warning"
-              });
-            }
+            });
           } else {
-            throw new Error(res_ingresos.message);
+            this.$q.notify({
+              message: res_ingresos.message,
+              type: "warning"
+            });
           }
-           this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_ingresos.message);
         }
-      }, 1000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     reload() {
       this.tab = "incomies";

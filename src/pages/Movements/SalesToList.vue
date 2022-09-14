@@ -33,13 +33,13 @@ import { mapActions } from "vuex";
 export default {
   name: "SalesToList",
   components: {
-    componentTable,
+    componentTable
   },
   data() {
     return {
       date_range: {
         to: null,
-        from: null,
+        from: null
       },
       columns: [
         {
@@ -48,7 +48,7 @@ export default {
           label: "Id articulo",
           align: "center",
           field: "Art_Id",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Nombre",
@@ -56,7 +56,7 @@ export default {
           label: "Nombre articulo",
           align: "center",
           field: "Art_Nombre",
-          sortable: true,
+          sortable: true
         },
         {
           name: "cantidad",
@@ -64,7 +64,7 @@ export default {
           label: "Cantidad alistar",
           align: "center",
           field: "cantidad",
-          sortable: true,
+          sortable: true
         },
         {
           name: "cantG",
@@ -72,8 +72,8 @@ export default {
           label: "Cantidad Garantia",
           align: "center",
           field: "cantG",
-          sortable: true,
-        },
+          sortable: true
+        }
       ],
       columnsdetail: [
         {
@@ -82,7 +82,7 @@ export default {
           label: "Id Venta",
           align: "center",
           field: "Ev_Id",
-          sortable: true,
+          sortable: true
         },
         {
           name: "CP_Razon_social",
@@ -90,7 +90,7 @@ export default {
           label: "Razon social",
           align: "center",
           field: "CP_Razon_social",
-          sortable: true,
+          sortable: true
         },
         {
           name: "cliente",
@@ -98,7 +98,7 @@ export default {
           label: "Contacto",
           align: "center",
           field: "cliente",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Id",
@@ -106,7 +106,7 @@ export default {
           label: "Id articulo",
           align: "center",
           field: "Art_Id",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Nombre",
@@ -114,7 +114,7 @@ export default {
           label: "Nombre articulo",
           align: "center",
           field: "Art_Nombre",
-          sortable: true,
+          sortable: true
         },
         {
           name: "cantidad",
@@ -122,7 +122,7 @@ export default {
           label: "Cantidad alistar",
           align: "center",
           field: "cantidad",
-          sortable: true,
+          sortable: true
         },
         {
           name: "cantG",
@@ -130,7 +130,7 @@ export default {
           label: "Cantidad Garantia",
           align: "center",
           field: "cantG",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Entregado",
@@ -138,8 +138,8 @@ export default {
           label: "Estado Entrega",
           align: "center",
           field: "Entregado",
-          sortable: true,
-        },
+          sortable: true
+        }
       ],
       data: [],
       datadetail: [],
@@ -153,112 +153,112 @@ export default {
   methods: {
     ...mapActions("sales", [
       "requestGetSalestoList",
-      "requestGetSalestoListDetail",
+      "requestGetSalestoListDetail"
     ]),
-    getSalesRang(data) {
+    async getSalesRang(data) {
       data.base = process.env.__BASE__;
       this.$q.loading.show({
         message:
-          "Buscando picking en el rango de fecha solicitado, por favor espere...",
+          "Buscando picking en el rango de fecha solicitado, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_sales = await this.requestGetSalestoList(data).then((res) => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta get grupo picking por rango de fecha",
-            data: res_sales,
-          });
-          this.data.length = 0;
-          if (res_sales.ok) {
-            if (res_sales.result) {
-              res_sales.data.forEach((element) => {
-                this.data.push({
-                  Art_Id: element.Art_Id,
-                  Art_Nombre: element.Art_Nombre,
-                  cantidad: element.cantidad,
-                  cantG: element.cantG,
+      try {
+        const res_sales = await this.requestGetSalestoList(data).then(res => {
+          return res.data;
+        });
+        console.log({
+          msg: "Respuesta get grupo picking por rango de fecha",
+          data: res_sales
+        });
+        this.data.length = 0;
+        if (res_sales.ok) {
+          if (res_sales.result) {
+            res_sales.data.forEach(element => {
+              this.data.push({
+                Art_Id: element.Art_Id,
+                Art_Nombre: element.Art_Nombre,
+                cantidad: element.cantidad,
+                cantG: element.cantG
 
-                  // title: `Entrada No. ${element.Id}`,
-                  // btn_edit: false,
-                  // btn_status: false,
-                  // btn_details: true,
-                  // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
-                  // icon_btn_details: "mdi-eye-settings",
-                });
+                // title: `Entrada No. ${element.Id}`,
+                // btn_edit: false,
+                // btn_status: false,
+                // btn_details: true,
+                // btn_pdf: true,
+                // icon_btn_edit: "mdi-pencil",
+                // icon_btn_status: "power_settings_new",
+                // icon_btn_details: "mdi-eye-settings",
               });
-            } else {
-              this.$q.notify({
-                message: res_sales.message,
-                type: "warning",
-              });
-            }
+            });
           } else {
-            throw res_sales.message;
+            this.$q.notify({
+              message: res_sales.message,
+              type: "warning"
+            });
           }
-          const res_det_sales = await this.requestGetSalestoListDetail(data).then((res) => {
-            return res.data;
-          });
-          console.log({
-            msg: "Respuesta detalle picking por rango de fecha",
-            data: res_det_sales,
-          });
-          this.datadetail.length = 0;
-          if (res_det_sales.ok) {
-            if (res_det_sales.result) {
-              res_det_sales.data.forEach((element) => {
-                this.datadetail.push({
-                  Art_Id: element.Art_Id,
-                  Art_Nombre: element.Art_Nombre,
-                  cantidad: element.cantidad,
-                  cantG: element.cantG,
-                  Ev_Id: element.Ev_Id,
-                  cliente: element.cliente,
-                  CP_Razon_social: element.CP_Razon_social,
-                  Entregado: element.Entregado,
-
-                  // title: `Entrada No. ${element.Id}`,
-                  // btn_edit: false,
-                  // btn_status: false,
-                  // btn_details: true,
-                  // btn_pdf: true,
-                  // icon_btn_edit: "mdi-pencil",
-                  // icon_btn_status: "power_settings_new",
-                  // icon_btn_details: "mdi-eye-settings",
-                });
-              });
-            } else {
-              this.$q.notify({
-                message: res_det_sales.message,
-                type: "warning",
-              });
-            }
-          } else {
-            throw res_det_sales.message;
-          }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw res_sales.message;
         }
-      }, 2000);
-    },
-  },
+        const res_det_sales = await this.requestGetSalestoListDetail(data).then(
+          res => {
+            return res.data;
+          }
+        );
+        console.log({
+          msg: "Respuesta detalle picking por rango de fecha",
+          data: res_det_sales
+        });
+        this.datadetail.length = 0;
+        if (res_det_sales.ok) {
+          if (res_det_sales.result) {
+            res_det_sales.data.forEach(element => {
+              this.datadetail.push({
+                Art_Id: element.Art_Id,
+                Art_Nombre: element.Art_Nombre,
+                cantidad: element.cantidad,
+                cantG: element.cantG,
+                Ev_Id: element.Ev_Id,
+                cliente: element.cliente,
+                CP_Razon_social: element.CP_Razon_social,
+                Entregado: element.Entregado
+
+                // title: `Entrada No. ${element.Id}`,
+                // btn_edit: false,
+                // btn_status: false,
+                // btn_details: true,
+                // btn_pdf: true,
+                // icon_btn_edit: "mdi-pencil",
+                // icon_btn_status: "power_settings_new",
+                // icon_btn_details: "mdi-eye-settings",
+              });
+            });
+          } else {
+            this.$q.notify({
+              message: res_det_sales.message,
+              type: "warning"
+            });
+          }
+        } else {
+          throw res_det_sales.message;
+        }
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
+    }
+  }
 };
 </script>
 

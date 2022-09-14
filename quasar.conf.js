@@ -5,13 +5,13 @@
 
 // Configuration for your app
 // https://v1.quasar.dev/quasar-cli/quasar-conf-js
-const title = 'SIGI | Sistema para la gestion de inventarios';
+const title = "SIGI | Sistema para la gestion de inventarios";
 const description = "SIGI | Sistema para la gestion de inventarios";
-module.exports = function (/* ctx */) {
+module.exports = function(ctx) {
   return {
-    htmlVariables:{
+    htmlVariables: {
       title: title,
-      description: description,
+      description: description
     },
     // https://v1.quasar.dev/quasar-cli/supporting-ts
     supportTS: false,
@@ -22,42 +22,38 @@ module.exports = function (/* ctx */) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v1.quasar.dev/quasar-cli/boot-files
-    boot: [
-      'convert',
-      'i18n',
-      'axios',
-    ],
+    boot: ["convert", "i18n", "axios"],
 
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
-    css: [
-      'app.sass'
-    ],
+    css: ["app.sass"],
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
-      'mdi-v5',
+      "mdi-v5",
       // 'fontawesome-v5',
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
-      'roboto-font', // optional, you are not bound to it
-      'material-icons', // optional, you are not bound to it
+      "roboto-font", // optional, you are not bound to it
+      "material-icons" // optional, you are not bound to it
     ],
 
     // Full list of options: https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
-      vueRouterMode: 'history', // available values: 'hash', 'history'
-      env:{
-        __ENV__: 'dev',
-        __VERSION__: 'v2.21.8.23',
-        __URLAPI__: `https://apis.appears.com.co/sigiP/`,
-        __BASE__: 'wwappe_sigi',
-        __KEY__: '82f2ceed4c503896c8a291e560bd4325',
-        __IV__: 'AES256',
-        __PROJECT__: 'SIGI',
+      vueRouterMode: "history", // available values: 'hash', 'history'
+      env: {
+        __ENV__: "dev",
+        __VERSION__: "v2.21.8.23",
+        __URLAPI__: ctx.dev
+          ? "localhost:3050"
+          : `https://apis.appears.com.co/sigiP/`,
+        __BASE__: "wwappe_sigi",
+        __KEY__: "82f2ceed4c503896c8a291e560bd4325",
+        __IV__: "AES256",
+        __PROJECT__: "SIGI"
       },
       // bases: crdistribuidora_ppl, crdistribuidora_local, crdistribuidora_newpruebas
       // transpile: false,
@@ -78,9 +74,9 @@ module.exports = function (/* ctx */) {
 
       // https://v1.quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
-      chainWebpack (/* chain */) {
+      chainWebpack(/* chain */) {
         //
-      },
+      }
     },
 
     // Full list of options: https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
@@ -92,14 +88,14 @@ module.exports = function (/* ctx */) {
 
     // https://v1.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
-      iconSet: 'material-icons', // Quasar icon set
-      lang: 'es', // Quasar language pack
+      iconSet: "material-icons", // Quasar icon set
+      lang: "es", // Quasar language pack
       config: {},
 
       // Possible values for "importStrategy":
       // * 'auto' - (DEFAULT) Auto-import needed Quasar components & directives
       // * 'all'  - Manually specify what to import
-      importStrategy: 'auto',
+      importStrategy: "auto",
 
       // For special cases outside of where "auto" importStrategy can have an impact
       // (like functional components as one of the examples),
@@ -109,13 +105,7 @@ module.exports = function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [
-        'Notify',
-        'Loading',
-        'LoadingBar',
-        'Dialog',
-        'AppFullscreen'
-      ]
+      plugins: ["Notify", "Loading", "LoadingBar", "Dialog", "AppFullscreen"]
     },
 
     // animations: 'all', // --- includes all animations
@@ -129,41 +119,41 @@ module.exports = function (/* ctx */) {
 
     // https://v1.quasar.dev/quasar-cli/developing-pwa/configuring-pwa
     pwa: {
-      workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
+      workboxPluginMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
         name: `CrApp`,
         short_name: `CrApp`,
         description: `Aplicación para manejo de invetario`,
-        display: 'standalone',
-        orientation: 'portrait',
-        background_color: '#ffffff',
-        theme_color: '#FF9C17',
+        display: "standalone",
+        orientation: "portrait",
+        background_color: "#ffffff",
+        theme_color: "#FF9C17",
         icons: [
           {
-            src: 'icons/icon-128x128.png',
-            sizes: '128x128',
-            type: 'image/png'
+            src: "icons/icon-128x128.png",
+            sizes: "128x128",
+            type: "image/png"
           },
           {
-            src: 'icons/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            src: "icons/icon-192x192.png",
+            sizes: "192x192",
+            type: "image/png"
           },
           {
-            src: 'icons/icon-256x256.png',
-            sizes: '256x256',
-            type: 'image/png'
+            src: "icons/icon-256x256.png",
+            sizes: "256x256",
+            type: "image/png"
           },
           {
-            src: 'icons/icon-384x384.png',
-            sizes: '384x384',
-            type: 'image/png'
+            src: "icons/icon-384x384.png",
+            sizes: "384x384",
+            type: "image/png"
           },
           {
-            src: 'icons/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            src: "icons/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png"
           }
         ]
       }
@@ -181,17 +171,15 @@ module.exports = function (/* ctx */) {
 
     // Full list of options: https://v1.quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
     electron: {
-      bundler: 'packager', // 'packager' or 'builder'
+      bundler: "packager", // 'packager' or 'builder'
 
       packager: {
         // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
-
         // OS X / Mac App Store
         // appBundleId: '',
         // appCategoryType: '',
         // osxSign: '',
         // protocol: 'myapp://path',
-
         // Windows only
         // win32metadata: { ... }
       },
@@ -199,16 +187,16 @@ module.exports = function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'sigi'
+        appId: "sigi"
       },
 
       // More info: https://v1.quasar.dev/quasar-cli/developing-electron-apps/node-integration
       nodeIntegration: true,
 
-      extendWebpack (/* cfg */) {
+      extendWebpack(/* cfg */) {
         // do something with Electron main process Webpack cfg
         // chainWebpack also available besides this extendWebpack
       }
     }
-  }
-}
+  };
+};

@@ -2,14 +2,27 @@
   <q-page padding>
     <q-card class="height-card_page">
       <q-card-section>
-        <q-btn color="primary" icon="add" label="Agregar porcentaje" @click="dialog_add_percent = true" />
+        <q-btn
+          color="primary"
+          icon="add"
+          label="Agregar porcentaje"
+          @click="dialog_add_percent = true"
+        />
         <q-dialog v-model="dialog_add_percent" persistent>
           <q-card style="width: 700px; max-width: 80vw;">
             <q-bar dark class="bg-primary text-white">
               <div class="col text-center text-weight-bold">
-                {{ edit_form ? 'Editar porcentaje' : 'Agregar porcentaje' }}
+                {{ edit_form ? "Editar porcentaje" : "Agregar porcentaje" }}
               </div>
-              <q-btn flat round text-color="white" icon="close" size="8.5px" color="red" v-close-popup/>
+              <q-btn
+                flat
+                round
+                text-color="white"
+                icon="close"
+                size="8.5px"
+                color="red"
+                v-close-popup
+              />
             </q-bar>
             <q-card-section>
               <component-add-percent-sales
@@ -48,13 +61,31 @@
                 <div class="col text-center text-weight-bold">
                   Personas asociadas al porcentaje
                 </div>
-                <q-btn dense flat round icon="close" color="white" v-close-popup/>
+                <q-btn
+                  dense
+                  flat
+                  round
+                  icon="close"
+                  color="white"
+                  v-close-popup
+                />
               </q-bar>
               <q-card-section>
                 <q-list bordered separator>
-                  <q-item clickable v-ripple v-for="item in persons_percents" :key="item.documento">
+                  <q-item
+                    clickable
+                    v-ripple
+                    v-for="item in persons_percents"
+                    :key="item.documento"
+                  >
                     <q-item-section>
-                      <q-toggle v-model="item.associate" :label="item.nombre" color="green" checked-icon="check" unchecked-icon="clear"/>
+                      <q-toggle
+                        v-model="item.associate"
+                        :label="item.nombre"
+                        color="green"
+                        checked-icon="check"
+                        unchecked-icon="clear"
+                      />
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -197,7 +228,7 @@ export default {
       dialog_add_percent: false,
       edit_form: false,
       added_person: false,
-      persons_percents: [],
+      persons_percents: []
     };
   },
   computed: {
@@ -226,136 +257,132 @@ export default {
       "savePersenUser"
     ]),
     ...mapActions("access", ["getPersons"]),
-    getData() {
+    async getData() {
       this.$q.loading.show({
         message: "Obteniendo Informacion existentes, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const resgetDataPorcentaje = await this.getAllPorcentaje().then(
-            res => {
-              return res.data;
-            }
-          );
-          // console.log({
-          //   msg: 'Repeusta get artículos',
-          //   data: resgetDataArticles,
-          // });
-          if (resgetDataPorcentaje.ok) {
-            if (resgetDataPorcentaje.result) {
-              this.data.length = 0;
-              resgetDataPorcentaje.data.forEach(element => {
-                this.data.push({
-                  Id: element.Id,
-                  Pv_Id: element.Pv_Id,
-                  Pv_Descripcion: element.Pv_Descripcion,
-                  Pv_Prcentaje: element.Pv_Prcentaje,
-                  name_estado: element.Pv_Estado == 1 ? "ACTIVO" : "INACTIVO",
-                  Pv_Estado: element.Pv_Estado,
-                  Pv_User_control: element.Pv_User_control,
-                  Per_Nombre: element.Per_Nombre,
-                  Pv_Fecha_control: element.Pv_Fecha_control,
-                  title: element.Pv_Descripcion,
-                  Estado: element.Pv_Estado,
-                  status: element.Pv_Estado,
-                  btn_edit: true,
-                  btn_status: true,
-                  btn_details: true,
-                  // btn_pdf: true,
-                  icon_btn_edit: "mdi-pencil",
-                  icon_btn_status: "power_settings_new",
-                  icon_btn_details: "group_add",
-                });
-              });
-              this.excel.data = this.data;
-            } else {
-              this.$q.notify({
-                message: resgetDataPorcentaje.message,
-                type: "warning"
-              });
-            }
-          } else {
+      try {
+        const resgetDataPorcentaje = await this.getAllPorcentaje().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Repeusta get artículos',
+        //   data: resgetDataArticles,
+        // });
+        if (resgetDataPorcentaje.ok) {
+          if (resgetDataPorcentaje.result) {
             this.data.length = 0;
-            throw resgetDataPorcentaje.message;
-          }
-
-          const res_persons = await this.getPersons().then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta get personal",
-          //   data: res_persons
-          // });
-          if (res_persons.ok) {
-            if (res_persons.result) {
-              this.persons_percents.length = 0;
-              res_persons.data.forEach(persona => {
-                if(persona.Usu_Estado == 1){
-                  this.persons_percents.push({
-                    nombre: persona.Per_Nombre,
-                    documento: persona.Per_Num_documento,
-                    associate: false,
-                    Pv_Id: null,
-                    base: process.env.__BASE__,
-                    Integrante: persona.Per_Num_documento,
-                    Estado: 0,
-                    User_control: this.data_user.Per_Num_documento
-                  });
-                }
+            resgetDataPorcentaje.data.forEach(element => {
+              this.data.push({
+                Id: element.Id,
+                Pv_Id: element.Pv_Id,
+                Pv_Descripcion: element.Pv_Descripcion,
+                Pv_Prcentaje: element.Pv_Prcentaje,
+                name_estado: element.Pv_Estado == 1 ? "ACTIVO" : "INACTIVO",
+                Pv_Estado: element.Pv_Estado,
+                Pv_User_control: element.Pv_User_control,
+                Per_Nombre: element.Per_Nombre,
+                Pv_Fecha_control: element.Pv_Fecha_control,
+                title: element.Pv_Descripcion,
+                Estado: element.Pv_Estado,
+                status: element.Pv_Estado,
+                btn_edit: true,
+                btn_status: true,
+                btn_details: true,
+                // btn_pdf: true,
+                icon_btn_edit: "mdi-pencil",
+                icon_btn_status: "power_settings_new",
+                icon_btn_details: "group_add"
               });
-            } else {
-              this.$q.notify({
-                message: res_persons.message,
-                type: "warning"
-              });
-            }
+            });
+            this.excel.data = this.data;
           } else {
-            throw new Error(res_persons.message);
+            this.$q.notify({
+              message: resgetDataPorcentaje.message,
+              type: "warning"
+            });
           }
-          const res_perc_persons = await this.percentsPersons().then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get porcentaje con usuario',
-          //   data: res_perc_persons
-          // });
-          if (res_perc_persons.ok) {
-            if (res_perc_persons.result) {
-              all_percent_user.length = 0;
-              res_perc_persons.data.forEach(porcentaje => {
-                all_percent_user.push({
-                  Pv_Id: porcentaje.Pv_Id,
-                  Integrante: porcentaje.Integrante,
-                  Estado: porcentaje.Estado
-                })
-              });
-            } else {
-              this.$q.notify({
-                message: res_perc_persons.message,
-                type: "warning"
-              });
-            }
-          } else {
-            throw new Error(res_perc_persons.message);
-          }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          this.data.length = 0;
+          throw resgetDataPorcentaje.message;
         }
-      }, 2000);
+
+        const res_persons = await this.getPersons().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get personal",
+        //   data: res_persons
+        // });
+        if (res_persons.ok) {
+          if (res_persons.result) {
+            this.persons_percents.length = 0;
+            res_persons.data.forEach(persona => {
+              if (persona.Usu_Estado == 1) {
+                this.persons_percents.push({
+                  nombre: persona.Per_Nombre,
+                  documento: persona.Per_Num_documento,
+                  associate: false,
+                  Pv_Id: null,
+                  base: process.env.__BASE__,
+                  Integrante: persona.Per_Num_documento,
+                  Estado: 0,
+                  User_control: this.data_user.Per_Num_documento
+                });
+              }
+            });
+          } else {
+            this.$q.notify({
+              message: res_persons.message,
+              type: "warning"
+            });
+          }
+        } else {
+          throw new Error(res_persons.message);
+        }
+        const res_perc_persons = await this.percentsPersons().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Respuesta get porcentaje con usuario',
+        //   data: res_perc_persons
+        // });
+        if (res_perc_persons.ok) {
+          if (res_perc_persons.result) {
+            all_percent_user.length = 0;
+            res_perc_persons.data.forEach(porcentaje => {
+              all_percent_user.push({
+                Pv_Id: porcentaje.Pv_Id,
+                Integrante: porcentaje.Integrante,
+                Estado: porcentaje.Estado
+              });
+            });
+          } else {
+            this.$q.notify({
+              message: res_perc_persons.message,
+              type: "warning"
+            });
+          }
+        } else {
+          throw new Error(res_perc_persons.message);
+        }
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     editPorcentaje(row) {
       this.edit_form = true;
@@ -394,142 +421,155 @@ export default {
           : "Está activando este Porcentaje, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
       this.enable_diable = true;
     },
-    changeStatus() {
+    async changeStatus() {
       this.$q.loading.show({
         message:
           "Estamos cambiando el estado del Porcentaje, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          this.percentage_edit.base = process.env.__BASE__;
-          const res_update = await this.addPorcentaje(
-            this.percentage_edit
-          ).then(res => {
+      try {
+        this.percentage_edit.base = process.env.__BASE__;
+        const res_update = await this.addPorcentaje(this.percentage_edit).then(
+          res => {
             return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta insert update porcentaje",
-          //   data: res_update
-          // });
-          if (res_update.ok) {
-            if (res_update.data.affectedRows) {
-              this.$q.notify({
-                message: "Estado actualizado",
-                type: "positive"
-              });
-              setTimeout(() => {
-                this.enable_diable = false;
-                this.getData();
-              }, 500);
-            } else {
-              this.$q.notify({
-                message: "No se actualizó el estado",
-                type: "warning"
-              });
-            }
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
+        );
+        // console.log({
+        //   msg: "Respuesta insert update porcentaje",
+        //   data: res_update
+        // });
+        if (res_update.ok) {
+          if (res_update.data.affectedRows) {
+            this.$q.notify({
+              message: "Estado actualizado",
+              type: "positive"
+            });
+            setTimeout(() => {
+              this.enable_diable = false;
+              this.getData();
+            }, 500);
+          } else {
+            this.$q.notify({
+              message: "No se actualizó el estado",
+              type: "warning"
+            });
           }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
         }
-      }, 2000);
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     // Abre el dialog para agregar personas a los porcentajes
-    addedIntegrante(row){
+    addedIntegrante(row) {
       this.percentage_edit = row;
       this.added_person = true;
-      this.persons_percents.forEach( persona => {
-        let result = all_percent_user.find( porcentaje => porcentaje.Integrante == persona.documento && porcentaje.Pv_Id == row.Id );
-        if(result){
+      this.persons_percents.forEach(persona => {
+        let result = all_percent_user.find(
+          porcentaje =>
+            porcentaje.Integrante == persona.documento &&
+            porcentaje.Pv_Id == row.Id
+        );
+        if (result) {
           persona.associate = result.Estado == 1 ? true : false;
           persona.Estado = result.Estado;
           persona.Pv_Id = result.Pv_Id;
         }
-      })
-    },
-    savePersons(){
-      this.$q.loading.show({
-        message: 'Guardando, por favor espere...'
       });
-      this.timer = setTimeout(async() => {
-        try {
-          let promesas = [];
-          this.persons_percents.forEach( persona => {
-            if (persona.associate && persona.Pv_Id) {
-              persona.Estado = 1;
-              promesas.push(this.savePersenUser(persona).then(res => {
-                return res.data;
-              }).catch(e => {
-                throw new Error(e)
-              }))
-            } else if (!persona.associate && persona.Pv_Id) {
-              persona.Estado = 0;
-              promesas.push(this.savePersenUser(persona).then(res => {
-                return res.data;
-              }).catch(e => {
-                throw new Error(e)
-              }))
-            } else if (persona.associate && !persona.Pv_Id){
-              persona.Estado = 1;
-              persona.Pv_Id = this.percentage_edit.Id;
-              promesas.push(this.savePersenUser(persona).then(res => {
-                return res.data;
-              }).catch(e => {
-                throw new Error(e)
-              }))
-            }
-          })
-          Promise.all(promesas).then( data => {
-            data.forEach( res => {
-              console.log(res)
+    },
+    async savePersons() {
+      this.$q.loading.show({
+        message: "Guardando, por favor espere..."
+      });
+      try {
+        let promesas = [];
+        this.persons_percents.forEach(persona => {
+          if (persona.associate && persona.Pv_Id) {
+            persona.Estado = 1;
+            promesas.push(
+              this.savePersenUser(persona)
+                .then(res => {
+                  return res.data;
+                })
+                .catch(e => {
+                  throw new Error(e);
+                })
+            );
+          } else if (!persona.associate && persona.Pv_Id) {
+            persona.Estado = 0;
+            promesas.push(
+              this.savePersenUser(persona)
+                .then(res => {
+                  return res.data;
+                })
+                .catch(e => {
+                  throw new Error(e);
+                })
+            );
+          } else if (persona.associate && !persona.Pv_Id) {
+            persona.Estado = 1;
+            persona.Pv_Id = this.percentage_edit.Id;
+            promesas.push(
+              this.savePersenUser(persona)
+                .then(res => {
+                  return res.data;
+                })
+                .catch(e => {
+                  throw new Error(e);
+                })
+            );
+          }
+        });
+        Promise.all(promesas)
+          .then(data => {
+            data.forEach(res => {
+              console.log(res);
             });
             this.$q.notify({
-              message: 'Guardado',
+              message: "Guardado",
               type: "positive"
             });
             this.added_person = false;
             this.timer = setTimeout(this.getData(), 1000);
-          }).catch( err => {
-            throw new Error(err)
           })
-
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
+          .catch(err => {
+            throw new Error(err);
           });
-        } finally {
-          this.$q.loading.hide();
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
         }
-      }, 1000)
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     }
   },
-  beforeDestroy () {
+  beforeDestroy() {
     if (this.timer !== void 0) {
-      clearTimeout(this.timer)
-      this.$q.loading.hide()
+      clearTimeout(this.timer);
+      this.$q.loading.hide();
     }
   }
 };

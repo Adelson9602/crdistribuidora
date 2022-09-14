@@ -2,17 +2,33 @@
   <q-page padding>
     <q-card class="height-card_page">
       <q-card-section>
-        <q-btn color="primary" icon="add" label="Agregar cargo" @click="dialog_add_cargo = true" />
+        <q-btn
+          color="primary"
+          icon="add"
+          label="Agregar cargo"
+          @click="dialog_add_cargo = true"
+        />
         <q-dialog v-model="dialog_add_cargo" persistent>
           <q-card style="width: 700px; max-width: 80vw;">
             <q-bar dark class="bg-primary text-white">
               <div class="col text-center text-weight-bold">
-                {{ edit_form ? 'Editar cargo' : 'Agregar cargo'}}
+                {{ edit_form ? "Editar cargo" : "Agregar cargo" }}
               </div>
-              <q-btn text-color="white" flat round icon="close" size="8.5px" color="green" v-close-popup/>
+              <q-btn
+                text-color="white"
+                flat
+                round
+                icon="close"
+                size="8.5px"
+                color="green"
+                v-close-popup
+              />
             </q-bar>
             <q-card-section>
-              <component-add-charges @reload="reload" :edit_data="charges_edit" />
+              <component-add-charges
+                @reload="reload"
+                :edit_data="charges_edit"
+              />
             </q-card-section>
           </q-card>
         </q-dialog>
@@ -157,7 +173,7 @@ export default {
         msg: null
       },
       dialog_add_cargo: false,
-      edit_form: false,
+      edit_form: false
     };
   },
   computed: {
@@ -180,73 +196,71 @@ export default {
   methods: {
     ...mapActions("master", ["getCargos", "addCargos"]),
     ...mapActions("master", ["getAllUm"]),
-    getData() {
+    async getData() {
       this.$q.loading.show({
         message: "Obteniendo Informacion existentes, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const resgetDataCargos = await this.getCargos().then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Repeusta get artículos',
-          //   data: resgetDataArticles,
-          // });
-          if (resgetDataCargos.ok) {
-            if (resgetDataCargos.result) {
-              this.data.length = 0;
-              resgetDataCargos.data.forEach(element => {
-                this.data.push({
-                  Id: element.Id,
-                  Car_Id: element.Car_Id,
-                  Car_Descripcion: element.Car_Descripcion,
-                  name_estado: element.Car_Estado == 1 ? "ACTIVO" : "INACTIVO",
-                  Car_Estado: element.Car_Estado,
-                  Car_User_control: element.Car_User_control,
-                  Per_Nombre: element.Per_Nombre,
-                  Car_Fecha_control: element.Car_Fecha_control,
-                  title: element.Car_Descripcion,
-                  Estado: element.Car_Estado,
-                  status: element.Car_Estado,
-                  btn_edit: true,
-                  btn_status: true,
-                  // btn_details: true,
-                  // btn_pdf: true,
-                  icon_btn_edit: "mdi-pencil",
-                  icon_btn_status: "power_settings_new"
-                  // icon_btn_details: "mdi-eye-settings",
-                });
-              });
-            } else {
-              this.$q.notify({
-                message: resgetDataCargos.message,
-                type: "warning"
-              });
-            }
-          } else {
+      try {
+        const resgetDataCargos = await this.getCargos().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Repeusta get artículos',
+        //   data: resgetDataArticles,
+        // });
+        if (resgetDataCargos.ok) {
+          if (resgetDataCargos.result) {
             this.data.length = 0;
-            throw resgetDataCargos.message;
+            resgetDataCargos.data.forEach(element => {
+              this.data.push({
+                Id: element.Id,
+                Car_Id: element.Car_Id,
+                Car_Descripcion: element.Car_Descripcion,
+                name_estado: element.Car_Estado == 1 ? "ACTIVO" : "INACTIVO",
+                Car_Estado: element.Car_Estado,
+                Car_User_control: element.Car_User_control,
+                Per_Nombre: element.Per_Nombre,
+                Car_Fecha_control: element.Car_Fecha_control,
+                title: element.Car_Descripcion,
+                Estado: element.Car_Estado,
+                status: element.Car_Estado,
+                btn_edit: true,
+                btn_status: true,
+                // btn_details: true,
+                // btn_pdf: true,
+                icon_btn_edit: "mdi-pencil",
+                icon_btn_status: "power_settings_new"
+                // icon_btn_details: "mdi-eye-settings",
+              });
+            });
+          } else {
+            this.$q.notify({
+              message: resgetDataCargos.message,
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          this.data.length = 0;
+          throw resgetDataCargos.message;
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     editCargos(row) {
       this.charges_edit = row;
@@ -284,57 +298,53 @@ export default {
           : "Está activando este Cargos, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
       this.enable_diable = true;
     },
-    changeStatus() {
+    async changeStatus() {
       this.$q.loading.show({
         message: "Estamos cambiando el estado del Cargos, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          this.charges_edit.base = process.env.__BASE__;
-          const res_update = await this.addCargos(this.charges_edit).then(
-            res => {
-              return res.data;
-            }
-          );
-          // console.log({
-          //   msg: "Respuesta insert update Cargos",
-          //   data: res_update
-          // });
-          if (res_update.ok) {
-            if (res_update.data.affectedRows) {
-              this.$q.notify({
-                message: "Estado actualizado",
-                type: "positive"
-              });
-              setTimeout(() => {
-                this.enable_diable = false;
-                this.getData();
-              }, 500);
-            } else {
-              this.$q.notify({
-                message: "No se actualizó el estado",
-                type: "warning"
-              });
-            }
+      try {
+        this.charges_edit.base = process.env.__BASE__;
+        const res_update = await this.addCargos(this.charges_edit).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta insert update Cargos",
+        //   data: res_update
+        // });
+        if (res_update.ok) {
+          if (res_update.data.affectedRows) {
+            this.$q.notify({
+              message: "Estado actualizado",
+              type: "positive"
+            });
+            setTimeout(() => {
+              this.enable_diable = false;
+              this.getData();
+            }, 500);
+          } else {
+            this.$q.notify({
+              message: "No se actualizó el estado",
+              type: "warning"
+            });
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
         }
-      }, 2000);
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     }
   }
 };

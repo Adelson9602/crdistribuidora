@@ -1,6 +1,11 @@
 <template>
   <div>
-    <q-btn color="primary" icon="add" label="agregar categoria" @click="dialog_create_categories = true" />
+    <q-btn
+      color="primary"
+      icon="add"
+      label="agregar categoria"
+      @click="dialog_create_categories = true"
+    />
     <q-dialog v-model="dialog_create_categories" persistent>
       <q-card style="width: 700px; max-width: 80vw;">
         <q-form
@@ -9,7 +14,7 @@
           class="q-gutter-md"
           ref="form_add_category"
         >
-           <q-bar class="bg-primary text-white">
+          <q-bar class="bg-primary text-white">
             <q-icon name="add" />
             <div>Agregar categoría</div>
 
@@ -26,7 +31,11 @@
                 type="text"
                 hint="Nombre"
                 :rules="[val => !!val || 'Nombre es obligatorio']"
-                @input="val => { category.Cat_Nombre = val.toUpperCase()}"
+                @input="
+                  val => {
+                    category.Cat_Nombre = val.toUpperCase();
+                  }
+                "
               />
             </div>
             <div class="col-xs-12 col-md-6 q-px-sm">
@@ -35,7 +44,11 @@
                 type="text"
                 hint="Descripción"
                 :rules="[val => !!val || 'Descripción es obligatorio']"
-                @input="val => { category.Cat_Descripcion = val.toUpperCase()}"
+                @input="
+                  val => {
+                    category.Cat_Descripcion = val.toUpperCase();
+                  }
+                "
               />
             </div>
             <div class="col-xs-12 col-md-6 q-px-sm">
@@ -46,7 +59,11 @@
                 :rules="[val => !!val || 'Prefijo es obligatorio']"
                 maxlength="5"
                 counter
-                @input="val => { category.Cat_precodigo = val.toUpperCase()}"
+                @input="
+                  val => {
+                    category.Cat_precodigo = val.toUpperCase();
+                  }
+                "
               />
             </div>
             <div class="col-xs-12 col-md-6 q-px-sm">
@@ -61,7 +78,7 @@
           </q-card-section>
           <q-card-actions align="right" class="q-px-md">
             <q-btn flat label="Cancelar" color="primary" v-close-popup />
-            <q-btn label="Agregar" color="primary" type="submit"/>
+            <q-btn label="Agregar" color="primary" type="submit" />
           </q-card-actions>
         </q-form>
       </q-card>
@@ -70,11 +87,11 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState } from "vuex";
 
 export default {
-  name: 'ComponentAddCategories',
-  data () {
+  name: "ComponentAddCategories",
+  data() {
     return {
       dialog_create_categories: false,
       category: {
@@ -84,49 +101,47 @@ export default {
         Cat_Descripcion: null,
         Cat_Estado: 1,
         Cat_User_control: null,
-        Cat_precodigo: null,
+        Cat_precodigo: null
       },
       options_status: [
         {
-          label: 'ACTIVO',
+          label: "ACTIVO",
           value: 1
         },
         {
-          label: 'INACTIVO',
+          label: "INACTIVO",
           value: 0
-        },
+        }
       ],
-      edit_category: null,
-    }
+      edit_category: null
+    };
   },
-  props: [
-    'edit_data'
-  ],
+  props: ["edit_data"],
   computed: {
-    ...mapState('auth', ['user_logged']),
-    data_user(){
+    ...mapState("auth", ["user_logged"]),
+    data_user() {
       return this.user_logged;
     }
   },
   watch: {
-    edit_data(value){
+    edit_data(value) {
       // Es una propiedad que se envia desde el page, si viene definido significa que estamos editando
-      if(value){
+      if (value) {
         this.edit_category = value;
         this.category = {
           base: null,
           Cat_Id: this.edit_category.Cat_Id,
           Cat_Nombre: this.edit_category.Cat_Nombre,
           Cat_Descripcion: this.edit_category.Cat_Descripcion,
-          Cat_Estado: this.edit_category.name_estado == 'ACTIVADO' ? 1 : 0,
+          Cat_Estado: this.edit_category.name_estado == "ACTIVADO" ? 1 : 0,
           Cat_precodigo: this.edit_category.Cat_precodigo,
           Cat_User_control: this.data_user.Per_Num_documento
-        }
+        };
         this.dialog_create_categories = true;
       }
     },
-    dialog_create_categories(value){
-      if(!value){
+    dialog_create_categories(value) {
+      if (!value) {
         this.edit_category = null;
         this.category = {
           base: null,
@@ -135,60 +150,58 @@ export default {
           Cat_Descripcion: null,
           Cat_Estado: 1,
           Cat_User_control: null,
-          Cat_precodigo: null,
+          Cat_precodigo: null
         };
       }
     }
   },
   methods: {
-    ...mapActions('warehouse', [
-      'addCategory'
-    ]),
-    onSubmit(){
+    ...mapActions("warehouse", ["addCategory"]),
+    async onSubmit() {
       this.$q.loading.show({
-        message: 'Guardando, por favor espere...'
+        message: "Guardando, por favor espere..."
       });
-      setTimeout( async() => {
-        try {
-          this.category.base = process.env.__BASE__;
-          this.category.Cat_User_control = this.data_user.Per_Num_documento;
-          const res_add_category = await this.addCategory(this.category).then( res => {
+      try {
+        this.category.base = process.env.__BASE__;
+        this.category.Cat_User_control = this.data_user.Per_Num_documento;
+        const res_add_category = await this.addCategory(this.category).then(
+          res => {
             return res.data;
-          });
-          console.log({
-            msg: 'Respuesta insert edit categorias',
-            data: res_add_category
-          });
-          if(res_add_category.ok){
-            this.$q.notify({
-              message: 'Guardado',
-              type: 'positive'
-            });
-            this.onReset();
-            this.$emit('reload');
-          } else {
-            throw new Error(res_add_category.message);
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
+        );
+        console.log({
+          msg: "Respuesta insert edit categorias",
+          data: res_add_category
+        });
+        if (res_add_category.ok) {
           this.$q.notify({
-            message: e,
-            type: "negative",
+            message: "Guardado",
+            type: "positive"
           });
-        } finally {
-          this.$q.loading.hide();
+          this.onReset();
+          this.$emit("reload");
+        } else {
+          throw new Error(res_add_category.message);
         }
-      }, 2000)
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    onReset(){
+    onReset() {
       this.dialog_create_categories = false;
       this.category = {
         base: null,
@@ -197,8 +210,8 @@ export default {
         Cat_Descripcion: null,
         Cat_Estado: 1,
         Cat_User_control: 123456789
-      }
-    },
+      };
+    }
   }
-}
+};
 </script>

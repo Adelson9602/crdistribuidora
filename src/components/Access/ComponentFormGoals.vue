@@ -1,10 +1,6 @@
 <template>
   <div>
-    <q-form
-      @submit="addGoals"
-      class="q-gutter-md"
-      ref="form_goals"
-    >
+    <q-form @submit="addGoals" class="q-gutter-md" ref="form_goals">
       <div class="row">
         <div class="col-xs-12 col-md-4 q-px-sm">
           <q-input
@@ -42,7 +38,13 @@
           />
         </div>
         <div class="col-xs-12 col-md-4 q-px-sm self-center">
-          <q-btn label="Agregar" icon="add" type="submit" color="primary" class="self-center"/>
+          <q-btn
+            label="Agregar"
+            icon="add"
+            type="submit"
+            color="primary"
+            class="self-center"
+          />
         </div>
       </div>
       <q-table
@@ -54,7 +56,7 @@
         class="height"
         :pagination="initial_pagination"
       />
-      <q-page-sticky position="bottom-right" :offset="[18,18]" expand>
+      <q-page-sticky position="bottom-right" :offset="[18, 18]" expand>
         <q-btn color="primary" icon="save" label="guardar" @click="saveGoals" />
       </q-page-sticky>
     </q-form>
@@ -62,22 +64,23 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions } from "vuex";
 export default {
-  name: 'ComponentFormGoals',
-  data () {
+  name: "ComponentFormGoals",
+  data() {
     return {
       options_state: [
         {
-          label: 'ACTIVO',
+          label: "ACTIVO",
           value: 1
         },
         {
-          label: 'INACTIVO',
+          label: "INACTIVO",
           value: 0
-        },
+        }
       ],
-      goal: { //Meta a agregar
+      goal: {
+        //Meta a agregar
         base: null,
         Met_Id: null,
         Met_vdesde: null,
@@ -89,52 +92,51 @@ export default {
       data: [], //Contiene las metas que se van a guardar en la bd
       columns: [
         {
-          name: 'Met_Id',
-          align: 'center',
-          label: 'ID',
+          name: "Met_Id",
+          align: "center",
+          label: "ID",
           sortable: true,
-          field: 'Met_Id'
+          field: "Met_Id"
         },
         {
-          name: 'Met_vdesde',
-          align: 'center',
-          label: 'Desde',
+          name: "Met_vdesde",
+          align: "center",
+          label: "Desde",
           sortable: true,
-          field: 'Met_vdesde'
+          field: "Met_vdesde"
         },
         {
-          name: 'Met_vhasta',
-          align: 'center',
-          label: 'Hasta',
+          name: "Met_vhasta",
+          align: "center",
+          label: "Hasta",
           sortable: true,
-          field: 'Met_vhasta'
+          field: "Met_vhasta"
         },
         {
-          name: 'Met_porcentaje',
-          align: 'center',
-          label: 'Porcentaje',
+          name: "Met_porcentaje",
+          align: "center",
+          label: "Porcentaje",
           sortable: true,
-          field: 'Met_porcentaje'
+          field: "Met_porcentaje"
         },
         {
-          name: 'Estado',
-          align: 'center',
-          label: 'Estado',
+          name: "Estado",
+          align: "center",
+          label: "Estado",
           sortable: true,
-          field: 'Estado'
-        },
+          field: "Estado"
+        }
       ],
-      initial_pagination: { //Paginación inicial para la tabla
+      initial_pagination: {
+        //Paginación inicial para la tabla
         page: 1,
-        rowsPerPage: 15,
-      },
-    }
+        rowsPerPage: 15
+      }
+    };
   },
-  props: [
-    'data_edit'
-  ],
-  created(){
-    if(this.data_edit){
+  props: ["data_edit"],
+  created() {
+    if (this.data_edit) {
       this.goal = {
         base: this.data_edit.base,
         Met_Id: this.data_edit.Met_Id,
@@ -143,66 +145,62 @@ export default {
         Met_porcentaje: this.data_edit.Met_porcentaje,
         Met_Estado: this.data_edit.Met_Estado,
         Met_User_control: this.data_edit.Met_User_control
-      }
+      };
     }
   },
   methods: {
-    ...mapActions('access', [
-      'insertUpdateGoals',
-    ]),
+    ...mapActions("access", ["insertUpdateGoals"]),
     // Crea o edita las metas
-    saveGoals(){
+    async saveGoals() {
       this.$q.loading.show({
-        message: 'Guardando, por favor espere...'
-      })
-      setTimeout( async() => {
-        try {
-          let promises = [];
-          this.data.forEach( goal => {
-            promises.push(this.insertUpdateGoals(goal))
-          })
-          Promise.all(promises).then( data => {
-            data.forEach( res => {
-              console.log({
-                msg: 'Respuesta insert update metas',
-                data: res.data
+        message: "Guardando, por favor espere..."
+      });
+      try {
+        let promises = [];
+        this.data.forEach(goal => {
+          promises.push(this.insertUpdateGoals(goal));
+        });
+        Promise.all(promises).then(data => {
+          data.forEach(res => {
+            // console.log({
+            //   msg: 'Respuesta insert update metas',
+            //   data: res.data
+            // });
+            if (res.data.ok && res.data.data.affectedRows) {
+              this.$q.notify({
+                message: res.data.message,
+                type: "positive"
               });
-              if(res.data.ok && res.data.data.affectedRows){
-                this.$q.notify({
-                  message: res.data.message,
-                  type: 'positive'
-                })
-              } else {
-                this.$q.notify({
-                  message: res.data.message,
-                  type: 'negative'
-                })
-                throw new Error(res.data.message)
-              }
-            })
+            } else {
+              this.$q.notify({
+                message: res.data.message,
+                type: "negative"
+              });
+              throw new Error(res.data.message);
+            }
           });
-          this.$emit('reload');
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
+        });
+        this.$emit("reload");
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
         }
-      }, 2000)
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     // Agrega las metas a la tabla
-    addGoals(){
+    addGoals() {
       let goal_add = {
         base: process.env.__BASE__,
         Met_Id: this.goal.Met_Id,
@@ -211,11 +209,12 @@ export default {
         Met_porcentaje: this.goal.Met_porcentaje,
         Met_Estado: this.goal.Met_Estado,
         Met_User_control: 123456789,
-        Estado: this.goal.Met_Estado == 1 ? 'ACTIVO' : 'INACTIVO'
-      }
-      this.data.push(goal_add)
+        Estado: this.goal.Met_Estado == 1 ? "ACTIVO" : "INACTIVO"
+      };
+      this.data.push(goal_add);
       // Resetamos el formulario
-      this.goal = { //Meta a agregar
+      this.goal = {
+        //Meta a agregar
         base: null,
         Met_Id: null,
         Met_vdesde: null,
@@ -223,29 +222,29 @@ export default {
         Met_porcentaje: null,
         Met_Estado: 1,
         Met_User_control: null
-      }
-      setTimeout(()=> {
+      };
+      setTimeout(() => {
         this.$refs.form_goals.resetValidation();
-      }, 300)
+      }, 300);
     },
-    validateTope(value){
+    validateTope(value) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          if(value <= this.goal.Met_vdesde){
-            resolve(false || 'Valor tope debe ser mayor a la inicial')
-          } else if(!value){
-            resolve(false || 'Valor tope es requerido')
+          if (value <= this.goal.Met_vdesde) {
+            resolve(false || "Valor tope debe ser mayor a la inicial");
+          } else if (!value) {
+            resolve(false || "Valor tope es requerido");
           } else {
-            resolve(true)
+            resolve(true);
           }
-        }, 1000)
-      })
+        }, 1000);
+      });
     }
   }
-}
+};
 </script>
 <style scoped>
-.height{
+.height {
   height: 55vh !important;
 }
 </style>

@@ -312,209 +312,202 @@ export default {
     ...mapActions("sales", ["getClientes"]),
     ...mapActions("shopping", ["addProviders", "searchProviders"]),
 
-    getData() {
+    async getData() {
       this.$q.loading.show({
         message: "Obteniendo clientes, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_provider = await this.getClientes().then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta get proveedor",
-          //   data: res_provider
-          // });
-          if (res_provider.ok) {
-            if (res_provider.result) {
-              this.data.length = 0;
-              res_provider.data.forEach(provider => {
-                if (provider.Tp_Id == 1) {
-                  this.data.push({
-                    base: null,
-                    CP_Digito_verificacion: provider.CP_Digito_verificacion,
-                    CP_Direccion: provider.CP_Direccion,
-                    CP_Email: provider.CP_Email,
-                    CP_Estado: provider.CP_Estado,
-                    CP_Fecha_control: provider.CP_Fecha_control,
-                    CP_Nit: provider.CP_Nit,
-                    CP_Razon_social: provider.CP_Razon_social,
-                    CP_Telefono: provider.CP_Telefono,
-                    CP_Urlweb: provider.CP_Urlweb,
-                    CP_User_control: provider.CP_User_control,
-                    Ciu_Id: provider.Ciu_Id,
-                    Ciu_Nombre: provider.Ciu_Nombre,
-                    Per_Nombre: provider.Per_Nombre,
-                    Td_Id: provider.Td_Id,
-                    Tp_Desc_corta: provider.Tp_Desc_corta,
-                    Tp_Id: provider.Tp_Id,
-                    name_estado: provider.name_estado,
-                    name_tp: provider.name_tp,
-                    Id: provider.id,
-                    status: provider.CP_Estado,
-                    title: provider.CP_Razon_social,
-                    btn_edit: true,
-                    btn_status: true,
-                    icon_btn_details: "visibility",
-                    btn_details: false,
-                    icon_btn_edit: "edit",
-                    icon_btn_status: "power_settings_new"
-                  });
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: res_provider.message,
-                type: "warning"
-              });
-            }
+      try {
+        const res_provider = await this.getClientes().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get proveedor",
+        //   data: res_provider
+        // });
+        if (res_provider.ok) {
+          if (res_provider.result) {
+            this.data.length = 0;
+            res_provider.data.forEach(provider => {
+              if (provider.Tp_Id == 1) {
+                this.data.push({
+                  base: null,
+                  CP_Digito_verificacion: provider.CP_Digito_verificacion,
+                  CP_Direccion: provider.CP_Direccion,
+                  CP_Email: provider.CP_Email,
+                  CP_Estado: provider.CP_Estado,
+                  CP_Fecha_control: provider.CP_Fecha_control,
+                  CP_Nit: provider.CP_Nit,
+                  CP_Razon_social: provider.CP_Razon_social,
+                  CP_Telefono: provider.CP_Telefono,
+                  CP_Urlweb: provider.CP_Urlweb,
+                  CP_User_control: provider.CP_User_control,
+                  Ciu_Id: provider.Ciu_Id,
+                  Ciu_Nombre: provider.Ciu_Nombre,
+                  Per_Nombre: provider.Per_Nombre,
+                  Td_Id: provider.Td_Id,
+                  Tp_Desc_corta: provider.Tp_Desc_corta,
+                  Tp_Id: provider.Tp_Id,
+                  name_estado: provider.name_estado,
+                  name_tp: provider.name_tp,
+                  Id: provider.id,
+                  status: provider.CP_Estado,
+                  title: provider.CP_Razon_social,
+                  btn_edit: true,
+                  btn_status: true,
+                  icon_btn_details: "visibility",
+                  btn_details: false,
+                  icon_btn_edit: "edit",
+                  icon_btn_status: "power_settings_new"
+                });
+              }
+            });
           } else {
-            throw new Error(res_provider.message);
+            this.$q.notify({
+              message: res_provider.message,
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_provider.message);
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    detailsEntry(id) {
+    async detailsEntry(id) {
       this.$q.loading.show({
         message: "Obteniendo detalle del ingreso, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_detail = await this.getDetailsEntry(id).then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta get detalle ingreso",
-          //   data: res_detail
-          // });
-          if (res_detail.ok) {
-            if (res_detail.result) {
-              this.data.length = 0;
-              res_detail.data.forEach(ingreso => {
-                this.data.push({});
-              });
-            } else {
-              this.$q.notify({
-                message: res_detail.message,
-                type: "warning"
-              });
-            }
+      try {
+        const res_detail = await this.getDetailsEntry(id).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get detalle ingreso",
+        //   data: res_detail
+        // });
+        if (res_detail.ok) {
+          if (res_detail.result) {
+            this.data.length = 0;
+            res_detail.data.forEach(ingreso => {
+              this.data.push({});
+            });
           } else {
-            throw new Error(res_detail.message);
+            this.$q.notify({
+              message: res_detail.message,
+              type: "warning"
+            });
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_detail.message);
         }
-      }, 2000);
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    searchProvider() {
+    async searchProvider() {
       this.$q.loading.show({
         message: "Buscando proveedor, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const res_provider = await this.searchProviders(
-            this.nit_cliente
-          ).then(res => {
+      try {
+        const res_provider = await this.searchProviders(this.nit_cliente).then(
+          res => {
             return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta get proveedor",
-          //   data: res_provider
-          // });
-          if (res_provider.ok) {
-            if (res_provider.result) {
-              this.data.length = 0;
-              this.data.push({
-                base: null,
-                CP_Digito_verificacion:
-                  res_provider.data.CP_Digito_verificacion,
-                CP_Direccion: res_provider.data.CP_Direccion,
-                CP_Email: res_provider.data.CP_Email,
-                CP_Estado: res_provider.data.CP_Estado,
-                CP_Fecha_control: res_provider.data.CP_Fecha_control,
-                CP_Nit: res_provider.data.CP_Nit,
-                CP_Razon_social: res_provider.data.CP_Razon_social,
-                CP_Telefono: res_provider.data.CP_Telefono,
-                CP_Urlweb: res_provider.data.CP_Urlweb,
-                CP_User_control: res_provider.data.CP_User_control,
-                Ciu_Id: res_provider.data.Ciu_Id,
-                Ciu_Nombre: res_provider.data.Ciu_Nombre,
-                Per_Nombre: res_provider.data.Per_Nombre,
-                Td_Id: res_provider.data.Td_Id,
-                Tp_Desc_corta: res_provider.data.Tp_Desc_corta,
-                Tp_Id: res_provider.data.Tp_Id,
-                name_estado: res_provider.data.name_estado,
-                name_tp: res_provider.data.name_tp,
-                Id: res_provider.data.id,
-                status: res_provider.data.CP_Estado,
-                title: res_provider.data.CP_Razon_social,
-                btn_edit: true,
-                btn_status: true,
-                icon_btn_details: "visibility",
-                btn_details: false,
-                icon_btn_edit: "edit",
-                icon_btn_status: "power_settings_new"
-              });
-            } else {
-              this.$q.notify({
-                message: res_provider.message,
-                type: "warning"
-              });
-            }
+          }
+        );
+        // console.log({
+        //   msg: "Respuesta get proveedor",
+        //   data: res_provider
+        // });
+        if (res_provider.ok) {
+          if (res_provider.result) {
+            this.data.length = 0;
+            this.data.push({
+              base: null,
+              CP_Digito_verificacion: res_provider.data.CP_Digito_verificacion,
+              CP_Direccion: res_provider.data.CP_Direccion,
+              CP_Email: res_provider.data.CP_Email,
+              CP_Estado: res_provider.data.CP_Estado,
+              CP_Fecha_control: res_provider.data.CP_Fecha_control,
+              CP_Nit: res_provider.data.CP_Nit,
+              CP_Razon_social: res_provider.data.CP_Razon_social,
+              CP_Telefono: res_provider.data.CP_Telefono,
+              CP_Urlweb: res_provider.data.CP_Urlweb,
+              CP_User_control: res_provider.data.CP_User_control,
+              Ciu_Id: res_provider.data.Ciu_Id,
+              Ciu_Nombre: res_provider.data.Ciu_Nombre,
+              Per_Nombre: res_provider.data.Per_Nombre,
+              Td_Id: res_provider.data.Td_Id,
+              Tp_Desc_corta: res_provider.data.Tp_Desc_corta,
+              Tp_Id: res_provider.data.Tp_Id,
+              name_estado: res_provider.data.name_estado,
+              name_tp: res_provider.data.name_tp,
+              Id: res_provider.data.id,
+              status: res_provider.data.CP_Estado,
+              title: res_provider.data.CP_Razon_social,
+              btn_edit: true,
+              btn_status: true,
+              icon_btn_details: "visibility",
+              btn_details: false,
+              icon_btn_edit: "edit",
+              icon_btn_status: "power_settings_new"
+            });
           } else {
-            throw new Error(res_provider.message);
+            this.$q.notify({
+              message: res_provider.message,
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res_provider.message);
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     editEntry(row) {
       this.cliente_edit = row;
@@ -555,58 +548,55 @@ export default {
           : "Está activando este cliente, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
       this.enable_diable = true;
     },
-    changeStatus() {
+    async changeStatus() {
       this.$q.loading.show({
         message: "Estamos cambiando el estado del cliente, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          this.cliente_edit.base = process.env.__BASE__;
-          console.log(this.cliente_edit);
-          const res_update = await this.addProviders(this.cliente_edit).then(
-            res => {
-              return res.data;
-            }
-          );
-          console.log({
-            msg: "Respuesta insert update cliente",
-            data: res_update
-          });
-          if (res_update.ok) {
-            if (res_update.data.affectedRows) {
-              this.$q.notify({
-                message: "Estado actualizado",
-                type: "positive"
-              });
-              setTimeout(() => {
-                this.enable_diable = false;
-                this.getData();
-              }, 500);
-            } else {
-              this.$q.notify({
-                message: "No se actualizó el estado",
-                type: "warning"
-              });
-            }
+      try {
+        this.cliente_edit.base = process.env.__BASE__;
+        const res_update = await this.addProviders(this.cliente_edit).then(
+          res => {
+            return res.data;
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
+        );
+        // console.log({
+        //   msg: "Respuesta insert update cliente",
+        //   data: res_update
+        // });
+        if (res_update.ok) {
+          if (res_update.data.affectedRows) {
+            this.$q.notify({
+              message: "Estado actualizado",
+              type: "positive"
+            });
+            setTimeout(() => {
+              this.enable_diable = false;
+              this.getData();
+            }, 500);
+          } else {
+            this.$q.notify({
+              message: "No se actualizó el estado",
+              type: "warning"
+            });
           }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative"
-          });
-        } finally {
-          this.$q.loading.hide();
         }
-      }, 2000);
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     }
   }
 };

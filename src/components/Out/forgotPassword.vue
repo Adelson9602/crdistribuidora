@@ -1,31 +1,28 @@
 <template>
   <div>
-    <q-form
-      @submit="onSubmit"
-      class="q-gutter-md"
-    >
+    <q-form @submit="onSubmit" class="q-gutter-md">
       <div class="login100-form validate-form">
         <span class="login100-form-title">
           Recuperar contraseña
         </span>
         <q-input
-            filled
-            v-model="user"
-            label="Ingrese su email o usuario"
-            :rules="[val => !!val || 'Debe ingresar su usuario o email']"
-          >
-            <template v-slot:prepend>
-              <q-icon name="account_circle" />
-            </template>
-          </q-input>
-          <div class="container-login100-form-btn">
-            <q-btn class="login100-form-btn" type="submit" label="Continuar" />
-          </div>
-          <div class="forgot-pass text-center p-t-12">
-            <a class="txt2" href="#" @click="login">
-              Iniciar sesión
-            </a>
-          </div>
+          filled
+          v-model="user"
+          label="Ingrese su email o usuario"
+          :rules="[val => !!val || 'Debe ingresar su usuario o email']"
+        >
+          <template v-slot:prepend>
+            <q-icon name="account_circle" />
+          </template>
+        </q-input>
+        <div class="container-login100-form-btn">
+          <q-btn class="login100-form-btn" type="submit" label="Continuar" />
+        </div>
+        <div class="forgot-pass text-center p-t-12">
+          <a class="txt2" href="#" @click="login">
+            Iniciar sesión
+          </a>
+        </div>
       </div>
     </q-form>
   </div>
@@ -33,10 +30,10 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 export default {
-  name: 'ForgotPassword',
+  name: "ForgotPassword",
   data() {
     return {
       user: null
@@ -44,77 +41,83 @@ export default {
   },
 
   methods: {
-    ...mapActions('auth', [
-      'getDataUserRecove',
-      'sendEmailRecover'
-    ]),
-    onSubmit() {
+    ...mapActions("auth", ["getDataUserRecove", "sendEmailRecover"]),
+    async onSubmit() {
       this.$q.loading.show({
         message: "Recuperando contraseña"
       });
-      setTimeout(async () => {
-        try {
-          const res_user = await this.getDataUserRecove(this.user).then( res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get datos usuario',
-          //   data: res_user
-          // })
-          if(res_user.ok){
-            if(res_user.result){
-              let data = {
-                nombre: res_user.data.Per_Nombre,
-                email: res_user.data.Per_Email,
-                usuario: res_user.data.Usu_Login,
-                password: this.aesDencrypt(res_user.data.Usu_Clave_ppl),
-                clave_verificacion: this.aesDencrypt(res_user.data.Usu_Clave_verificacion)
-              }
-              const res_email = await this.sendEmailRecover(data).then( res => {
-                return res.data;
-              });
-              // console.log({
-              //   msg: 'Respuesta email',
-              //   data: res_email
-              // });
-              this.$q.notify({
-                message: 'Hemos enviado un email con los datos de acceso',
-                type: 'positive'
-              });
-              this.login();
-            } else {
-              this.$q.notify({
-                message: 'No hemos econtrado datos relacionado al usuario o email ingresado',
-                type: 'warning'
-              })
-            }
+      try {
+        const res_user = await this.getDataUserRecove(this.user).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Respuesta get datos usuario',
+        //   data: res_user
+        // })
+        if (res_user.ok) {
+          if (res_user.result) {
+            let data = {
+              nombre: res_user.data.Per_Nombre,
+              email: res_user.data.Per_Email,
+              usuario: res_user.data.Usu_Login,
+              password: this.aesDencrypt(res_user.data.Usu_Clave_ppl),
+              clave_verificacion: this.aesDencrypt(
+                res_user.data.Usu_Clave_verificacion
+              )
+            };
+            const res_email = await this.sendEmailRecover(data).then(res => {
+              return res.data;
+            });
+            // console.log({
+            //   msg: 'Respuesta email',
+            //   data: res_email
+            // });
+            this.$q.notify({
+              message: "Hemos enviado un email con los datos de acceso",
+              type: "positive"
+            });
+            this.login();
           } else {
-            throw new Error(res.message)
+            this.$q.notify({
+              message:
+                "No hemos econtrado datos relacionado al usuario o email ingresado",
+              type: "warning"
+            });
           }
-        } catch (e) {
-          console.log(e);
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          throw new Error(res.message);
         }
-      }, 500);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     login() {
       this.$emit("login");
     },
     aesEncrypt(txt) {
-      const cipher = this.CryptoJS.AES.encrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
-        iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
-        mode: CryptoJS.mode.CBC
-      }).toString()
-      return cipher.toString()
+      const cipher = this.CryptoJS.AES.encrypt(
+        txt,
+        CryptoJS.enc.Utf8.parse(process.env.__KEY__),
+        {
+          iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+          mode: CryptoJS.mode.CBC
+        }
+      ).toString();
+      return cipher.toString();
     },
     aesDencrypt(txt) {
-      const cipher = this.CryptoJS.AES.decrypt(txt, CryptoJS.enc.Utf8.parse(process.env.__KEY__), {
-        iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
-        mode: CryptoJS.mode.CBC
-      })
-      return CryptoJS.enc.Utf8.stringify(cipher).toString()
-    },
+      const cipher = this.CryptoJS.AES.decrypt(
+        txt,
+        CryptoJS.enc.Utf8.parse(process.env.__KEY__),
+        {
+          iv: CryptoJS.enc.Utf8.parse(process.env.__IV__),
+          mode: CryptoJS.mode.CBC
+        }
+      );
+      return CryptoJS.enc.Utf8.stringify(cipher).toString();
+    }
   }
 };
 </script>
@@ -218,8 +221,13 @@ button:hover {
   width: 100%;
   height: 50px;
   border-radius: 5px;
-  background: #ED9221 !important;
-  background: linear-gradient(90deg, rgba(74,98,220,1) 0%, rgba(0,11,171,1) 52%, rgba(24,75,217,1) 100%);
+  background: #ed9221 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(74, 98, 220, 1) 0%,
+    rgba(0, 11, 171, 1) 52%,
+    rgba(24, 75, 217, 1) 100%
+  );
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-box;

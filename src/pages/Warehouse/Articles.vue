@@ -45,7 +45,12 @@
               />
             </template>
             <template v-slot:input_one>
-              <q-btn color="primary" icon="check" label="OK" @click="dailog_barcode = true" />
+              <q-btn
+                color="primary"
+                icon="check"
+                label="OK"
+                @click="dailog_barcode = true"
+              />
               <q-dialog v-model="dailog_barcode" persistent full-width>
                 <q-card>
                   <q-card-section class="row items-center">
@@ -62,7 +67,14 @@
                         hide-header
                       >
                         <template v-slot:top-right>
-                          <q-input borderless dense debounce="300" v-model="filter" placeholder="Buscar" filled>
+                          <q-input
+                            borderless
+                            dense
+                            debounce="300"
+                            v-model="filter"
+                            placeholder="Buscar"
+                            filled
+                          >
                             <template v-slot:append>
                               <q-icon name="search" />
                             </template>
@@ -72,28 +84,41 @@
                         <template v-slot:item="props">
                           <div
                             class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition"
-                            :style="props.selected ? 'transform: scale(0.95);' : ''"
+                            :style="
+                              props.selected ? 'transform: scale(0.95);' : ''
+                            "
                           >
                             <q-card :class="props.selected ? 'bg-grey-2' : ''">
                               <q-card-section>
-                                <q-checkbox dense v-model="props.selected" :label="props.row.Art_Codigo_inv" />
+                                <q-checkbox
+                                  dense
+                                  v-model="props.selected"
+                                  :label="props.row.Art_Codigo_inv"
+                                />
                               </q-card-section>
                               <q-separator />
                               <q-list dense>
-                                <vue-barcode v-bind:value="props.row.Art_Codigo_inv" :height="50">
+                                <vue-barcode
+                                  v-bind:value="props.row.Art_Codigo_inv"
+                                  :height="50"
+                                >
                                   Show this if the rendering fails.
                                 </vue-barcode>
                               </q-list>
                             </q-card>
                           </div>
                         </template>
-
                       </q-table>
                     </div>
                   </q-card-section>
                   <q-card-actions align="right">
                     <q-btn flat label="Cancel" color="primary" v-close-popup />
-                    <q-btn flat label="Turn on Wifi" color="primary" v-close-popup />
+                    <q-btn
+                      flat
+                      label="Turn on Wifi"
+                      color="primary"
+                      v-close-popup
+                    />
                   </q-card-actions>
                 </q-card>
               </q-dialog>
@@ -112,7 +137,14 @@
                 <div class="col text-center text-weight-bold">
                   Ajustar porcentajes de venta
                 </div>
-                <q-btn dense flat round icon="close" color="white" v-close-popup/>
+                <q-btn
+                  dense
+                  flat
+                  round
+                  icon="close"
+                  color="white"
+                  v-close-popup
+                />
               </q-bar>
               <q-card-section>
                 <q-form
@@ -124,7 +156,12 @@
                   <div class="col-xs-12 col-sm-12 col-md-4 q-px-xs">
                     <q-field hint="Nombre artículo" stack-label>
                       <template v-slot:control>
-                        <div class="self-center full-width no-outline" tabindex="0">{{article_edit.Art_Nombre}}</div>
+                        <div
+                          class="self-center full-width no-outline"
+                          tabindex="0"
+                        >
+                          {{ article_edit.Art_Nombre }}
+                        </div>
                       </template>
                     </q-field>
                   </div>
@@ -143,7 +180,13 @@
                       :rules="[val => !!val || 'Ingrese un porcentaje']"
                     />
                   </div>
-                  <q-btn color="white" text-color="black" label="Agregar" type="submit" class="hide-btn_submit"/>
+                  <q-btn
+                    color="white"
+                    text-color="black"
+                    label="Agregar"
+                    type="submit"
+                    class="hide-btn_submit"
+                  />
                 </q-form>
               </q-card-section>
               <q-card-section class="row">
@@ -205,7 +248,14 @@
                     <template v-slot:body="props">
                       <q-tr :props="props">
                         <q-td auto-width class="q-gutter-x-sm">
-                          <q-btn color="red" dense size="sm" icon="delete" round @click="deleteItem(props.row)"/>
+                          <q-btn
+                            color="red"
+                            dense
+                            size="sm"
+                            icon="delete"
+                            round
+                            @click="deleteItem(props.row)"
+                          />
                         </q-td>
 
                         <q-td
@@ -221,7 +271,13 @@
                 </div>
               </q-card-section>
               <q-card-actions align="right">
-                <q-btn icon="save" @click="saveChangePercent" label="Guardar" color="green" v-if="data_percents.length > 0" />
+                <q-btn
+                  icon="save"
+                  @click="saveChangePercent"
+                  label="Guardar"
+                  color="green"
+                  v-if="data_percents.length > 0"
+                />
               </q-card-actions>
             </q-card>
           </q-dialog>
@@ -239,9 +295,9 @@
 import ComponentAddArticle from "components/Warehouse/ComponentAddArticle";
 import componentTable from "components/Generals/ComponentTable";
 import ComponentDialogEnable from "components/Generals/ComponentDialogEnable";
-import dialog from 'components/Generals/ComponentDialogWarning';
+import dialog from "components/Generals/ComponentDialogWarning";
 import { mapActions, mapState } from "vuex";
-import VueBarcode from 'vue-barcode';
+import VueBarcode from "vue-barcode";
 let categorias = [];
 let ums = [];
 let percents = [];
@@ -261,7 +317,7 @@ export default {
       tab: "articles",
       date_range: {
         to: null,
-        from: null,
+        from: null
       },
       columns: [
         {
@@ -270,7 +326,7 @@ export default {
           label: "Id ",
           align: "center",
           field: "Id",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Codigo_inv",
@@ -278,7 +334,7 @@ export default {
           label: "Codigo",
           align: "center",
           field: "Art_Codigo_inv",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Nombre",
@@ -286,7 +342,7 @@ export default {
           label: "Nombre artículo",
           align: "center",
           field: "Art_Nombre",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Descripcion",
@@ -294,7 +350,7 @@ export default {
           label: "Descripción artículo",
           align: "center",
           field: "Art_Descripcion",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Prefijo",
@@ -302,7 +358,7 @@ export default {
           label: "UNDM",
           align: "center",
           field: "Prefijo",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Stockminimo",
@@ -310,7 +366,7 @@ export default {
           label: "Stock min artículo",
           align: "center",
           field: "Art_Stockminimo",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Cat_Nombre",
@@ -318,7 +374,7 @@ export default {
           label: "Categoria",
           align: "center",
           field: "Cat_Nombre",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_ubicacion",
@@ -326,7 +382,7 @@ export default {
           label: "Ubicación",
           align: "center",
           field: "Art_ubicacion",
-          sortable: true,
+          sortable: true
         },
         {
           name: "name_estado",
@@ -334,7 +390,7 @@ export default {
           label: "Estado",
           align: "center",
           field: "name_estado",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_User_control",
@@ -342,7 +398,7 @@ export default {
           label: "User Control",
           align: "center",
           field: "Art_User_control",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Per_Nombre",
@@ -350,7 +406,7 @@ export default {
           label: "Nombre Control",
           align: "center",
           field: "Per_Nombre",
-          sortable: true,
+          sortable: true
         },
         {
           name: "Art_Fecha_control",
@@ -358,62 +414,62 @@ export default {
           label: "Fecha Control",
           align: "center",
           field: "Art_Fecha_control",
-          sortable: true,
-        },
+          sortable: true
+        }
       ],
       excel: {
         columns: [
           {
             label: "Id ",
-            field: "Id",
+            field: "Id"
           },
           {
             label: "Codigo",
-            field: "Art_Codigo_inv",
+            field: "Art_Codigo_inv"
           },
           {
             label: "Nombre articulo",
-            field: "Art_Nombre",
+            field: "Art_Nombre"
           },
           {
             label: "Descripcion articulo",
-            field: "Art_Descripcion",
+            field: "Art_Descripcion"
           },
           {
             label: "UNDM",
-            field: "Prefijo",
+            field: "Prefijo"
           },
           {
             label: "Stock min articulo",
-            field: "Art_Stockminimo",
+            field: "Art_Stockminimo"
           },
           {
             label: "Categoria",
-            field: "Cat_Nombre",
+            field: "Cat_Nombre"
           },
           {
             label: "Ubicación",
-            field: "Art_ubicacion",
+            field: "Art_ubicacion"
           },
           {
             label: "Estado",
-            field: "name_estado",
+            field: "name_estado"
           },
           {
             label: "Documento creador",
-            field: "Art_User_control",
+            field: "Art_User_control"
           },
           {
             label: "Nombre creador",
-            field: "Per_Nombre",
+            field: "Per_Nombre"
           },
           {
             label: "Fecha creación",
-            field: "Art_Fecha_control",
-          },
+            field: "Art_Fecha_control"
+          }
         ],
         data: [],
-        title: "Articulos",
+        title: "Articulos"
       },
       data: [],
       datageneral: [],
@@ -423,46 +479,46 @@ export default {
       enable_diable: false,
       options_status: {
         title: null,
-        msg: null,
+        msg: null
       },
       btns: {
         range_date: false,
         btn_export_pdf: false,
-        export_excel: true,
+        export_excel: true
       },
       dialog_percent: false,
       data_percents: [],
       data_percents_added: [],
       columns_percents: [
         {
-          name: 'Art_Id',
-          align: 'center',
-          label: 'ID PRODUCTO',
-          field: 'Art_Id'
+          name: "Art_Id",
+          align: "center",
+          label: "ID PRODUCTO",
+          field: "Art_Id"
         },
         {
-          name: 'porcentaje',
-          align: 'center',
-          label: 'PORCENTAJE SELECCIONADO',
-          field: 'porcentaje'
+          name: "porcentaje",
+          align: "center",
+          label: "PORCENTAJE SELECCIONADO",
+          field: "porcentaje"
         },
         {
-          name: 'Pv_Prcentaje',
-          align: 'center',
-          label: 'PORCENTAJE',
-          field: 'Pv_Prcentaje'
-        },
+          name: "Pv_Prcentaje",
+          align: "center",
+          label: "PORCENTAJE",
+          field: "Pv_Prcentaje"
+        }
       ],
       options_percents: percents,
       new_percent: null,
-      percent_selected: null,
+      percent_selected: null
     };
   },
   computed: {
     ...mapState("auth", ["user_logged"]),
     data_user() {
       return this.user_logged;
-    },
+    }
   },
   created() {
     this.getData();
@@ -477,7 +533,7 @@ export default {
       if (value) {
         this.rendercomponent = false;
         let dataselect = this.datageneral.filter(
-          (credit) => credit.Art_Estado == 0
+          credit => credit.Art_Estado == 0
         );
         this.data.length = 0;
 
@@ -490,8 +546,8 @@ export default {
         setTimeout(this.getData(), 300);
       }
     },
-    dialog_percent(value){
-      if(!value){
+    dialog_percent(value) {
+      if (!value) {
         this.article_edit = null;
       }
     }
@@ -501,7 +557,7 @@ export default {
       "getAllArticles",
       "requestgetDataArticlesRange",
       "addArticle",
-      "getCategoriasAlmacen",
+      "getCategoriasAlmacen"
     ]),
     ...mapActions("master", [
       "getAllUm",
@@ -509,282 +565,274 @@ export default {
       "getPercentSaleProduct",
       "savePercentPerso"
     ]),
-    getData() {
+    async getData() {
       this.$q.loading.show({
-        message: "Obteniendo articulos existentes, por favor espere...",
+        message: "Obteniendo articulos existentes, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const resgetDataArticles = await this.getAllArticles().then((res) => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Repeusta get artículos',
-          //   data: resgetDataArticles,
-          // });
-          if (resgetDataArticles.ok) {
-            if (resgetDataArticles.result) {
-              this.data.length = 0;
-              this.datageneral.length = 0;
-              resgetDataArticles.data.forEach((element) => {
-                this.data.push({
-                  Id: element.Id,
-                  Art_Id: element.Art_Id,
-                  Art_Codigo_inv: element.Art_Codigo_inv,
-                  Art_Nombre: element.Art_Nombre,
-                  Art_Descripcion: element.Art_Descripcion,
-                  Prefijo: element.Prefijo,
-                  Art_Stockminimo: element.Art_Stockminimo,
-                  Cat_Nombre: element.Cat_Nombre,
-                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
-                  Art_Estado: element.Art_Estado,
-                  Art_User_control: element.Art_User_control,
-                  Per_Nombre: element.Per_Nombre,
-                  Art_Fecha_control: element.Art_Fecha_control,
-                  Art_ubicacion: element.Art_ubicacion,
-                  img: element.Art_Imagen
-                    ? element.Art_Imagen
-                    : "Image/No-Image-Icon.png",
-                  title: element.Art_Nombre,
-                  Estado: element.Art_Estado,
-                  status: element.Art_Estado,
-                  btn_edit: true,
-                  btn_status: true,
-                  btn_details: true,
-                  // btn_pdf: true,
-                  icon_btn_edit: "mdi-pencil",
-                  icon_btn_status: "power_settings_new",
-                  icon_btn_details: "settings",
-                });
-                this.datageneral.push({
-                  Id: element.Id,
-                  Art_Id: element.Art_Id,
-                  Art_Codigo_inv: element.Art_Codigo_inv,
-                  Art_Nombre: element.Art_Nombre,
-                  Art_Descripcion: element.Art_Descripcion,
-                  Prefijo: element.Prefijo,
-                  Art_Stockminimo: element.Art_Stockminimo,
-                  Cat_Nombre: element.Cat_Nombre,
-                  name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
-                  Art_Estado: element.Art_Estado,
-                  Art_User_control: element.Art_User_control,
-                  Per_Nombre: element.Per_Nombre,
-                  Art_Fecha_control: element.Art_Fecha_control,
-                  Art_ubicacion: element.Art_ubicacion,
-                  img: element.Art_Imagen
-                    ? element.Art_Imagen
-                    : "Image/No-Image-Icon.png",
-                  title: element.Art_Nombre,
-                  Estado: element.Art_Estado,
-                  status: element.Art_Estado,
-                  btn_edit: true,
-                  btn_status: true,
-                  btn_details: true,
-                  // btn_pdf: true,
-                  icon_btn_edit: "mdi-pencil",
-                  icon_btn_status: "power_settings_new",
-                  icon_btn_details: "settings",
-                });
-              });
-            } else {
-              this.$q.notify({
-                message: resgetDataArticles.message,
-                type: "warning",
-              });
-            }
-          } else {
+      try {
+        const resgetDataArticles = await this.getAllArticles().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Repeusta get artículos',
+        //   data: resgetDataArticles,
+        // });
+        if (resgetDataArticles.ok) {
+          if (resgetDataArticles.result) {
             this.data.length = 0;
-            throw resgetDataArticles.message;
-          }
-
-          // Obtenemos las categorías de los productos
-          const res_categorias = await this.getCategoriasAlmacen().then(
-            (res) => {
-              return res.data;
-            }
-          );
-          // console.log({
-          //   msg: 'Respuesta get categorias articulos',
-          //   data: res_categorias
-          // });
-          if (res_categorias.ok) {
-            if (res_categorias.result) {
-              categorias.length = 0;
-              res_categorias.data.forEach((element) => {
-                if (element.Cat_Estado == 1) {
-                  categorias.push({
-                    value: element.Cat_Id,
-                    label: element.Cat_Nombre,
-                  });
-                }
+            this.datageneral.length = 0;
+            resgetDataArticles.data.forEach(element => {
+              this.data.push({
+                Id: element.Id,
+                Art_Id: element.Art_Id,
+                Art_Codigo_inv: element.Art_Codigo_inv,
+                Art_Nombre: element.Art_Nombre,
+                Art_Descripcion: element.Art_Descripcion,
+                Prefijo: element.Prefijo,
+                Art_Stockminimo: element.Art_Stockminimo,
+                Cat_Nombre: element.Cat_Nombre,
+                name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
+                Art_Estado: element.Art_Estado,
+                Art_User_control: element.Art_User_control,
+                Per_Nombre: element.Per_Nombre,
+                Art_Fecha_control: element.Art_Fecha_control,
+                Art_ubicacion: element.Art_ubicacion,
+                img: element.Art_Imagen
+                  ? element.Art_Imagen
+                  : "Image/No-Image-Icon.png",
+                title: element.Art_Nombre,
+                Estado: element.Art_Estado,
+                status: element.Art_Estado,
+                btn_edit: true,
+                btn_status: true,
+                btn_details: true,
+                // btn_pdf: true,
+                icon_btn_edit: "mdi-pencil",
+                icon_btn_status: "power_settings_new",
+                icon_btn_details: "settings"
               });
-            } else {
-              this.$q.notify({
-                message: res_categorias.message,
-                type: "warning",
+              this.datageneral.push({
+                Id: element.Id,
+                Art_Id: element.Art_Id,
+                Art_Codigo_inv: element.Art_Codigo_inv,
+                Art_Nombre: element.Art_Nombre,
+                Art_Descripcion: element.Art_Descripcion,
+                Prefijo: element.Prefijo,
+                Art_Stockminimo: element.Art_Stockminimo,
+                Cat_Nombre: element.Cat_Nombre,
+                name_estado: element.Art_Estado == 1 ? "ACTIVO" : "INACTIVO",
+                Art_Estado: element.Art_Estado,
+                Art_User_control: element.Art_User_control,
+                Per_Nombre: element.Per_Nombre,
+                Art_Fecha_control: element.Art_Fecha_control,
+                Art_ubicacion: element.Art_ubicacion,
+                img: element.Art_Imagen
+                  ? element.Art_Imagen
+                  : "Image/No-Image-Icon.png",
+                title: element.Art_Nombre,
+                Estado: element.Art_Estado,
+                status: element.Art_Estado,
+                btn_edit: true,
+                btn_status: true,
+                btn_details: true,
+                // btn_pdf: true,
+                icon_btn_edit: "mdi-pencil",
+                icon_btn_status: "power_settings_new",
+                icon_btn_details: "settings"
               });
-            }
+            });
           } else {
-            throw new Error(res_categorias.message);
+            this.$q.notify({
+              message: resgetDataArticles.message,
+              type: "warning"
+            });
           }
-
-          // Obtenemos las unidades de medidadas
-          const res_um = await this.getAllUm().then((res) => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Respuesta get unidades de medida',
-          //   data: res_um
-          // });
-          if (res_um.ok) {
-            if (res_um.result) {
-              ums.length = 0;
-              res_um.data.forEach((element) => {
-                if (element.Um_Estado == 1) {
-                  ums.push({
-                    value: element.Um_Id,
-                    label: element.Um_Unidad,
-                    prefijo: element.Prefijo,
-                  });
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: res_um.message,
-                type: "warning",
-              });
-            }
-          } else {
-            throw new Error(res_um.message);
-          }
-
-          const res_percent = await this.getAllPorcentaje().then(
-            res => {
-              return res.data;
-            }
-          );
-          // console.log({
-          //   msg: 'Repeusta get artículos',
-          //   data: resgetDataArticles,
-          // });
-          if (res_percent.ok) {
-            if (res_percent.result) {
-              percents.length = 0;
-              res_percent.data.forEach(element => {
-                if(element.Pv_Estado){
-                  percents.push({
-                    label: element.Pv_Descripcion,
-                    value: element.Pv_Id,
-                  });
-                }
-              });
-            } else {
-              this.$q.notify({
-                message: res_percent.message,
-                type: "warning"
-              });
-            }
-          } else {
-            this.data.length = 0;
-            throw res_percent.message;
-          }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          this.data.length = 0;
+          throw resgetDataArticles.message;
         }
-      }, 2000);
+
+        // Obtenemos las categorías de los productos
+        const res_categorias = await this.getCategoriasAlmacen().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Respuesta get categorias articulos',
+        //   data: res_categorias
+        // });
+        if (res_categorias.ok) {
+          if (res_categorias.result) {
+            categorias.length = 0;
+            res_categorias.data.forEach(element => {
+              if (element.Cat_Estado == 1) {
+                categorias.push({
+                  value: element.Cat_Id,
+                  label: element.Cat_Nombre
+                });
+              }
+            });
+          } else {
+            this.$q.notify({
+              message: res_categorias.message,
+              type: "warning"
+            });
+          }
+        } else {
+          throw new Error(res_categorias.message);
+        }
+
+        // Obtenemos las unidades de medidadas
+        const res_um = await this.getAllUm().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Respuesta get unidades de medida',
+        //   data: res_um
+        // });
+        if (res_um.ok) {
+          if (res_um.result) {
+            ums.length = 0;
+            res_um.data.forEach(element => {
+              if (element.Um_Estado == 1) {
+                ums.push({
+                  value: element.Um_Id,
+                  label: element.Um_Unidad,
+                  prefijo: element.Prefijo
+                });
+              }
+            });
+          } else {
+            this.$q.notify({
+              message: res_um.message,
+              type: "warning"
+            });
+          }
+        } else {
+          throw new Error(res_um.message);
+        }
+
+        const res_percent = await this.getAllPorcentaje().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Repeusta get artículos',
+        //   data: resgetDataArticles,
+        // });
+        if (res_percent.ok) {
+          if (res_percent.result) {
+            percents.length = 0;
+            res_percent.data.forEach(element => {
+              if (element.Pv_Estado) {
+                percents.push({
+                  label: element.Pv_Descripcion,
+                  value: element.Pv_Id
+                });
+              }
+            });
+          } else {
+            this.$q.notify({
+              message: res_percent.message,
+              type: "warning"
+            });
+          }
+        } else {
+          this.data.length = 0;
+          throw res_percent.message;
+        }
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    getArticleRang(data) {
+    async getArticleRang(data) {
       data.base = process.env.__BASE__;
       this.$q.loading.show({
         message:
-          "Buscando Articulos en el rango de fecha solicitado, por favor espere...",
+          "Buscando Articulos en el rango de fecha solicitado, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          const resrequestgetDataArticlesRange =
-            await this.requestgetDataArticlesRange(data).then((res) => {
-              return res.data;
+      try {
+        const resrequestgetDataArticlesRange = await this.requestgetDataArticlesRange(
+          data
+        ).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get articulo por rango de fecha",
+        //   data: resrequestgetDataArticlesRange,
+        // });
+        this.data.length = 0;
+        if (resrequestgetDataArticlesRange.ok) {
+          if (resrequestgetDataArticlesRange.result) {
+            resrequestgetDataArticlesRange.data.forEach(element => {
+              this.data.push({
+                Id: element.Id,
+                Art_Id: element.Art_Id,
+                Art_Codigo_inv: element.Art_Codigo_inv,
+                Art_Nombre: element.Art_Nombre,
+                Art_Descripcion: element.Art_Descripcion,
+                Prefijo: element.Prefijo,
+                Art_Stockminimo: element.Art_Stockminimo,
+                Cat_Nombre: element.Cat_Nombre,
+                Art_Estado: element.Art_Estado == 1 ? "ACTIVO" : "INHABILITADO",
+                Art_User_control: element.Art_User_control,
+                Per_Nombre: element.Per_Nombre,
+                Art_ubicacion: element.Art_ubicacion,
+                Art_Fecha_control: element.Art_Fecha_control,
+                status: element.Art_Estado,
+                img: element.Art_Imagen
+                  ? element.Art_Imagen
+                  : "Image/No-Image-Icon.png",
+                btn_edit: true,
+                btn_status: true,
+                btn_details: true,
+                // btn_pdf: true,
+                icon_btn_edit: "mdi-pencil",
+                icon_btn_status: "power_settings_new",
+                icon_btn_details: "settings"
+              });
             });
-          console.log({
-            msg: "Respuesta get articulo por rango de fecha",
-            data: resrequestgetDataArticlesRange,
-          });
-          this.data.length = 0;
-          if (resrequestgetDataArticlesRange.ok) {
-            if (resrequestgetDataArticlesRange.result) {
-              resrequestgetDataArticlesRange.data.forEach((element) => {
-                this.data.push({
-                  Id: element.Id,
-                  Art_Id: element.Art_Id,
-                  Art_Codigo_inv: element.Art_Codigo_inv,
-                  Art_Nombre: element.Art_Nombre,
-                  Art_Descripcion: element.Art_Descripcion,
-                  Prefijo: element.Prefijo,
-                  Art_Stockminimo: element.Art_Stockminimo,
-                  Cat_Nombre: element.Cat_Nombre,
-                  Art_Estado:
-                    element.Art_Estado == 1 ? "ACTIVO" : "INHABILITADO",
-                  Art_User_control: element.Art_User_control,
-                  Per_Nombre: element.Per_Nombre,
-                  Art_ubicacion: element.Art_ubicacion,
-                  Art_Fecha_control: element.Art_Fecha_control,
-                  status: element.Art_Estado,
-                  img: element.Art_Imagen
-                    ? element.Art_Imagen
-                    : "Image/No-Image-Icon.png",
-                  btn_edit: true,
-                  btn_status: true,
-                  btn_details: true,
-                  // btn_pdf: true,
-                  icon_btn_edit: "mdi-pencil",
-                  icon_btn_status: "power_settings_new",
-                  icon_btn_details: "settings",
-                });
-              });
-            } else {
-              this.$q.notify({
-                message: resrequestgetDataArticlesRange.message,
-                type: "warning",
-              });
-            }
           } else {
-            this.data.length = 0;
-            throw resrequestgetDataArticlesRange.message;
+            this.$q.notify({
+              message: resrequestgetDataArticlesRange.message,
+              type: "warning"
+            });
           }
-          this.excel.data = this.data;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
+        } else {
+          this.data.length = 0;
+          throw resrequestgetDataArticlesRange.message;
         }
-      }, 2000);
+        this.excel.data = this.data;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     editArticle(row) {
       this.article_edit = row;
@@ -800,12 +848,12 @@ export default {
     openDialogStatus(row) {
       // Buscamos la categoria del producto asignada
       let categoria = categorias.find(
-        (categoria) =>
+        categoria =>
           categoria.label.toLowerCase() == row.Cat_Nombre.toLowerCase()
       );
       // Buscamos la unidad de medida asiganada
       let um = ums.find(
-        (um) => um.prefijo.toLowerCase() == row.Prefijo.toLowerCase()
+        um => um.prefijo.toLowerCase() == row.Prefijo.toLowerCase()
       );
       this.article_edit = {
         base: null,
@@ -819,7 +867,7 @@ export default {
         Um_Id: um.value,
         Art_Imagen: row.Art_Imagen,
         Art_Estado: row.Art_Estado == 1 ? 0 : 1,
-        Art_User_control: this.data_user.Per_Num_documento,
+        Art_User_control: this.data_user.Per_Num_documento
       };
       this.options_status.title =
         row.Art_Estado == 1 ? "Desactivar artículo" : "Activar artículo";
@@ -829,127 +877,127 @@ export default {
           : "Está activando este artículo, por lo que estará disponible para su uso en el sistema, ¿está seguro de activarlo?";
       this.enable_diable = true;
     },
-    changeStatus() {
+    async changeStatus() {
       this.$q.loading.show({
-        message:
-          "Estamos cambiando el estado del artículo, por favor espere...",
+        message: "Estamos cambiando el estado del artículo, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          this.article_edit.base = process.env.__BASE__;
-          const res_update = await this.addArticle(this.article_edit).then(
-            (res) => {
-              return res.data;
-            }
-          );
-          console.log({
-            msg: "Respuesta insert update articulo",
-            data: res_update,
-          });
-          if (res_update.ok) {
-            if (res_update.data.affectedRows) {
-              this.$q.notify({
-                message: "Estado actualizado",
-                type: "positive",
-              });
-              setTimeout(() => {
-                this.enable_diable = false;
-                this.getData();
-              }, 500);
-            } else {
-              this.$q.notify({
-                message: "No se actualizó el estado",
-                type: "warning",
-              });
-            }
+      try {
+        this.article_edit.base = process.env.__BASE__;
+        const res_update = await this.addArticle(this.article_edit).then(
+          res => {
+            return res.data;
           }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
+        );
+        // console.log({
+        //   msg: "Respuesta insert update articulo",
+        //   data: res_update
+        // });
+        if (res_update.ok) {
+          if (res_update.data.affectedRows) {
+            this.$q.notify({
+              message: "Estado actualizado",
+              type: "positive"
+            });
+            setTimeout(() => {
+              this.enable_diable = false;
+              this.getData();
+            }, 500);
+          } else {
+            this.$q.notify({
+              message: "No se actualizó el estado",
+              type: "warning"
+            });
           }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
         }
-      }, 2000);
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     // Abre el dialog para editar los porcentajes de ventas
-    openDialogPercent(row){
+    async openDialogPercent(row) {
       this.$q.loading.show({
-        message: 'Obteniendo porcentajes, por favor espere...',
-      })
-      setTimeout(async() => {
-        try {
-          this.article_edit = row;
-          const res_per_pro = await this.getPercentSaleProduct(this.article_edit.Id).then( res => {
-            return res.data;
-          });
-          console.log({
-            msg: 'Respuesta get porcentajes producto',
-            data: res_per_pro
-          });
-          this.data_percents_added.length = 0;
-          if(res_per_pro.ok){
-            if(res_per_pro.result){
-              res_per_pro.data.forEach( element => {
-                this.data_percents_added.push({
-                  'Nombre porcentaje': element.Pv_Descripcion,
-                  'Porcentaje': element.Pv_Prcentaje,
-                  'Usuario creador': element.Pv_User_control,
-                  'Fecha creación': element.Pv_Fecha_control,
-                })
-              })
-            } else {
-              this.$q.notify({
-                message: 'Sin resultados',
-                type: 'warning'
-              })
-            }
+        message: "Obteniendo porcentajes, por favor espere..."
+      });
+      try {
+        this.article_edit = row;
+        const res_per_pro = await this.getPercentSaleProduct(
+          this.article_edit.Id
+        ).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get porcentajes producto",
+        //   data: res_per_pro
+        // });
+        this.data_percents_added.length = 0;
+        if (res_per_pro.ok) {
+          if (res_per_pro.result) {
+            res_per_pro.data.forEach(element => {
+              this.data_percents_added.push({
+                "Nombre porcentaje": element.Pv_Descripcion,
+                Porcentaje: element.Pv_Prcentaje,
+                "Usuario creador": element.Pv_User_control,
+                "Fecha creación": element.Pv_Fecha_control
+              });
+            });
           } else {
-            throw new Error(res_per_pro.message)
+            this.$q.notify({
+              message: "Sin resultados",
+              type: "warning"
+            });
           }
-          this.dialog_percent = true;
-          this.data_percents.length = 0;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide()
+        } else {
+          throw new Error(res_per_pro.message);
         }
-      }, 1000)
+        this.dialog_percent = true;
+        this.data_percents.length = 0;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
-    deleteItem(row){
-      this.$q.dialog({
-        component: dialog,
-        parent: this,
-        title: 'Eliminar porcentaje',
-        msg: 'Atención! vas a eliminar un porcentaje agregado a la tabla, ¿Seguro que desea continuar?',
-      }).onOk(() => {
-        let index = this.data_percents.indexOf(row)
-        this.data_percents.splice(index, 1)
-      })
+    deleteItem(row) {
+      this.$q
+        .dialog({
+          component: dialog,
+          parent: this,
+          title: "Eliminar porcentaje",
+          msg:
+            "Atención! vas a eliminar un porcentaje agregado a la tabla, ¿Seguro que desea continuar?"
+        })
+        .onOk(() => {
+          let index = this.data_percents.indexOf(row);
+          this.data_percents.splice(index, 1);
+        });
     },
-    editPercent(){
+    editPercent() {
       let percent_add = {
         base: process.env.__BASE__,
         Pv_Id: this.percent_selected.value,
@@ -957,72 +1005,76 @@ export default {
         Art_Id: this.article_edit.Art_Id,
         Pv_Prcentaje: this.new_percent,
         Pv_User_control: this.data_user.Per_Num_documento
-      }
-      let result_find = this.data_percents.find(product => product.Pv_Id == percent_add.Pv_Id);
-      if(result_find){
+      };
+      let result_find = this.data_percents.find(
+        product => product.Pv_Id == percent_add.Pv_Id
+      );
+      if (result_find) {
         this.$q.notify({
-          message: 'Este porcentaje ya esta gregado',
-          type: 'warning'
-        })
+          message: "Este porcentaje ya esta gregado",
+          type: "warning"
+        });
       } else {
-        this.data_percents.push(percent_add)
+        this.data_percents.push(percent_add);
         this.percent_selected = null;
         this.new_percent = null;
         setTimeout(() => {
           this.$refs.form_percent.resetValidation();
-        }, 200)
+        }, 200);
       }
     },
-    saveChangePercent(){
+    async saveChangePercent() {
       this.$q.loading.show({
-        message: 'Guardando los porcentajes, por favor espere..'
+        message: "Guardando los porcentajes, por favor espere.."
       });
-      setTimeout(async() => {
-        try {
-          let promesas = [];
-          this.data_percents.forEach( porcentaje => {
-            promesas.push(this.savePercentPerso(porcentaje).then( res => {
-              res.data.msg = 'Respuesta insert porcentaje personalizado';
-              return res.data;
-            }).catch( e => {
-              throw new Error(e);
-            }));
+      try {
+        let promesas = [];
+        this.data_percents.forEach(porcentaje => {
+          promesas.push(
+            this.savePercentPerso(porcentaje)
+              .then(res => {
+                res.data.msg = "Respuesta insert porcentaje personalizado";
+                return res.data;
+              })
+              .catch(e => {
+                throw new Error(e);
+              })
+          );
+        });
+        await Promise.all(promesas).then(data => {
+          data.forEach(res => {
+            console.log(res);
           });
-          Promise.all(promesas).then( data => {
-            data.forEach( res => {
-              console.log(res)
-            })
-          });
-          this.$q.notify({
-            message: 'Cambios guardados',
-            type: 'positive'
-          });
-          // RELOAD before save
-          this.data_percents.length = 0;
-          this.percent_selected = null;
-          this.new_percent = null;
-          this.article_edit = null;
-          this.dialog_percent = false;
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
-          });
-        } finally {
-          this.$q.loading.hide();
+        });
+        this.$q.notify({
+          message: "Cambios guardados",
+          type: "positive"
+        });
+        // RELOAD before save
+        this.data_percents.length = 0;
+        this.percent_selected = null;
+        this.new_percent = null;
+        this.article_edit = null;
+        this.dialog_percent = false;
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
         }
-      }, 1000)
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     }
-  },
+  }
 };
 </script>
 
@@ -1030,8 +1082,8 @@ export default {
 p {
   font-size: 55px;
 }
-.grid-style-transition{
-  transition: transform .28s; 
-  background-color: .28s;
+.grid-style-transition {
+  transition: transform 0.28s;
+  background-color: 0.28s;
 }
 </style>

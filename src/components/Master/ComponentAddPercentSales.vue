@@ -4,7 +4,11 @@
       <div class="row q-gutter-y-md">
         <div class="col-xs-12 q-px-sm">
           <q-input
-            @input="val => {new_percents.Pv_Descripcion = val.toUpperCase();}"
+            @input="
+              val => {
+                new_percents.Pv_Descripcion = val.toUpperCase();
+              }
+            "
             v-model="new_percents.Pv_Descripcion"
             hint="Descripcion del porcentaje"
             :rules="[val => !!val || 'Porcentaje es requerido']"
@@ -74,50 +78,48 @@ export default {
         };
       }
     },
-    onSubmit() {
+    async onSubmit() {
       this.$q.loading.show({
         message: "Agregando porcentaje, por favor espere..."
       });
-      setTimeout(async () => {
-        try {
-          this.new_percents.base = process.env.__BASE__;
-          this.new_percents.Pv_User_control = this.data_user.Per_Num_documento;
-     
-          const res_add = await this.addPorcentaje(this.new_percents).then(
-            res => {
-              return res.data;
-            }
-          );
+      try {
+        this.new_percents.base = process.env.__BASE__;
+        this.new_percents.Pv_User_control = this.data_user.Per_Num_documento;
+
+        const res_add = await this.addPorcentaje(this.new_percents).then(
+          res => {
+            return res.data;
+          }
+        );
         //   console.log({
         //     msg: "Respuesta insert update porcentaje",
         //     data: res_add
         //   });
-          if (res_add.ok) {
-            this.$q.notify({
-              message: "Guardado",
-              type: "positive"
-            });
-            this.$emit("reload");
-          }
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          }
-          if (e.message === "Request failed with status code 404") {
-            e = "URL de solicitud no existe, err 404";
-          } else if (e.message) {
-            e = e.message;
-          }
+        if (res_add.ok) {
           this.$q.notify({
-            message: e,
-            type: "negative"
+            message: "Guardado",
+            type: "positive"
           });
-        } finally {
-          this.$q.loading.hide();
+          this.$emit("reload");
         }
-      }, 1000);
-    },
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        }
+        if (e.message === "Request failed with status code 404") {
+          e = "URL de solicitud no existe, err 404";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
+    }
   }
 };
 </script>

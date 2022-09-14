@@ -25,7 +25,11 @@
             <q-item-section clickable v-ripple side>
               <q-avatar size="50px">
                 <img
-                  :src="data_user.Per_Imagen ? data_user.Per_Imagen: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'"
+                  :src="
+                    data_user.Per_Imagen
+                      ? data_user.Per_Imagen
+                      : 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'
+                  "
                 />
                 <!-- <img :src="data_user.Foto ? data_user.Foto: 'https://cdn.iconscout.com/icon/free/png-256/avatar-372-456324.png'" /> -->
               </q-avatar>
@@ -58,11 +62,7 @@
               >
                 {{ count_notifications }}
               </q-badge>
-              <q-menu
-                auto-close 
-                fit
-                :offset="[30, 0]"
-              >
+              <q-menu auto-close fit :offset="[30, 0]">
                 <q-list
                   style="min-width: 220px; max-width: 300px"
                   class="q-pa-none"
@@ -76,7 +76,7 @@
                       >
                     </router-link>
                   </q-item>
-                  <q-item 
+                  <q-item
                     v-if="notifications.length > 0"
                     class="notifications__content"
                   >
@@ -92,30 +92,49 @@
                           class="q-pa-none"
                         >
                           <q-item-section>
-                            <q-item-label>{{notification.nt_titulo}}</q-item-label>
-                            <q-item-label caption lines="2">{{notification.nt_descripcion}}</q-item-label>
+                            <q-item-label>{{
+                              notification.nt_titulo
+                            }}</q-item-label>
+                            <q-item-label caption lines="2">{{
+                              notification.nt_descripcion
+                            }}</q-item-label>
                           </q-item-section>
 
                           <q-item-section side top>
                             <q-item-label v-if="notification.dias > 0" caption>
-                              hace {{ notification.dias }} dia<span v-if="notification.dias > 1">s</span>
-                            </q-item-label>
-
-                            <q-item-label
-                              v-if="notification.horas < 24 && notification.horas > 0"
-                              caption
+                              hace {{ notification.dias }} dia<span
+                                v-if="notification.dias > 1"
+                                >s</span
                               >
-                                hace {{ notification.horas }} horas
                             </q-item-label>
 
                             <q-item-label
-                              v-if=" notification.minutos < 59 && notification.minutos > 0"
+                              v-if="
+                                notification.horas < 24 &&
+                                  notification.horas > 0
+                              "
                               caption
                             >
-                              hace {{ notification.minutos }} minuto<span v-if="notification.minutos > 1">s</span>
+                              hace {{ notification.horas }} horas
                             </q-item-label>
 
-                            <q-item-label v-if="notification.minutos <= 0" caption>
+                            <q-item-label
+                              v-if="
+                                notification.minutos < 59 &&
+                                  notification.minutos > 0
+                              "
+                              caption
+                            >
+                              hace {{ notification.minutos }} minuto<span
+                                v-if="notification.minutos > 1"
+                                >s</span
+                              >
+                            </q-item-label>
+
+                            <q-item-label
+                              v-if="notification.minutos <= 0"
+                              caption
+                            >
                               hace un momento
                             </q-item-label>
                             <q-icon
@@ -207,7 +226,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
-import { date } from 'quasar'
+import { date } from "quasar";
 
 export default {
   // name: 'LayoutName',
@@ -226,14 +245,14 @@ export default {
       notifications: [],
       count_notifications: null,
       array_modules: [],
-      reloj: null,
+      reloj: null
     };
   },
   computed: {
     ...mapState("auth", ["user_logged"]),
     data_user() {
       return this.user_logged;
-    },
+    }
   },
   mounted() {
     this.version = process.env.__VERSION__;
@@ -244,8 +263,12 @@ export default {
       let hora = time.getHours();
       let minutos = time.getMinutes();
       let segundos = time.getSeconds();
-      this.reloj =`${hora}:${minutos}:${segundos}`; 
-      if(hora == 7 && minutos == 0 && segundos == 0 || hora == 12 && minutos == 0 && segundos == 0 || hora == 17 && minutos == 0 && segundos == 0 ){
+      this.reloj = `${hora}:${minutos}:${segundos}`;
+      if (
+        (hora == 7 && minutos == 0 && segundos == 0) ||
+        (hora == 12 && minutos == 0 && segundos == 0) ||
+        (hora == 17 && minutos == 0 && segundos == 0)
+      ) {
         this.sendEmailStock();
       }
     }, 1000);
@@ -255,7 +278,7 @@ export default {
     ...mapMutations("app", ["setIsOnline"]),
     ...mapActions("notifications", [
       "GetNotifications",
-      "PostInsertNotification",
+      "PostInsertNotification"
     ]),
     ...mapActions("access", [
       "GetModules",
@@ -263,166 +286,170 @@ export default {
       "getPermissionUserEdit",
       "sendEmail"
     ]),
-    ...mapActions("sales", [
-      "getAllstock",
-      "getStockMinimoMail"
-    ]),
-    getData(){
+    ...mapActions("sales", ["getAllstock", "getStockMinimoMail"]),
+    async getData() {
       this.$q.loading.show({
-        message: 'Obteniendo datos del servidor, por favor espere...'
+        message: "Obteniendo datos del servidor, por favor espere..."
       });
-      setTimeout(async() => {
-        try {
-          const res_modulos = await this.GetModules().then((res) => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: "Respuesta get modulos",
-          //   data: res_modulos,
-          // });
-          if(res_modulos.ok){
-            this.array_modules.length = 0;
-            res_modulos.data.forEach((modulo) => {
-              this.array_modules.push({
-                icon: modulo.icon,
-                expanded: modulo.expanded == 1 ? true : false,
-                route: modulo.route,
-                Descripcion: modulo.Descripcion,
-                Id_modulo: modulo.Id_modulo,
-                label: modulo.label.replace(/^\w/, (l) => l.toUpperCase()),
-                items: [],
-              });
+      try {
+        const res_modulos = await this.GetModules().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta get modulos",
+        //   data: res_modulos
+        // });
+        if (res_modulos.ok) {
+          this.array_modules.length = 0;
+          res_modulos.data.forEach(modulo => {
+            this.array_modules.push({
+              icon: modulo.icon,
+              expanded: modulo.expanded == 1 ? true : false,
+              route: modulo.route,
+              Descripcion: modulo.Descripcion,
+              Id_modulo: modulo.Id_modulo,
+              label: modulo.label.replace(/^\w/, l => l.toUpperCase()),
+              items: []
             });
-          } else {
-            throw new Error(res_modulos.message)
-          }
-          const res_permi = await this.getCheckPermissions(this.data_user.Rol_Id).then((res) => {
-            return res.data;
           });
-          // console.log({
-          //   msg: "Respuesta permisos básicos y adicionales",
-          //   data: res_permi,
-          // });
-          if(res_permi.ok){
-            this.array_modules.forEach((modulo) => {
-              res_permi.data.forEach((permiso) => {
-                if (modulo.Id_modulo == permiso.Id_modulo) {
-                  modulo.items.push({
-                    label: permiso.label,
-                    route: permiso.router,
-                    Descripcion: permiso.Descripcion,
-                    Estado: permiso.Estado,
-                    Id_item: permiso.Id_item,
-                    Id_rol: permiso.Id_rol,
-                    Actualizar: permiso.Actualizar === 1 ? true : false,
-                    Borrar: permiso.Borrar === 1 ? true : false,
-                    Crear: permiso.Crear === 1 ? true : false,
-                    Leer: permiso.Leer === 1 ? true : false,
-                  });
-                }
-              });
+        } else {
+          throw new Error(res_modulos.message);
+        }
+        const res_permi = await this.getCheckPermissions(
+          this.data_user.Rol_Id
+        ).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: "Respuesta permisos básicos y adicionales",
+        //   data: res_permi
+        // });
+        if (res_permi.ok) {
+          this.array_modules.forEach(modulo => {
+            res_permi.data.forEach(permiso => {
+              if (modulo.Id_modulo == permiso.Id_modulo) {
+                modulo.items.push({
+                  label: permiso.label,
+                  route: permiso.router,
+                  Descripcion: permiso.Descripcion,
+                  Estado: permiso.Estado,
+                  Id_item: permiso.Id_item,
+                  Id_rol: permiso.Id_rol,
+                  Actualizar: permiso.Actualizar === 1 ? true : false,
+                  Borrar: permiso.Borrar === 1 ? true : false,
+                  Crear: permiso.Crear === 1 ? true : false,
+                  Leer: permiso.Leer === 1 ? true : false
+                });
+              }
             });
-          } else {
-            throw new Error(res_permi.message);
-          }
-          const perm_user = await this.getPermissionUserEdit(this.data_user.Per_Num_documento).then( res => {
-            return res.data;
           });
-          // console.log({
-          //   msg: 'Respuesta get permisos asignados del usuario a editar',
-          //   data: perm_user
-          // });
-          let state_permissions = [];
-          this.array_modules.forEach((modulo) => {
-            perm_user.data.forEach( permiso_basico => {
-              if (modulo.Id_modulo === permiso_basico.Id_modulo) {
-                // Permisos para el estado
-                state_permissions.push({
-                  modulo: modulo.label.replace(/\b\w/g, (l) => l.toUpperCase()),
-                  Id_modulo: permiso_basico.Id_modulo,
-                  Actualizar: permiso_basico.Actualizar === 1 ? true : false,
-                  Borrar: permiso_basico.Borrar === 1 ? true : false,
-                  Crear: permiso_basico.Crear === 1 ? true : false,
-                  Leer: permiso_basico.Leer === 1 ? true : false,
-                  route: `/${permiso_basico.route}`,
-                })
-                // Permisos para el menu
-                modulo.item_menu.push({
-                  active_item: false,
-                  route: permiso_basico.router,
-                  Estado: permiso_basico.Estado,
-                  Id_modulo: permiso_basico.Id_modulo,
-                  label: permiso_basico.label,
-                  Descripcion: permiso_basico.Descripcion,
-                  validator: permiso_basico.validator,
-                  Actualizar: permiso_basico.Actualizar === 1 ? true : false,
-                  Borrar: permiso_basico.Borrar === 1 ? true : false,
-                  Crear: permiso_basico.Crear === 1 ? true : false,
-                  Leer: permiso_basico.Leer === 1 ? true : false,
-                })
-              }
-            })
-          }); //Fin foreach array_modulos
-          this.menu = this.array_modules;
-
-          const res_stock = await this.getAllstock().then(res => {
-            return res.data;
-          });
-          // console.log({
-          //   msg: 'Repeusta get artículos',
-          //   data: res_stock,
-          // });
-          if (res_stock.ok) {
-            if (res_stock.result) {
-              let stock_minimo = res_stock.data.filter( element => element.Si_Cant <= element.Art_Stockminimo)
-              if(stock_minimo.length > 0 ){
-                let notificacion = {
-                  nt_id: null,
-                  nt_titulo: 'Artículos con stock mínimo',
-                  nt_descripcion: `En este momento hay artículos que han alcanzado el stock mínimo`,
-                  nt_usuario_notificado: this.data_user.Per_Num_documento,
-                  nt_estado: 1,
-                  nt_usuario_control: this.data_user.Per_Num_documento,
-                  base: process.env.__BASE__,
-                }
-                const res_in_not = await this.PostInsertNotification(notificacion).then( res => {
-                  return res.data;
-                }).catch( e => {
-                  throw new Error(e)
-                })
-                // console.log({
-                //   msg: 'Respuesta insert notificación',
-                //   data: res_in_not
-                // })
-              }
-            } else {
-              this.$q.notify({
-                message: res_stock.message,
-                type: "warning"
+        } else {
+          throw new Error(res_permi.message);
+        }
+        const perm_user = await this.getPermissionUserEdit(
+          this.data_user.Per_Num_documento
+        ).then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Respuesta get permisos asignados del usuario a editar',
+        //   data: perm_user
+        // });
+        let state_permissions = [];
+        this.array_modules.forEach(modulo => {
+          perm_user.data.forEach(permiso_basico => {
+            if (modulo.Id_modulo === permiso_basico.Id_modulo) {
+              modulo.item_menu = [];
+              // Permisos para el estado
+              state_permissions.push({
+                modulo: modulo.label.replace(/\b\w/g, l => l.toUpperCase()),
+                Id_modulo: permiso_basico.Id_modulo,
+                Actualizar: permiso_basico.Actualizar === 1 ? true : false,
+                Borrar: permiso_basico.Borrar === 1 ? true : false,
+                Crear: permiso_basico.Crear === 1 ? true : false,
+                Leer: permiso_basico.Leer === 1 ? true : false,
+                route: `/${permiso_basico.route}`
+              });
+              // Permisos para el menu
+              modulo.item_menu.push({
+                active_item: false,
+                route: permiso_basico.router,
+                Estado: permiso_basico.Estado,
+                Id_modulo: permiso_basico.Id_modulo,
+                label: permiso_basico.label,
+                Descripcion: permiso_basico.Descripcion,
+                validator: permiso_basico.validator,
+                Actualizar: permiso_basico.Actualizar === 1 ? true : false,
+                Borrar: permiso_basico.Borrar === 1 ? true : false,
+                Crear: permiso_basico.Crear === 1 ? true : false,
+                Leer: permiso_basico.Leer === 1 ? true : false
               });
             }
-          } else {
-            this.data.length = 0;
-            throw res_stock.message;
-          }
-          this.getNotificaciones();
-        } catch (e) {
-          console.log(e);
-          if (e.message === "Network Error") {
-            e = e.message;
-          } else if (e.message === "Request failed with status code 404") {
-            e = "Error 404 al hacer la petición al servidor";
-          } else if (e.message) {
-            e = e.message;
-          }
-          this.$q.notify({
-            message: e,
-            type: "negative",
           });
-        } finally {
-          this.$q.loading.hide();
+        }); //Fin foreach array_modulos
+        this.menu = this.array_modules;
+
+        const res_stock = await this.getAllstock().then(res => {
+          return res.data;
+        });
+        // console.log({
+        //   msg: 'Repeusta get artículos',
+        //   data: res_stock,
+        // });
+        if (res_stock.ok) {
+          if (res_stock.result) {
+            let stock_minimo = res_stock.data.filter(
+              element => element.Si_Cant <= element.Art_Stockminimo
+            );
+            if (stock_minimo.length > 0) {
+              let notificacion = {
+                nt_id: null,
+                nt_titulo: "Artículos con stock mínimo",
+                nt_descripcion: `En este momento hay artículos que han alcanzado el stock mínimo`,
+                nt_usuario_notificado: this.data_user.Per_Num_documento,
+                nt_estado: 1,
+                nt_usuario_control: this.data_user.Per_Num_documento,
+                base: process.env.__BASE__
+              };
+              const res_in_not = await this.PostInsertNotification(notificacion)
+                .then(res => {
+                  return res.data;
+                })
+                .catch(e => {
+                  throw new Error(e);
+                });
+              // console.log({
+              //   msg: 'Respuesta insert notificación',
+              //   data: res_in_not
+              // })
+            }
+          } else {
+            this.$q.notify({
+              message: res_stock.message,
+              type: "warning"
+            });
+          }
+        } else {
+          this.data.length = 0;
+          throw res_stock.message;
         }
-      }, 1000)
+        this.getNotificaciones();
+      } catch (e) {
+        console.log(e);
+        if (e.message === "Network Error") {
+          e = e.message;
+        } else if (e.message === "Request failed with status code 404") {
+          e = "Error 404 al hacer la petición al servidor";
+        } else if (e.message) {
+          e = e.message;
+        }
+        this.$q.notify({
+          message: e,
+          type: "negative"
+        });
+      } finally {
+        this.$q.loading.hide();
+      }
     },
     async editEstadoNotification(notification) {
       try {
@@ -434,11 +461,11 @@ export default {
             nt_usuario_notificado: notification.nt_usuario_notificado,
             nt_estado: 0,
             nt_usuario_control: notification.nt_usuario_control,
-            base: this.base,
+            base: this.base
           };
           const resPostInsertNotification = await this.PostInsertNotification(
             dataPostInsertNotification
-          ).then((res) => {
+          ).then(res => {
             return res.data;
           });
           // console.log({
@@ -461,15 +488,17 @@ export default {
         }
         this.$q.notify({
           message: e,
-          type: "negative",
+          type: "negative"
         });
       } finally {
         this.$q.loading.hide();
       }
     },
-    async getNotificaciones(){
+    async getNotificaciones() {
       try {
-        const res_notifica = await this.GetNotifications(this.data_user.Per_Num_documento).then((res) => {
+        const res_notifica = await this.GetNotifications(
+          this.data_user.Per_Num_documento
+        ).then(res => {
           return res.data.data;
         });
         // console.log({
@@ -477,8 +506,8 @@ export default {
         //   data: res_notifica,
         // });
         res_notifica.length = 5;
-        res_notifica.forEach((element) => {
-          if(element.nt_estado == 1){
+        res_notifica.forEach(element => {
+          if (element.nt_estado == 1) {
             this.notifications.push({
               nt_id: element.nt_id,
               nt_titulo: element.nt_titulo,
@@ -489,15 +518,15 @@ export default {
               dias: element.dias,
               horas: element.horas,
               minutos: element.minutos,
-              nt_estado: element.nt_estado,
+              nt_estado: element.nt_estado
             });
             this.$q.notify({
               message: element.nt_titulo,
               caption: element.nt_descripcion,
-              icon: 'notifications',
-              position: 'top-right',
-              color: 'orange-5'
-            })
+              icon: "notifications",
+              position: "top-right",
+              color: "orange-5"
+            });
             // Cantidad de notficacion con estado en 1 | Equivalente a que no se han visto
             this.count_notifications += 1;
           }
@@ -513,7 +542,7 @@ export default {
         }
         this.$q.notify({
           message: e,
-          type: "negative",
+          type: "negative"
         });
       }
     },
@@ -528,7 +557,7 @@ export default {
     },
     logout() {
       this.$q.loading.show({
-        message: "Cerrando sesión...",
+        message: "Cerrando sesión..."
       });
       setTimeout(() => {
         this.setIsLogged(false);
@@ -538,7 +567,7 @@ export default {
     },
     deleteCache() {
       this.$q.loading.show({
-        message: "Borrando datos, por favor espere...",
+        message: "Borrando datos, por favor espere..."
       });
       setTimeout(() => {
         // caches.delete('Qinspecting-Inmutable');
@@ -547,14 +576,14 @@ export default {
         this.dialog_delete_cache = false;
         this.$q.notify({
           message: "Datos borrados",
-          type: "positive",
+          type: "positive"
         });
         this.$q.loading.hide();
         location.reload();
       }, 2000);
     },
-    sendEmailStock(){
-      setTimeout(async() => {
+    sendEmailStock() {
+      setTimeout(async () => {
         try {
           const re_data_email = await this.getStockMinimoMail().then(res => {
             return res.data;
@@ -563,31 +592,33 @@ export default {
           //   msg: 'Respuesta get data para email',
           //   data: re_data_email
           // });
-          if(re_data_email.ok){
-            if(re_data_email.result){
+          if (re_data_email.ok) {
+            if (re_data_email.result) {
               let data = {
                 data: re_data_email.data
-              }
-              const res_email = await this.sendEmail(data).then( res => {
+              };
+              const res_email = await this.sendEmail(data).then(res => {
                 return res.data;
               });
               // console.log({
               //   msg: 'Respuesta send email',
               //   data: res_email
               // })
-              if(res_email.received){
+              if (res_email.received) {
                 this.$q.notify({
-                  message: 'Hemos enviado un email, con el detalle del stock',
-                  icon: 'mail',
-                  position: 'top-right',
-                  color: 'orange-5'
-                })
+                  message: "Hemos enviado un email, con el detalle del stock",
+                  icon: "mail",
+                  position: "top-right",
+                  color: "orange-5"
+                });
               } else {
-                throw new Error('No pudimos enviar el email con los detalles del stock')
+                throw new Error(
+                  "No pudimos enviar el email con los detalles del stock"
+                );
               }
             }
           } else {
-            throw new Error(re_data_email.message)
+            throw new Error(re_data_email.message);
           }
         } catch (e) {
           console.log(e);
@@ -600,14 +631,14 @@ export default {
           }
           this.$q.notify({
             message: e,
-            type: "negative",
+            type: "negative"
           });
         } finally {
           this.$q.loading.hide();
         }
-      }, 500)
+      }, 500);
     }
-  },
+  }
 };
 </script>
 
